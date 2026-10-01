@@ -1,0 +1,31 @@
+# Wafar — line-ending and diff policy
+# The repository stores text as LF; the working tree follows these rules.
+# Rationale: Spec Kit reads the constitution, templates, and commands as text;
+# mixed CRLF/LF (Windows checkout with core.autocrlf=true) risks corrupting them.
+# See docs/DECISIONS.md -> ADR-008.
+
+* text=auto
+
+# Governance, templates, and content read by tooling: LF everywhere.
+*.md    text eol=lf
+*.txt   text eol=lf
+*.json  text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.css   text eol=lf
+*.sh    text eol=lf
+
+# PowerShell is a Windows-first runtime: keep CRLF.
+*.ps1   text eol=crlf
+
+# Binary assets are never converted.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
+*.pdf   binary
+*.xlsx  binary
+*.docx  binary
