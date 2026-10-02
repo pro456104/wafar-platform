@@ -26,7 +26,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-010) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-012) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -63,7 +63,8 @@ replace them with the core templates.
 ## 5. Workflow
 
 `/speckit.specify` → `/speckit.plan` → `/speckit.tasks` → `/speckit.analyze` →
-`/speckit.implement`.
+`/speckit.implement`, repeating `/speckit.implement` ↔ `/speckit.converge`
+until converge reports Converged (ADR-013).
 
 Installed extensions: `assess` (idea triage before specifying) and `bug` (bug
 triage). Templates resolve from `.specify/templates/overrides/` first, then

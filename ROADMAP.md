@@ -58,6 +58,9 @@ rules drift. It MUST NOT be created. See `docs/DECISIONS.md` → ADR-007.
   statistical cards) needs no slice of its own: its search field is R4 and its
   counters depend on R1, R2, R3, and R4. The slice that builds it records that
   decision in its plan's Complexity Tracking table if it adds no requirement.
+  R4 (Parts search) also owns the four-cards question for Home: the product
+  register's four cards (accounts, files, parts, searches) stand, and R4's
+  plan records the choice in `docs/DECISIONS.md`.
 - **Independent verification.** Each slice is independently testable: R1 alone
   yields a working account, R2 alone yields an accepted and stored file, R4 alone
   yields a searchable parts table.

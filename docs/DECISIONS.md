@@ -9,7 +9,8 @@ what was considered and why the chosen option won.
 the directory that owns it (`docs/`, per the References table) and names its
 owning feature. The records predate every feature — ADR-001 to ADR-007 were made
 during repository bootstrap on 2026-10-01, ADR-008 and ADR-009 on 2026-10-02, and
-ADR-010 with constitution 2.7.1 on 2026-10-02 — so each record names
+ADR-010 with constitution 2.7.1 on 2026-10-02, ADR-011 and ADR-012 on
+2026-10-02, and ADR-013 on 2026-10-02 — so each record names
 "none yet — repository bootstrap" as the owning feature and states the
 reaffirmation duty of the first feature whose plan depends on it. When that
 feature is planned, it MUST name the ADR (e.g., `ADR-003`) in its plan's
@@ -469,3 +470,76 @@ mapping table, and the first surface that wires a token must delete the tokens i
 leaves unused.
 
 ---
+## ADR-011 - Mirror files confirmed as valid UTF-8
+
+**Status**: Accepted - 2026-10-02
+**Owning directory**: `docs/`
+**Owning feature**: none yet - repository bootstrap (pre-feature record)
+
+**Context.** During a constitution audit, the mirror files `Core-Project.txt`
+and `Project-Technologies.txt` appeared garbled when inspected through a
+Windows console with a non-UTF-8 code page. The suspicion was that they were
+mis-encoded.
+
+**Decision.** A byte-level inspection confirmed both files are valid UTF-8
+with correct Arabic content (`\u0600-\u06FF` decodable, Arabic substrings
+present). No re-encoding was performed. The garbled output was a console
+display artifact, not a file defect. Both files, `docs/DECISIONS.md`, and the
+constitution itself remain UTF-8; any future tooling that reads them MUST
+decode as UTF-8.
+
+**Consequences.** No change to file contents. The mirror-precedence rule
+(constitution wins over `Core-Project.txt` and `Project-Technologies.txt`)
+is unchanged.
+
+## ADR-012 - Design system 1.0.1: font stack and Arabic letter-spacing
+
+**Status**: Accepted - 2026-10-02
+**Owning directory**: `wafar.single.css` (root) · register: constitution Principle IX and Design System Standards
+**Owning feature**: none yet - repository bootstrap (pre-feature record)
+
+**Context.** The audit found two drifts between `wafar.single.css` and the
+constitution: the font stacks carried `Inter`, `Poppins`, and `Fira Code`
+as fallbacks (the constitution permits only Tajawal, Noto Sans Arabic, and
+JetBrains Mono), and Arabic body text carried positive letter-spacing
+(`--text-body-letter-spacing: 0.01em`, `--tracking-wide: 0.01em`, and a
+`0.005em` rule on `.dark body`), which Principle V prohibits for Arabic text.
+
+**Decision.** `wafar.single.css` version 1.0.1:
+- Font stacks reduced to the permitted families; `Inter`, `Poppins`, and
+  `Fira Code` removed from the stacks.
+- Body letter-spacing set to `0` for both the token and the dark-mode rule.
+- The positive tracking tokens kept only where the comment scopes them to
+  Latin/caps labels (`--tracking-caps`, `--tracking-brand`, `--tracking-display`),
+  never applied to Arabic text.
+- ROADMAP updated: R4 owns the Home four-cards question from the unresolved-facts
+  table, so the conflict has an owning slice.
+
+**Consequences.** Any future positive letter-spacing on an Arabic surface is a
+Principle V/IX violation, not a preference. The version bump is recorded here as
+required by the extension procedure.
+
+## ADR-013 — Converge stays a separate command, not a workflow step
+
+**Status**: Accepted - 2026-10-02
+**Owning directory**: `.specify/workflows/`
+**Owning feature**: none yet - repository bootstrap (pre-feature record)
+
+**Context.** Spec Kit v1.0.13 ships the SDD workflow
+(`workflows/speckit/workflow.yml`) as specify → review gate → plan → review gate →
+tasks → implement. The `/speckit.converge` command exists in core and is documented
+as a separate, append-only step run after `/speckit.implement`, repeated until it
+reports Converged. An audit asked whether converge should be added to
+`.specify/workflows/speckit/workflow.yml`.
+
+**Decision.** The project workflow keeps converge outside the workflow file,
+matching upstream v1.0.13 exactly. `/speckit.implement` and `/speckit.converge`
+are repeated as a loop (implement → converge → implement → …) until convergence.
+Deviating from the upstream workflow file would make future `specify` upgrades
+or merges conflict, and converge is inherently conditional (it needs the
+current tasks.md state, not a fixed input), so it does not fit a static step
+list.
+
+**Consequences.** Project docs that list the loop (AGENTS.md workflow note,
+README) MUST show implement → converge as a repeatable pair. Any future desire
+to make converge a workflow step requires a new ADR revisiting this one.

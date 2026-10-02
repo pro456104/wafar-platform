@@ -8,8 +8,8 @@
      <link rel="stylesheet" href="wafar.single.css" />
      أو:  @import "wafar.single.css";
 
-   الإصدار:  1.0.0
-   الدستور:          .specify/memory/constitution.md → Design System Standards · docs/DECISIONS.md → ADR-009
+    الإصدار:  1.0.1
+    الدستور:          .specify/memory/constitution.md → Design System Standards · docs/DECISIONS.md → ADR-009, ADR-012
    إعادة التوليد:    هذا الملف هو المصدر الوحيد للقيم؛ والدستور يحمل السجل فقط
    ============================================================ */
 
@@ -80,7 +80,7 @@ body {
 .dark body {
   background-color: var(--background-dark);
   color: var(--text-inverse);
-  letter-spacing: 0.005em;
+  letter-spacing: 0;
 }
 
 /* الحقول تأخذ اتجاه المستند تلقائياً */
@@ -539,12 +539,9 @@ svg {
   /* ---------------------------------------------------------
      العائلات
      --------------------------------------------------------- */
-  --font-sans:
-    "Tajawal", "Noto Sans Arabic", "Inter", "Segoe UI", system-ui,
-    -apple-system, sans-serif;
-  --font-display:
-    "Tajawal", "Noto Sans Arabic", "Poppins", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  --font-sans: "Tajawal", "Noto Sans Arabic", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Tajawal", "Noto Sans Arabic", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* ---------------------------------------------------------
      سلّم الأحجام — مخصص بالكامل
@@ -606,7 +603,7 @@ svg {
      --------------------------------------------------------- */
   --tracking-tight: -0.025em; /* للعناوين الكبيرة */
   --tracking-normal: 0;
-  --tracking-wide: 0.01em; /* النص الأساسي */
+  --tracking-wide: 0; /* النص الأساسي: لا تتباعد الحروف العربية */
   --tracking-caps: 0.08em; /* للتسميات اللاتينية بأحرف كبيرة */
   --tracking-brand: 0.15em; /* للتسميات المسرفية (لوحة الإدارة) */
   --tracking-display: 0.28em; /* للعناوين السينمائية (لوحة الدخول) */
@@ -615,7 +612,7 @@ svg {
      نسيج النص الأساسي
      --------------------------------------------------------- */
   --text-body-line-height: 1.7;
-  --text-body-letter-spacing: 0.01em;
+  --text-body-letter-spacing: 0;
   --text-heading-line-height: 1.25;
   --text-heading-letter-spacing: -0.01em;
 

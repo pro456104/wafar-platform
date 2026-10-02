@@ -35,6 +35,8 @@ This repository is driven by Spec Kit. With `.specify/` present and the
 3. `/speckit.tasks` — generate the ordered task list.
 4. `/speckit.analyze` — run the cross-artifact consistency check.
 5. `/speckit.implement` — execute the tasks.
+6. `/speckit.converge` — verify the implementation against the artifacts;
+   repeat steps 5–6 until it reports Converged (see ADR-013).
 
 Templates resolve from `.specify/templates/overrides/` first; those overrides are
 the project's binding templates and must not be replaced with the core ones.
