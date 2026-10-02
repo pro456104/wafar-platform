@@ -7,9 +7,9 @@ what was considered and why the chosen option won.
 
 **Record duties (Documentation rule).** Each record below is committed under
 the directory that owns it (`docs/`, per the References table) and names its
-owning feature. The records below predate every feature — the first seven were made
-during repository bootstrap on 2026-10-01, and ADR-008 and ADR-009 on
-2026-10-02 — so each record names
+owning feature. The records predate every feature — ADR-001 to ADR-007 were made
+during repository bootstrap on 2026-10-01, ADR-008 and ADR-009 on 2026-10-02, and
+ADR-010 with constitution 2.7.1 on 2026-10-02 — so each record names
 "none yet — repository bootstrap" as the owning feature and states the
 reaffirmation duty of the first feature whose plan depends on it. When that
 feature is planned, it MUST name the ADR (e.g., `ADR-003`) in its plan's
@@ -406,5 +406,66 @@ remove the references to the non-existent specification and bundle script, and i
 MUST declare the design system's own version. The eight declared-but-unused
 `--screen-*` tokens MUST be consumed or removed under Project Structure and Debt
 Control before the first surface relies on a breakpoint.
+
+---
+## ADR-010 — Constitution 2.7.1: the amendment's durable record, and the review-fix set
+
+**Status**: Accepted — 2026-10-02
+**Owning directory**: `docs/`
+**Owning feature**: none yet — repository bootstrap (pre-feature record); the first feature whose plan depends on it MUST name this ADR in its Constitution Check
+
+**Context.** Amendment 2.7.0 was reviewed and seven defects were confirmed:
+
+1. The sync impact report block was committed although its own text names it
+   scratch material to be removed, and it restated four MUSTs the document
+   already states, which the analyze command extracts into the rule set.
+2. Product Register called `Core-Project.txt` the product's "full definition"
+   while also calling it a mirror and giving the register precedence.
+3. References described three files as "complete" while the sections call them
+   mirrors, and described `Project-Technologies.txt` as "the complete technology
+   stack" after that file had been reduced to a pointer.
+4. The Breakpoints paragraph named only `--screen-xs` as unconsumed, when the
+   stylesheet contains no `var(--screen-*)` reference at all: the whole
+   eight-token ladder is declared and unused.
+5. The design-system version was mandated twice, in Constitution Mandated Values
+   and in the design-system extension procedure.
+6. "flagged" in File Processing had no representation and conflicted with the
+   closed four-value status enum.
+7. One normative sentence was duplicated verbatim in Principle IX and in the
+   design-system state map.
+
+The technology detail (exact versions, per-technology notes, repository trees)
+had also become readable only through git history, because the file had been
+reduced to a pointer.
+
+**Decision.**
+- The sync impact report MUST NOT be committed. The amendment procedure in
+  Governance now states this, and the durable record of an amendment is an entry
+  in this file. This PATCH therefore records its own clarifications here rather
+  than in a comment block.
+- `Project-Technologies.txt` is restored as the **detail** of the register:
+  exact versions, per-technology notes, and repository trees. It carries no rule;
+  the register keeps the gaps, the version-change rule, and the licence
+  treatment. Completeness without a second source of rules.
+- The seven defects are corrected in place. `wafar.single.css` is untouched: its
+  4294 lines, fourteen modules, 415 unique tokens, 290 classes, and 30 keyframes
+  are unchanged; only its header changed, in 2.7.0.
+
+**Alternatives considered.**
+- *Leave the sync impact report in place.* Rejected: it contradicts its own text
+  and injects duplicate MUSTs into the rule set analyze extracts.
+- *Keep `Project-Technologies.txt` as a pointer.* Rejected by the requirement
+  that the technology detail stay complete and readable in the working tree; a
+  pointer preserves recoverability but not readability.
+- *Restore the technology detail into the constitution instead of the mirror.*
+  Rejected: it would re-inflate the document every command loads (measured: 76 KB
+  today against a 128 KB source) and give the version facts two homes.
+
+**Consequences.** A future amendment records itself as an ADR rather than as a
+comment block, so the document opens with its title. The mirror's rule is
+enforceable by review: it MUST NOT name a technology the register does not name,
+and MUST NOT restate a rule. The `--screen-*` ladder now carries a binding
+mapping table, and the first surface that wires a token must delete the tokens it
+leaves unused.
 
 ---

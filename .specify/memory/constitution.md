@@ -1,73 +1,3 @@
-<!--
-SYNC IMPACT REPORT
-==================
-Version change: 2.6.0 → 2.7.0
-
-Bump rationale: MINOR. No principle is removed or redefined and no binding rule
-is dropped, so the MAJOR condition does not trigger. Three registers are added to
-existing sections, two binding sections are added, and the mandated-value list is
-extended. An added section and a material expansion of guidance are MINOR under
-the versioning policy.
-
-Renamed sections: none.
-
-Added sections (two):
-  - Product Register: the product's roles, pages, features, entities, and the
-    conflicts found between the sources, recorded so that no feature resolves one
-    silently.
-  - Single-Reference Sufficiency: a feature MUST NOT need a source outside this
-    constitution for any rule it must obey; the register lives here and the
-    detail stays in the referenced source.
-
-Expanded sections (two, materially):
-  - Technology Standards: was a short list. It becomes the register of the
-    approved stack plus the repository topology, the internal layout, the
-    MAJOR/MINOR version rule, the gaps a slice MUST close with a named owning
-    slice, and the licence treatment for infrastructure services.
-  - Design System Standards: was eight decision bullets. Those bullets are kept
-    under "Decision values (binding)", and the section gains the fourteen-module
-    map, the token families, the breakpoints, the component inventory, the state
-    map, the components the product requires and the system does not yet provide,
-    the invariants, the fonts and framework bridge, the extension procedure with
-    the design-system version, and the honoured media and capability states.
-
-Extended rules: Module Discipline and Development Workflow's Constitution
-Mandated Values list gains the runtime version, the design-system version, the
-icon set, the extraction libraries, the email transport, and the
-continuous-integration provider.
-
-Updated references: References gains ROADMAP.md, AGENTS.md,
-.clinerules/project-context.md, and README.md, and Governance's list of binding
-sections names Product Register and Single-Reference Sufficiency.
-
-Removed sections: none. Principles removed: none. Principles redefined: none.
-
-Unchanged: the ten principles, Product Scope, File Processing Overview, the
-Glossary, the five Deferred areas, and every obligation that existed in 2.6.0
-except where this report names the change.
-
-Migration or backfill plan: none required. The repository holds no feature and no
-production code, so no artifact was produced under 2.6.0. Project-Technologies.txt
-becomes a mirror of the Technology Standards register; its prior content is
-preserved in the baseline commit.
-
-Automation points: unchanged, and still absent. The repository has no continuous
-integration and no test runner; each rule is discharged by review until the check
-it names exists.
-
-Follow-up TODOs:
-  - The reference files are committed in the baseline commit. Keep them committed.
-  - .specify/templates/overrides/constitution-template.md pins this document's
-    structure; keep it in step with every amendment.
-  - The plan and spec overrides now name v2.7.0; keep them in step.
-  - wafar.single.css MUST declare its own version in its header.
-  - The unresolved product facts in Product Register name the slice that MUST
-    resolve each conflict.
-  - This report is scratch material for human review of the amendment, not
-    governance content, and is expected to be removed before the amended
-    constitution file is committed.
--->
-
 # Wafar Platform Constitution
 
 This project turns parts catalogs supplied as PDF, Excel, or Word files into a
@@ -440,8 +370,8 @@ implemented through a specification that references this list.
 ## Product Register
 
 This section is the register of the product the constitution governs. The
-product's full definition is `Core-Project.txt`, which mirrors this register;
-where the two disagree, this section wins. A page, a role, a feature, or a fact
+product's detail is `Core-Project.txt`, which mirrors this register; on conflict
+this section wins. A page, a role, a feature, or a fact
 absent from this register MUST NOT be built without amending it.
 
 ### Roles
@@ -513,7 +443,9 @@ implemented as a single sequence; a shortcut that skips a step is a defect.
    again.
 4. **First-page extraction.** The supplier's company name and the file's issue
    date are read from the first page. A file whose first page yields neither
-   value is processed but flagged.
+   value is processed and marked: the catalog record carries a boolean
+   `first_page_metadata_incomplete` flag. The flag is not a status value; the
+   status enum below stays closed to its four values.
 5. **Queue.** A job is enqueued for the worker.
 6. **Worker pipeline.**
    - Extract parts from the file's tables.
@@ -954,7 +886,10 @@ exercises rather than as intentions. The RTO and RPO requirement is what turns
 
 This section is the register of the approved stack and the map of the
 repository. `Project-Technologies.txt` is a readable mirror of this register;
-where the two disagree, this section wins. A technology absent from this
+where the two disagree, this section wins. The mirror carries the exact version
+of each technology, the per-technology notes, and the repository trees at file
+granularity; it MUST NOT introduce a technology this register does not name, and
+MUST NOT restate a rule. A technology absent from this
 register MUST NOT be used, and a technology named here MUST NOT be substituted
 without an amendment to this constitution.
 
@@ -1098,10 +1033,26 @@ change.
 
 ### Breakpoints
 
-360, 640, 768, 1024, 1280, 1536, and 1920 px, plus the sub-360px case and the
-short-landscape case. The token ladder also declares `--screen-xs` (480px); no
-media query consumes it, so it is a declared-but-unused token and MUST NOT be
-relied on. A responsive change MUST name the breakpoint it changes at.
+The media queries use 640, 768, 1024, 1280, 1536, and 1920 px as minimum widths,
+plus the `max-width` cases at 359, 639, and 1023 px and the 768–1023 px tablet
+band. The token ladder names them, and the mapping below is binding:
+
+| Token | Value | Consumed by a media query? |
+|---|---|---|
+| `--screen-tiny` | 360px | yes, as `max-width: 359px` |
+| `--screen-xs` | 480px | no |
+| `--screen-sm` | 640px | yes |
+| `--screen-md` | 768px | yes |
+| `--screen-lg` | 1024px | yes |
+| `--screen-xl` | 1280px | yes |
+| `--screen-2xl` | 1536px | yes |
+| `--screen-3xl` | 1920px | yes |
+
+The stylesheet contains no `var(--screen-*)` reference: every token in the ladder
+is declared-but-unused, so none of them MAY be relied on until the module that
+owns it wires it to a media query. A responsive change MUST name the breakpoint it
+changes at, and the first surface that wires a token MUST delete the tokens it
+leaves unused (Project Structure and Debt Control).
 
 ### Component inventory
 
@@ -1158,8 +1109,9 @@ not apply MUST be justified in the feature's plan, not silently omitted.
 | success | `ds-field-success`, `ds-badge-success`, `ds-dot-success` |
 | disabled | `:disabled` and `[aria-disabled="true"]` on the control |
 
-A control that has no disabled state MUST NOT be shipped, and a surface that
-renders only its success state is incomplete.
+A control that has no disabled state MUST NOT be shipped. The completeness rule
+for a surface is Principle IX's (State completeness); this table only maps the
+states to the classes that render them.
 
 ### Components the product requires and the design system does not yet provide
 
@@ -1214,9 +1166,10 @@ ad hoc inside a feature, and it MUST NOT be defined in this constitution.
 - A new value or component MUST be added to `wafar.single.css` in the module that
   owns its concern, and the module map above MUST be updated in the same change.
   The module count and order MUST stay in step with the file.
-- `wafar.single.css` MUST declare its own version in its header, and every plan
-  that changes the design system MUST name that version. A second stylesheet
-  MUST NOT be introduced.
+- `wafar.single.css` MUST declare its own version in its header. The plan records
+  that version under Constitution Mandated Values, which is the single place a
+  value the plan must record is named (Module Discipline and Development
+  Workflow). A second stylesheet MUST NOT be introduced.
 
 ### Honoured media and capability states
 
@@ -1240,6 +1193,7 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | **Audit Log** | The append-only record of every administrator operation. |
 | **Processing** | The automated pipeline that turns an uploaded file into extracted, indexed parts. See File Processing Overview. |
 | **Deduplication** | The removal of identical parts within the same file (by file, page, row), or the rejection of a file whose content hash matches a file already uploaded. |
+| **First-page metadata flag** | A boolean on a catalog record (`first_page_metadata_incomplete`), set when the file's first page yields neither the supplier's name nor the issue date. It is not a status value: the status enum stays `uploaded`, `processing`, `completed`, `failed`. |
 | **Arabic Analyzer** | The search-engine component that resolves Arabic word roots and strips stop words. |
 | **Guest** | A visitor who has not signed in. See Authorization and Access Control. |
 | **Merchant** | A registered user who uploads catalogs. |
@@ -1250,9 +1204,9 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 
 | Document | Purpose | Location |
 |---|---|---|
-| `Project-Technologies.txt` | The complete technology stack. | Repository root. |
-| `Core-Project.txt` | The complete product scope, pages, roles, and acceptance criteria. | Repository root. |
-| `wafar.single.css` | The complete design system, composed of fourteen modules. | Repository root. |
+| `Project-Technologies.txt` | The technology register's detail: exact versions, per-technology notes, and the repository trees. Mirrors Technology Standards, which wins on conflict. | Repository root. |
+| `Core-Project.txt` | The product's detail: pages, roles, and the acceptance criteria the product already states. Mirrors Product Register and Product Scope, which win on conflict. | Repository root. |
+| `wafar.single.css` | The design system's values — the only permitted source of design values, composed of fourteen modules. Mirrors Design System Standards, which holds the register. | Repository root. |
 | `docs/DECISIONS.md` | The record of design decisions and the reasoning behind them. | `docs/`. |
 | `docs/architecture.md` | The repository layout, module map, and data-flow descriptions. | `docs/`. |
 | `.specify/templates/exception-register.md` | The exception register required by Governance. | `.specify/templates/`. |
@@ -1305,7 +1259,12 @@ separate and explicit change.
 **Amendment procedure.** An amendment requires a written proposal stating the
 rationale, the affected principles, and the impact on features already in
 flight. The amendment MUST be explicitly ratified, MUST bump the version per
-the policy below, and MUST carry a sync impact report. A MAJOR amendment MUST
+the policy below, and MUST record the change durably. The sync impact report the
+constitution command produces is review material for the person ratifying the
+amendment: it MUST NOT be committed, because it describes the document rather
+than governing it, and it restates MUSTs the document already states. The
+durable record of an amendment is an entry in `docs/DECISIONS.md` naming the
+version, what changed, and what deliberately did not. A MAJOR amendment MUST
 additionally include a migration or backfill plan for artifacts produced
 under the previous version.
 
@@ -1362,4 +1321,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.7.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-02
+**Version**: 2.7.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-02
