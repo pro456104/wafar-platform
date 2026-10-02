@@ -7,7 +7,7 @@
 **Note**: This template is filled in by the `/speckit.plan` command; its definition describes the execution workflow.
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.6.0):
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.7.0) - NORMATIVE:
   - This file carries every technical detail; spec.md stays technology-agnostic.
   - The Technical Context MUST contain the Constitution Mandated Values heading;
     a value named by a rule but written elsewhere does not discharge that rule,
@@ -19,7 +19,9 @@
   - Project Context Sources (binding): this plan is the only artifact carrying
     technical detail, so it MUST be written against the project-level sources
     rather than from the feature spec alone — `.specify/memory/constitution.md`,
-    `docs/architecture.md`, `Project-Technologies.txt`, `wafar.single.css`,
+    `docs/architecture.md` (the layout), the constitution's registers
+    (Technology Standards, Design System Standards, Product Register),
+    `Project-Technologies.txt` (a mirror), `wafar.single.css` (the design values),
     `Core-Project.txt`, `docs/DECISIONS.md`. A plan that contradicts an
     accepted ADR (docs/DECISIONS.md) or the Technology Standards is an ERROR,
     not a preference. The Ownership Map MUST record paths that match
@@ -34,7 +36,7 @@
 ## Technical Context
 
 **Language/Version**: TypeScript with strict mode mandatory (Principle II) — [runtime and version]
-**Primary Dependencies**: [The minimum stack defined by Technology Standards and Project-Technologies.txt; any addition MUST clear Dependency Governance: justification, licence obligation recorded, vulnerability scan]
+**Primary Dependencies**: [The minimum stack defined by the constitution's Technology Standards register (`Project-Technologies.txt` mirrors it); any addition MUST clear Dependency Governance: justification, licence obligation recorded, vulnerability scan]
 **Storage**: [PostgreSQL through packages/db / OpenSearch through packages/search / SeaweedFS object storage — as applicable to this feature]
 **Testing**: [Per the spec's Test Coverage Request — Vitest for unit/integration, Playwright for end-to-end]
 **Target Platform**: [e.g., Linux VPS, modern browsers per the design system breakpoints]
@@ -121,10 +123,12 @@
 | Project Structure and Debt Control | | [ownership map below; import boundaries mechanically enforced; shared code promoted only after a second consumer exists] |
 | Documentation | | [ADR for every non-trivial decision (alternatives + rationale); affected docs updated in the same change] |
 | Deployment and Observability | | [dev/staging/production; staging parity; health checks per used dependency; structured logs + correlation id; error tracker; backups; RTO/RPO in CMV] |
-| Technology Standards | | [stack unchanged from Project-Technologies.txt; a substitution would require a constitutional amendment] |
+| Technology Standards | | [stack unchanged from the constitution's Technology Standards register; the paths match the repository topology and the internal layout; no unregistered technology; a MAJOR substitution would require a constitutional amendment] |
 | Design System Standards | | [dark default; tables for data; motion scale; z-index scale; AA contrast] |
 | Product Scope | | [pages and features stay inside the defined list; an addition is recorded in Complexity Tracking] |
 | File Processing Overview | | [single pipeline sequence; status enum exactly uploaded/processing/completed/failed; validation before storage; duplicate rejected] |
+| Product Register | | [roles respected; no page outside the twenty-five; no feature outside the sixteen; every unresolved product fact handled or recorded] |
+| Single-Reference Sufficiency | | [no rule discharged from an unregistered source; every open value recorded under Constitution Mandated Values and as an ADR; no register copied into this plan] |
 
 ### Gate 3 — Deferred Areas Touched
 

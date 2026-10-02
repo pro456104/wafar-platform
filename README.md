@@ -12,10 +12,10 @@ not sell, buy, process payment, or host user-to-user chat.
 |---|---|
 | `.specify/memory/constitution.md` | Engineering law, product scope, and limits. Supersedes every other document. |
 | `Core-Project.txt` | Product definition: roles, permissions, pages, file processing, acceptance criteria. |
-| `Project-Technologies.txt` | Approved technology stack. |
+| `Project-Technologies.txt` | Mirror of the approved technology register. The register itself is `.specify/memory/constitution.md` → Technology Standards. |
 | `docs/architecture.md` | Repository layout, API module map, data flow. |
-| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-007). |
-| `wafar.single.css` | The design system — the only permitted source of design values. |
+| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-009). |
+| `wafar.single.css` | The design system's values — the only permitted source of design values. Its register is `.specify/memory/constitution.md` → Design System Standards. |
 | `ROADMAP.md` | The MVP slice order. Names and orders slices; does not design them. |
 | `AGENTS.md` | Operating instructions for agent assistants. |
 

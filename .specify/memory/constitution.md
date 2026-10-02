@@ -1,61 +1,68 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 2.5.0 → 2.6.0
+Version change: 2.6.0 → 2.7.0
 
-Bump rationale: MINOR. No principle is removed or redefined and no binding
-rule is dropped, so the MAJOR condition does not trigger. New binding rules
-are added to Principle IV and to Principle IX, and one subsection is added to
-Design System Standards. Adding binding rules and a section is MINOR under the
-versioning policy.
+Bump rationale: MINOR. No principle is removed or redefined and no binding rule
+is dropped, so the MAJOR condition does not trigger. Three registers are added to
+existing sections, two binding sections are added, and the mandated-value list is
+extended. An added section and a material expansion of guidance are MINOR under
+the versioning policy.
 
-Added rules (four):
-  IX. Design System Fidelity — "Existing components first": a new interface
-      MUST be composed from the design system's existing components; a new
-      Button, Input, Table, or Modal MUST NOT be created when an existing
-      component performs that function; a genuinely missing component is
-      added to wafar.single.css as part of the same change, never created
-      ad hoc inside a feature.
-  IX. Design System Fidelity — "State completeness": every interactive
-      surface MUST define and render every applicable state (loading, empty,
-      error, success, disabled); responsive behaviour and accessibility are
-      required by IX and by IV.
-  IX. Design System Fidelity — "RTL by construction": every new surface is
-      right-to-left by default and follows Principle V; no component may be
-      introduced that assumes left-to-right ordering.
-  IV. Accessible User Interfaces — every interactive surface MUST expose its
-      state (loading, empty, error, success, disabled) to assistive
-      technology, not only its success state.
+Renamed sections: none.
 
-Added sections (one): Design System Standards gains the "Interface State
-Matrix" subsection, which makes the required states binding (loading, empty,
-error, success, disabled, responsive, accessibility).
+Added sections (two):
+  - Product Register: the product's roles, pages, features, entities, and the
+    conflicts found between the sources, recorded so that no feature resolves one
+    silently.
+  - Single-Reference Sufficiency: a feature MUST NOT need a source outside this
+    constitution for any rule it must obey; the register lives here and the
+    detail stays in the referenced source.
+
+Expanded sections (two, materially):
+  - Technology Standards: was a short list. It becomes the register of the
+    approved stack plus the repository topology, the internal layout, the
+    MAJOR/MINOR version rule, the gaps a slice MUST close with a named owning
+    slice, and the licence treatment for infrastructure services.
+  - Design System Standards: was eight decision bullets. Those bullets are kept
+    under "Decision values (binding)", and the section gains the fourteen-module
+    map, the token families, the breakpoints, the component inventory, the state
+    map, the components the product requires and the system does not yet provide,
+    the invariants, the fonts and framework bridge, the extension procedure with
+    the design-system version, and the honoured media and capability states.
+
+Extended rules: Module Discipline and Development Workflow's Constitution
+Mandated Values list gains the runtime version, the design-system version, the
+icon set, the extraction libraries, the email transport, and the
+continuous-integration provider.
+
+Updated references: References gains ROADMAP.md, AGENTS.md,
+.clinerules/project-context.md, and README.md, and Governance's list of binding
+sections names Product Register and Single-Reference Sufficiency.
 
 Removed sections: none. Principles removed: none. Principles redefined: none.
 
-Unchanged: the ten principles, the fourteen binding sections, Product Scope,
-File Processing Overview, Glossary, References, Governance, and the five
-Deferred areas. No existing obligation changes how it is discharged.
+Unchanged: the ten principles, Product Scope, File Processing Overview, the
+Glossary, the five Deferred areas, and every obligation that existed in 2.6.0
+except where this report names the change.
 
-Migration or backfill plan: none required. The repository has no commits and
-no features in flight; every change adds binding rules without changing an
-existing obligation.
+Migration or backfill plan: none required. The repository holds no feature and no
+production code, so no artifact was produced under 2.6.0. Project-Technologies.txt
+becomes a mirror of the Technology Standards register; its prior content is
+preserved in the baseline commit.
 
-Automation points: unchanged, and still absent. The repository has no
-continuous integration and no test runner; each rule is discharged by review
-until the check it names exists.
+Automation points: unchanged, and still absent. The repository has no continuous
+integration and no test runner; each rule is discharged by review until the check
+it names exists.
 
 Follow-up TODOs:
-  - The reference files MUST be committed at the repository root before the
-    first feature begins: Core-Project.txt, Project-Technologies.txt,
-    wafar.single.css, docs/DECISIONS.md, docs/architecture.md.
-  - The three template overrides required by Principle I and by Module
-    Discipline and Development Workflow now exist at
-    .specify/templates/overrides/ (spec-template, plan-template,
-    tasks-template) and resolve as the top layer; keep them current with this
-    constitution.
-  - The exception register exists at .specify/templates/exception-register.md;
-    keep it current once the first exception is granted.
+  - The reference files are committed in the baseline commit. Keep them committed.
+  - .specify/templates/overrides/constitution-template.md pins this document's
+    structure; keep it in step with every amendment.
+  - The plan and spec overrides now name v2.7.0; keep them in step.
+  - wafar.single.css MUST declare its own version in its header.
+  - The unresolved product facts in Product Register name the slice that MUST
+    resolve each conflict.
   - This report is scratch material for human review of the amendment, not
     governance content, and is expected to be removed before the amended
     constitution file is committed.
@@ -430,6 +437,65 @@ implemented through a specification that references this list.
 | 15 | Audit Log | Every administrator operation. |
 | 16 | Automatic Deletion | After 90 days. |
 
+## Product Register
+
+This section is the register of the product the constitution governs. The
+product's full definition is `Core-Project.txt`, which mirrors this register;
+where the two disagree, this section wins. A page, a role, a feature, or a fact
+absent from this register MUST NOT be built without amending it.
+
+### Roles
+
+| Role | Can | Cannot |
+|---|---|---|
+| Guest | Search, browse, filter, and view the catalog and every extracted part. | Use a cart, upload, or message. |
+| Merchant (registered) | Upload files, delete the files they uploaded, use the cart, message the administrator, edit their own account. | Edit or delete a part; delete the account; reach the administrator application. |
+| Administrator | Operate the separate application with its own login and full platform privileges. | Be created through the public registration flow. |
+
+Every administrator operation MUST be recorded in the audit log.
+
+### Pages
+
+Twenty-five pages are in scope, and they are listed in Product Scope. The
+transitions in Product Scope are the required navigation. A screen that is not
+one of the twenty-five MUST NOT be added without amending this register.
+
+### Features
+
+The sixteen product features are listed in Product Scope and MUST NOT be
+restated here. Each MUST be implemented through a specification that references
+that list. The product limits are the Usage Limits table in Performance Budgets
+and Verification and MUST NOT be restated here either.
+
+### Data entities (initial)
+
+`User` (id, email, password hash, role, shop name, phone) · `Supplier` (id, name,
+contact) · `Catalog` (id, user, supplier, file name, file hash, status, uploaded
+at, expires at, issued date) · `Part` (id, catalog, part number, name, brand, car
+model, description) · `Bookmark` (id, user, part) · `Notification` (id, user,
+type, title, body, read at) · `Conversation` (id, user, administrator, status) ·
+`Message` (id, conversation, sender, body) · `SupportTicket` (id, user, title,
+body, status) · `ContactMessage` (id, name, phone, body) · `AuditLog` (id,
+administrator, action, target, details).
+
+The entity shape beyond these fields is a deferred area (Catalog data shape).
+Schema and Migration Control governs how any shape changes.
+
+### Unresolved product facts (binding)
+
+The conflicts below were found between the sources. They are recorded rather
+than silently resolved. The slice named in the last column MUST resolve each one
+and record the answer in `docs/DECISIONS.md`; until then a slice MUST NOT decide
+one on its own:
+
+| Conflict | Sources | Resolve in |
+|---|---|---|
+| Home carries three statistical cards (accounts, files, parts) or four (plus searches) | `Core-Project.txt` (three); Product Scope and ROADMAP (four) | R4 |
+| A sidebar is required on desktop and must not hide or slide | Principle IX and Design System Standards; `Core-Project.txt` describes a header only, and the design system ships bottom-navigation and collapsed-sidebar tokens | the first surface that lays out a page |
+| Support reaches the administrator through a conversation, a ticket, or a contact message | Product Register entities and the `support` module; Product Scope defines the Contact page only | R9 |
+| `expires_at` is the retention deadline or the supplier's printed expiry date | Schema and Migration Control, Glossary (retention); `Core-Project.txt` (supplier date) | R13 |
+| Notification retention is undetermined | The product statement defers it ("to be determined later") | R7 |
+
 ## File Processing Overview
 
 This section governs the shape of the ingestion pipeline. It does not govern
@@ -473,6 +539,32 @@ implemented as a single sequence; a shortcut that skips a step is a defect.
 
 The sections below are binding with the same force as the principles above.
 A MUST in them is resolved, reviewed, and excepted by the same procedure.
+
+## Single-Reference Sufficiency
+
+A feature MUST NOT need a source outside this constitution for any rule it must
+obey. Every project-level source is named in References, and this constitution
+carries the register of each: the repository's structure and the approved stack
+in Technology Standards, the design system's structure in Design System
+Standards, and the product's roles, pages, and facts in Product Scope and
+Product Register.
+
+- Detail lives in the referenced sources; the register lives here. A rule that
+  cannot be discharged without reading a referenced source MUST name that source
+  where the rule is stated.
+- A value a referenced source leaves open, or defers, MUST be given a binding
+  value under Constitution Mandated Values by the first plan that needs it, and
+  the choice MUST be recorded in `docs/DECISIONS.md` as an ADR.
+- A technology, token, component, page, feature, or role that is absent from the
+  registers above is not approved. Finding it in a referenced source does not
+  approve it; the register MUST be amended first.
+- A register is a map, not a copy: a design value, a token, a class, a line of
+  code, or a table definition MUST NOT be copied into this constitution. A
+  register that duplicates its source is a drift defect, because the two copies
+  will disagree.
+- The feature templates' binding block MUST stay in step with this constitution:
+  a register added here, renamed here, or renumbered here MUST be reflected there
+  in the same change, together with the constitution's version.
 
 ## Query Safety and Secrets
 
@@ -732,8 +824,10 @@ the two ways a dependency base rots without a decision ever being made.
   heading. The values are: the single migration tool; the password hashing
   cost factor; the authentication rate limits; the session timeout and token
   lifetime; the dependency budget; the performance budget percentiles and
-  the maximum query execution time; and the Recovery Time Objective and
-  Recovery Point Objective. A value written in the body of the plan but not
+  the maximum query execution time; the Recovery Time Objective and Recovery
+  Point Objective; the runtime version; the design-system version; the icon set;
+  the extraction libraries; the email transport; and the continuous-integration
+  provider. A value written in the body of the plan but not
   under that heading does not satisfy the rule that names it, and a plan
   with no such heading has not discharged any of them.
 - The consistency gate MUST report no unresolved critical findings before
@@ -858,29 +952,169 @@ exercises rather than as intentions. The RTO and RPO requirement is what turns
 
 ## Technology Standards
 
-The full stack is defined in `Project-Technologies.txt`. The binding
-selection below is the minimum the project MUST use; any substitution
-requires an amendment to this constitution.
+This section is the register of the approved stack and the map of the
+repository. `Project-Technologies.txt` is a readable mirror of this register;
+where the two disagree, this section wins. A technology absent from this
+register MUST NOT be used, and a technology named here MUST NOT be substituted
+without an amendment to this constitution.
 
-- **Repository**: Monorepo (pnpm + Turborepo).
-- **Frontend**: Nuxt 4, Vue 3, TypeScript, Tailwind CSS v4, Nuxt UI v4,
-  Pinia, TanStack Query.
-- **Backend**: Hono (Modular Monolith), OpenAPI.
-- **Validation**: Zod, shared between frontend and backend.
-- **Database**: PostgreSQL 16+, Drizzle ORM, PgDog.
-- **Search**: OpenSearch with the Arabic analyzer and Index Lifecycle
-  Management.
-- **Files**: SeaweedFS, BullMQ, Redis.
-- **Auth**: better-auth (with `scim` and `sso` disabled).
-- **Testing**: Vitest, Playwright.
-- **Quality**: ESLint, Prettier.
-- **Deployment**: VPS (Hetzner or equivalent), Nginx or HAProxy, Docker
-  (optional).
+### Repository topology
+
+| Path | What it is |
+|---|---|
+| `apps/web` | Public site and the merchant's authenticated area. |
+| `apps/admin` | The administrator's separate application, with a separate login. |
+| `apps/api` | The API server (Modular Monolith). |
+| `apps/worker` | The file-processing worker. The only writer of the search projection. |
+| `packages/shared` | Validation schemas, types, and contracts shared by frontend and backend. |
+| `packages/db` | Database schema and migrations — the single migration mechanism. |
+| `packages/search` | Search client and index mappings. |
+| `packages/config` | ESLint, Prettier, and TypeScript configuration shared by every workspace. |
+| `pnpm-workspace.yaml`, `turbo.json`, `package.json` | Workspace definition and task graph; versions pinned, lockfile committed. |
+
+`docs/architecture.md` is the source of truth for layout, the API module map,
+and data flow, and a plan's Ownership Map MUST match it. An application MUST NOT
+be added to `apps/`, and a package MUST NOT be added to `packages/`, without an
+amendment to this section.
+
+### Internal layout
+
+| Concern | Fixed location |
+|---|---|
+| API module | `apps/api/src/modules/<module>/{routes,service,repository}` — one directory per module named in Principle X. |
+| Worker | `apps/worker/src/processors/{extract-parts,normalize,deduplicate,index-parts}.ts`, `apps/worker/src/queues/file-processing.ts`. |
+| Database | `packages/db/schema/*.ts`, `packages/db/migrations/`. |
+| Search | `packages/search/client.ts`, `packages/search/mappings/`. |
+| Frontend | `apps/web/{pages,components,composables,stores}`. |
+| Validation | `packages/shared` only; a second local schema MUST NOT be created. |
+
+A feature MUST NOT create a parallel location for an artifact whose location is
+fixed above.
+
+### Approved register
+
+| Layer | Technology | Version floor or note |
+|---|---|---|
+| Repository | Monorepo, pnpm (with Catalogs), Turborepo | Turborepo v2; lockfile committed |
+| Runtime | Node.js | pinned under Constitution Mandated Values, with an ADR recording the choice |
+| Frontend | Nuxt 4, Vue 3, TypeScript, Tailwind CSS v4, Nuxt UI v4, Pinia, TanStack Query | TypeScript strict mode is mandatory (Principle II) |
+| Backend | Hono, OpenAPI, Modular Monolith | the module list is Principle X |
+| Validation | Zod | one schema set, shared by frontend and backend |
+| Database | PostgreSQL 16+, Drizzle ORM, PgDog | PgDog is pre-1.0: a plan using it MUST name a fallback and a review date |
+| Search | OpenSearch, the Arabic analyzer, Index Lifecycle Management | the index lifecycle is aligned with the 90-day deletion |
+| Files | SeaweedFS, BullMQ, Redis | Redis >= 5.0.0 (the BullMQ requirement) |
+| Auth | better-auth | `scim` and `sso` MUST stay disabled (CVE-2026-67330, CVE-2026-80192) |
+| Testing | Vitest, Playwright | unit and integration in Vitest, end-to-end in Playwright |
+| Quality | ESLint, Prettier | `any` and double assertions are rejected |
+| Delivery | VPS (Hetzner or equivalent), Nginx or HAProxy, Docker (optional) | Docker is used only for staging parity |
+
+### Version-change rule
+
+A change to the MAJOR version of a technology in this register is a substitution
+and requires an amendment to this constitution. A MINOR or patch upgrade follows
+Dependency Governance and MUST be recorded in the plan that performs it, even
+when the automated update process performs it.
+
+### Register gaps a slice MUST close
+
+No technology is approved yet for the following, and each is required by a rule
+or by Product Scope. The named slice MUST record its choice in the plan's
+Complexity Tracking table, together with an ADR, a licence-obligation record,
+and a vulnerability scan, and this register MUST be amended to add it no later
+than that slice's acceptance. Until then the choice is open, and naming a
+specific library in this register is prohibited, because an unvetted name would
+fail Dependency Governance:
+
+| Gap | Required by | Owning slice |
+|---|---|---|
+| Excel, PDF, and Word extraction; content-type validation | File Processing Overview; Usage Limits | R3 (validation: R2) |
+| Transactional email for password recovery | Product Scope: Forgot Password | R1 |
+| Continuous-integration provider | Principle III coverage gate; Dependency Governance | the first slice that introduces the test runner |
+| Error tracker | Deployment and Observability | the first deploying slice |
+| Secret manager, plus pre-commit and CI secret scanning | Query Safety and Secrets | the first deploying slice |
+| TLS certificate management | Identity, Authentication, and Session Policy | the first deploying slice |
+| Backup and restore tooling | Deployment and Observability | the slice that introduces persistent storage |
+| Log pipeline | Deployment and Observability | the first deploying slice |
+| Icon set used by the interface | Product Scope; Design System Standards | R4 |
+
+### Licence treatment for infrastructure services
+
+Dependency Governance's licence prohibition applies to code shipped to, or
+linked into, a merchant's browser or device. A network service consumed over a
+connection (Redis, PgDog) is not shipped code; a plan using one MUST
+nevertheless record the obligation its licence imposes, the operational coupling
+it creates, and a review date.
 
 ## Design System Standards
 
-The full design system is defined in `wafar.single.css` and documented in
-`docs/DECISIONS.md`.
+The full design system is implemented in `wafar.single.css`, which is the only
+permitted source of design values. This section is its register: what the file
+contains, and the rules that keep it single. A value, family, class, or component
+absent from this register is not part of the design system and MUST NOT be used.
+A design value MUST NOT appear in this constitution — the register maps, the CSS
+holds the values, and a copy here would be a second source that drifts.
+
+### Module map
+
+The file is composed of fourteen modules, in this order. A value or component is
+added to the module that owns its concern, and this map is updated in the same
+change.
+
+| # | Module | Owns | # | Module | Owns |
+|---|---|---|---|---|---|
+| 01 | core | reset, RTL root, accessibility baseline, numeral handling | 08 | motion | durations, easings, transitions, keyframes |
+| 02 | colors | eleven colour families and the semantic aliases | 09 | zindex | the z-index layer scale |
+| 03 | typography | families, sizes, leading, tracking, weights | 10 | glass | glass, gradients, tints, glow |
+| 04 | opacity | opacity and alpha steps | 11 | forms | buttons, fields, badges, dots, progress |
+| 05 | spacing | space scale, gutters, containers, screens, touch floors, navbar and sidebar | 12 | components | semantic layers: shell, page, card, table, empty |
+| 06 | radii | the radius ladder and the named radii | 13 | loaders | the six loader designs and their tokens |
+| 07 | shadows | the shadow ladder and the named shadows | 14 | modes | media queries and responsive utilities |
+
+### Token families
+
+- Colour families, each 50-950: `brand`, `accent`, `primary`, `neutral`, `gray`,
+  `zinc`, `surface`, `success`, `warning`, `error`, `info`, plus the semantic
+  aliases (`--background-*`, `--text-*`, `--border-*`, `--surface-*`).
+  `gray` and `zinc` are re-pointed at the neutral ladder, and `info` is a synonym
+  of `brand`; both are deliberate decisions, recorded in `docs/DECISIONS.md`.
+- Typography: `--text-4xs` … `--text-6xl`, the matching `--leading-*`, the
+  `--tracking-*` set, the `--font-weight-*` set, and `--font-sans`,
+  `--font-display`, `--font-mono`.
+- Opacity and alpha: the opacity steps and the named alpha and tint values.
+- Spacing: `--space-0` … `--space-32`, the gutters, the container widths, the
+  screen widths, the touch floors, `--navbar-height`, `--sidebar-width`, the
+  bottom-navigation tokens, and the safe-area tokens.
+- Radii: the radius ladder plus the named radii `shell`, `canvas`, `sheet`,
+  `overlay`, `media`, `control`, `pill`, and `card`.
+- Shadows: the shadow ladder plus the named shadows `brand`, `cinematic`,
+  `glass`, `overlay`, `panel`, `control`, `focus`, `inner`, and `none`.
+- Motion: the duration steps, the easing curves, the transition shorthands, and
+  the motion steps for hover lift, press scale, stagger, and slide.
+- Z-index: the defined layer scale. Every layer takes a value from it.
+- Glass and gradients: the glass surfaces, the gradient utilities, the tints, and
+  the glow utilities.
+- Form metrics: the control and field heights, in their desktop variants.
+- Loaders: the loader size, stroke, gap, speed, and colour tokens.
+
+### Breakpoints
+
+360, 640, 768, 1024, 1280, 1536, and 1920 px, plus the sub-360px case and the
+short-landscape case. The token ladder also declares `--screen-xs` (480px); no
+media query consumes it, so it is a declared-but-unused token and MUST NOT be
+relied on. A responsive change MUST name the breakpoint it changes at.
+
+### Component inventory
+
+Button; field; select; checkbox; radio; switch; card; table, with its density
+classes and column-width scale; badge; avatar; dot; progress; skeleton;
+shimmer; empty; divider; dropdown; popover; tooltip; backdrop; drawer; overlay
+container; the glass, gradient, tint, and glow utilities; shell; page; panel;
+grid; stack; container; the six loaders; and the animation utilities.
+
+### Decision values (binding)
+
+The values below are decisions of the system, not of the ladder, and the listed
+rule depends on each one.
 
 - **Dark mode (default)**: background `#0a0a0a`, surface `#121416`, primary
   text `#fafafa`.
@@ -892,7 +1126,7 @@ The full design system is defined in `wafar.single.css` and documented in
   classes: `compact`, `normal`, `comfortable`.
 - **Motion**: `--duration-fast` (200ms) for micro-interactions,
   `--duration-base` (300ms) for transitions, `--duration-slow` (400ms) for
-  theme toggle.
+  the theme toggle.
 - **Sidebar**: `--sidebar-width` (19rem / 304px), fixed on desktop, drawer
   on mobile.
 - **Header**: `--navbar-height` (4.25rem / 68px).
@@ -913,6 +1147,84 @@ not apply MUST be justified in the feature's plan, not silently omitted.
 | disabled | A disabled state for every control that can be unavailable. |
 | responsive | Layout at the design system's breakpoints (sidebar fixed on desktop, drawer on mobile). |
 | accessibility | WCAG 2.2 AA, keyboard operable, `:focus-visible`, touch targets ≥ --touch-floor (Principle IV). |
+
+### State map
+
+| State | Class or attribute that renders it |
+|---|---|
+| loading | `ds-loader-arc`, `ds-loader-dots`, `ds-loader-dual-ring`, `ds-loader-bars`, `ds-loader-orbit`, `ds-loader-radar`; `ds-skeleton`, `ds-shimmer`, `ds-progress-*` |
+| empty | `ds-empty`, `ds-empty-icon`, `ds-empty-title`, `ds-empty-description`, `ds-empty-action` |
+| error | `ds-field-error`, `ds-hint-error`, `ds-badge-error`, `ds-dot-error` |
+| success | `ds-field-success`, `ds-badge-success`, `ds-dot-success` |
+| disabled | `:disabled` and `[aria-disabled="true"]` on the control |
+
+A control that has no disabled state MUST NOT be shipped, and a surface that
+renders only its success state is incomplete.
+
+### Components the product requires and the design system does not yet provide
+
+The product's pages and features require the following, and `wafar.single.css`
+does not provide them today: pagination (numbered buttons plus the 20/50/100
+page-size selector); a column sort indicator; the filters toolbar; file upload
+with progress; a confirmation overlay (the overlay Principle IX names "Modal" —
+the system has `ds-overlay-root`, `ds-backdrop`, and `ds-drawer-panel`, but no
+modal); a toast; the message-thread surface; the cart add/remove toggle; the
+notification bell with its counter; the theme toggle; the icon set; and the
+sticky table header (the system ships `ds-sticky-top`, but `.ds-table thead`
+does not use it).
+
+Each MUST be added to `wafar.single.css`, in the module that owns its concern,
+by the slice that first needs it, in that slice's change. It MUST NOT be created
+ad hoc inside a feature, and it MUST NOT be defined in this constitution.
+
+### Invariants
+
+- Dark mode is the default and is class-based: the `dark` class on `<html>`,
+  together with `color-scheme`. `prefers-color-scheme` MUST NOT choose the mode;
+  it serves only elements that do not read the class. The chosen mode MUST be
+  applied before first paint, and the toggle sits in the header.
+- Tables are the only data-display form. The exceptions are the home page's
+  statistical cards and the quick-actions grid.
+- RTL by construction: `<html dir="rtl" lang="ar">` on every page, logical CSS
+  properties only, and Latin numerals only (`ds-numeric`, `ds-tabular`).
+- Prohibited: raw Tailwind colours; any `#hex` or `rgb()` outside
+  `wafar.single.css`; `ml-`, `mr-`, `pl-`, `pr-`, `left`, `right`; direct
+  `z-10`, `z-20`, `z-50`; Arabic-Indic numerals; positive `letter-spacing` on
+  Arabic text; and any typeface other than Tajawal, Noto Sans Arabic, or
+  JetBrains Mono.
+- Every z-index value comes from the defined layer scale, and every duration
+  comes from the defined motion scale.
+- A design value MUST NOT appear anywhere but `wafar.single.css`: not in a second
+  stylesheet, not in a Vue SFC colour, not in an inline style value, and not as a
+  Tailwind colour utility.
+
+### Fonts and the framework bridge
+
+- The system declares no `@font-face`. Delivering the fonts is the application's
+  duty: Tajawal Variable (weights 300-800) and JetBrains Mono, self-hosted,
+  Arabic-subset, with `font-display` stated and a recorded metrics fallback.
+- Tailwind's default palette MUST be disabled, `@theme` MUST resolve every
+  utility to a design token, and Nuxt UI's theme MUST be mapped onto these
+  tokens. A utility or component colour that is not a token is a Principle IX
+  violation. No bridge exists yet; it MUST exist before the first surface that
+  uses a Tailwind or Nuxt UI colour.
+
+### Extension procedure and design-system version
+
+- A new value or component MUST be added to `wafar.single.css` in the module that
+  owns its concern, and the module map above MUST be updated in the same change.
+  The module count and order MUST stay in step with the file.
+- `wafar.single.css` MUST declare its own version in its header, and every plan
+  that changes the design system MUST name that version. A second stylesheet
+  MUST NOT be introduced.
+
+### Honoured media and capability states
+
+Print (`ds-print-hide`, `ds-print-only`, `ds-print-block`, `ds-print-link`),
+reduced motion (all animation MUST stop), high contrast, short landscape,
+pointer and hover capability (`ds-touch-optimized`), screens below 360px
+(`ds-tiny-hide`, `ds-text-shrink`), safe-area insets, and scroll locking
+(`ds-scroll-locked`) MUST be honoured. This is a MUST, not an option.
 
 ## Glossary
 
@@ -946,6 +1258,10 @@ not apply MUST be justified in the feature's plan, not silently omitted.
 | `.specify/templates/exception-register.md` | The exception register required by Governance. | `.specify/templates/`. |
 | `.specify/templates/overrides/` | Template overrides required by Principle I and by Module Discipline and Development Workflow. | `.specify/templates/overrides/`. |
 | `.specify/memory/constitution.md` | This document. | `.specify/memory/`. |
+| `ROADMAP.md` | The MVP slice order. Names and orders slices; does not design them. | Repository root. |
+| `AGENTS.md` | Operating instructions for agent assistants outside the feature cycle. | Repository root. |
+| `.clinerules/project-context.md` | The same operating duty expressed to the Cline agent. | `.clinerules/`. |
+| `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
 
 ## Governance
 
@@ -959,7 +1275,8 @@ Identity, Authentication, and Session Policy, Authorization and Access Control,
 Performance Budgets and Verification, Dependency Governance, Module Discipline
 and Development Workflow, Project Structure and Debt Control, Documentation,
 Deployment and Observability, Technology Standards, Design System Standards,
-Product Scope, and File Processing Overview. A SHOULD is advisory and MUST NOT
+Product Scope, Product Register, Single-Reference Sufficiency, and File
+Processing Overview. A SHOULD is advisory and MUST NOT
 be reported as a critical
 finding; an unmet SHOULD MUST still be recorded in the plan's Complexity
 Tracking table with its reason.
@@ -1045,4 +1362,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.6.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-01
+**Version**: 2.7.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-02

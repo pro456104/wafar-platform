@@ -9,7 +9,7 @@
 **Input**: User description: "$ARGUMENTS"
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.6.0):
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.7.0) - NORMATIVE:
   1. Technology-agnostic (Principle VII): this file MUST NOT name languages,
      frameworks, libraries, databases, products, or architectural patterns.
      Product behaviour only; every technical detail belongs in plan.md.
@@ -32,7 +32,7 @@
        - `Core-Project.txt` — the product definition: roles and their
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
-       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-007). A
+       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-009). A
          specification that contradicts one is a blocking defect.
      The technical sources (`docs/architecture.md`, `Project-Technologies.txt`,
      `wafar.single.css`) are bound in plan-template.md, NOT here: naming their

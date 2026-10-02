@@ -7,8 +7,9 @@ what was considered and why the chosen option won.
 
 **Record duties (Documentation rule).** Each record below is committed under
 the directory that owns it (`docs/`, per the References table) and names its
-owning feature. The six decisions predate every feature — they were made
-during repository bootstrap on 2026-10-01 — so each record names
+owning feature. The records below predate every feature — the first seven were made
+during repository bootstrap on 2026-10-01, and ADR-008 and ADR-009 on
+2026-10-02 — so each record names
 "none yet — repository bootstrap" as the owning feature and states the
 reaffirmation duty of the first feature whose plan depends on it. When that
 feature is planned, it MUST name the ADR (e.g., `ADR-003`) in its plan's
@@ -302,3 +303,108 @@ would breach Principle VII; the plan template binds every source. When the
 constitution is amended, `docs/architecture.md` and the override templates MUST
 be updated in the same change — they name its version, and a stale reference is a
 drift defect.
+
+---
+
+## ADR-008 — Project-level registers live in the constitution; the detail stays in the sources
+
+**Status**: Accepted — 2026-10-02
+**Owning directory**: `docs/`
+**Owning feature**: none yet — repository bootstrap (pre-feature record); the first feature whose plan depends on it MUST name this ADR in its Constitution Check
+
+**Context.** Spec Kit's plan command loads exactly two documents into a feature
+cycle: the feature specification and the constitution. The project's technology
+stack, design-system structure, and product facts lived only in files that no
+command reads (`Project-Technologies.txt`, `wafar.single.css`, `Core-Project.txt`),
+so every plan restated them and the restatements drifted. ADR-007 accepted that
+arrangement and explicitly rejected both amending the constitution to add a "read
+these files" rule and restating the stack, architecture, and design rules inside
+each feature plan.
+
+**Decision.** The constitution carries the *register* of each project-level
+concern, and the referenced source keeps the *detail*:
+
+- `Technology Standards` is the register of the approved stack, plus the
+  repository topology, the internal layout, the MAJOR/MINOR version rule, the gaps
+  a slice MUST close with a named owning slice, and the infrastructure licence
+  treatment. `Project-Technologies.txt` becomes its mirror.
+- `Design System Standards` is the register of the design system: the fourteen
+  module map, the token families, the breakpoints, the component inventory, the
+  state map, the components the product needs and the system lacks, the
+  invariants, the fonts and framework bridge, the extension procedure, and the
+  honoured media states. `wafar.single.css` remains the only source of design
+  values, and no value is copied into the constitution.
+- `Product Register` (new) carries roles, pages, features, entities, and the
+  conflicts found between the sources.
+- `Single-Reference Sufficiency` (new) makes the rule explicit: a feature MUST NOT
+  need a source outside the constitution for any rule it must obey.
+
+**Alternatives considered.**
+- *Copy both source files verbatim into the constitution.* Rejected. Measured: the
+  constitution is 57 KB, `wafar.single.css` alone is 128 KB and holds 415 tokens,
+  290 class names, and 30 keyframes. The copy would load ~198 KB into every
+  command, and every design value would have two sources — the drift this record
+  exists to prevent.
+- *Edit the command instructions so they load the files.* Rejected as the primary
+  mechanism: Spec Kit materializes command files at install time, so a hand-edited
+  command is reverted by an upgrade or a preset install. The supported layers for
+  that change are a preset (`commands/`) or a project-local override
+  (`templates/`), resolved before the core layer.
+- *Keep ADR-007's arrangement and rely on `AGENTS.md` and the template
+  overrides.* Rejected: `AGENTS.md` is not in any command's load list, and the plan
+  command's load list is the specification plus the constitution only. Nothing
+  enforced the reading, which is why the repetition occurred.
+
+**Consequences.** A register is a map and MUST NOT become a copy; duplicating a
+source into the constitution is a drift defect. A register gap is recorded with a
+named owning slice rather than closed by naming an unvetted library. Register
+changes require an amendment, which is the intended cost of a single reference.
+`.specify/templates/overrides/constitution-template.md` pins this document's
+structure so a constitution run cannot collapse it. ADR-007 stands for its
+remaining part: a project-level concern never receives a feature number.
+
+**Follow-up (deferred, recorded rather than silent).** Converting the plan and
+spec templates' HTML-comment instruction block into a normative Markdown section
+is deferred: a comment-scoped instruction block is the upstream idiom (the core
+templates use "ACTION REQUIRED" comments for their own instructions), and the
+block is now marked NORMATIVE in place.
+
+---
+
+## ADR-009 — The design system's own decisions, recorded out of its source comments
+
+**Status**: Accepted — 2026-10-02
+**Owning directory**: `docs/`
+**Owning feature**: none yet — repository bootstrap (pre-feature record); the first feature whose plan depends on it MUST name this ADR in its Constitution Check
+
+**Context.** The header of `wafar.single.css` says the design system is documented
+in `docs/DECISIONS.md`, but its decisive choices live in its own source comments
+instead: the neutral ladder decision (not the `gray` ladder), `gray` and `zinc`
+re-pointed at that ladder, `accent` defined as the sky ladder, `info` defined as a
+synonym of `brand`, the radius ladder aligned to Tailwind with `xl` = 1rem and
+`2xl` = 1.5rem, the choice of the lighter shadow values, the z-index decision to
+adopt 80..170 and drop the 1000..1080 ladder, and the reduction to six loader
+designs. The file also declares eight `--screen-*` tokens that no media query
+consumes, and its header points at `specs/001-wafar-design-system/spec.md` and
+`node scripts/bundle.mjs`, neither of which exists in this repository.
+
+**Decision.** The decisions above are recorded here, and `Design System Standards`
+in the constitution carries the register of the system. The design system keeps a
+single implementation file, and it is not re-created as a numbered feature.
+
+**Alternatives considered.**
+- *Re-create the design system as a numbered feature.* Rejected: the file is the
+  implementation, not a piece of work. Numbering it would make the agent treat a
+  project-wide rule as a deliverable, which is the classification error ADR-007
+  names.
+- *Leave the decisions in the source comments.* Rejected: a decision whose
+  rationale appears only in a comment is not recorded, and the file's own header
+  already points here for them.
+
+**Consequences.** The header of `wafar.single.css` MUST name this record and MUST
+remove the references to the non-existent specification and bundle script, and it
+MUST declare the design system's own version. The eight declared-but-unused
+`--screen-*` tokens MUST be consumed or removed under Project Structure and Debt
+Control before the first surface relies on a breakpoint.
+
+---

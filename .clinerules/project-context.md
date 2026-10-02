@@ -13,8 +13,9 @@ ones:
 2. **Before any `/speckit.*` feature command, load those sources:**
    - `specify` → constitution + `Core-Project.txt` + `docs/DECISIONS.md`
      (no technology in a specification — Principle VII).
-   - `plan` → all project-level sources; its Ownership Map must match
-     `docs/architecture.md`.
+   - `plan` → the constitution's registers (Technology Standards, Design System
+     Standards, Product Register) plus the project-level sources; its Ownership Map
+     must match `docs/architecture.md`.
    - `tasks` → `plan.md` + `docs/architecture.md` + `docs/DECISIONS.md`.
    - `implement` → `plan.md` + `tasks.md` + constitution.
 

@@ -17,8 +17,8 @@
 
 # Wafar Platform Constitution
 
-[PREAMBLE — keep the existing preamble: what the product is, what this
-constitution governs, and what it deliberately does not govern.]
+<!-- Preamble: keep the existing text — what the product is, what this
+     constitution governs, and what it deliberately does not govern. -->
 
 ## Core Principles
 
@@ -97,4 +97,4 @@ constitution governs, and what it deliberately does not govern.]
 
 ## Governance
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
+**Version**: 2.7.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-02

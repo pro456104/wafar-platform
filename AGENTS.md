@@ -23,10 +23,10 @@ and a feature artifact references it rather than restating it.
 |---|---|
 | Engineering law, product scope, limits | `.specify/memory/constitution.md` |
 | How the system is built (layout, module map, data flow) | `docs/architecture.md` |
-| Approved technology stack | `Project-Technologies.txt` |
-| Design system (tokens and components) | `wafar.single.css` |
+| Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
+| Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-007) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-009) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -36,10 +36,12 @@ re-invent what already exists. See `docs/DECISIONS.md` → ADR-007.
 
 ## 3. Load these before writing any feature artifact
 
-- `/speckit.specify` → the constitution (Product Scope, Usage Limits, Glossary),
-  `Core-Project.txt`, and `docs/DECISIONS.md`. **Not** the technical sources: a
-  specification stays technology-agnostic (Principle VII).
-- `/speckit.plan` → all six project-level sources. The plan is the only artifact
+- `/speckit.specify` → the constitution (Product Scope, Product Register, Usage
+  Limits, Glossary), `Core-Project.txt`, and `docs/DECISIONS.md`. **Not** the
+  technical sources: a specification stays technology-agnostic (Principle VII).
+- `/speckit.plan` → the constitution's registers (Technology Standards, Design
+  System Standards, Product Register) plus `docs/architecture.md`,
+  `wafar.single.css`, and `docs/DECISIONS.md`. The plan is the only artifact
   that carries technical detail, and its Ownership Map must match
   `docs/architecture.md`.
 - `/speckit.tasks` → `plan.md`, plus `docs/architecture.md` and

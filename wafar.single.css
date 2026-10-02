@@ -8,9 +8,9 @@
      <link rel="stylesheet" href="wafar.single.css" />
      أو:  @import "wafar.single.css";
 
-   مواصفة Spec Kit:  specs/001-wafar-design-system/spec.md
-   الدستور:          .specify/memory/constitution.md
-   إعادة التوليد:    node scripts/bundle.mjs
+   الإصدار:  1.0.0
+   الدستور:          .specify/memory/constitution.md → Design System Standards · docs/DECISIONS.md → ADR-009
+   إعادة التوليد:    هذا الملف هو المصدر الوحيد للقيم؛ والدستور يحمل السجل فقط
    ============================================================ */
 
 /* ============================================================
