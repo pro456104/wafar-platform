@@ -69,17 +69,21 @@ The binding cycle, in order: `/speckit.constitution` → `/speckit.specify` →
 `/speckit.implement` ↔ `/speckit.converge` until converge reports Converged
 (ADR-013).
 
-Installed extensions: `assess` (idea triage before specifying) and `bug` (bug
-triage). Templates resolve from `.specify/templates/overrides/` first, then
+Installed extensions: `assess` (idea triage before specifying), `bug` (bug
+triage), and `git` (mandatory feature branch creation before specification).
+Templates resolve from `.specify/templates/overrides/` first, then
 presets, then extensions, then core.
 
 **The bundled `speckit` workflow mirrors the binding cycle.**
 `.specify/workflows/speckit/workflow.yml` runs `constitution → specify →
 clarify → plan → checklist → tasks → analyze → implement → converge` with
-human review gates. Converge remains a separate command by decision (ADR-013),
-not a spec-kit engine concern; the workflow file lists it so the cycle reads
-as one sequence. Templates and the registry are what a reader checks, not the
-engine.
+human review gates. The `git` extension's `before_specify` hook (`speckit.git.feature`,
+optional: false) runs automatically before specification, creating a sequentially
+numbered feature branch (`001-feature-name`, matching `feature_numbering: sequential`
+in `init-options.json` and ADR-015). Converge remains a separate command by
+decision (ADR-013), not a spec-kit engine concern; the workflow file lists it
+so the cycle reads as one sequence. Templates and the registry are what a
+reader checks, not the engine.
 
 ## 6. Known gaps
 

@@ -32,15 +32,19 @@ This repository is driven by Spec Kit. With `.specify/` present and the
 `specify` CLI installed:
 
 1. `/speckit.constitution` — amend or ratify the project constitution.
-2. `/speckit.specify` — write the feature specification (technology-agnostic).
-3. `/speckit.clarify` — resolve ambiguities in the specification.
-4. `/speckit.plan` — produce the technical plan, research, data model, and contracts.
-5. `/speckit.checklist` — review the feature's requirements checklist.
-6. `/speckit.tasks` — generate the ordered task list.
-7. `/speckit.analyze` — run the cross-artifact consistency check.
-8. `/speckit.implement` — execute the tasks.
-9. `/speckit.converge` — verify the implementation against the artifacts;
-   repeat steps 8–9 until it reports Converged (see ADR-013).
+2. **Automatic: `/speckit.git.feature`** — the `git` extension's mandatory
+   `before_specify` hook creates a sequentially numbered feature branch
+   (`001-feature-name`, matching `feature_numbering: sequential` in
+   `init-options.json` and ADR-015) and switches to it before specification.
+3. `/speckit.specify` — write the feature specification (technology-agnostic).
+4. `/speckit.clarify` — resolve ambiguities in the specification.
+5. `/speckit.plan` — produce the technical plan, research, data model, and contracts.
+6. `/speckit.checklist` — review the feature's requirements checklist.
+7. `/speckit.tasks` — generate the ordered task list.
+8. `/speckit.analyze` — run the cross-artifact consistency check.
+9. `/speckit.implement` — execute the tasks.
+10. `/speckit.converge` — verify the implementation against the artifacts;
+    repeat steps 9–10 until it reports Converged (see ADR-013).
 
 Templates resolve from `.specify/templates/overrides/` first; those overrides are
 the project's binding templates and must not be replaced with the core ones.

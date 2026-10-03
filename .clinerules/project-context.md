@@ -12,10 +12,12 @@ ones:
    `docs/DECISIONS.md` → ADR-007).
 
 2. **Before any `/speckit.*` feature command, load those sources.** The binding
-   cycle is: `constitution → specify → clarify → plan → checklist → tasks →
-   analyze → implement → converge` (implement ↔ converge until Converged):
+   cycle is: `constitution → git:feature → specify → clarify → plan → checklist →
+   tasks → analyze → implement → converge` (implement ↔ converge until Converged):
    - `constitution` → the constitution itself, and the amendment material when
      changing it.
+   - `git:feature` → `speckit.git.feature` (mandatory, creates sequential feature
+     branch `001-<name>` per `init-options.json` and ADR-015).
    - `specify` → constitution + `Core-Project.txt` + `docs/DECISIONS.md`
      (no technology in a specification — Principle VII).
    - `clarify` → `spec.md` (resolve its open questions).

@@ -43,6 +43,10 @@ steps:
     input:
       args: "{{ inputs.spec }}"
 
+  # git extension hooks (auto-executed by engine; defined in .specify/extensions.yml)
+  # before_constitution: speckit.git.initialize (mandatory, no-op if repo exists)
+  # before_specify: speckit.git.feature (mandatory, creates feature branch)
+
   - id: specify
     command: speckit.specify
     integration: "{{ inputs.integration }}"
@@ -61,11 +65,19 @@ steps:
     input:
       args: "{{ inputs.spec }}"
 
+  # git extension hooks (auto-executed; auto_commit default=false in git-config.yml)
+  # before_clarify: speckit.git.commit (optional, disabled by default)
+  # after_specify: speckit.git.commit (optional, disabled by default)
+
   - id: plan
     command: speckit.plan
     integration: "{{ inputs.integration }}"
     input:
       args: "{{ inputs.spec }}"
+
+  # git extension hooks (auto-executed; auto_commit default=false)
+  # before_plan: speckit.git.commit (optional, disabled by default)
+  # after_plan: speckit.git.commit (optional, disabled by default)
 
   - id: review-plan
     type: gate
@@ -79,11 +91,19 @@ steps:
     input:
       args: "{{ inputs.spec }}"
 
+  # git extension hooks (auto-executed; auto_commit default=false)
+  # before_checklist: speckit.git.commit (optional, disabled by default)
+  # after_checklist: speckit.git.commit (optional, disabled by default)
+
   - id: tasks
     command: speckit.tasks
     integration: "{{ inputs.integration }}"
     input:
       args: "{{ inputs.spec }}"
+
+  # git extension hooks (auto-executed; auto_commit default=false)
+  # before_tasks: speckit.git.commit (optional, disabled by default)
+  # after_tasks: speckit.git.commit (optional, disabled by default)
 
   - id: analyze
     command: speckit.analyze
@@ -91,11 +111,19 @@ steps:
     input:
       args: "{{ inputs.spec }}"
 
+  # git extension hooks (auto-executed; auto_commit default=false)
+  # before_analyze: speckit.git.commit (optional, disabled by default)
+  # after_analyze: speckit.git.commit (optional, disabled by default)
+
   - id: gate-pre-implement
     type: gate
     message: "Resolve analyze findings before implementing."
     options: [approve, reject]
     on_reject: abort
+
+  # git extension hooks (auto-executed; auto_commit default=false)
+  # before_implement: speckit.git.commit (optional, disabled by default)
+  # after_implement: speckit.git.commit (optional, disabled by default)
 
   - id: implement
     command: speckit.implement
@@ -103,8 +131,16 @@ steps:
     input:
       args: "{{ inputs.spec }}"
 
+  # git extension hooks (auto-executed; auto_commit default=false)
+  # before_taskstoissues: speckit.git.commit (optional, disabled by default)
+  # after_taskstoissues: speckit.git.commit (optional, disabled by default)
+  # after_implement: speckit.git.commit (optional, disabled by default)
+
   - id: converge
     command: speckit.converge
     integration: "{{ inputs.integration }}"
     input:
       args: "{{ inputs.spec }}"
+
+  # git extension hooks (auto-executed; auto_commit default=false)
+  # after_converge: speckit.git.commit (optional, disabled by default)

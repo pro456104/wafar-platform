@@ -44,6 +44,7 @@ Constitution Check; from then on the record has a feature owner.
 | [ADR-023](#adr-023--constitution-2110-security-hardening-anti-spam-static-design-enforcement-ops-controls) | Constitution 2.11.0: security hardening, anti-spam, static design enforcement, ops controls | 2026-10-03 | 2.11.0 |
 | [ADR-024](#adr-024--constitution-2111-stylelint-named-in-technology-standards) | Constitution 2.11.1: Stylelint named in Technology Standards | 2026-10-03 | 2.11.1 |
 | [ADR-025](#adr-025--the-segoe-ui-fallback-leaves-the-tajawal-font-stack) | The Segoe UI fallback leaves the Tajawal font stack | 2026-10-03 | 2.11.1 (unchanged) |
+| [ADR-026](#adr-026--git-branching-workflow-extension-adopted-mandatory-feature-branches) | Git Branching Workflow Extension adopted; mandatory feature branches | 2026-10-03 | 2.11.1 (unchanged) |
 
 ---
 
@@ -1025,3 +1026,45 @@ theme toggle; this record does not widen it.
 a Stylelint or ESLint gate needs no exception for the stacks. R1 records the
 stylesheet's version under Constitution Mandated Values when it performs the
 `1.0.2` change ADR-016 reserved.
+
+---
+
+## ADR-026 — Git Branching Workflow Extension adopted; mandatory feature branches
+
+**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.11.1
+(unchanged; this records an extension adoption, not a governance amendment).
+
+**Context.** The bundled Spec Kit extension `git` (v1.0.1, MIT) was installed.
+Its `before_specify` hook (`speckit.git.feature`, optional: false) makes
+feature branch creation **mandatory and automatic** before every `/speckit.specify`.
+The extension is bundled, requires no network install, and operates purely
+locally — no credentials or network access are needed. The `auto_commit`
+feature is disabled by default in `git-config.yml`; no automatic commits occur.
+
+**Decision.** Adopt the `git` extension as a permanent part of the Wafar
+development workflow. The mandatory `before_specify` hook (`speckit.git.feature`)
+ensures every feature specification is developed on its own sequentially
+numbered branch (`001-feature-name`, matching `feature_numbering: sequential`
+in `init-options.json` and ADR-015's `specs/007-<name>` convention). The
+`before_constitution` hook (`speckit.git.initialize`, optional: false) is a
+no-op on an existing repository. The 15 auto-commit hooks are registered but
+remain disabled by default in `git-config.yml` (`auto_commit.default: false`);
+no automatic commits occur unless explicitly enabled in `git-config.yml`.
+
+**What deliberately did not change.** No auto-commit behavior is enabled.
+The `commit_style: fixed` default would produce commit messages without the
+required `FR-###`/`AC-###` references (Principle I); enabling auto-commit
+would require `commit_style: conventional` with agent-generated messages that
+include the required identifiers, or a custom message template that includes
+them. The `git add .` in auto-commit stages all changes; enabling it would
+risk committing unrelated changes in a governance repository. No principle,
+module map, ownership decision, or usage limit is altered.
+
+**Consequences.** The binding cycle now effectively begins with an automatic
+feature branch creation before specification. The following documents are
+updated in this change to reflect the new cycle: `AGENTS.md` §5, `README.md`
+Development workflow, `.clinerules/project-context.md`, and
+`.specify/workflows/speckit/workflow.yml`. The constitution version remains
+2.11.1. The extension is recorded in `.specify/extensions.yml` and
+`.specify/extensions/.registry`; its manifest hashes are recorded in the
+three integration manifests per ADR-022 practice.
