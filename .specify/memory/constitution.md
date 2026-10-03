@@ -962,7 +962,7 @@ fail Dependency Governance:
 
 | Gap | Required by | Owning slice |
 |---|---|---|
-| Excel, PDF, and Word extraction; content-type validation | File Processing Overview; Usage Limits | R4 (validation: R3) |
+| Excel, PDF, and Word extraction; content-type validation | File Processing Overview; Usage Limits | R3 (validation: R2) |
 | Transactional email for password recovery | Product Scope: Forgot Password | R1 |
 | Continuous-integration provider | Principle III coverage gate; Dependency Governance | R1 (the slice that introduces the test runner) |
 | Error tracker | Deployment and Observability | R12 (the first deploying slice) |

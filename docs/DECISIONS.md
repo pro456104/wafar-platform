@@ -11,7 +11,7 @@ owning feature. The records predate every feature — ADR-001 to ADR-007 were ma
 during repository bootstrap on 2026-10-01, ADR-008 and ADR-009 on 2026-10-02, and
 ADR-010 with constitution 2.7.1 on 2026-10-02, ADR-011 and ADR-012 on
 2026-10-02, and ADR-013 on 2026-10-02, and ADR-014 with constitution 2.8.0 on
-2026-10-02 — so each record names
+2026-10-02, and ADR-015 with constitution 2.9.0 and ADR-016 on 2026-10-03 — so each record names
 "none yet — repository bootstrap" as the owning feature and states the
 reaffirmation duty of the first feature whose plan depends on it. When that
 feature is planned, it MUST name the ADR (e.g., `ADR-003`) in its plan's
