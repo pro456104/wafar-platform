@@ -48,6 +48,7 @@ Constitution Check; from then on the record has a feature owner.
 | [ADR-027](#adr-027--audit-fix-set-adr-stamps-workflow-version-hook-state-cline-registration-css-token) | Audit fix set: ADR stamps, workflow version, hook state, cline registration, CSS token | 2026-10-03 | 2.11.1 (unchanged) |
 | [ADR-028](#adr-028--constitution-2120-quota-window-and-contact-message-path) | Constitution 2.12.0: quota window, contact-message path | 2026-10-03 | 2.12.0 |
 | [ADR-029](#adr-029--roadmap-dependency-and-ownership-corrections) | Roadmap dependency and ownership corrections | 2026-10-03 | 2.12.0 |
+| [ADR-030](#adr-030--constitution-2130-phone-only-authentication) | Constitution 2.13.0: phone-only authentication | 2026-10-03 | 2.13.0 |
 
 ---
 
@@ -174,7 +175,7 @@ custom authentication code is prohibited. The optional `scim` and `sso`
 modules carry tracked advisories: CVE-2026-67330 in `@better-auth/scim`
 (authorization bypass) and CVE-2026-80192 in `@better-auth/sso`
 (`Project-Technologies.txt`, better-auth 1.6.14). The product's users are
-Libyan merchants who sign in with email and password; enterprise SSO and
+Libyan merchants who sign in with a mobile number and password (email removed by ADR-030); enterprise SSO and
 directory provisioning are not product requirements.
 
 **Decision.** better-auth, core modules only. The `scim` and `sso` modules
@@ -1194,3 +1195,87 @@ no scope boundary is widened beyond the ownership corrections above.
 **Consequences.** Every slice's `Depends on` now matches the modules and
 entities its scope names. The consistency gate can verify ownership without
 cross-reading data-model notes.
+
+---
+
+## ADR-030 — Constitution 2.13.0: phone-only authentication
+
+**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.13.0.
+
+**Context.** The platform's identity model carried an email address it never
+needed: the Log In page read "Email and password", a register gap reserved a
+transactional-email provider for password recovery, and the Constitution
+Mandated Values named an email transport. The audience is Libyan merchants
+whose reachable, verifiable identifier is the mobile number; an email surface
+adds a second identifier to verify, a second provider to vet, and a second
+channel to secure, for no product gain.
+
+**Decision.** Authentication is phone-only, end to end:
+
+1. **The mobile number is the sole account identifier.** No email address
+   exists anywhere in the platform: no sign-up email, no login email, no
+   transactional email. The number is stored in E.164 form (+218…), normalized
+   before comparison, and unique per account.
+2. **Public pages.** Log In is mobile number and password. Sign Up is full
+   name, mobile number, password, city, and an optional shop name. Forgot
+   Password is an OTP sent by SMS to the registered mobile number, with a
+   uniform response that does not reveal account existence. OTP verification
+   is required at sign-up; sign-in of a verified account requires no OTP.
+3. **International SMS provider.** The register gap is now a transactional SMS
+   provider for OTP and password reset, closed by R1: an international
+   provider such as Twilio or Vonage, because Libyan carrier coverage for
+   application-to-person SMS is unreliable and the sign-up OTP must reach
+   numbers on every Arab-country dial code the selector offers. The choice,
+   its licence-obligation record, and its vulnerability scan are recorded by
+   R1's plan under the register-gap rule.
+4. **better-auth phone-number extension.** better-auth stays the designated
+   authentication library and MUST be used with its phone-number extension,
+   which provides the phone-number sign-in and OTP flows as maintained library
+   code; custom authentication code remains prohibited. If the extension proves
+   unfit, the alternative MUST be recorded as an ADR before it is used, and the
+   `scim`/`sso` prohibition is unchanged.
+5. **Sign-up fields.** The dial-code selector is an Arab-country selector
+   showing flag, country name, and code, defaulting to Libya +218. The city is
+   a searchable fixed dropdown of all Libyan cities, governorates, and areas;
+   the fixed list's source is decided by R1 and recorded in its plan, because
+   the constitution fixes the control's shape, not its data source.
+6. **User register fields.** The Product Register's `User` identity fields are
+   the mobile number (E.164, unique), the country code, the city, and the
+   optional shop name. `docs/domain-model.md` is updated in the same change. A
+   guest's contact message still carries name, phone, and body, and that phone
+   stays for contact only — it is never an account identifier.
+
+**Alternatives considered.**
+
+- *Email and password, with email-based recovery.* Rejected: it assumes a
+  channel the audience does not reliably hold, doubles the identifier and
+  provider surface, and the recovery flow it requires is weaker than an OTP to
+  a verified handset.
+- *Phone with email as an optional second factor.* Rejected: "no email address
+  exists anywhere" is simpler to hold than "email exists but only here"; a
+  partial email surface reintroduces the provider and verification surface
+  this amendment removes.
+- *A Libyan-carrier SMS aggregator.* Rejected for the register gap: coverage
+  and delivery guarantees for application OTP traffic favour an international
+  provider; R1 may revisit with evidence, under the same register-gap rule.
+
+**What deliberately did not change.** The rest of the authentication policy is
+unchanged and was verified, not re-opened: the fifteen-minute lockout after
+five consecutive failed sign-in attempts; uniform anti-enumeration responses;
+no CAPTCHA; honeypot, minimum time-to-submit, and rate limit on the sign-up
+and contact forms; server-side revocable sessions including "sign out
+everywhere"; and browser-stored tokens revocable on password change. The
+bump is MINOR: new and materially expanded guidance with no principle removed
+or redefined.
+
+**Consequences.** The mandated value "email transport" became "transactional
+SMS transport" (Module Discipline and Development Workflow, and row 14 of the
+plan-template override). The Glossary gains "Mobile number"; no email-based
+definition existed to remove. The version footer, the binding-block version
+strings in the `spec-template.md` and `plan-template.md` overrides, the footer
+of the `constitution-template.md` override, and the stamps in
+`docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`, `AGENTS.md`, and
+`README.md` move to 2.13.0 / ADR-030 in the same change. `Core-Project.txt`
+mirrors the three redefined auth pages. The Sync Impact Report produced during
+the amendment is review material and is not committed; this entry is the
+durable record.

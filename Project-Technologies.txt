@@ -189,7 +189,7 @@ apps/worker/src/
 
 | التقنية | الدور | التفاصيل |
 |---|---|---|
-| **better-auth** | إدارة تسجيل الدخول | الإصدار **1.6.14** (يونيو 2026). **تحذير أمني**: ثغرة **CVE-2026-67330** في `@better-auth/scim` (تجاوز تفويض). ثغرة **CVE-2026-80192** في `@better-auth/sso`. **لا تفعّل `scim` أو `sso` إلا إذا كنت تحتاجها.** استخدم الدوال الأساسية فقط. |
+| **better-auth** | إدارة تسجيل الدخول | الإصدار **1.6.14** (يونيو 2026). **تحذير أمني**: ثغرة **CVE-2026-67330** في `@better-auth/scim` (تجاوز تفويض). ثغرة **CVE-2026-80192** في `@better-auth/sso`. **لا تفعّل `scim` أو `sso` أبداً.** استخدم الدوال الأساسية فقط، ومعها إضافة phone-number (ADR-030). |
 
 ---
 
@@ -268,3 +268,30 @@ the rules stay in `.specify/memory/constitution.md`.
 Mirrors the amendment that named an already-mandated tool in the register.
 
 - **Stylelint** — now named explicitly in Technology Standards' `packages/config` row and in the Quality row. No new technology was introduced, so no new dependency, licence obligation, or vulnerability scan accompanies this amendment; the tool was already required by Design System Standards (Static enforcement) and ADR-023.
+
+---
+
+## Constitution 2.12.0 additions (2026-10-03, ADR-028)
+
+Mirrors the quota-window clarification and the contact-message path. No new
+technology was introduced; no new dependency or licence obligation.
+
+- **Quota wording** — "50 files per calendar month, 100 files in total" is now
+  stated explicitly in Usage Limits.
+- **Contact messages** — the contact form reaches the administrator through a
+  dedicated "Contact messages" admin page owned by R13, per ADR-028.
+
+---
+
+## Constitution 2.13.0 additions (2026-10-03, ADR-030)
+
+Mirrors phone-only authentication.
+
+- **better-auth phone-number extension** — provides the phone-number sign-in
+  and OTP flows; custom authentication code remains prohibited. `scim`/`sso`
+  stay disabled (CVE-2026-67330, CVE-2026-80192).
+- **Transactional SMS provider** (international, e.g. Twilio or Vonage) — OTP
+  at sign-up and password-reset delivery. Owned by R1, per the register-gap
+  rule (choice, licence record, vulnerability scan recorded in R1's plan).
+- **E.164 mobile number** — the sole account identifier; no email address
+  exists anywhere in the platform.

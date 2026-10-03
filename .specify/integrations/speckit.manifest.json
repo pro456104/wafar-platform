@@ -14,9 +14,9 @@
     ".specify/templates/plan-template.md": "5ef0e4c97b36e9f91372dc6eb8e5a7e515af8958cf1a9286e43a1ebd9bd48540",
     ".specify/templates/spec-template.md": "3945437fc35cd30a5b2bf7beea680337c3516826d3efa5a6b92c4a7eca1ba28e",
     ".specify/templates/tasks-template.md": "c731575d8099b3f871861186fbd1a592b51b2ba57fb99e1a0dab439ff6d5608f",
-    ".specify/templates/overrides/constitution-template.md": "48df4a5fcfb26b9cd04c7d4be9bcfafebf2a1163449a9b87f51f0a0e8b68fe7f",
-    ".specify/templates/overrides/plan-template.md": "02e8a8c0feb094e8fa8fc406ecd04b8790aa2037ac882526957729cb286fa3ea",
-    ".specify/templates/overrides/spec-template.md": "91f16887b1410058ce0a3b36e342a2dd0c149587bb9fa910dc8d4c5995b3f02d",
+    ".specify/templates/overrides/constitution-template.md": "ceb6cf1b9d07f590f042f5c5a1ce70af03b250a9987dd3ccbf1a2e0df946bf4b",
+    ".specify/templates/overrides/plan-template.md": "9e49934ba4d9ea5125dc1947d39e770426ad1e22875bf3020c903ab30b95a21f",
+    ".specify/templates/overrides/spec-template.md": "d6e7781bae12212bdb011925422064bbe6a2b220f8ca3b272fbdcf72536c8767",
     ".specify/templates/overrides/tasks-template.md": "ef4f97945273d8f331ac1d11bb9a1ac8b6c118ac0417f38c1112891995420869",
     ".specify/.gitignore": "8c908410d177a1ef3d0dee16d7ad55f2ac3333df3104c4d4adee1c9b82f1dbc1"
   }

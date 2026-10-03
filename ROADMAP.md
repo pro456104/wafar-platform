@@ -31,7 +31,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-028) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-030) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -44,18 +44,18 @@ rules drift. It MUST NOT be created. See `docs/DECISIONS.md` → ADR-007.
 
 | ID | Sub-feature | Intent | Scope boundary | Depends on | Status | Sub-spec |
 |----|-------------|--------|----------------|-----------|--------|----------|
-| R1 | Identity and foundation | A merchant signs up, signs in and out, and recovers a password; sessions, password hashing, and auth rate limits follow the constitution's Identity, Authentication, and Session Policy. This slice also creates the repository workspaces and registers the `auth` and `users` modules. | The merchant's account only. The administrator's separate login belongs to R13. Workspace, design-system extension, and delivery duties are listed under "First obligations" below. | — | planned | — |
+| R1 | Identity and foundation | A merchant signs up (OTP-verified mobile number, password, city, optional shop name per ADR-030), signs in and out, and recovers a password via SMS OTP; sessions, password hashing, and auth rate limits follow the constitution's Identity, Authentication, and Session Policy. This slice also creates the repository workspaces and registers the `auth` and `users` modules. | The merchant's account only. The administrator's separate login belongs to R13. Workspace, design-system extension, and delivery duties are listed under "First obligations" below. | — | planned | — |
 | R2 | File intake | A merchant uploads an Excel, PDF, or Word catalog; size and content-type are validated before storage; bytes are stored in object storage; a content hash is computed; a duplicate is rejected by hash; the catalog record's status is recorded; the per-user upload quotas are enforced server-side (50 files per calendar month, 100 files in total). | Validation, storage, hash, duplicate check, status, and upload quota only. Extraction is R3. | R1 | planned | — |
 | R3 | Catalog extraction | The worker pipeline: extract parts from the file's tables, read the supplier name and issue date from the first page, normalise columns, deduplicate by file/page/row, index the parts, set status to `completed` or `failed`, and allow retry without re-uploading bytes. This slice also creates the `suppliers` module when the first-page extraction names the supplier. | The pipeline only. The parts read surface is R5. Extraction algorithm and catalog data shape are deferred areas. | R2 | planned | — |
-| R4 | My Files | The merchant's page for the files they uploaded: the file table, the upload action, the processing status of each file, deleting a file they uploaded, bookmarking an already-present file, and the retry action for a failed file. | The merchant's own files only. Upload validation and storage are R2; extraction is R3. | R2, R3 | planned | — |
+| R4 | My Files | The merchant's page for the files they uploaded: the file table, the upload action, the processing status of each file, deleting a file they uploaded, and the retry action for a failed file. | The merchant's own files only. Upload validation and storage are R2; extraction is R3. | R1, R2, R3 | planned | — |
 | R5 | Parts search | The public Parts page and the Home page: Arabic root-aware search, filters (part number, brand, car model, catalog file, supplier), a parts table with column sorting, pagination 20/50/100, `?file=<id>` filtering, within the p95 < 1 s budget. Home carries the platform name, the quick search field, and the four statistical cards. | Reading and filtering only. Search ranking beyond the sortable columns is a deferred area. | R1, R2, R3 | planned | — |
-| R6 | Catalog files page | The public Catalog page: a table of every uploaded catalog file; a row links to R5 filtered by that file. | Read-only listing. Management actions live in R13. The table lists the supplier named on the first page, extracted by R3. | R2, R3 | planned | — |
-| R7 | Profile | A registered user edits account details and changes the password. | The caller's own account only. Account deletion is not permitted. | R1 | planned | — |
-| R8 | Cart (bookmarks) | A registered user adds and removes a part in a personal bookmark list, maximum 99 parts, add completing in under 200 ms; the `+` control becomes a red cart icon once saved. | A bookmark list only: no price, no quantity, no checkout (Principle VI). | R5 | planned | — |
-| R9 | Notifications | A notification list with a counter and a mark-as-read action, generated by processing outcomes and by administrator messages. | Delivery to the in-app notification list only. Notification retention is decided here and recorded as an ADR. | R3 | planned | — |
+| R6 | Catalog files page | The public Catalog page: a table of every uploaded catalog file; a row links to R5 filtered by that file. | Read-only listing. Management actions live in R13. The table lists the supplier named on the first page, extracted by R3. | R1, R2, R3 | planned | — |
+| R7 | Profile | A registered user edits the non-identifier account details (city, optional shop name) and changes the password. The mobile number is the identifier and is not editable here. | The caller's own account only. Account deletion is not permitted. | R1 | planned | — |
+| R8 | Cart (bookmarks) | A registered user adds and removes a part in a personal bookmark list, maximum 99 parts, add completing in under 200 ms; the `+` control becomes a red cart icon once saved. | A bookmark list only: no price, no quantity, no checkout (Principle VI). | R1, R5 | planned | — |
+| R9 | Notifications | A notification list with a counter and a mark-as-read action, generated by processing outcomes and by administrator messages. | Delivery to the in-app notification list only. Notification retention is decided here and recorded as an ADR. | R1, R3 | planned | — |
 | R10 | Messaging | One conversation thread between a merchant and the administrator; the merchant sees a reply after refresh; a notification is delivered on reply. | Merchant to administrator only. User-to-user chat is prohibited (Principle VI). | R1, R9 | planned | — |
-| R11 | Support surfaces | Contact form (name, phone, body) that reaches the administrator through the "Contact messages" admin page (ADR-028), plus the FAQ, privacy policy, terms of use, and 404 pages. | Static content and the contact form only. The administrator read surface is R13. | — | planned | — |
-| R12 | Delivery and operations | Three environments with staging parity, health checks that verify the dependencies each service uses, the error tracker, secret management with pre-commit and CI scanning, TLS certificate management, the log pipeline, the dependency update process, and the pre-release load test. | Running the platform, not building product behaviour. | R1, R2, R3 | planned | — |
+| R11 | Support surfaces | Contact form (name, phone, body) that reaches the administrator through the "Contact messages" admin page (ADR-028), plus the FAQ, privacy policy, terms of use, and 404 pages. This slice also creates the `support` module. | Static content and the contact form only. The administrator read surface is R13. | R1 | planned | — |
+| R12 | Delivery and operations | Three environments with staging parity, health checks that verify the dependencies each service uses, the error tracker, secret management with pre-commit and CI scanning, TLS certificate management, the log pipeline, the dependency update process, and the pre-release load test. | Running the platform, not building product behaviour. | R1, R2, R3, R5 | planned | — |
 | R13 | Admin application | The administrator's separate application with its own login: dashboard, users, files, suppliers, parts, messages, notifications, settings, contact messages. Every administrator operation is recorded as it happens. | The administrator's surface. The audit log's read surface is R14; authorization granularity is a deferred area. | R1, R2, R3, R5, R9, R10, R11 | planned | — |
 | R14 | Audit log | The administrator-facing page over the append-only record every administrator operation writes. | Reading only. The recording is part of R13. | R13 | planned | — |
 | R15 | Retention | Automatic deletion of a catalog 90 days after upload, with the search index lifecycle aligned to the same window. | The deletion job and the index lifecycle only; the delete cascades to the catalog's parts, bookmarks, and index entries. | R3, R8 | planned | — |
@@ -70,9 +70,13 @@ an owner.
 |---|---|---|
 | The workspace, `packages/config`, and the shared tooling | R1 | Technology Standards → repository topology; `docs/architecture.md` |
 | The test runner and the continuous-integration provider that enforces the 80% coverage gate | R1 | Principle III; Register gaps |
+| The transactional SMS provider for OTP sign-up verification and password reset (replaces the previous transactional-email gap) | R1 | Technology Standards → Register gaps (ADR-030) |
+| Provisioning of PostgreSQL, Redis, SeaweedFS, and OpenSearch for development, plus the PgDog fallback and its review date | R1 | Technology Standards (PgDog is pre-1.0 and MUST name a fallback and a review date) |
+| Enabling Dependabot/Renovate so the update process exists from the first merge; the full dependency-update policy is R12's | R1 (enablement), R12 (policy) | Dependency Governance (before the first public release) |
 | Backup and restore tooling, and the RTO/RPO numbers | R1 | Deployment and Observability (R1 introduces persistent storage) |
 | The application shell — header, sidebar (fixed on desktop, drawer on mobile), drawer, theme toggle, icon set, fonts, and the framework bridge — scoped to public pages and the merchant area, never on auth/404/static pages; resolved sidebar logo/header placement per ADR-017 | R1 | Principle IX; Design System Standards; ADR-017 |
 | CSRF, output-encoding, and security-header tests | R1 | Identity, Authentication, and Session Policy (first browser-facing feature) |
+| The automated accessibility scan and the manual keyboard-only pass | R1 | Principle IV (interface verification) |
 | The resolution of the sidebar conflict | Resolved 2026-10-03 in ADR-017: sidebar required fixed on desktop; auth/404/static pages bare; `Core-Project.txt` now defines the shell | Closed by ADR-017 |
 | Setup, testing, and deployment documentation | R1 | Documentation (first feature that creates the workspace) |
 | Staging parity, error tracker, secret management, TLS, log pipeline, dependency update process, load test | R12 | Register gaps ("the first deploying slice") |
@@ -113,7 +117,7 @@ carried. Each names the slice that closes it.
 | 13 | The binding specification template did not carry the sub-spec `Input` line the constitution requires | Fixed 2026-10-03 |
 | 14 | The per-user upload quotas (50 files/month, 100 files total) were binding limits that no slice's scope named, so nothing would have implemented them | Fixed 2026-10-03: R2 |
 | 15 | The data model existed in three copies that had already diverged, and six facts existed only in the product mirror — so they were unbuildable under the Product Register's own rule | Fixed 2026-10-03 by ADR-019: `docs/domain-model.md` is the single authority |
-| 16 | Three product conflicts were invisible because nobody compared the copies: how a message's sender is represented, whether a conversation carries an administrator reference, and whether an administrator is a distinct entity | Recorded as unresolved product facts; R10 (مرتين)، R13 |
+| 16 | Three product conflicts were invisible because nobody compared the copies: how a message's sender is represented, whether a conversation carries an administrator reference, and whether an administrator is a distinct entity | Recorded as unresolved product facts; R10 (twice), R13 |
 
 ## Notes
 
@@ -128,7 +132,7 @@ carried. Each names the slice that closes it.
   yields a working account on a working shell, R2 alone yields an accepted and
   stored file, R5 alone yields a searchable parts table.
 - **Structure registers.** R1 creates the workspace; it MUST follow the fixed
-  locations in the constitution (v2.12.0) and `docs/architecture.md`, including
+   locations in the constitution (v2.13.0) and `docs/architecture.md`, including
   `apps/web/layouts` and `apps/admin`, and records the documentation-drift
   check for collection in R2.
 - **Deferred areas.** R2, R3, R5, and R13 are the first slices to implement the

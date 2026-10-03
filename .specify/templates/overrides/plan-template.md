@@ -7,7 +7,7 @@
 **Note**: This template is filled in by the `/speckit.plan` command; its definition describes the execution workflow.
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.12.0) - NORMATIVE:
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.13.0) - NORMATIVE:
   - This file carries every technical detail; spec.md stays technology-agnostic.
   - The Technical Context MUST contain the Constitution Mandated Values heading;
     a value named by a rule but written elsewhere does not discharge that rule,
@@ -84,7 +84,7 @@
 | 11 | Design-system version | [version from wafar.single.css header, or "not introduced — no UI change"] |
 | 12 | Icon set | [the approved set, or "not introduced — no icon surface"] |
 | 13 | Extraction libraries | [the approved libraries, or "not introduced — no extraction surface"] |
-| 14 | Email transport | [the approved transport, or "not introduced — no email surface"] |
+| 14 | Transactional SMS transport | [the approved transport, or "not introduced — no SMS surface"] |
 | 15 | Continuous-integration provider | [the approved provider, or "not introduced — CI unchanged"] |
 
 ### Verification Notes *(required where applicable)*
@@ -145,7 +145,7 @@
 | Design System Standards | | [dark default; tables for data; motion scale; z-index scale; AA contrast] |
 | Product Scope | | [pages and features stay inside the defined list; an addition is recorded in Complexity Tracking] |
 | File Processing Overview | | [single pipeline sequence; status enum exactly uploaded/processing/completed/failed; validation before storage; duplicate rejected] |
-| Product Register | | [roles respected; no page outside the twenty-five; no feature outside the sixteen; every unresolved product fact handled or recorded — the register's open facts are listed in `docs/domain-model.md` → Unresolved facts, and the slice named MUST resolve the ones this feature touches] |
+| Product Register | | [roles respected; no page outside the twenty-six; no feature outside the sixteen; every unresolved product fact handled or recorded — the register's open facts are listed in `docs/domain-model.md` → Unresolved facts, and the slice named MUST resolve the ones this feature touches] |
 | Single-Reference Sufficiency | | [no rule discharged from an unregistered source; every open value recorded under Constitution Mandated Values and as an ADR; no register copied into this plan; no column, entity field, or design value copied out of its source into this plan instead of referenced] |
 | Artifact Workflow and Traceability | | [stable `FR-###`/`AC-###`/`SC-###` identifiers, never renumbered or reused; at most three unresolved `NEEDS CLARIFICATION` items in spec.md; the spec's Test Coverage Request answered; every ADR first named here reaffirmed; at most three unresolved clarifications remaining before tasks] |
 | Product Fact Clarifications | | [the product facts this feature touches are stated as requirements, not restated: contact-form fields exactly name/phone/body; the platform stays free to merchants; the 99-part cart notice; no CAPTCHA; no PWA; the shell's per-page controls] |

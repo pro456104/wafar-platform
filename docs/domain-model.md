@@ -5,7 +5,7 @@ entities the product reasons about, the relationships between them, their
 cardinality, their invariants, and the module that owns each one. It is the
 source the constitution's Product Register maps.
 
-Its authority is `.specify/memory/constitution.md` (v2.12.0); where this
+Its authority is `.specify/memory/constitution.md` (v2.13.0); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
 change to a registered product fact and MUST be recorded as an ADR in
@@ -55,8 +55,8 @@ the constitution forbids exactly that.
 
 The entity names, their relationships, and their invariants below are **not**
 deferred: the product already fixes them in `Core-Project.txt` and the
-constitution's Product Register, and the slice order depends on them — R1 through
-R5, R8, and R13 all read this document before planning.
+constitution's Product Register, and the slice order depends on them — R1
+through R15 all read this document before planning.
 
 ## Entity map
 
@@ -66,7 +66,7 @@ every other module reaches it through that module's service.
 
 | Entity | Owning module | What it represents | Cardinality |
 |---|---|---|---|
-| `User` | `users` | A registered merchant: identity, shop details, and the role that separates a merchant from an administrator. | One account has many catalogs, bookmarks, notifications, and at most one conversation. |
+| `User` | `users` | A registered merchant whose identity is a mobile number (E.164, unique) with its country code, a city, an optional shop name, and the role that separates a merchant from an administrator. No email address exists. | One account has many catalogs, bookmarks, notifications, and at most one conversation. |
 | `Supplier` | `suppliers` | The company named on a catalog's first page, from which the parts originate. | One supplier appears in many catalogs. |
 | `Catalog` | `catalogs` | An uploaded supplier file with its metadata, its processing status, and a pointer to its stored bytes. | One catalog belongs to one uploading user and to at most one supplier, and contains many parts. |
 | `Part` | `parts` | A single row extracted from a catalog, representing one car part. | One part belongs to exactly one catalog. |
@@ -74,7 +74,7 @@ every other module reaches it through that module's service.
 | `Notification` | `notifications` | A message delivered to a user in the notification list, from a processing outcome or from the administrator. | Many per user; no upper bound is fixed. |
 | `Conversation` | `messages` | The single thread between a merchant and the administrator. | A user has at most one conversation. |
 | `Message` | `messages` | One message inside a conversation. | Many per conversation. |
-| `ContactMessage` | `support` | A message from the public contact form: name, phone, body. | Independent of any account; it reaches the administrator without a conversation. |
+| `ContactMessage` | `support` | A message from the public contact form: name, phone, body. | Independent of any account; it reaches the administrator without a conversation. The phone is for contact only, never an account identifier. |
 | `AuditLog` | `admin` | The append-only record of every administrator operation. | Append-only: never updated, never deleted. The administrator is a party the record names, but *how* it names one is undecided — see Unresolved facts. |
 
 ## Relationships
@@ -204,6 +204,12 @@ service layer re-checks the ones a constraint cannot express.
 
 ### User
 
+- **The mobile number is the sole account identifier.** It is stored in E.164
+  form (+218…), normalized before comparison, and unique per account
+  (ADR-030). No email address exists anywhere in the platform: no sign-up
+  email, no login email, no transactional email.
+- **OTP verification is required at sign-up.** Sign-in of a verified account
+  requires no OTP (Product Scope; ADR-030).
 - **The role is the only authority for what a user may do.** No one becomes an
   administrator through the public registration flow.
 - **No user deletes their own account.** The Product Register forbids it and

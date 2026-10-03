@@ -1,3 +1,4 @@
+﻿
 # Wafar Platform Constitution
 
 This project turns parts catalogs supplied as PDF, Excel, or Word files into a
@@ -12,7 +13,7 @@ This constitution governs engineering practice and product boundaries. It
 deliberately does not govern the shape of the product's data model, its
 extraction behaviour, or its retrieval interface, because those decisions are
 not yet made. It does govern which entities exist, which module owns each, and
-which product rules bind across them (Product Register → Data entities); it does
+which product rules bind across them (Product Register â†’ Data entities); it does
 not govern their columns, types, or constraints. It also governs how a schema
 change is made, and how repository structure is laid out, regardless of those
 shapes. See Deferred areas.
@@ -56,11 +57,11 @@ Every change MUST be traceable from requirement to task to commit.
   cannot be referenced by a task.
 - A task reference MUST be carried in the task description, because the task
   format has no field reserved for it. The description ends with the
-  identifiers it satisfies — for example, "... in src/auth/session.ts
+  identifiers it satisfies â€” for example, "... in src/auth/session.ts
   (implements FR-004, AC-002)". A reference that exists only in a reviewer's
   memory, or only in a commit message, does not satisfy this rule.
-- Work that implements no requirement — a refactor, a dependency or tooling
-  change, a security fix, or a spike — MUST be recorded in the plan's
+- Work that implements no requirement â€” a refactor, a dependency or tooling
+  change, a security fix, or a spike â€” MUST be recorded in the plan's
   Complexity Tracking table with its rationale. It MUST NOT be linked to a
   fabricated requirement.
 - Every change MUST reference its spec and task identifiers in the commit or
@@ -163,11 +164,11 @@ surface.
   Technical names that do not translate (PDF, Excel, OEM, SKU) MAY appear in
   user-facing text.
 - Numerals rendered to the user MUST be Latin (1234567890), not
-  Arabic-Indic (٠١٢٣٤٥٦٧٨٩), applied through the designated numeric utility
+  Arabic-Indic (Ù Ù¡Ù¢Ù£Ù¤Ù¥Ù¦Ù§Ù¨Ù©), applied through the designated numeric utility
   with `direction: ltr; unicode-bidi: isolate`.
 - Arabic text MUST NOT carry positive `letter-spacing`. Negative tracking is
   permitted only on large headings and only within the design system's scale.
-- Search MUST resolve Arabic word roots (طرمبة → طرمبات) through the
+- Search MUST resolve Arabic word roots (Ø·Ø±Ù…Ø¨Ø© â†’ Ø·Ø±Ù…Ø¨Ø§Øª) through the
   designated Arabic analyzer. A search that matches only surface forms does
   not satisfy this rule.
 - Physical direction properties (`margin-left`, `margin-right`,
@@ -197,7 +198,7 @@ not process payment, and does not host direct user-to-user chat.
 - Sale and purchase are deferred. Enabling them requires an amendment to
   this constitution, as a MAJOR change.
 
-**Rationale:** The product solves one problem — searching supplier catalogs
+**Rationale:** The product solves one problem â€” searching supplier catalogs
 that are currently searched by hand. Adding commerce expands the legal,
 financial, and operational surface before the core problem is validated.
 
@@ -263,7 +264,7 @@ prohibited.
   policy/FAQ/contact pages use a bare layout with no header and no sidebar.
   The administrator application carries its own independent shell.
 - **Sidebar** (`19rem` / `304px`) is fixed and always visible on desktop
-  (≥1024px). It does not hide, does not slide. On mobile it becomes a drawer.
+  (â‰¥1024px). It does not hide, does not slide. On mobile it becomes a drawer.
 - **Header** (`4.25rem` / `68px`): the sidebar header carries the platform
   logo; the header carries the account, notifications, and theme-toggle icons
   plus the sidebar collapse control.
@@ -291,7 +292,7 @@ prohibited.
   - Any `#hex` or `rgb()` outside `wafar.single.css`.
   - `ml-`, `mr-`, `pl-`, `pr-`, `left`, `right`.
   - Direct `z-10`, `z-20`, `z-50`.
-  - Arabic-Indic numerals (٠١٢٣).
+  - Arabic-Indic numerals (Ù Ù¡Ù¢Ù£).
   - Positive `letter-spacing` on Arabic text.
   - Typefaces other than Tajawal, Noto Sans Arabic, or JetBrains Mono.
 
@@ -337,13 +338,16 @@ under the plan's Complexity Tracking table.
 | Parts | Search field, filters (part number, brand, car model, catalog file, supplier), a table of parts, pagination (20/50/100), column sorting. Accepts `?file=<id>` to filter by a catalog. |
 | Catalog | Table of every uploaded catalog file. |
 | Contact | Contact information and a form (name, phone, body) that reaches the administrator. |
-| Log In | Email and password. |
-| Sign Up | Merchant and shop details. |
-| Forgot Password | Password recovery. |
+| Log In | Mobile number and password. |
+| Sign Up | Full name, mobile number (with an Arab-country dial-code selector showing flag, country name, and code; default Libya +218), password, city (a searchable fixed dropdown of all Libyan cities, governorates, and areas), and an optional shop name. |
+| Forgot Password | Password reset via an OTP sent by SMS to the registered mobile number; a uniform response that does not reveal account existence. |
 | 404 | Error page. |
 | Privacy Policy | Static content. |
 | Terms of Use | Static content. |
 | FAQ | Frequently asked questions. |
+
+OTP verification is REQUIRED at sign-up; sign-in of a verified account
+requires no OTP.
 
 ### Merchant's Authenticated Area
 
@@ -374,11 +378,11 @@ under the plan's Complexity Tracking table.
 
 The following transitions are required by the product and MUST be supported:
 
-- Home → search → Parts
-- Catalog → click a file → Parts (filtered by that file)
-- My Files → click a file → Parts (filtered by that file)
-- Parts → `+` button → Cart (bookmark added)
-- Parts → `?file=<id>` → Parts (filtered by that file)
+- Home â†’ search â†’ Parts
+- Catalog â†’ click a file â†’ Parts (filtered by that file)
+- My Files â†’ click a file â†’ Parts (filtered by that file)
+- Parts â†’ `+` button â†’ Cart (bookmark added)
+- Parts â†’ `?file=<id>` â†’ Parts (filtered by that file)
 
 ### Product Features
 
@@ -392,7 +396,7 @@ implemented through a specification that references this list.
 | 3 | Supplier and Date Extraction | From the first page of the file. |
 | 4 | Column Normalisation | Across sources. |
 | 5 | Deduplication | By file, by page, by row. |
-| 6 | Arabic Search | Root-aware (طرمبة → طرمبات). |
+| 6 | Arabic Search | Root-aware (Ø·Ø±Ù…Ø¨Ø© â†’ Ø·Ø±Ù…Ø¨Ø§Øª). |
 | 7 | Multi-Filter Search | Part number, brand, car model, catalog file, supplier. |
 | 8 | Tables | Every data view. |
 | 9 | Pagination | 20 / 50 / 100. |
@@ -443,7 +447,7 @@ field list held here would be a second source that drifts from the one.
 
 | Entity | Owning module | One-line meaning |
 |---|---|---|
-| `User` | `users` | A registered merchant: identity, shop details, role. |
+| `User` | `users` | A registered merchant: mobile number (E.164, unique), country code, city, optional shop name, role. |
 | `Supplier` | `suppliers` | The company named on a catalog's first page. |
 | `Catalog` | `catalogs` | An uploaded supplier file, its metadata, its status, and its stored bytes. |
 | `Part` | `parts` | One row extracted from a catalog, representing one car part. |
@@ -451,7 +455,7 @@ field list held here would be a second source that drifts from the one.
 | `Notification` | `notifications` | A processing outcome or administrative message delivered to a user. |
 | `Conversation` | `messages` | The single thread between a merchant and the administrator. |
 | `Message` | `messages` | One message inside a conversation. |
-| `ContactMessage` | `support` | A message from the public contact form. |
+| `ContactMessage` | `support` | A message from the public contact form; its phone is for contact only, never an account identifier. |
 | `AuditLog` | `admin` | The append-only record of every administrator operation. |
 
 An entity absent from this table MUST NOT be introduced without amending this
@@ -629,9 +633,9 @@ schema should contain; see Deferred areas.
   plans.
 - A migration MUST NOT run outside the migration runner, and the application
   MUST NOT start when its expected schema version is absent.
-- A destructive change — dropping or renaming a column, narrowing a type,
+- A destructive change â€” dropping or renaming a column, narrowing a type,
   removing a constraint that existing rows rely on, or adding a uniqueness
-  rule over data that already contains duplicates — MUST NOT reach
+  rule over data that already contains duplicates â€” MUST NOT reach
   production. It MUST be split into an expand step, a backfill whose affected
   row count is verified, and a contract step, deployed across at least two
   releases.
@@ -793,8 +797,8 @@ an amendment to this constitution.
 | Limit | Value |
 |---|---|
 | Maximum file size | 100 MB |
-| Typical file size | 1 – 4 MB |
-| Large files (rare) | 10 – 15 MB |
+| Typical file size | 1 â€“ 4 MB |
+| Large files (rare) | 10 â€“ 15 MB |
 | Very large files (exceptional) | up to 20 MB |
 | Monthly upload limit per user | 50 files per calendar month |
 | Total upload limit per user | 100 files |
@@ -833,8 +837,8 @@ update-side rules those sections do not cover.
   be updated, replaced, or explicitly excepted within 30 days of the
   advisory, and the date MUST be recorded in the plan's Complexity Tracking
   table.
-- An automated dependency update process — Dependabot, Renovate, or
-  equivalent — MUST be configured before the first public release. Until it
+- An automated dependency update process â€” Dependabot, Renovate, or
+  equivalent â€” MUST be configured before the first public release. Until it
   exists, the vulnerability scan in continuous integration is the only
   detection point and MUST run on every merge rather than on a schedule.
 
@@ -863,7 +867,7 @@ the two ways a dependency base rots without a decision ever being made.
   lifetime; the dependency budget; the performance budget percentiles and
   the maximum query execution time; the Recovery Time Objective and Recovery
   Point Objective; the runtime version; the design-system version; the icon set;
-  the extraction libraries; the email transport; and the continuous-integration
+  the extraction libraries; the transactional SMS transport; and the continuous-integration
   provider. A value written in the body of the plan but not
   under that heading does not satisfy the rule that names it, and a plan
   with no such heading has not discharged any of them.
@@ -1034,7 +1038,7 @@ without an amendment to this constitution.
 | `apps/api` | The API server (Modular Monolith). |
 | `apps/worker` | The file-processing worker. The only writer of the search projection. |
 | `packages/shared` | Validation schemas, types, and contracts shared by frontend and backend. |
-| `packages/db` | Database schema and migrations — the single migration mechanism. |
+| `packages/db` | Database schema and migrations â€” the single migration mechanism. |
 | `packages/search` | Search client and index mappings. |
 | `packages/config` | ESLint, Prettier, Stylelint, and TypeScript configuration shared by every workspace. |
 | `pnpm-workspace.yaml`, `turbo.json`, `package.json` | Workspace definition and task graph; versions pinned, lockfile committed. |
@@ -1048,14 +1052,14 @@ amendment to this section.
 
 | Concern | Fixed location |
 |---|---|
-| API module | `apps/api/src/modules/<module>/{routes,service,repository}` — one directory per module named in Principle X. |
+| API module | `apps/api/src/modules/<module>/{routes,service,repository}` â€” one directory per module named in Principle X. |
 | Worker | `apps/worker/src/processors/{extract-parts,normalize,deduplicate,index-parts}.ts`, `apps/worker/src/queues/file-processing.ts`. |
 | Database | `packages/db/schema/<module>.ts`, `packages/db/migrations/`. |
 | Search | `packages/search/client.ts`, `packages/search/mappings/`. |
 | Frontend | `apps/web/{pages,components,composables,stores,layouts}`. |
 | Administrator frontend | `apps/admin/{pages,components,composables,stores,layouts}`. |
 | Validation | `packages/shared` only; a second local schema MUST NOT be created. |
-| Database ownership | `packages/db/schema/<module>.ts` — one file per module named in Principle X; the table it declares belongs to that module. |
+| Database ownership | `packages/db/schema/<module>.ts` â€” one file per module named in Principle X; the table it declares belongs to that module. |
 
 A feature MUST NOT create a parallel location for an artifact whose location is
 fixed above.
@@ -1072,7 +1076,7 @@ fixed above.
 | Database | PostgreSQL 16+, Drizzle ORM, PgDog | PgDog is pre-1.0: a plan using it MUST name a fallback and a review date |
 | Search | OpenSearch, the Arabic analyzer, Index Lifecycle Management | the index lifecycle is aligned with the 90-day deletion |
 | Files | SeaweedFS, BullMQ, Redis | Redis >= 5.0.0 (the BullMQ requirement) |
-| Auth | better-auth | `scim` and `sso` MUST stay disabled (CVE-2026-67330, CVE-2026-80192) |
+| Auth | better-auth | `scim` and `sso` MUST stay disabled (CVE-2026-67330, CVE-2026-80192); better-auth MUST be used with its phone-number extension, or an ADR-recorded alternative |
 | Testing | Vitest, Playwright | unit and integration in Vitest, end-to-end in Playwright |
 | Quality | ESLint, Prettier, Stylelint | `any` and double assertions are rejected |
 | Delivery | VPS (Hetzner or equivalent), Nginx or HAProxy, Docker (optional) | Docker is used only for staging parity |
@@ -1097,7 +1101,7 @@ fail Dependency Governance:
 | Gap | Required by | Owning slice |
 |---|---|---|
 | Excel, PDF, and Word extraction; content-type validation | File Processing Overview; Usage Limits | R3 (validation: R2) |
-| Transactional email for password recovery | Product Scope: Forgot Password | R1 |
+| Transactional SMS provider for OTP and password reset | Product Scope: Sign Up, Forgot Password | R1 (international provider such as Twilio/Vonage) |
 | Continuous-integration provider | Principle III coverage gate; Dependency Governance | R1 (the slice that introduces the test runner) |
 | Error tracker | Deployment and Observability | R12 (the first deploying slice) |
 | Secret manager, plus pre-commit and CI secret scanning | Query Safety and Secrets | R12 (the first deploying slice) |
@@ -1120,7 +1124,7 @@ The full design system is implemented in `wafar.single.css`, which is the only
 permitted source of design values. This section is its register: what the file
 contains, and the rules that keep it single. A value, family, class, or component
 absent from this register is not part of the design system and MUST NOT be used.
-A design value MUST NOT appear in this constitution — the register maps, the CSS
+A design value MUST NOT appear in this constitution â€” the register maps, the CSS
 holds the values, and a copy here would be a second source that drifts.
 
 ### Module map
@@ -1146,11 +1150,11 @@ change.
   aliases (`--background-*`, `--text-*`, `--border-*`, `--surface-*`).
   `gray` and `zinc` are re-pointed at the neutral ladder, and `info` is a synonym
   of `brand`; both are deliberate decisions, recorded in `docs/DECISIONS.md`.
-- Typography: `--text-4xs` … `--text-6xl`, the matching `--leading-*`, the
+- Typography: `--text-4xs` â€¦ `--text-6xl`, the matching `--leading-*`, the
   `--tracking-*` set, the `--font-weight-*` set, and `--font-sans`,
   `--font-display`, `--font-mono`.
 - Opacity and alpha: the opacity steps and the named alpha and tint values.
-- Spacing: `--space-0` … `--space-32`, the gutters, the container widths, the
+- Spacing: `--space-0` â€¦ `--space-32`, the gutters, the container widths, the
   screen widths, the touch floors, `--navbar-height`, `--sidebar-width`, the
   bottom-navigation tokens, and the safe-area tokens.
 - Radii: the radius ladder plus the named radii `shell`, `canvas`, `sheet`,
@@ -1173,7 +1177,7 @@ change.
 ### Breakpoints
 
 The media queries use 640, 768, 1024, 1280, 1536, and 1920 px as minimum widths,
-plus the `max-width` cases at 359, 639, and 1023 px and the 768–1023 px tablet
+plus the `max-width` cases at 359, 639, and 1023 px and the 768â€“1023 px tablet
 band. The token ladder names them, and the mapping below is binding:
 
 | Token | Value | Consumed by a media query? |
@@ -1223,7 +1227,7 @@ rule depends on each one.
   on mobile.
 - **Header**: `--navbar-height` (4.25rem / 68px).
 - **Accessibility**: `:focus-visible` (2px `--brand-500`), touch targets
-  ≥44px on mobile, contrast at least AA.
+  â‰¥44px on mobile, contrast at least AA.
 
 ### Interface State Matrix
 
@@ -1238,7 +1242,7 @@ not apply MUST be justified in the feature's plan, not silently omitted.
 | success | The normal rendered state, verified against the design system. |
 | disabled | A disabled state for every control that can be unavailable. |
 | responsive | Layout at the design system's breakpoints (sidebar fixed on desktop, drawer on mobile). |
-| accessibility | WCAG 2.2 AA, keyboard operable, `:focus-visible`, touch targets ≥ --touch-floor (Principle IV). |
+| accessibility | WCAG 2.2 AA, keyboard operable, `:focus-visible`, touch targets â‰¥ --touch-floor (Principle IV). |
 
 ### State map
 
@@ -1259,7 +1263,7 @@ states to the classes that render them.
 The product's pages and features require the following, and `wafar.single.css`
 does not provide them today: pagination (numbered buttons plus the 20/50/100
 page-size selector); a column sort indicator; the filters toolbar; file upload
-with progress; a confirmation overlay (the overlay Principle IX names "Modal" —
+with progress; a confirmation overlay (the overlay Principle IX names "Modal" â€”
 the system has `ds-overlay-root`, `ds-backdrop`, and `ds-drawer-panel`, but no
 modal); a toast; the message-thread surface; the cart add/remove toggle; the
 notification bell with its counter; the theme toggle; the icon set; and the
@@ -1347,6 +1351,7 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | **Merchant** | A registered user who uploads catalogs. |
 | **Administrator** | The operator of the platform, who uses a separate application with a separate login. |
 | **User** | A registered merchant account: identity and shop details. See the Data entities register. |
+| **Mobile number** | The account identifier, stored in E.164 form (+218â€¦), normalized before comparison. |
 | **Message** | One message inside a `Conversation`. See `docs/domain-model.md`. |
 | **ContactMessage** | A message from the public contact form. See `docs/domain-model.md`. |
 | **Deferred Area** | A decision area explicitly not governed by a principle yet. See Governance. |
@@ -1365,7 +1370,7 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | `Project-Technologies.txt` | The technology register's detail: exact versions, per-technology notes, and the repository trees. Mirrors Technology Standards, which wins on conflict. | Repository root. |
 | `Core-Project.txt` | The product's detail: pages, roles, and the acceptance criteria the product already states. Mirrors Product Register and Product Scope, which win on conflict. | Repository root. |
 | `docs/domain-model.md` | The data model's source of truth: entities, relationships, cardinality, invariants, and the owning module of each. Mirrors the Data entities register, which holds the map. | `docs/`. |
-| `wafar.single.css` | The design system's values — the only permitted source of design values, composed of fourteen modules. Mirrors Design System Standards, which holds the register. | Repository root. |
+| `wafar.single.css` | The design system's values â€” the only permitted source of design values, composed of fourteen modules. Mirrors Design System Standards, which holds the register. | Repository root. |
 | `docs/DECISIONS.md` | The record of design decisions and the reasoning behind them. | `docs/`. |
 | `docs/architecture.md` | The repository layout, module map, and data-flow descriptions. | `docs/`. |
 | `.specify/templates/exception-register.md` | The exception register required by Governance. | `.specify/templates/`. |
@@ -1396,18 +1401,21 @@ the same force as the principles above.
   re-evaluated after Phase 1 design.
 - `/speckit.analyze` runs the consistency gate by hand after `/speckit.tasks`
   and before implementation begins; its findings MUST be resolved before
-  `/speckit.implement` starts (see Governance → Module Discipline).
+  `/speckit.implement` starts (see Governance â†’ Module Discipline).
 - `/speckit.implement` and `/speckit.converge` MUST repeat until Converged; a
   feature reports Converged only when converge reports Converged.
 - Every ADR first named by a plan MUST be reaffirmed in that plan's
   Constitution Check.
 - All artifacts and tools that read or write them MUST use UTF-8.
 - Every search index MUST have exactly one mapping owner.
-- Every sub-spec MUST begin with `**Input**: Parent roadmap: ROADMAP.md → R#`.
+- Every sub-spec MUST begin with `**Input**: Parent roadmap: ROADMAP.md â†’ R#`.
 
 ## Product Fact Clarifications
 
 - Contact form fields are exactly `name`, `phone`, and `body`.
+- No email address exists anywhere in the platform: no sign-up email, no
+  login email, no transactional email. The mobile number in E.164 form is
+  the sole account identifier.
 - The platform is free to merchants: uploading and searching MUST NOT charge
   the merchant.
 - When the cart reaches 99 parts, the user MUST be shown a full-cart notice.
@@ -1422,8 +1430,8 @@ the same force as the principles above.
   theme-toggle, and sidebar-collapse controls for an authenticated user. A
   guest MUST see a login action instead of those controls. The platform logo
   sits in the sidebar header, and the quick search field lives on the Home
-  page (see Product Scope). Pages without the shell — authentication, 404,
-  static, and administrator pages — carry no header.
+  page (see Product Scope). Pages without the shell â€” authentication, 404,
+  static, and administrator pages â€” carry no header.
 
 ## Governance
 
@@ -1449,8 +1457,8 @@ its automation exists: a rule that names an automated check the repository
 does not yet have remains binding and is reviewed manually until the
 milestone it states, as Module Discipline and Development Workflow requires.
 
-Governance's own MUSTs — the amendment procedure, the versioning policy, the
-exception register, and the review trigger — bind this document rather than a
+Governance's own MUSTs â€” the amendment procedure, the versioning policy, the
+exception register, and the review trigger â€” bind this document rather than a
 feature. A plan cannot comply with or breach them by changing its own
 content, so they are not evaluated by a feature's Constitution Check gate.
 They are discharged by the amendment process and by the review trigger below,
@@ -1532,4 +1540,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.12.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03
+**Version**: 2.13.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03
