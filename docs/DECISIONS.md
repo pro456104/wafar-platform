@@ -10,7 +10,8 @@ the directory that owns it (`docs/`, per the References table) and names its
 owning feature. The records predate every feature — ADR-001 to ADR-007 were made
 during repository bootstrap on 2026-10-01, ADR-008 and ADR-009 on 2026-10-02, and
 ADR-010 with constitution 2.7.1 on 2026-10-02, ADR-011 and ADR-012 on
-2026-10-02, and ADR-013 on 2026-10-02 — so each record names
+2026-10-02, and ADR-013 on 2026-10-02, and ADR-014 with constitution 2.8.0 on
+2026-10-02 — so each record names
 "none yet — repository bootstrap" as the owning feature and states the
 reaffirmation duty of the first feature whose plan depends on it. When that
 feature is planned, it MUST name the ADR (e.g., `ADR-003`) in its plan's
@@ -519,6 +520,10 @@ JetBrains Mono), and Arabic body text carried positive letter-spacing
 Principle V/IX violation, not a preference. The version bump is recorded here as
 required by the extension procedure.
 
+**Identifier note.** The slice this consequence names as "R4" is the parts-search
+slice, which ADR-015 renumbered to **R5**. The decision recorded above is
+unchanged; only the identifier moved.
+
 ## ADR-013 — Converge stays a separate command, not a workflow step
 
 **Status**: Accepted - 2026-10-02
@@ -543,3 +548,149 @@ list.
 **Consequences.** Project docs that list the loop (AGENTS.md workflow note,
 README) MUST show implement → converge as a repeatable pair. Any future desire
 to make converge a workflow step requires a new ADR revisiting this one.
+
+## ADR-014 — Constitution 2.8.0: artifact traceability and product fact clarifications
+
+**Status**: Accepted - 2026-10-02
+**Owning directory**: `.specify/memory/`
+**Owning feature**: none yet - repository bootstrap (pre-feature record)
+
+**Context.** A project audit found workflow rules and product facts present in
+templates, roadmap notes, ADRs, and `Core-Project.txt` but not yet bound by the
+constitution itself. Those rules were therefore visible to humans but not
+reliably enforced by Constitution Check, `/speckit.analyze`, or `/speckit.converge`.
+
+**Decision.** Add binding, additive-only material to
+`.specify/memory/constitution.md` as v2.8.0: stable `SC-###` identifiers, the cap
+on `NEEDS CLARIFICATION`, test-first when requested, reference tails on tasks,
+repeat Constitution Check after Phase 1, the implement/converge loop, ADR
+reaffirmation, UTF-8 artifact handling, one index mapping owner, sub-spec
+`Input` convention, and product fact clarifications for contact fields, free
+merchant use, full-cart notice, messaging visibility, and header controls.
+
+**Consequences.** No existing principle is removed or redefined. Templates,
+README, ROADMAP, AGENTS.md, and architecture notes must point to the
+constitution as the authoritative source for these rules and carry v2.8.0 /
+ADR-001 … ADR-014 references.
+
+---
+
+## ADR-015 — The slice order becomes fifteen slices, and a slice identifier equals its specification number
+
+**Status**: Accepted - 2026-10-03
+**Owning directory**: `docs/`
+**Owning feature**: none - governance decision; ratified by the repository owner
+
+**Context.** The thirteen-slice roadmap left five things without an owner, and
+two ordering rules it did satisfy. The My Files page (`Core-Project.txt:91`) had
+no slice: the file-intake slice's scope boundary excluded it explicitly, and the
+page carries the star action for an already-present file and the retry action for
+a failed file, which the extraction slice creates. The application shell —
+header, sidebar, theme toggle, fonts, and the Tailwind-to-token bridge — had no
+owner, so every browser-facing slice would have rebuilt it, and two constitution
+conflicts were assigned to "the first surface that lays out a page" and "the
+first slice that introduces the test runner", which no slice satisfied. Six
+register gaps were assigned to "the first deploying slice" and to "the slice that
+introduces persistent storage". The administrator slice did not depend on the
+extraction slice whose output it administers, and it preceded the audit-log
+slice while Authorization and Access Control requires every administrator
+operation to be recorded.
+
+The identifiers and the specification directories had never been reconciled: the
+roadmap's `Sub-spec` column was empty for all thirteen rows, `specs/` did not
+exist, and no feature branch had ever been created, so there was no historical
+traceability to protect. Eight lines outside `ROADMAP.md` carried slice
+identifiers — seven in the constitution's unresolved-facts and register-gaps
+tables, one in ADR-012.
+
+**Decision.** The roadmap becomes fifteen slices, renumbered so that a slice
+identifier equals its specification number:
+
+| Was | Now | Slice |
+|---|---|---|
+| R1 | R1 | Identity — now carries the foundation duties named above |
+| — | R2 | File intake |
+| R2 | R3 | Catalog extraction |
+| — | R4 | My Files |
+| R3 | R5 | Parts search |
+| R4 | R6 | Catalog page |
+| R10 | R7 | Profile |
+| R5 | R8 | Cart (bookmarks) |
+| R6 | R9 | Notifications |
+| R7 | R10 | Messaging |
+| R8 | R11 | Support surfaces |
+| — | R12 | Delivery and operations |
+| R9 | R13 | Admin application |
+| R11 | R14 | Audit log |
+| R12 | R15 | Retention |
+
+The foundation duties are folded into the identity slice rather than given a
+slice of their own: Principle VIII requires every user story to deliver
+observable value and the P1 set to be a shippable MVP, a slice whose only story
+is a contributor setup story cannot satisfy that, and `docs/architecture.md`
+directs that a directory is created by the first feature that owns it, so
+`apps/admin` and `apps/worker` are created by their own slices rather than as
+empty scaffolding. Recording every administrator operation is part of the
+administrator slice itself, not the later audit-log slice. The constitution is
+amended to v2.9.0 with the identifier changes above and with each "first slice"
+gap given a named owner. `ROADMAP.md` carries a defects table naming, for each of
+the thirteen defects found, the slice that closes it.
+
+**Alternatives considered.**
+- *Keep the identity slice first and let it absorb the foundation.* Rejected as
+  the identity slice's own scope; the foundation duties are large enough that
+  hiding them inside authentication makes the slice's boundary unreviewable.
+- *A separate foundation slice with contributor stories.* Rejected: a story
+  about running the project is not observable product value, and Principle VIII
+  makes that a violation rather than a preference.
+- *Append slices as R14, R15, R16 and leave the old numbering.* Rejected: every
+  reference would then need the `Sub-spec` column to resolve, which is the
+  cognitive load the alignment removes.
+- *Merge My Files into file intake.* Rejected: the scope boundary excludes the
+  page, and the retry action does not exist until extraction lands.
+- *Keep the audit-log slice after the administrator slice and record operations
+  there.* Rejected: that leaves a window in which administrator operations are
+  unrecorded, which Authorization and Access Control does not permit.
+
+**Consequences.** A reference to a slice now resolves without a lookup table.
+`constitution.md`, `ROADMAP.md`, and the identifiers in ADR-012 move together;
+the ADR-012 text is annotated rather than rewritten, because a decision record is
+history. Each slice's specification opens with `**Input**: Parent roadmap:
+ROADMAP.md → R#.`, which the binding specification template now carries. A
+synonym file such as `SLICE-MAP.md` MUST NOT be created: `ROADMAP.md` is the
+slice order, and a second copy is a drift defect.
+
+---
+
+## ADR-016 — The icon set and the shell belong to the foundation duties of R1
+
+**Status**: Accepted - 2026-10-03
+**Owning directory**: `wafar.single.css` · register: constitution Principle IX and Design System Standards
+**Owning feature**: none - governance decision; ratified by the repository owner
+
+**Context.** Three design-system obligations had no slice able to discharge them.
+The icon set was assigned to the parts-search slice, but the header's account,
+notifications, and theme-toggle controls are needed by the first surface the
+project lays out, so the shell would either ship without icons or violate the
+register. The theme toggle is listed among the components the product requires and
+the stylesheet does not provide. ADR-009 requires the eight declared-but-
+unconsumed `--screen-*` tokens to be consumed or removed before the first surface
+relies on a breakpoint, and no slice owned that.
+
+**Decision.** The icon set and the theme toggle are owned by the shell duties in
+R1, and the constitution's register-gap row for the icon set names R1.
+`wafar.single.css` moves to 1.0.2 in R1's change: the self-hosted Tajawal and
+JetBrains Mono delivery, the icon set, the theme toggle, and the disposal of every
+`--screen-*` token the new shell does not wire to a media query.
+
+**Alternatives considered.**
+- *Leave the icon set with the parts-search slice and ship an iconless shell.*
+  Rejected: the header controls are inoperable without it, and the product fact
+  clarifications require them on every page header.
+- *Wire all eight `--screen-*` tokens in R1.* Rejected: a token is wired only
+  where the shell changes at that breakpoint; the remainder are deleted, as
+  ADR-009's "consumed or removed" requires.
+
+**Consequences.** Every later slice composes the shell rather than rebuilding it.
+A component genuinely missing later is still added to `wafar.single.css` by the
+slice that first needs it, and the module map is updated in the same change.

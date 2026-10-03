@@ -420,11 +420,11 @@ one on its own:
 
 | Conflict | Sources | Resolve in |
 |---|---|---|
-| Home carries three statistical cards (accounts, files, parts) or four (plus searches) | `Core-Project.txt` (three); Product Scope and ROADMAP (four) | R4 |
-| A sidebar is required on desktop and must not hide or slide | Principle IX and Design System Standards; `Core-Project.txt` describes a header only, and the design system ships bottom-navigation and collapsed-sidebar tokens | the first surface that lays out a page |
-| Support reaches the administrator through a conversation, a ticket, or a contact message | Product Register entities and the `support` module; Product Scope defines the Contact page only | R9 |
-| `expires_at` is the retention deadline or the supplier's printed expiry date | Schema and Migration Control, Glossary (retention); `Core-Project.txt` (supplier date) | R13 |
-| Notification retention is undetermined | The product statement defers it ("to be determined later") | R7 |
+| Home carries three statistical cards (accounts, files, parts) or four (plus searches) | `Core-Project.txt` (four); Product Scope and ROADMAP (four) | R5 |
+| A sidebar is required on desktop and must not hide or slide | Principle IX and Design System Standards; `Core-Project.txt` describes a header only, and the design system ships bottom-navigation and collapsed-sidebar tokens | R1 |
+| Support reaches the administrator through a conversation, a ticket, or a contact message | Product Register entities and the `support` module; Product Scope defines the Contact page only | R11 |
+| `expires_at` is the retention deadline or the supplier's printed expiry date | Schema and Migration Control, Glossary (retention); `Core-Project.txt` (supplier date) | R15 |
+| Notification retention is undetermined | The product statement defers it ("to be determined later") | R9 |
 
 ## File Processing Overview
 
@@ -962,15 +962,15 @@ fail Dependency Governance:
 
 | Gap | Required by | Owning slice |
 |---|---|---|
-| Excel, PDF, and Word extraction; content-type validation | File Processing Overview; Usage Limits | R3 (validation: R2) |
+| Excel, PDF, and Word extraction; content-type validation | File Processing Overview; Usage Limits | R4 (validation: R3) |
 | Transactional email for password recovery | Product Scope: Forgot Password | R1 |
-| Continuous-integration provider | Principle III coverage gate; Dependency Governance | the first slice that introduces the test runner |
-| Error tracker | Deployment and Observability | the first deploying slice |
-| Secret manager, plus pre-commit and CI secret scanning | Query Safety and Secrets | the first deploying slice |
-| TLS certificate management | Identity, Authentication, and Session Policy | the first deploying slice |
-| Backup and restore tooling | Deployment and Observability | the slice that introduces persistent storage |
-| Log pipeline | Deployment and Observability | the first deploying slice |
-| Icon set used by the interface | Product Scope; Design System Standards | R4 |
+| Continuous-integration provider | Principle III coverage gate; Dependency Governance | R1 (the slice that introduces the test runner) |
+| Error tracker | Deployment and Observability | R12 (the first deploying slice) |
+| Secret manager, plus pre-commit and CI secret scanning | Query Safety and Secrets | R12 (the first deploying slice) |
+| TLS certificate management | Identity, Authentication, and Session Policy | R12 (the first deploying slice) |
+| Backup and restore tooling | Deployment and Observability | R1 (the slice that introduces persistent storage) |
+| Log pipeline | Deployment and Observability | R12 (the first deploying slice) |
+| Icon set used by the interface | Product Scope; Design System Standards | R1 |
 
 ### Licence treatment for infrastructure services
 
@@ -1217,6 +1217,45 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | `.clinerules/project-context.md` | The same operating duty expressed to the Cline agent. | `.clinerules/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
 
+## Artifact Workflow and Traceability
+
+These rules govern the shape of the Spec Kit artifacts. They are binding with
+the same force as the principles above.
+
+- Every specification MUST use stable identifiers: `FR-###`, `AC-###`, and
+  `SC-###`. Identifiers MUST NOT be renumbered or reused; an item is withdrawn
+  only by keeping its identifier and marking it withdrawn.
+- A specification MUST carry at most three unresolved `NEEDS CLARIFICATION`
+  items. More than three means the feature is not ready for planning.
+- Tests, when requested by the specification's Test Coverage Request, MUST be
+  written before implementation and MUST fail before implementation changes.
+- Every task MUST end with `(implements FR-###, AC-###)`, or, when no
+  requirement genuinely applies, `(implements Complexity Tracking: <row>)`.
+- Every task MUST end in a commit; commits MUST reference the spec, plan, and
+  task identifiers.
+- `plan.md` Constitution Check MUST be evaluated before Phase 0 and
+  re-evaluated after Phase 1 design.
+- `/speckit.implement` and `/speckit.converge` MUST repeat until Converged; a
+  feature reports Converged only when converge reports Converged.
+- Every ADR first named by a plan MUST be reaffirmed in that plan's
+  Constitution Check.
+- All artifacts and tools that read or write them MUST use UTF-8.
+- Every search index MUST have exactly one mapping owner.
+- Every sub-spec MUST begin with `**Input**: Parent roadmap: ROADMAP.md → R#`.
+
+## Product Fact Clarifications
+
+- Contact form fields are exactly `name`, `phone`, and `body`.
+- The platform is free to merchants: uploading and searching MUST NOT charge
+  the merchant.
+- When the cart reaches 99 parts, the user MUST be shown a full-cart notice.
+- A message sent by a merchant is visible to the sender immediately; the
+  administrator's reply is visible after a page refresh unless a live-update
+  mechanism has been specified.
+- Every page header MUST carry the brand logo, the quick search field, and the
+  account and notifications dropdowns for an authenticated user. A guest MUST
+  see a login action instead of those dropdowns.
+
 ## Governance
 
 **Authority.** This constitution supersedes ad-hoc convention and any other
@@ -1321,4 +1360,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.7.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-02
+**Version**: 2.9.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03

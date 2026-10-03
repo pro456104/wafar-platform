@@ -97,4 +97,4 @@
 
 ## Governance
 
-**Version**: 2.7.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-02
+**Version**: 2.9.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03
