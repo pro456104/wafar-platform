@@ -45,6 +45,7 @@ Constitution Check; from then on the record has a feature owner.
 | [ADR-024](#adr-024--constitution-2111-stylelint-named-in-technology-standards) | Constitution 2.11.1: Stylelint named in Technology Standards | 2026-10-03 | 2.11.1 |
 | [ADR-025](#adr-025--the-segoe-ui-fallback-leaves-the-tajawal-font-stack) | The Segoe UI fallback leaves the Tajawal font stack | 2026-10-03 | 2.11.1 (unchanged) |
 | [ADR-026](#adr-026--git-branching-workflow-extension-adopted-mandatory-feature-branches) | Git Branching Workflow Extension adopted; mandatory feature branches | 2026-10-03 | 2.11.1 (unchanged) |
+| [ADR-027](#adr-027--audit-fix-set-adr-stamps-workflow-version-hook-state-cline-registration-css-token) | Audit fix set: ADR stamps, workflow version, hook state, cline registration, CSS token | 2026-10-03 | 2.11.1 (unchanged) |
 
 ---
 
@@ -1068,3 +1069,53 @@ Development workflow, `.clinerules/project-context.md`, and
 2.11.1. The extension is recorded in `.specify/extensions.yml` and
 `.specify/extensions/.registry`; its manifest hashes are recorded in the
 three integration manifests per ADR-022 practice.
+
+---
+
+## ADR-027 — Audit fix set: ADR stamps, workflow version, hook state, cline registration, CSS token
+
+**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.11.1
+(unchanged; this is a documentation/config consistency fix set, not a
+governance amendment).
+
+**Context.** A deep audit (2026-10-03) found register drift that the
+constitution's own Single-Reference Sufficiency rule treats as a defect:
+four files still stamped `ADR-001 … ADR-024` after ADR-026 landed; the
+workflow registry disagreed with the workflow file on the version; ADR-026
+described the `git.commit` hooks as disabled while `extensions.yml`
+registered them `enabled: true`; the `cline` integration lacked the git
+command files and was not registered for `assess`/`bug`/`git` in the
+registry; the roadmap added a quota nuance absent from the constitution;
+and `wafar.single.css` hardcoded a duration on the `body` transition.
+
+**Decision.**
+
+1. `AGENTS.md`, `README.md`, `ROADMAP.md`, and `docs/architecture.md` are
+   restamped to `ADR-001 … ADR-026`.
+2. `.specify/workflows/workflow-registry.json` is aligned to the workflow
+   file's own version, `1.1.0`.
+3. Every `speckit.git.commit` hook in `.specify/extensions.yml` is set to
+   `enabled: false`, making the registered state match ADR-026 and
+   `git-config.yml` (`auto_commit.default: false`). Re-enabling requires
+   editing both files, by design.
+4. The `cline` integration gains the git command files under
+   `.clinerules/workflows/` (frontmatter `name: speckit-git-*`, mirroring
+   the opencode copies), the `cline.manifest.json` is rebuilt to cover all
+   registered workflow files, and `.registry` now lists `cline` under the
+   `git` extension's `registered_commands`.
+5. `ROADMAP.md`'s upload-quota note is aligned to the constitution: the
+   limits are `50 files per calendar month, 100 files in total`, with no
+   deleted-files exception. Any such exception requires a constitution
+   amendment first.
+6. The `body` transition in `wafar.single.css` now uses
+   `var(--duration-slow)` instead of a hardcoded `400ms`, so the static
+   token-enforcement gate has a real target.
+
+**What deliberately did not change.** No constitution text, no module map,
+no principle, no ownership decision, no usage limit, and no design token
+value. The stagger ladder `.ds-delay-*` (100/200/300/400/500ms) is kept:
+it is a defined animation-delay scale, not a motion-duration token.
+
+**Consequences.** The registers agree with their sources again; cline
+reproduces the same command surface as opencode; and the next audit pass
+should find no stamp drift.

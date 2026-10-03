@@ -3,7 +3,7 @@
   "workflows": {
     "speckit": {
       "name": "Full SDD Cycle",
-      "version": "1.1.1",
+      "version": "1.1.0",
       "description": "Runs constitution → specify → clarify → plan → checklist → tasks → analyze → implement → converge with review gates; git extension hooks (git.initialize, git.feature mandatory; git.commit optional, disabled by default)",
       "source": "bundled",
       "installed_at": "2026-09-30T00:43:42.339552+00:00",
