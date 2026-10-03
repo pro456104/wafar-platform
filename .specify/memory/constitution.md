@@ -367,6 +367,7 @@ under the plan's Complexity Tracking table.
 | Messages | Reply to users. |
 | Notifications | Broadcast. |
 | Settings | Platform settings. |
+| Contact messages | Review contact-form messages. |
 | Audit Log | Every administrator operation. |
 
 ### Page Flow
@@ -422,9 +423,9 @@ Every administrator operation MUST be recorded in the audit log.
 
 ### Pages
 
-Twenty-five pages are in scope, and they are listed in Product Scope. The
+Twenty-six pages are in scope, and they are listed in Product Scope. The
 transitions in Product Scope are the required navigation. A screen that is not
-one of the twenty-five MUST NOT be added without amending this register.
+one of the twenty-six MUST NOT be added without amending this register.
 
 ### Features
 
@@ -489,7 +490,6 @@ one on its own:
 
 | Conflict | Sources | Resolve in |
 |---|---|---|
-| Support reaches the administrator through a conversation or a contact message | Product Register entities (`Conversation`, `ContactMessage`) and the `support` module; Product Scope defines the Contact page only | R11 |
 | `expires_at` is the retention deadline or the supplier's printed expiry date | Schema and Migration Control, the retention discussion, and `Core-Project.txt` (supplier date) | R15 |
 | Notification retention is undetermined | The product statement defers it ("to be determined later") | R9 |
 | A message's sender is either a merchant or an administrator, and the register names one sender | Product Register (`Message` carries a single sender); Authorization and Access Control (the administrator is a separate principal with a separate login) | R10 |
@@ -501,6 +501,11 @@ sidebar is required on desktop and must not hide or slide (Principle IX);
 `Core-Project.txt` now defines the shell including the sidebar; authentication,
 404, static, and administrator pages are exempt from the shell. Recorded in
 `docs/DECISIONS.md` (ADR-017).
+
+**Resolved conflict (2026-10-03).** Support reaches the administrator through a
+dedicated administrator page ("Contact messages"), not through the merchant
+conversation thread and not through user-to-user chat. Recorded in
+`docs/DECISIONS.md` (ADR-028).
 
 **Resolved conflict (2026-10-03).** Home carries four statistical cards
 (accounts, files, parts, searches) across Product Scope and the mirror; R5's
@@ -791,7 +796,7 @@ an amendment to this constitution.
 | Typical file size | 1 – 4 MB |
 | Large files (rare) | 10 – 15 MB |
 | Very large files (exceptional) | up to 20 MB |
-| Monthly upload limit per user | 50 files / month |
+| Monthly upload limit per user | 50 files per calendar month |
 | Total upload limit per user | 100 files |
 | Maximum cart size | 99 parts |
 | Automatic file deletion | after 90 days |
@@ -1527,4 +1532,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.11.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03
+**Version**: 2.12.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03

@@ -1,7 +1,7 @@
 # Architecture — Wafar
 
 This document records the repository layout, the API module map, and the data
-flow. Its sources of authority are `.specify/memory/constitution.md` (v2.11.1),
+flow. Its sources of authority are `.specify/memory/constitution.md` (v2.12.0),
 whose Technology Standards and Design System Standards are the registers, and
 `Project-Technologies.txt`; where this document and the constitution disagree,
 the constitution wins. The data model's entities and their owning modules are
@@ -63,7 +63,7 @@ import from one module to another.
 | `notifications` | Processing-completed/failed notices and administrative messages; read state. | Failed processing presents a retry action. |
 | `messages` | The single conversation thread between a merchant and the administrator. | Direct user-to-user messaging is prohibited (Principle VI). |
 | `support` | Support content and assistance flows: FAQ, privacy policy, terms of use; contact intake that reaches the administrator. | Public pages from Product Scope. |
-| `admin` | Administrator operations: users, files (review/delete/reprocess), suppliers, parts (edit/add), message replies, broadcasts, settings. | Every administrator operation is recorded in the append-only audit log (Authorization and Access Control). |
+| `admin` | Administrator operations: users, files (review/delete/reprocess), suppliers, parts (edit/add), message replies, broadcasts, settings, contact messages. | Every administrator operation is recorded in the append-only audit log (Authorization and Access Control). |
 
 Cross-cutting rules for every module:
 
@@ -196,10 +196,10 @@ Read/write notes:
 
 ## 6. Governance pointers
 
-- Constitution: `.specify/memory/constitution.md` (v2.11.1) — principles I–X and
+- Constitution: `.specify/memory/constitution.md` (v2.12.0) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-026; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-028; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
@@ -213,8 +213,8 @@ Read/write notes:
   Constitution Check, which rules are still missing and when they will be
   ratified. The open product facts that touch this architecture — the message
   sender's representation, the conversation's administrator reference, whether
-  an administrator is a distinct entity, `expires_at`, notification
-  retention, and whether admin support runs as a conversation or
-  as contact messages (R11) — are listed in
+  an administrator is a distinct entity, `expires_at`, and notification
+  retention — are listed in
   `docs/domain-model.md` → Unresolved facts, each with
-  the slice that must decide it.
+  the slice that must decide it. The contact-message path was resolved
+  2026-10-03 by ADR-028 (a dedicated "Contact messages" administrator page).

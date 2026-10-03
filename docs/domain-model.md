@@ -5,7 +5,7 @@ entities the product reasons about, the relationships between them, their
 cardinality, their invariants, and the module that owns each one. It is the
 source the constitution's Product Register maps.
 
-Its authority is `.specify/memory/constitution.md` (v2.11.1); where this
+Its authority is `.specify/memory/constitution.md` (v2.12.0); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
 change to a registered product fact and MUST be recorded as an ADR in
@@ -187,9 +187,10 @@ service layer re-checks the ones a constraint cannot express.
 
 - **The submitted fields are exactly `name`, `phone`, and `body`** (Product
   Fact Clarifications). A fourth field is a product change.
-- **A contact message reaches the administrator without a conversation.**
-  Whether it becomes a conversation, a queue the administrator application
-  reads, or its own inbox is an unresolved product fact owned by R11.
+- **A contact message reaches the administrator on the dedicated "Contact
+  messages" administrator page** (ADR-028, 2026-10-03). Whether the
+  administrator's response is recorded on it stays an unresolved fact owned
+  by R11.
 
 ### AuditLog
 
@@ -245,12 +246,15 @@ Recorded rather than silently resolved, per the constitution's Unresolved
 product facts rule. Each names the slice that must decide it and record the
 answer in `docs/DECISIONS.md`. A slice MUST NOT decide one on its own.
 
-**Read this table before planning.** The first six are also carried in the
-constitution's Unresolved product facts table, so a slice reading either document
-sees the same six questions with the same owners. The remaining rows exist only
-in this table and in `ROADMAP.md` → Open data-model questions; they are the
-facts that reached the product mirror without ever reaching the constitution's
-register, which is why they were unbuildable before this document existed.
+**Read this table before planning.** The first four and row 6 are also carried
+in the constitution's Unresolved product facts table, so a slice reading either
+document sees the same questions with the same owners. The remaining rows exist
+only in this table and in `ROADMAP.md` → Open data-model questions; they are
+the facts that reached the product mirror without ever reaching the
+constitution's register, which is why they were unbuildable before this
+document existed. Row 5 was resolved 2026-10-03 by ADR-028 (a dedicated
+administrator "Contact messages" page, owned by R13) and is kept struck-through
+for traceability.
 
 | # | Unresolved fact | Why it is not decided here | Decided in |
 |---|---|---|---|
@@ -258,7 +262,7 @@ register, which is why they were unbuildable before this document existed.
 | 2 | Whether `Conversation` carries an administrator reference when every administrator account sees the same thread. | The thread is single and shared; whether the administrator side is a reference, a role, or absent is a schema decision. | R10 |
 | 3 | Whether `expires_at` is the retention deadline or the supplier's printed expiry date. | Two product sources disagree; both readings are defensible. | R15 |
 | 4 | Notification retention. | The product statement defers it. | R9 |
-| 5 | Whether a contact message becomes a conversation or is read in its own inbox. | Product Scope defines the Contact page only; no administrator page is defined for it. | R11 |
+| 5 | ~~Whether a contact message becomes a conversation or is read in its own inbox.~~ Resolved 2026-10-03 by ADR-028: a dedicated administrator "Contact messages" page. | — | — |
 | 6 | Whether an administrator is a distinct entity or a role on `User`. | The register treats administrators as a role on `User`, while the conversation and the audit record refer to an administrator as a party. | R13 |
 | 7 | What state an account carries, and whether a blocked merchant is a state or a separate flag. The product mirror's identifier for it is `User.status`. | The Product Register's roles make blocking an administrator power, but no state is registered for it, so `block user` currently has nothing to write. | R1 |
 | 8 | Whether the `auth` module owns any stored entity of its own, or whether an account's identity and credential data belong entirely to `users`. | Principle X lists `auth` as a module and Technology Standards fixes `packages/db/schema/auth.ts` as its schema file, yet no registered entity is owned by `auth`. Either the module owns a table that the register does not name, or the schema file is a peer of `users.ts` rather than the owner of one. R1 introduces both modules, so R1 is where this is answered. | R1 |

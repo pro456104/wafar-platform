@@ -11,7 +11,7 @@
 **Input**: User description: "$ARGUMENTS"
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.11.1) - NORMATIVE:
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.12.0) - NORMATIVE:
   1. Technology-agnostic (Principle VII): this file MUST NOT name languages,
      frameworks, libraries, databases, products, or architectural patterns.
      Product behaviour only; every technical detail belongs in plan.md.

@@ -46,6 +46,8 @@ Constitution Check; from then on the record has a feature owner.
 | [ADR-025](#adr-025--the-segoe-ui-fallback-leaves-the-tajawal-font-stack) | The Segoe UI fallback leaves the Tajawal font stack | 2026-10-03 | 2.11.1 (unchanged) |
 | [ADR-026](#adr-026--git-branching-workflow-extension-adopted-mandatory-feature-branches) | Git Branching Workflow Extension adopted; mandatory feature branches | 2026-10-03 | 2.11.1 (unchanged) |
 | [ADR-027](#adr-027--audit-fix-set-adr-stamps-workflow-version-hook-state-cline-registration-css-token) | Audit fix set: ADR stamps, workflow version, hook state, cline registration, CSS token | 2026-10-03 | 2.11.1 (unchanged) |
+| [ADR-028](#adr-028--constitution-2120-quota-window-and-contact-message-path) | Constitution 2.12.0: quota window, contact-message path | 2026-10-03 | 2.12.0 |
+| [ADR-029](#adr-029--roadmap-dependency-and-ownership-corrections) | Roadmap dependency and ownership corrections | 2026-10-03 | 2.12.0 |
 
 ---
 
@@ -1119,3 +1121,76 @@ it is a defined animation-delay scale, not a motion-duration token.
 **Consequences.** The registers agree with their sources again; cline
 reproduces the same command surface as opencode; and the next audit pass
 should find no stamp drift.
+
+---
+
+## ADR-028 — Constitution 2.12.0: quota window and contact-message path
+
+**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.12.0.
+
+**Context.** A deep audit of `ROADMAP.md` against the constitution found two
+facts the constitution underdetermined: the window semantics of the monthly
+upload limit ("50 files / month" while ADR-027 recorded "50 files per calendar
+month"), and the path by which a `ContactMessage` reaches the administrator
+(unresolved product fact #5, deferred to R11, with no administrator surface
+registered for it).
+
+**Decision.** Constitution 2.12.0, two changes:
+
+1. **Usage Limits.** The monthly upload limit is stated as "50 files per
+   calendar month", aligning the constitution with ADR-027 and `ROADMAP.md`.
+2. **Contact-message path.** A `ContactMessage` reaches the administrator
+   through a dedicated administrator page, "Contact messages", added to
+   Product Scope's Administrator's Application table. The unresolved-facts row
+   is removed from the constitution's Product Register and re-recorded as a
+   resolved conflict. The page count moves from twenty-five to twenty-six, and
+   R13 (which already depends on R11) owns its surface.
+
+**What deliberately did not change.** No principle, module, entity, budget,
+limit, or register gap was added, removed, or redefined. The bump is MINOR
+because Product Scope gained a page.
+
+**Consequences.** ADR-029 closes roadmap defect #6 and marks open question #5
+resolved in `ROADMAP.md` and `docs/domain-model.md`. The constitution's version
+stamps in `docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`,
+`AGENTS.md`, `README.md`, and the template-override binding blocks move to
+2.12.0 in the same change. `Core-Project.txt` mirrors the new admin page row.
+
+---
+
+## ADR-029 — Roadmap dependency and ownership corrections
+
+**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.12.0
+(unchanged; governance documents only).
+
+**Context.** The same audit found roadmap defects: the `suppliers` module had
+no owning slice; R10's "notification on reply" required the notifications
+module that R9 introduces; R15's deletion path must withdraw bookmarks (R8);
+R5's Home cards depend on R1/R2 counters; the presigned multipart upload
+transport was assigned to R3 although the upload endpoint belongs to R2;
+`/api/v1` versioning was assigned to R2 although the first HTTP surface is R1;
+R2's file-ingestion internals ownership was missing from the deferred-areas
+note; and defect #16's phrasing read as a typo.
+
+**Decision.** `ROADMAP.md` is corrected:
+
+1. R3 creates the `suppliers` module during first-page supplier extraction;
+   R13 administers it.
+2. R10 depends on R1 **and R9**.
+3. R15 depends on R3 **and R8**; index lifecycle note unchanged.
+4. R5 depends on R1, R2, **and** R3 (Home counters need accounts, files,
+   parts, and the search event counter R5 must define).
+5. The Home "searches" counter's storage is decided by R5 and recorded as an
+   ADR; no entity owns it today.
+6. The presigned multipart upload transport belongs to R2 (the upload surface).
+7. `/api/v1` versioning belongs to R1 (the first HTTP surface).
+8. The deferred-areas note names R2 for file ingestion internals.
+9. Defect #16 rephrased to "R10 (مرتين)، R13"; defect #6 closed by ADR-028.
+10. Open question #5 is marked resolved; questions #1–#4 and #6–#11 stay open.
+
+**What deliberately did not change.** No slice is added, reordered, or merged;
+no scope boundary is widened beyond the ownership corrections above.
+
+**Consequences.** Every slice's `Depends on` now matches the modules and
+entities its scope names. The consistency gate can verify ownership without
+cross-reading data-model notes.
