@@ -11,15 +11,25 @@ ones:
    data model, the design system, the technology stack, or conventions (see
    `docs/DECISIONS.md` → ADR-007).
 
-2. **Before any `/speckit.*` feature command, load those sources:**
+2. **Before any `/speckit.*` feature command, load those sources.** The binding
+   cycle is: `constitution → specify → clarify → plan → checklist → tasks →
+   analyze → implement → converge` (implement ↔ converge until Converged):
+   - `constitution` → the constitution itself, and the amendment material when
+     changing it.
    - `specify` → constitution + `Core-Project.txt` + `docs/DECISIONS.md`
      (no technology in a specification — Principle VII).
+   - `clarify` → `spec.md` (resolve its open questions).
    - `plan` → the constitution's registers (Technology Standards, Design System
      Standards, Product Register) plus the project-level sources, including
      `docs/domain-model.md`; its Ownership Map must match `docs/architecture.md`.
+   - `checklist` → `spec.md` (requirements-quality checklist).
    - `tasks` → `plan.md` + `docs/architecture.md` + `docs/domain-model.md` +
      `docs/DECISIONS.md`.
+   - `analyze` → `spec.md` + `plan.md` + `tasks.md` + constitution (consistency
+     gate, run by hand before implementation — AGENTS.md §5).
    - `implement` → `plan.md` + `tasks.md` + constitution.
+   - `converge` → `spec.md` + `plan.md` + `tasks.md` + constitution (run after
+     implement until it reports Converged — ADR-013, AGENTS.md §5).
 
 3. **The feature templates carry this as binding text** —
    `.specify/templates/overrides/{spec,plan,tasks}-template.md` resolve as the

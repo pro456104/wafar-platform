@@ -8,7 +8,7 @@
   and uses it as the REQUIRED STRUCTURE, then applies the existing project values
   and amendments to that scaffold. Without this override the core scaffold governs
   (5 principle slots and two generic sections), so a `/constitution` run could
-  collapse this project's ten principles and sixteen binding sections.
+  collapse this project's ten principles and eighteen binding sections.
 
   Rule: keep the heading names and their order in step with
   `.specify/memory/constitution.md`. When a section is added or renamed there,
@@ -16,6 +16,13 @@
   Sub-headings under a `##` section (for example `### Data entities` under
   Product Register, or `### Register gaps a slice MUST close` under Technology
   Standards) are not listed below and are not tracked here; the `##` order is.
+
+  On every amendment (normative): the constitution's version footer, the
+  binding-block `constitution vX.Y.Z` strings in the spec/plan template
+  overrides, this scaffold's own version footer, and the version stamps in
+  `docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`, and
+  `Project-Technologies.txt` MUST move in the same change. An amendment that
+  changes only the constitution is an incomplete amendment.
 -->
 
 # Wafar Platform Constitution
@@ -105,4 +112,4 @@
 
 ## Governance
 
-**Version**: 2.10.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03
+**Version**: 2.11.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03

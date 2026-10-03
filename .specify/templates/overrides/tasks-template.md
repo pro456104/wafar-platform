@@ -184,5 +184,5 @@ Task: "[Task B] in [path B] (implements FR-###, AC-###)"
 - [US#] maps tasks to stories for traceability
 - Every task ends with `(implements FR-###, AC-###)` — or `(implements Complexity Tracking: <row>)` when no requirement genuinely applies (Principle I, rule 7 above)
 - Commits and pull requests MUST reference spec and task identifiers (Principle I)
-- Verify tests fail before implementing; commit after each task or logical group
+- Verify tests fail before implementing; commit after each task (or when a task genuinely cannot be split, commit each logical group, naming every task it covers). Each commit MUST reference the spec, plan, and task identifiers.
 - Avoid: vague tasks, same-file conflicts, cross-story dependencies that break independence

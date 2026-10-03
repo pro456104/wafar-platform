@@ -7,7 +7,7 @@
 **Note**: This template is filled in by the `/speckit.plan` command; its definition describes the execution workflow.
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.10.0) - NORMATIVE:
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.11.1) - NORMATIVE:
   - This file carries every technical detail; spec.md stays technology-agnostic.
   - The Technical Context MUST contain the Constitution Mandated Values heading;
     a value named by a rule but written elsewhere does not discharge that rule,
@@ -35,6 +35,10 @@
     change, and MUST name the entity it resolved under Gate 2 → Product Register.
     A column, a type, and an index belong to this plan's `data-model.md` and to a
     migration; they do not belong to the constitution or to the domain model.
+  - Every ADR first named by this plan MUST be reaffirmed in this plan's
+    Constitution Check gate.
+  - All artifacts and tools that read or write them MUST be UTF-8, with a
+    UTF-8 reader on the tooling path (AGENTS.md §4).
 -->
 
 ## Summary
@@ -135,7 +139,7 @@
 | Dependency Governance | | [versions pinned; lockfile untouched outside the update process; licence name + obligation recorded for every new dependency; vulnerability scan; budget respected] |
 | Module Discipline and Development Workflow | | [one owning module per business rule; no duplicated logic; CMV heading present; CI network rule when CI is introduced] |
 | Project Structure and Debt Control | | [ownership map below; import boundaries mechanically enforced; shared code promoted only after a second consumer exists] |
-| Documentation | | [ADR for every non-trivial decision (alternatives + rationale); affected docs updated in the same change] |
+| Documentation | | [ADR for every non-trivial decision (alternatives + rationale); affected docs updated in the same change; every ADR first named by this plan reaffirmed here] |
 | Deployment and Observability | | [dev/staging/production; staging parity; health checks per used dependency; structured logs + correlation id; error tracker; backups; RTO/RPO in CMV] |
 | Technology Standards | | [stack unchanged from the constitution's Technology Standards register; the paths match the repository topology and the internal layout; no unregistered technology; a MAJOR substitution would require a constitutional amendment] |
 | Design System Standards | | [dark default; tables for data; motion scale; z-index scale; AA contrast] |
@@ -143,6 +147,8 @@
 | File Processing Overview | | [single pipeline sequence; status enum exactly uploaded/processing/completed/failed; validation before storage; duplicate rejected] |
 | Product Register | | [roles respected; no page outside the twenty-five; no feature outside the sixteen; every unresolved product fact handled or recorded — the register's open facts are listed in `docs/domain-model.md` → Unresolved facts, and the slice named MUST resolve the ones this feature touches] |
 | Single-Reference Sufficiency | | [no rule discharged from an unregistered source; every open value recorded under Constitution Mandated Values and as an ADR; no register copied into this plan; no column, entity field, or design value copied out of its source into this plan instead of referenced] |
+| Artifact Workflow and Traceability | | [stable `FR-###`/`AC-###`/`SC-###` identifiers, never renumbered or reused; at most three unresolved `NEEDS CLARIFICATION` items in spec.md; the spec's Test Coverage Request answered; every ADR first named here reaffirmed; at most three unresolved clarifications remaining before tasks] |
+| Product Fact Clarifications | | [the product facts this feature touches are stated as requirements, not restated: contact-form fields exactly name/phone/body; the platform stays free to merchants; the 99-part cart notice; no CAPTCHA; no PWA; the shell's per-page controls] |
 
 ### Gate 3 — Deferred Areas Touched
 

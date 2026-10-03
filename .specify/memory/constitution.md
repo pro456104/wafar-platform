@@ -17,6 +17,31 @@ not govern their columns, types, or constraints. It also governs how a schema
 change is made, and how repository structure is laid out, regardless of those
 shapes. See Deferred areas.
 
+**Contents.**
+
+- Core Principles
+- Product Scope
+- Product Register
+- File Processing Overview
+- Single-Reference Sufficiency
+- Query Safety and Secrets
+- Schema and Migration Control
+- Identity, Authentication, and Session Policy
+- Authorization and Access Control
+- Performance Budgets and Verification
+- Dependency Governance
+- Module Discipline and Development Workflow
+- Project Structure and Debt Control
+- Documentation
+- Deployment and Observability
+- Technology Standards
+- Design System Standards
+- Glossary
+- References
+- Artifact Workflow and Traceability
+- Product Fact Clarifications
+- Governance
+
 ## Core Principles
 
 ### I. Evident, Traceable Change (NON-NEGOTIABLE)
@@ -189,8 +214,9 @@ agnostic, describing what and why before how.
   architectural patterns, and implementation context.
 - A review of `spec.md` MUST confirm the absence of technical detail. A
   technical detail in `spec.md` is a blocking defect, not a stylistic one.
-- A deviation from the agreed specification MUST be recorded as an amendment
-  to the specification, never left implicit in the code.
+- Deviations from the agreed specification MUST be handled as Principle I
+  requires: recorded as an amendment to the specification, never left
+  implicit in the code.
 
 **Rationale:** The strict separation keeps business intent reviewable by a
 non-implementer, and keeps the specification stable when the technology
@@ -464,7 +490,7 @@ one on its own:
 | Conflict | Sources | Resolve in |
 |---|---|---|
 | Support reaches the administrator through a conversation or a contact message | Product Register entities (`Conversation`, `ContactMessage`) and the `support` module; Product Scope defines the Contact page only | R11 |
-| `expires_at` is the retention deadline or the supplier's printed expiry date | Schema and Migration Control, Glossary (retention); `Core-Project.txt` (supplier date) | R15 |
+| `expires_at` is the retention deadline or the supplier's printed expiry date | Schema and Migration Control, the retention discussion, and `Core-Project.txt` (supplier date) | R15 |
 | Notification retention is undetermined | The product statement defers it ("to be determined later") | R9 |
 | A message's sender is either a merchant or an administrator, and the register names one sender | Product Register (`Message` carries a single sender); Authorization and Access Control (the administrator is a separate principal with a separate login) | R10 |
 | `Conversation` carries an administrator reference, yet every administrator account sees the same single thread | Product Register (`Conversation` carries an administrator); `Core-Project.txt` (one administrator account type, all administrators see the same conversations) | R10 |
@@ -517,6 +543,12 @@ implemented as a single sequence; a shortcut that skips a step is a defect.
   before storage. A file that fails validation MUST NOT be stored.
 - A duplicate file MUST be rejected with a message naming the original. The
   duplicate MUST NOT be stored, queued, or processed.
+- **Content safety.** Every uploaded file MUST pass, in order: magic-byte
+  validation against its declared content type; ClamAV antivirus scanning; a
+  decoded-size cap recorded under Constitution Mandated Values that rejects
+  zip-bomb archives (Office documents are ZIP containers); and macro stripping
+  before extraction. A file failing any step MUST be rejected and MUST NOT be
+  stored or processed.
 - Processing MUST complete within the budget stated in Performance Budgets
   and Verification.
 - A failed file MUST be retryable without re-uploading the bytes.
@@ -631,8 +663,9 @@ is actually exercised rather than merely written down.
 
 This section governs how a user proves who they are and how that proof is held.
 It does not govern what a user is permitted to do; see Authorization and Access
-Control for the role matrix, and Deferred areas for the permission-resolution
-mechanism that is not yet ratified.
+Control for the distinct Guest, Merchant, and Administrator capabilities, and
+Deferred areas for the permission-resolution mechanism that is not yet
+ratified.
 
 - Authentication MUST be implemented with the designated proven library.
   Custom authentication code is prohibited. The `scim` and `sso` modules of
@@ -652,6 +685,14 @@ mechanism that is not yet ratified.
   numerically under Constitution Mandated Values. The enforcement point MUST
   exist no later than the first feature that exposes an authentication
   endpoint.
+- **Account enumeration, lockout, and anti-spam.** Sign-in, registration, and
+  password-recovery responses MUST NOT reveal whether an account exists. After
+  five consecutive failed sign-in attempts the account MUST be locked for
+  fifteen minutes. Registration and contact forms MUST be protected by a
+  honeypot field, a minimum time-to-submit, and a rate limit per client
+  identifier. CAPTCHA MUST NOT be used. The administrator account MUST be
+  created by a seeded CLI command with a forced password change at first
+  sign-in, never through the public registration flow.
 - CSRF protection MUST be enabled for every state-changing request issued by
   a browser session. The configuration MUST be covered by an automated test
   no later than the first browser-facing feature.
@@ -704,6 +745,10 @@ requirement.
   introduces. A budget stated only as an average is not a budget. The budget
   belongs under Constitution Mandated Values, and this MUST be a review
   checklist item at the constitution check gate.
+- **Lightweight performance budget.** Each web surface MUST carry a Lighthouse
+  budget for Largest Contentful Paint, Interaction to Next Paint, and
+  Cumulative Layout Shift, asserted by Lighthouse CI on at least the public
+  Parts and Home pages.
 - No database query introduced or modified by a feature SHOULD exceed the
   maximum stated above at p95 under the load named in the plan's Scale/Scope.
   An exception MUST name the query, the measured time, and the reason, and
@@ -794,13 +839,9 @@ the two ways a dependency base rots without a decision ever being made.
 
 ## Module Discipline and Development Workflow
 
-- A production source file SHOULD NOT exceed 500 non-empty lines. The binding
-  rule is that a module has exactly one responsibility: a long file holding
-  one responsibility is acceptable, and a short file holding several is not.
-- Business logic MUST NOT be duplicated across modules or layers. Every
-  business rule MUST have exactly one owning module, circular imports are
-  prohibited, and a general-purpose utility collection MUST NOT be used to
-  avoid deciding an owner.
+- File size, single-responsibility, no-duplicated-logic, owning-module, and
+  no-circular-import rules are defined once by Principle X and apply here
+  without repeating.
 - Every schema migration MUST include a rollback plan and MUST be backward
   compatible with the currently deployed application version, as required by
   Schema and Migration Control.
@@ -935,6 +976,33 @@ Each rule ties the document to something that fails when it goes stale.
   Objective numerically under Constitution Mandated Values. A plan that
   introduces persistent storage MUST state them before acceptance; a plan
   that does not is exempt.
+- **Upload transport.** Large uploads MUST use presigned multipart uploads
+  streamed to object storage; the API MUST NOT buffer a 100 MB file in memory.
+- **Worker durability.** File-processing jobs MUST have bounded retries with
+  exponential backoff, a dead-letter queue, a per-worker concurrency cap, and
+  a periodic sweep that removes temporary workspace files. A job that
+  exhausts retries MUST surface `failed` to the catalog and to the user with a
+  retry action that does not re-upload bytes.
+- **Session revocation.** Every authenticated session MUST be revocable
+  server-side, including a "sign out everywhere" operation, and browser-stored
+  tokens MUST be revocable on password change.
+- **Anti-spam enforcement.** The honeypot, time-to-submit, and rate-limit
+  controls named in Identity, Authentication, and Session Policy MUST be
+  verified by automated tests. CAPTCHA MUST NOT be introduced.
+- **Tenant isolation verification.** A query-path test MUST fail the build if
+  any merchant-reachable path can return another tenant's rows.
+- **Staging data anonymisation.** Staging MUST NOT contain production personal
+  data; seeded or anonymised datasets only.
+- **Monitoring and alerting.** Metrics MUST be collected for p95 request
+  latency, search p95, processing success rate, and queue depth, with alerts
+  when a budget is breached. Structured logs MUST carry a correlation
+  identifier end to end.
+- **API versioning and deprecation.** Public HTTP APIs MUST be versioned in
+  the path (`/api/v1`); a deprecation MUST announce removal at least one
+  release ahead and MUST be recorded as an ADR.
+- **Supply-chain controls.** Each build MUST produce an SBOM and run a
+  vulnerability/SAST scan (Semgrep OSS or equivalent) whose failures block
+  release; results are review material, not secrets.
 
 **Rationale:** Deployment rules are the only ones with no feedback loop until
 something fails, which is why they are written as staging gates and restore
@@ -963,7 +1031,7 @@ without an amendment to this constitution.
 | `packages/shared` | Validation schemas, types, and contracts shared by frontend and backend. |
 | `packages/db` | Database schema and migrations — the single migration mechanism. |
 | `packages/search` | Search client and index mappings. |
-| `packages/config` | ESLint, Prettier, and TypeScript configuration shared by every workspace. |
+| `packages/config` | ESLint, Prettier, Stylelint, and TypeScript configuration shared by every workspace. |
 | `pnpm-workspace.yaml`, `turbo.json`, `package.json` | Workspace definition and task graph; versions pinned, lockfile committed. |
 
 `docs/architecture.md` is the source of truth for layout, the API module map,
@@ -1001,7 +1069,7 @@ fixed above.
 | Files | SeaweedFS, BullMQ, Redis | Redis >= 5.0.0 (the BullMQ requirement) |
 | Auth | better-auth | `scim` and `sso` MUST stay disabled (CVE-2026-67330, CVE-2026-80192) |
 | Testing | Vitest, Playwright | unit and integration in Vitest, end-to-end in Playwright |
-| Quality | ESLint, Prettier | `any` and double assertions are rejected |
+| Quality | ESLint, Prettier, Stylelint | `any` and double assertions are rejected |
 | Delivery | VPS (Hetzner or equivalent), Nginx or HAProxy, Docker (optional) | Docker is used only for staging parity |
 
 ### Version-change rule
@@ -1139,11 +1207,13 @@ rule depends on each one.
   text `#0a0a0a`.
 - **Card**: `--radius-card` (1.5rem), `--shadow-card`, border
   `--border-slate-subtle`.
-- **Table**: striped rows (`nth-child(even)`), sticky header, hover. Density
-  classes: `compact`, `normal`, `comfortable`.
+- **Table**: striped rows (`nth-child(even)`), hover. Density classes:
+  `ds-table-density-compact`, `ds-table-density-normal`,
+  `ds-table-density-comfortable`. A sticky header is required but the design
+  system does not yet provide it (see the missing-components list below).
 - **Motion**: `--duration-fast` (200ms) for micro-interactions,
   `--duration-base` (300ms) for transitions, `--duration-slow` (400ms) for
-  the theme toggle.
+  the theme toggle, and `--duration-slower` (600ms) for long transitions.
 - **Sidebar**: `--sidebar-width` (19rem / 304px), fixed on desktop, drawer
   on mobile.
 - **Header**: `--navbar-height` (4.25rem / 68px).
@@ -1210,11 +1280,18 @@ ad hoc inside a feature, and it MUST NOT be defined in this constitution.
   `z-10`, `z-20`, `z-50`; Arabic-Indic numerals; positive `letter-spacing` on
   Arabic text; and any typeface other than Tajawal, Noto Sans Arabic, or
   JetBrains Mono.
+- **Supported browsers.** The two latest major versions of Chrome, Edge,
+  Firefox, and Safari MUST be supported; no browser may be dropped without an
+  ADR. Support MUST be stated in the plan's Constitution Mandated Values.
 - Every z-index value comes from the defined layer scale, and every duration
   comes from the defined motion scale.
 - A design value MUST NOT appear anywhere but `wafar.single.css`: not in a second
   stylesheet, not in a Vue SFC colour, not in an inline style value, and not as a
   Tailwind colour utility.
+- **Static enforcement.** Stylelint and ESLint MUST fail the build on physical
+  direction properties and on any colour, radius, shadow, duration, or
+  z-index value that does not reference a declared token. Enforcement MUST be
+  a committed configuration, not a review comment.
 
 ### Fonts and the framework bridge
 
@@ -1264,7 +1341,17 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | **Guest** | A visitor who has not signed in. See Authorization and Access Control. |
 | **Merchant** | A registered user who uploads catalogs. |
 | **Administrator** | The operator of the platform, who uses a separate application with a separate login. |
+| **User** | A registered merchant account: identity and shop details. See the Data entities register. |
+| **Message** | One message inside a `Conversation`. See `docs/domain-model.md`. |
+| **ContactMessage** | A message from the public contact form. See `docs/domain-model.md`. |
 | **Deferred Area** | A decision area explicitly not governed by a principle yet. See Governance. |
+| **ClamAV** | An open-source antivirus scanner used on uploaded files. |
+| **ZIP bomb** | A small archive that expands to disproportionate bytes on decompression; rejected by the decoded-size cap. |
+| **Macro stripping** | Removing executable document macros before extraction. |
+| **DLQ** | Dead-letter queue for jobs that exhaust retries. |
+| **SBOM** | Software Bill of Materials produced per build. |
+| **Presigned multipart upload** | Direct-to-object-storage upload in parts, avoiding buffering through the API. |
+| **Tenant isolation** | A merchant-reachable query path MUST NOT return another tenant's rows. |
 
 ## References
 
@@ -1277,10 +1364,10 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | `docs/DECISIONS.md` | The record of design decisions and the reasoning behind them. | `docs/`. |
 | `docs/architecture.md` | The repository layout, module map, and data-flow descriptions. | `docs/`. |
 | `.specify/templates/exception-register.md` | The exception register required by Governance. | `.specify/templates/`. |
-| `.specify/templates/overrides/` | Template overrides required by Principle I and by Module Discipline and Development Workflow. | `.specify/templates/overrides/`. |
+| `.specify/templates/overrides/` | Template overrides required by Single-Reference Sufficiency and by Governance. | `.specify/templates/overrides/`. |
 | `.specify/memory/constitution.md` | This document. | `.specify/memory/`. |
 | `ROADMAP.md` | The MVP slice order. Names and orders slices; does not design them. | Repository root. |
-| `AGENTS.md` | Operating instructions for agent assistants outside the feature cycle. | Repository root. |
+| `AGENTS.md` | Operating instructions for agent assistants. | Repository root. |
 | `.clinerules/project-context.md` | The same operating duty expressed to the Cline agent. | `.clinerules/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
 
@@ -1302,6 +1389,9 @@ the same force as the principles above.
   task identifiers.
 - `plan.md` Constitution Check MUST be evaluated before Phase 0 and
   re-evaluated after Phase 1 design.
+- `/speckit.analyze` runs the consistency gate by hand after `/speckit.tasks`
+  and before implementation begins; its findings MUST be resolved before
+  `/speckit.implement` starts (see Governance → Module Discipline).
 - `/speckit.implement` and `/speckit.converge` MUST repeat until Converged; a
   feature reports Converged only when converge reports Converged.
 - Every ADR first named by a plan MUST be reaffirmed in that plan's
@@ -1319,6 +1409,10 @@ the same force as the principles above.
 - A message sent by a merchant is visible to the sender immediately; the
   administrator's reply is visible after a page refresh unless a live-update
   mechanism has been specified.
+- CAPTCHA MUST NOT be introduced; anti-abuse for every public form is
+  honeypot fields, a minimum time-to-submit, and a rate limit.
+- A PWA (installable app, service worker, offline surface) MUST NOT be
+  shipped. The platform is a browser catalog only.
 - Every page header in the shell MUST carry the account, notifications,
   theme-toggle, and sidebar-collapse controls for an authenticated user. A
   guest MUST see a login action instead of those controls. The platform logo
@@ -1338,8 +1432,9 @@ Identity, Authentication, and Session Policy, Authorization and Access Control,
 Performance Budgets and Verification, Dependency Governance, Module Discipline
 and Development Workflow, Project Structure and Debt Control, Documentation,
 Deployment and Observability, Technology Standards, Design System Standards,
-Product Scope, Product Register, Single-Reference Sufficiency, and File
-Processing Overview. A SHOULD is advisory and MUST NOT
+Product Scope, Product Register, Single-Reference Sufficiency, File
+Processing Overview, Artifact Workflow and Traceability, and Product Fact
+Clarifications. A SHOULD is advisory and MUST NOT
 be reported as a critical
 finding; an unmet SHOULD MUST still be recorded in the plan's Complexity
 Tracking table with its reason.
@@ -1400,7 +1495,9 @@ names another, the approver is the repository owner.
 engineering principle changes, at minimum once per quarter while the project
 is in active development, and whenever a new subsystem reaches implementation.
 
-**Deferred areas.** The following aspects are deliberately not governed by
+### Deferred areas
+
+The following aspects are deliberately not governed by
 principles specific to them, because those decisions are not yet made. A
 deferred aspect remains governed by every principle above that does not name
 the deferred decision, in particular by Query Safety and Secrets and by
@@ -1430,4 +1527,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.10.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03
+**Version**: 2.11.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03

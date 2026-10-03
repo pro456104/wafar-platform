@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-019; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-024; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -50,7 +50,7 @@ re-invent what already exists. See `docs/DECISIONS.md` → ADR-007.
   ownership map.
 - `/speckit.implement` → `plan.md`, `tasks.md`, and the constitution.
 
-The three feature templates in `.specify/templates/overrides/` carry this duty as
+The feature templates in `.specify/templates/overrides/` carry this duty as
 binding text. They resolve as the top layer with `strategy: replace`; do not
 replace them with the core templates.
 
@@ -63,24 +63,33 @@ replace them with the core templates.
 
 ## 5. Workflow
 
-`/speckit.specify` → `/speckit.plan` → `/speckit.tasks` → `/speckit.analyze` →
-`/speckit.implement`, repeating `/speckit.implement` ↔ `/speckit.converge`
-until converge reports Converged (ADR-013).
+The binding cycle, in order: `/speckit.constitution` → `/speckit.specify` →
+`/speckit.clarify` → `/speckit.plan` → `/speckit.checklist` →
+`/speckit.tasks` → `/speckit.analyze` → `/speckit.implement`, repeating
+`/speckit.implement` ↔ `/speckit.converge` until converge reports Converged
+(ADR-013).
 
 Installed extensions: `assess` (idea triage before specifying) and `bug` (bug
 triage). Templates resolve from `.specify/templates/overrides/` first, then
 presets, then extensions, then core.
 
-**The bundled `speckit` workflow is not the whole cycle.**
-`.specify/workflows/speckit/workflow.yml` runs `specify → plan → tasks →
-implement` with two human review gates. It does **not** run `/speckit.analyze`
-or `/speckit.converge`: converge is a separate command by decision (ADR-013), and
-analyze has no workflow step because the consistency gate is run by hand, on
-purpose, before implementation begins. The cycle in §5 above — the six commands
-including `analyze` and the `implement ↔ converge` loop — is the binding one.
-Do not treat the workflow file as the definition of the cycle.
+**The bundled `speckit` workflow mirrors the binding cycle.**
+`.specify/workflows/speckit/workflow.yml` runs `constitution → specify →
+clarify → plan → checklist → tasks → analyze → implement → converge` with
+human review gates. Converge remains a separate command by decision (ADR-013),
+not a spec-kit engine concern; the workflow file lists it so the cycle reads
+as one sequence. Templates and the registry are what a reader checks, not the
+engine.
 
-## 6. Before reporting a change complete
+## 6. Known gaps
+
+- **No standalone `/speckit.constitution-check` command.** The constitution check
+  gate is carried inside `plan-template.md` (Gates 1–3), evaluated before Phase 0
+  and re-evaluated after Phase 1. That satisfies Artifact Workflow and
+  Traceability; a separate command is a convenience, not a requirement. Add one
+  only with an ADR, and keep the plan-internal gate authoritative.
+
+## 7. Before reporting a change complete
 
 - Every task ends with `(implements FR-###, AC-###)` or, when no requirement
   genuinely applies, `(implements Complexity Tracking: <row>)`.

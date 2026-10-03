@@ -1,7 +1,7 @@
 # Architecture — Wafar
 
 This document records the repository layout, the API module map, and the data
-flow. Its sources of authority are `.specify/memory/constitution.md` (v2.10.0),
+flow. Its sources of authority are `.specify/memory/constitution.md` (v2.11.1),
 whose Technology Standards and Design System Standards are the registers, and
 `Project-Technologies.txt`; where this document and the constitution disagree,
 the constitution wins. The data model's entities and their owning modules are
@@ -25,7 +25,7 @@ wafar/
 │   ├── shared/           # Validation schemas + types + contracts (Zod) shared by frontend and backend
 │   ├── db/               # Database schema + migrations (Drizzle), single migration mechanism
 │   ├── search/           # Search client + index mappings (OpenSearch)
-│   └── config/           # ESLint + Prettier + TypeScript shared configuration
+│   └── config/           # ESLint + Stylelint + Prettier + TypeScript shared configuration
 ├── pnpm-workspace.yaml
 ├── turbo.json
 └── package.json
@@ -54,8 +54,8 @@ import from one module to another.
 
 | Module | Baseline responsibility | Notes |
 |---|---|---|
-| `auth` | Sign-up, sign-in/out, password recovery, sessions. | Implemented with the designated proven library with `scim` and `sso` disabled (Identity, Authentication, and Session Policy). Password hashing, session timeout, and auth rate limits are recorded per plan in Constitution Mandated Values. |
-| `users` | Merchant accounts and profile data; account edits. | Only the account's owner edits it; no user may delete an account (role matrix). |
+| `auth` | Sign-up, sign-in/out, password recovery, sessions. | Implemented with the designated proven library with `scim` and `sso` disabled (Identity, Authentication, and Session Policy). Password hashing, session timeout, and auth rate limits are recorded per plan in Constitution Mandated Values. Sign-in, registration, and password-recovery responses never reveal whether an account exists; after five consecutive failed sign-in attempts the account locks for fifteen minutes. Every session is revocable server-side, including a "sign out everywhere" operation, and browser-stored tokens are revocable on password change. Registration and contact forms are protected by a honeypot field, a minimum time-to-submit, and a per-client rate limit; CAPTCHA is never used. The administrator account is created by a seeded CLI command with a forced password change at first sign-in. |
+| `users` | Merchant accounts and profile data; account edits. | Only the account's owner edits it; no user may delete an account (roles: see Product Register in `.specify/memory/constitution.md`). |
 | `catalogs` | Uploaded supplier files: metadata (supplier name, issue date, upload date, expiry date), processing status, the `first_page_metadata_incomplete` flag, retention, and the pointer to the stored bytes. | Status is exactly one of `uploaded`, `processing`, `completed`, `failed`; `first_page_metadata_incomplete` is a boolean flag and never a fifth status; automatic deletion after 90 days; duplicates rejected by content hash (File Processing Overview). |
 | `parts` | Extracted part rows: part number, name, brand, car model, description. | A part belongs to exactly one catalog; merchants cannot edit or delete parts — the administrator does (Authorization and Access Control). |
 | `suppliers` | The supplier named on a catalog's first page, and its associations to catalogs. | One supplier may appear in many catalogs (Glossary). |
@@ -131,12 +131,23 @@ The canonical chain is **web → api → db → search → worker**:
 4. **search → worker.** The worker is what keeps the projection current: it
    consumes queued jobs, extracts and normalizes parts, then writes both the
    catalog status in the system of record and the parts in the search index.
-   The file-processing sequence (upload → storage + hash → duplicate check →
+   The pipeline's canonical step order is binding as a single sequence (File
+   Processing Overview): upload → storage and content hash → duplicate check →
    first-page extraction → queue → worker pipeline → status update →
-   notification) is binding as a single sequence (File Processing Overview).
+   notification. Content safety runs in order before a file is processed —
+   magic-byte validation, ClamAV scan, decoded-size cap, macro stripping — and
+   a file failing any of them is rejected and never stored or processed. The
+   transport for a large upload is a presigned multipart stream to object
+   storage; the API does not buffer the file in memory.
 5. **Back to the user.** Status changes and administrative messages surface as
    notifications; a failed file presents a retry action that does not require
    re-uploading bytes.
+
+Worker durability (Deployment and Observability): BullMQ jobs carry bounded
+retries with exponential backoff, a dead-letter queue, a per-worker concurrency
+cap, and a periodic sweep that removes temporary workspace files. A job that
+exhausts its retries surfaces `failed` to the catalog and to the user, which is
+the same retry action item 5 describes.
 
 Read/write notes:
 
@@ -154,7 +165,7 @@ Read/write notes:
 | `packages/shared` | Validation schemas, types, and contracts shared between frontend and backend. | Single source of the two contracts (Principle II); promoted code only after a second consumer exists. |
 | `packages/db` | Database schema and migrations. | One migration tool only; every migration a single reversible step; destructive changes split into expand/backfill/contract (Schema and Migration Control). |
 | `packages/search` | Search client and index mappings. | Arabic analyzer; ILM aligned with the 90-day deletion; one mapping owner per index. |
-| `packages/config` | ESLint, Prettier, TypeScript configuration shared by all workspaces. | Dependency and tooling changes follow Dependency Governance. |
+| `packages/config` | ESLint, Stylelint, Prettier, TypeScript configuration shared by all workspaces. | Dependency and tooling changes follow Dependency Governance. Stylelint + ESLint fail the build on physical direction properties and on any colour, radius, shadow, duration, or z-index value that does not reference a declared token in `wafar.single.css` — enforced by the committed configuration, not a review comment (Design System Standards). |
 
 ## 5. Environments and operations
 
@@ -168,13 +179,27 @@ Read/write notes:
 - RTO and RPO are stated numerically per plan in Constitution Mandated Values;
   backups are automated, encrypted, and restored into a clean environment at
   least once per quarter.
+- Staging holds no production personal data: seeded or anonymised datasets
+  only (pg_anonymize or equivalent).
+- Tenant isolation is verified by a query-path test that fails the build if
+  any merchant-reachable path can return another tenant's rows.
+- Metrics are collected for p95 request latency, search p95, processing
+  success rate, and queue depth, with alerts when a budget is breached; the
+  correlation identifier runs end to end.
+- Public HTTP APIs are versioned in the path (`/api/v1`); a deprecation
+  announces removal at least one release ahead and is recorded as an ADR.
+- Each build produces an SBOM and runs a vulnerability/SAST scan (Semgrep OSS
+  or equivalent) whose failures block release.
+- Each web surface carries a Lighthouse budget (LCP, INP, CLS) asserted by
+  Lighthouse CI on at least the public Parts and Home pages. The two latest
+  major versions of Chrome, Edge, Firefox, and Safari are supported.
 
 ## 6. Governance pointers
 
-- Constitution: `.specify/memory/constitution.md` (v2.10.0) — principles I–X and
+- Constitution: `.specify/memory/constitution.md` (v2.11.1) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-019; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-024; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
@@ -188,6 +213,8 @@ Read/write notes:
   Constitution Check, which rules are still missing and when they will be
   ratified. The open product facts that touch this architecture — the message
   sender's representation, the conversation's administrator reference, whether
-  an administrator is a distinct entity, `expires_at`, and notification
-  retention — are listed in `docs/domain-model.md` → Unresolved facts, each with
+  an administrator is a distinct entity, `expires_at`, notification
+  retention, and whether admin support runs as a conversation or
+  as contact messages (R11) — are listed in
+  `docs/domain-model.md` → Unresolved facts, each with
   the slice that must decide it.

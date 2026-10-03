@@ -6,12 +6,12 @@
 
 **Status**: Draft
 
-**Input**: User description: "$ARGUMENTS"
-
 **Input**: Parent roadmap: ROADMAP.md → R#.
 
+**Input**: User description: "$ARGUMENTS"
+
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.10.0) - NORMATIVE:
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.11.1) - NORMATIVE:
   1. Technology-agnostic (Principle VII): this file MUST NOT name languages,
      frameworks, libraries, databases, products, or architectural patterns.
      Product behaviour only; every technical detail belongs in plan.md.
@@ -36,7 +36,7 @@
        - `Core-Project.txt` — the product definition: roles and their
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
-       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-019). A
+       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-024). A
          specification that contradicts one is a blocking defect.
        - `docs/domain-model.md` — the entities a Key Entities section may name,
          and the invariants such a specification MUST NOT contradict. A

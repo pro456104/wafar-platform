@@ -539,8 +539,8 @@ svg {
   /* ---------------------------------------------------------
      العائلات
      --------------------------------------------------------- */
-  --font-sans: "Tajawal", "Noto Sans Arabic", "Segoe UI", system-ui, sans-serif;
-  --font-display: "Tajawal", "Noto Sans Arabic", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Tajawal", "Noto Sans Arabic", system-ui, sans-serif;
+  --font-display: "Tajawal", "Noto Sans Arabic", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* ---------------------------------------------------------

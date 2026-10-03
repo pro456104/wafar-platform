@@ -34,10 +34,16 @@ Constitution Check; from then on the record has a feature owner.
 | [ADR-013](#adr-013--converge-stays-a-separate-command-not-a-workflow-step) | Converge stays a separate command, not a workflow step | 2026-10-02 | — |
 | [ADR-014](#adr-014--constitution-280-artifact-traceability-and-product-fact-clarifications) | Artifact traceability and product fact clarifications | 2026-10-02 | 2.8.0 |
 | [ADR-015](#adr-015--the-slice-order-becomes-fifteen-slices-and-a-slice-identifier-equals-its-specification-number) | Fifteen slices; a slice identifier equals its specification number | 2026-10-03 | 2.9.0 |
-| [ADR-016](#adr-016--the-icon-set-and-the-shell-belong-to-the-foundation-duties-of-r1) | The icon set and the shell belong to R1's foundation duties | 2026-10-03 | — |
+| [ADR-016](#adr-016--the-icon-set-and-the-shell-belong-to-the-foundation-duties-of-r1) | The icon set and the shell belong to R1's foundation duties | 2026-10-03 | 2.9.0 |
 | [ADR-017](#adr-017--shell-scope-and-the-sidebar-conflict) | Shell scope and the sidebar conflict | 2026-10-03 | 2.9.2 |
 | [ADR-018](#adr-018--structure-registers-closed-the-gaps-left-by-principle-x-and-adr-017) | Structure registers closed the gaps left by Principle X and ADR-017 | 2026-10-03 | 2.9.2 |
 | [ADR-019](#adr-019--one-domain-model-one-authority-and-the-register-defect-it-closes) | One domain model, one authority, and the register defect it closes | 2026-10-03 | 2.10.0 |
+| [ADR-020](#adr-020--constitution-register-restored-to-its-own-rules) | Constitution register restored to its own rules | 2026-10-03 | 2.10.1 |
+| [ADR-021](#adr-021--spec-kit-110-and-node-22-lts-pin) | Spec Kit 1.1.0 and Node 22 LTS pin | 2026-10-03 | 2.10.1 (unchanged) |
+| [ADR-022](#adr-022--constitution-2102-audit-fixes) | Constitution 2.10.2 (audit fixes) | 2026-10-03 | 2.10.2 |
+| [ADR-023](#adr-023--constitution-2110-security-hardening-anti-spam-static-design-enforcement-ops-controls) | Constitution 2.11.0: security hardening, anti-spam, static design enforcement, ops controls | 2026-10-03 | 2.11.0 |
+| [ADR-024](#adr-024--constitution-2111-stylelint-named-in-technology-standards) | Constitution 2.11.1: Stylelint named in Technology Standards | 2026-10-03 | 2.11.1 |
+| [ADR-025](#adr-025--the-segoe-ui-fallback-leaves-the-tajawal-font-stack) | The Segoe UI fallback leaves the Tajawal font stack | 2026-10-03 | 2.11.1 (unchanged) |
 
 ---
 
@@ -515,6 +521,8 @@ decode as UTF-8.
 (constitution wins over `Core-Project.txt` and `Project-Technologies.txt`)
 is unchanged.
 
+---
+
 ## ADR-012 — Design system 1.0.1: font stack and Arabic letter-spacing
 
 **Status**: Accepted - 2026-10-02
@@ -542,9 +550,14 @@ JetBrains Mono), and Arabic body text carried positive letter-spacing
 Principle V/IX violation, not a preference. The version bump is recorded here as
 required by the extension procedure.
 
-**Identifier note.** The slice this consequence names as "R4" is the parts-search
-slice, which ADR-015 renumbered to **R5**. The decision recorded above is
-unchanged; only the identifier moved.
+**Identifier note.** The slice identifier in the decision above ("R4") is
+historical and does not match ADR-015's renumbering table, whose old `R4` row is
+the Catalog page (now R6). The question this record assigns — who owns the Home
+four-cards decision — is now owned by **R5**, the parts-search slice, as
+`ROADMAP.md` → Notes and the constitution's Product Register record. The
+decision itself is unchanged; only the identifier moved.
+
+---
 
 ## ADR-013 — Converge stays a separate command, not a workflow step
 
@@ -567,9 +580,13 @@ or merges conflict, and converge is inherently conditional (it needs the
 current tasks.md state, not a fixed input), so it does not fit a static step
 list.
 
+**Annotation (2026-10-03).** The pinned Spec Kit install has since moved to v1.1.0 (ADR-021); "matching upstream v1.0.13 exactly" is historical. The shape this record fixed -- converge as a separate CLI command outside the workflow engine's step list -- is unchanged: `/speckit.converge` remains a separate command, and `.specify/workflows/speckit/workflow.yml` (v1.1.0) lists it in the cycle only so the binding order reads as one sequence.
+
 **Consequences.** Project docs that list the loop (AGENTS.md workflow note,
 README) MUST show implement → converge as a repeatable pair. Any future desire
 to make converge a workflow step requires a new ADR revisiting this one.
+
+---
 
 ## ADR-014 — Constitution 2.8.0: artifact traceability and product fact clarifications
 
@@ -656,7 +673,7 @@ empty scaffolding. Recording every administrator operation is part of the
 administrator slice itself, not the later audit-log slice. The constitution is
 amended to v2.9.0 with the identifier changes above and with each "first slice"
 gap given a named owner. `ROADMAP.md` carries a defects table naming, for each of
-the thirteen defects found, the slice that closes it.
+the sixteen defects found, the slice that closes it.
 
 **Alternatives considered.**
 - *Keep the identity slice first and let it absorb the foundation.* Rejected as
@@ -718,6 +735,8 @@ A component genuinely missing later is still added to `wafar.single.css` by the
 slice that first needs it, and the module map is updated in the same change.
 
 
+---
+
 ## ADR-017 — Shell scope and the sidebar conflict
 
 **Status**: Accepted - 2026-10-03
@@ -730,6 +749,8 @@ slice that first needs it, and the module map is updated in the same change.
 
 **Consequences.** Every browser-facing slice composes this shell; none rebuilds it, and none places it on auth or admin screens. R1 implements the shell and the auth pages without it.
 
+---
+
 ## ADR-018 — Structure registers closed the gaps left by Principle X and ADR-017
 
 **Status**: Accepted - 2026-10-03
@@ -741,6 +762,8 @@ slice that first needs it, and the module map is updated in the same change.
 **Decision.** Constitution 2.9.2: (a) `apps/web` and `apps/admin` include `layouts`; (b) `apps/admin/{pages,components,composables,stores,layouts}` is the fixed location of the admin frontend; (c) `packages/db/schema/<module>.ts` — one file per module, the table it declares belongs to that module; (d) `docs/architecture.md` module map is binding, not proposed; (e) `Project-Technologies.txt` mirror lists `packages/search` in the Monorepo row.
 
 **Consequences.** Every later slice's plan Ownership Map must match these fixed locations. R1 is the first to create the workspace and must follow them exactly; a documentation-drift check on paths/module names belongs to R1/R2.
+
+---
 
 ## ADR-019 — One domain model, one authority, and the register defect it closes
 
@@ -785,3 +808,220 @@ No exception was granted; the exception register stays empty.
 **Corrections made before ratification.** This record was written against constitution 2.10.0, which had not been committed, so its errors were corrected in place rather than by a version bump. Four were found by a second review of the amendment against its own rules: the Context paragraph said "six facts" while listing seven, and the "deliberately did not change" paragraph named only five of them; and `docs/domain-model.md`, while claiming to decide nothing deferred, stated a part's page and row of origin as an invariant and drew `User → AuditLog` in its relationship diagram — the first settling a question this record assigns to R3, the second settling one it assigns to R13. Both were removed, the second by leaving `AuditLog` out of the diagram with a note saying why. The version stays 2.10.0 because 2.10.0 has no committed predecessor to bump from.
 
 **Consequences.** A slice that changes an entity, a relationship, or an invariant now changes a registered product fact and MUST amend the register, record an ADR, and update `docs/domain-model.md` in the same change. A slice that introduces a column owns it in its own `data-model.md` and its migration; the two are no longer confused. R1, R2, R3, R11 and R13 each carry an open data-model question by name, so none of them can pass its Constitution Check by silently choosing.
+
+---
+
+## ADR-020 — Constitution register restored to its own rules
+
+**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.10.1.
+
+**Provenance (2026-10-03).** This record was reconstructed from review material
+after the uncommitted working-tree copy of this file was reverted by mistake. The
+decision, its date, and its constitution version are unchanged; the wording is a
+faithful summary rather than the original text. A reviewer holding the original
+copy should replace this record with it.
+
+**Context.** An audit of the 2.10.0 constitution found register rows whose
+mandatory values lived in a different section than the constitution rules
+naming them, and a few rules that repeated another section verbatim instead of
+referencing it.
+
+**Decision.** The constitution's registers were restored to consistency with
+the rules that govern them. No rule was removed; overlapping sentences were
+relocated or replaced by a reference to the section that owns them. No deferred
+area was ratified, and no principle was added, removed, or redefined. The
+version bump to 2.10.1 is PATCH: clarifications and non-semantic refinements
+only.
+
+**What deliberately did not change.** No principle text, module map, ownership
+decision, or usage limit. The sync impact report produced during the amendment
+was treated as review material and not committed, as the Governance section
+requires.
+
+**Consequences.** The version stamps in `architecture.md`, `domain-model.md`,
+and `ROADMAP.md` moved to 2.10.1.
+
+---
+
+## ADR-021 — Spec Kit 1.1.0 and Node 22 LTS pin
+
+**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.10.1
+(unchanged; this is a tooling pin, not a governance amendment).
+
+**Provenance (2026-10-03).** Reconstructed from review material after the
+uncommitted working-tree copy of this file was reverted by mistake; the decision
+and its version are unchanged, the wording is a faithful summary. A reviewer
+holding the original copy should replace this record with it.
+
+**Context.** The local Spec Kit install was `1.0.13`; upstream `v1.1.0` was
+available. The install was upgraded, and the pinned runtime was swept for the
+CI provider and the Node LTS line.
+
+**Decision.** Pin Spec Kit to `>=1.1.0` and Node to the 22 LTS line. `/speckit.analyze`
+is binding only where the cycle is invoked by hand; the bundled engine workflow
+does not run it. ADR-013's statement "matching upstream v1.0.13 exactly" still
+holds in shape for the pinned engine, and the command surface was re-verified.
+Integration manifests and the mirror were regenerated, not hand-edited.
+
+**Consequences.** None for governance content; the register is unchanged.
+
+---
+
+## ADR-022 — Constitution 2.10.2 (audit fixes)
+
+**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.10.2.
+
+**Provenance (2026-10-03).** Reconstructed from review material after the
+uncommitted working-tree copy of this file was reverted by mistake; the decision
+and its version are unchanged, the wording is a faithful summary. A reviewer
+holding the original copy should replace this record with it.
+
+**Context.** A second audit pass over the amendment material found stale
+statements left by the same working session that produced 2.10.1:
+references to the old Spec Kit version, an uncommitted Sync Impact Report
+reference, and mirror files whose version stamp had not moved.
+
+**Decision.** Constitution 2.10.2 records the audit corrections: version
+stamps moved to 2.10.2, the Spec Kit pin re-stated, and the artifact workflow
+references brought into line. No rule was removed; the bump is PATCH and
+records clarifications only.
+
+**What deliberately did not change.** No principle, module map, or ownership
+decision was altered. The bump is PATCH under the versioning policy.
+
+**Consequences.** `architecture.md`, `domain-model.md`, and `ROADMAP.md` move
+to 2.10.2. Manifest hashes for the edited override template were re-recorded
+in `.specify/integrations/speckit.manifest.json`.
+
+---
+
+## ADR-023 — Constitution 2.11.0 (security hardening, anti-spam, static design enforcement, ops controls)
+
+**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.11.0.
+
+**Context.** A deep review of the constitution found gaps in file-intake
+security (uploads are ZIP-based Word/Excel/PDF, un-scanned), account
+enumeration, brute-force lockout, unauthenticated anti-spam without CAPTCHA,
+worker durability (BullMQ retries, DLQ, temp-file cleanup), large-upload
+transport (100 MB buffering), session revocation, tenant-isolation test
+obligations, staging data anonymisation, API versioning/deprecation, SBOM and
+SAST, supported-browser and Lighthouse budgets, and static enforcement of
+RTL/design tokens.
+
+**Decision.** Constitution 2.11.0 records the following binding controls:
+
+1. **Content safety** (File Processing Rules): magic-byte validation, ClamAV,
+   a decoded-size cap recorded under Constitution Mandated Values, and macro
+   stripping before extraction; rejected files are not stored.
+2. **Account enumeration, lockout, and anti-spam** (Identity): uniform
+   responses, a five-attempt / fifteen-minute lockout, honeypot
+   fields, a minimum time-to-submit, and per-client rate limits; CAPTCHA is
+   NOT used. Administrator bootstrap is a seeded CLI command with a forced
+   password change.
+3. **Upload transport**: presigned multipart uploads stream to object storage;
+   the API MUST NOT buffer a 100 MB file in memory.
+4. **Worker durability**: bounded retries with exponential backoff, a
+   dead-letter queue, a per-worker concurrency cap, and a temp-file sweep;
+   exhausted jobs surface `failed` with a retry action that does not
+   re-upload bytes.
+5. **Session revocation**, **tenant-isolation query-path test**, **staging
+   data anonymisation**, **monitoring and alerting** (p95 latency, search
+   p95, processing success rate, queue depth), **API versioning and
+   deprecation** (`/api/v1`, one-release notice), and **supply-chain
+   controls** (per-build SBOM, vulnerability/SAST scan).
+6. **Design-token static enforcement**: Stylelint and ESLint fail the build on
+   physical direction properties and non-token colour/radius/shadow/duration/
+   z-index values.
+7. **Performance budget**: a Lighthouse budget (LCP, INP, CLS) enforced by
+   Lighthouse CI on at least the public Parts and Home pages.
+8. **Product scope clarifications**: PWA and CAPTCHA are explicitly out of
+   scope; anti-abuse is honeypot + time-to-submit + rate limit only.
+
+**What deliberately did not change.** No principle, module map, ownership
+decision, or usage limit was removed or redefined; CAPTCHA was prohibited and
+PWA was not added. The bump is MINOR because new binding guidance was
+added without removing or redefining a principle.
+
+**Consequences.** The version stamps in `docs/architecture.md`,
+`docs/domain-model.md`, `ROADMAP.md`, and `Project-Technologies.txt`, together
+with the binding-block version strings in the `spec-template.md` and
+`plan-template.md` overrides and the footer of the `constitution-template.md`
+override, move to 2.11.0; `Project-Technologies.txt` and `docs/architecture.md`
+also record ClamAV, Stylelint, Semgrep/osv-scanner, Lighthouse CI, pg_anonymize,
+BullMQ DLQ/backoff, and presigned SeaweedFS multipart uploads. New product
+capabilities (public part detail pages, saved-search alerts, email notification)
+are deferred: each requires a separate MAJOR constitution amendment before a
+slice may implement it.
+
+---
+
+## ADR-024 — Constitution 2.11.1: Stylelint named in Technology Standards
+
+**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.11.1.
+
+**Context.** An audit found that Design System Standards (Static enforcement)
+and ADR-023 already mandated Stylelint as a build gate, but Technology
+Standards' Repository topology row for `packages/config` and the Approved
+register's Quality row named only ESLint and Prettier. A register must name
+the tooling it governs; otherwise the gate has no register owner.
+
+**Decision.** Add Stylelint to the `packages/config` row and to the Quality
+row in Technology Standards. The bump is PATCH: a clarification that names
+tooling already made binding elsewhere, with no principle, module map,
+ownership decision, or usage limit changed.
+
+**What deliberately did not change.** No principle text, no scope, no limits.
+The durable record of this amendment being committed is this entry; the
+Sync Impact Report produced during `/speckit.constitution` is review material
+and is not committed.
+
+**Consequences.** Design System Standards' existing mandate now has a named
+owner in Technology Standards. The following move to 2.11.1 in the same change:
+the version footer of `.specify/memory/constitution.md`; the binding-block
+version strings in the `spec-template.md` and `plan-template.md` overrides and
+the footer of the `constitution-template.md` override; the version stamps in
+`docs/architecture.md`, `docs/domain-model.md`, and `ROADMAP.md`; and
+`Project-Technologies.txt`, which gains a `Constitution 2.11.1 additions`
+section. The constitution-template override also records the same-change sync
+rule these moves follow. The three integration manifests under
+`.specify/integrations/` have the hashes of every edited file re-recorded, as
+ADR-022 established for the previous template edits.
+
+---
+
+## ADR-025 — The Segoe UI fallback leaves the Tajawal font stack
+
+**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.11.1
+(unchanged; this is a design-value correction, not a governance amendment).
+
+**Context.** `wafar.single.css` carried `"Segoe UI"` in `--font-sans` and
+`--font-display`. Principle IX and Design System Standards' Invariants permit
+only Tajawal, Noto Sans Arabic (as the fallback the stylesheet itself declares),
+and JetBrains Mono; any other typeface is prohibited without exception. ADR-012
+removed `Inter`, `Poppins`, and `Fira Code` from these stacks for the same
+reason and did not list Segoe UI, so the name survived that pass. A named
+typeface in a font stack is a design value, and an unregistered one is a
+Principle IX violation regardless of which font the client actually resolves.
+
+**Decision.** Remove `"Segoe UI"` from `--font-sans` and `--font-display`. The
+stacks become `"Tajawal", "Noto Sans Arabic", system-ui, sans-serif` and
+`"JetBrains Mono", ui-monospace, monospace`, which is the state ADR-012's
+decision describes.
+
+**Version handling.** `wafar.single.css` stays at its declared `1.0.1` for this
+correction because ADR-016 reserves `1.0.2` for the font delivery, icon set,
+theme toggle, and `--screen-*` disposal that belong to R1's shell change; a
+compliance correction that restores the already-decided stack is not a new
+extension of the system and must not consume that version.
+
+**What deliberately did not change.** No module map entry, no token value, no
+typeface outside the three permitted families. The generic keywords
+`system-ui`, `sans-serif`, `ui-monospace`, and `monospace` are retained: they
+name no typeface and are what keeps Arabic text rendering when the self-hosted
+webfont has not loaded. ADR-012 fixed the font stacks and named no icon set or
+theme toggle; this record does not widen it.
+
+**Consequences.** The declaration now matches the register it is governed by, so
+a Stylelint or ESLint gate needs no exception for the stacks. R1 records the
+stylesheet's version under Constitution Mandated Values when it performs the
+`1.0.2` change ADR-016 reserved.

@@ -3,4 +3,14 @@ installed:
 - bug
 settings:
   auto_execute_hooks: true
-hooks: {}
+hooks:
+  before_specify:
+    - extension: assess
+      command: speckit.assess.intake
+      description: Assess the raw idea before specifying (intake note)
+      prompt: Run /speckit.assess.intake to normalize the raw idea into an intake note before creating the spec
+      optional: true
+      enabled: true
+  # The bug extension is a manual triage pipeline (speckit.bug.assess →
+  # speckit.bug.fix → speckit.bug.test). It is invoked by hand when a defect
+  # is reported, not as a phase of the feature workflow.

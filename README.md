@@ -15,7 +15,7 @@ not sell, buy, process payment, or host user-to-user chat.
 | `Project-Technologies.txt` | Mirror of the approved technology register. The register itself is `.specify/memory/constitution.md` → Technology Standards. |
 | `docs/architecture.md` | Repository layout, API module map, data flow. |
 | `docs/domain-model.md` | The data model: entities, relationships, cardinality, invariants, and the module that owns each. |
-| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-019; index at the top). |
+| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-024; index at the top). |
 | `wafar.single.css` | The design system's values — the only permitted source of design values. Its register is `.specify/memory/constitution.md` → Design System Standards. |
 | `ROADMAP.md` | The MVP slice order. Names and orders slices; does not design them. |
 | `AGENTS.md` | Operating instructions for agent assistants. |
@@ -31,13 +31,16 @@ not sell, buy, process payment, or host user-to-user chat.
 This repository is driven by Spec Kit. With `.specify/` present and the
 `specify` CLI installed:
 
-1. `/speckit.specify` — write the feature specification (technology-agnostic).
-2. `/speckit.plan` — produce the technical plan, research, data model, and contracts.
-3. `/speckit.tasks` — generate the ordered task list.
-4. `/speckit.analyze` — run the cross-artifact consistency check.
-5. `/speckit.implement` — execute the tasks.
-6. `/speckit.converge` — verify the implementation against the artifacts;
-   repeat steps 5–6 until it reports Converged (see ADR-013).
+1. `/speckit.constitution` — amend or ratify the project constitution.
+2. `/speckit.specify` — write the feature specification (technology-agnostic).
+3. `/speckit.clarify` — resolve ambiguities in the specification.
+4. `/speckit.plan` — produce the technical plan, research, data model, and contracts.
+5. `/speckit.checklist` — review the feature's requirements checklist.
+6. `/speckit.tasks` — generate the ordered task list.
+7. `/speckit.analyze` — run the cross-artifact consistency check.
+8. `/speckit.implement` — execute the tasks.
+9. `/speckit.converge` — verify the implementation against the artifacts;
+   repeat steps 8–9 until it reports Converged (see ADR-013).
 
 Templates resolve from `.specify/templates/overrides/` first; those overrides are
 the project's binding templates and must not be replaced with the core ones.

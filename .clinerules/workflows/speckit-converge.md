@@ -1,5 +1,5 @@
 ---
-description: Assess the current codebase against the feature's spec, plan, and tasks, then append any remaining unbuilt work as new tasks to tasks.md so implement can complete it.
+description: Assess the current codebase against the feature's spec, plan, and tasks; report Converged when implementation matches the artifacts, otherwise append remaining unbuilt work as new tasks in tasks.md and loop with implement until Converged.
 ---
 
 ## User Input

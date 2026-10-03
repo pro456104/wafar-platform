@@ -28,10 +28,10 @@ templates.
 | Engineering law, product scope, limits | `.specify/memory/constitution.md` |
 | How the system is built | `docs/architecture.md` |
 | The data model — entities, relationships, invariants | `docs/domain-model.md` |
-| Approved technology stack | `Project-Technologies.txt` |
-| Design system (tokens, components) | `wafar.single.css` |
+| Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
+| Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-019) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-024) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -77,6 +77,19 @@ an owner.
 | Setup, testing, and deployment documentation | R1 | Documentation (first feature that creates the workspace) |
 | Staging parity, error tracker, secret management, TLS, log pipeline, dependency update process, load test | R12 | Register gaps ("the first deploying slice") |
 | The documentation-drift test for the first public interface, and the first N+1 query-count assertion | R2 | Documentation; Performance Budgets and Verification |
+| The committed Stylelint + ESLint configuration that fails the build on physical direction properties and non-token design values | R1 | Design System Standards (Static enforcement) |
+| The seeded CLI command that creates the administrator account, the forced password change, and the anti-enumeration/lockout responses | R1 | Identity, Authentication, and Session Policy |
+| Honeypot field, minimum time-to-submit, and rate-limit protection on registration and contact forms, with automated tests | R1 (registration) and R11 (contact form) | Identity, Authentication, and Session Policy (anti-spam enforcement) |
+| The tenant-isolation query-path test that fails the build when a merchant-reachable path returns another tenant's rows | R2 | Deployment and Observability (first tenant-scoped query surface) |
+| The content-safety pipeline: magic-byte validation, ClamAV scan, decoded-size cap, and macro stripping before extraction | R2 (validation), R3 (processing) | File Processing Rules; File Processing Overview |
+| Presigned multipart upload transport for large files | R3 | Deployment and Observability (Upload transport) |
+| Worker durability: bounded retries with exponential backoff, dead-letter queue, per-worker concurrency cap, and temporary-file sweep | R3 | Deployment and Observability (Worker durability) |
+| The Lighthouse budget (LCP, INP, CLS) asserted by Lighthouse CI on the public Parts and Home pages | R5 (first public pages) | Performance Budgets and Verification |
+| Stating the supported browsers (two latest major versions of Chrome, Edge, Firefox, Safari) in the plan's Constitution Mandated Values | R1 | Design System Standards (Supported browsers) |
+| Staging data anonymisation (seeded or anonymised datasets only) | R12 | Deployment and Observability |
+| The monitoring and alerting set: p95 request latency, search p95, processing success rate, queue depth, and budget-breach alerts | R12 | Deployment and Observability |
+| Public API versioning (`/api/v1`) and the deprecation rule (one release of notice, recorded as an ADR) | R2 | Deployment and Observability |
+| Per-build SBOM and the vulnerability/SAST scan (Semgrep OSS or equivalent) that blocks release | R1 | Dependency Governance; Deployment and Observability |
 
 ## Defects in the slice order, and the slice that closes each
 
@@ -113,7 +126,7 @@ carried. Each names the slice that closes it.
   yields a working account on a working shell, R2 alone yields an accepted and
   stored file, R5 alone yields a searchable parts table.
 - **Structure registers.** R1 creates the workspace; it MUST follow the fixed
-  locations in the constitution (v2.10.0) and `docs/architecture.md`, including
+  locations in the constitution (v2.11.1) and `docs/architecture.md`, including
   `apps/web/layouts` and `apps/admin`, and records the documentation-drift
   check for collection in R2.
 - **Deferred areas.** R3, R5, and R13 are the first slices to implement the
@@ -122,11 +135,23 @@ carried. Each names the slice that closes it.
   Governance section, each MUST record in its plan's Constitution Check which
   rules are still missing and how they will be ratified, no later than that
   slice's acceptance.
-- **Open data-model questions.** The facts below exist in the product mirror or
-  in two disagreeing sources and are not yet in the Product Register, so the
-  slice named MUST decide each one, record it in `docs/DECISIONS.md`, and amend
-  `docs/domain-model.md` in the same change — never silently choose it: the
-  account's status value (R1), the stored bytes' size and content-type fields
-  (R2), a part's page and row of origin (R3), a contact message's status and
-  administrator note (R11), the three sender and administrator questions
-  (R10, R13). `docs/domain-model.md` → Unresolved facts carries the full list.
+- **Open data-model questions.** `docs/domain-model.md` → Unresolved facts is
+  the full list; this note mirrors it so the owning slice is visible at a
+  glance. Rows 1–6 are also binding in the constitution's Product Register
+  (Unresolved product facts); rows 7–11 are open facts carried by the model
+  and the mirror:
+  1. Sender representation on a message (R10)
+  2. `Conversation`'s administrator reference (R10)
+  3. `expires_at`: retention deadline or supplier's printed expiry (R15)
+  4. Notification retention (R9)
+  5. Contact message: conversation or its own inbox (R11)
+  6. Administrator: distinct entity or a role on `User` (R13)
+  7. The account's status value, and blocked-merchant as state or flag (R1)
+  8. Whether the `auth` module owns any stored entity (R1)
+  9. The catalog's stored byte count and content type (R2)
+  10. A part's page and row of origin (R3)
+  11. A contact message's status and administrator note (R11)
+
+  Each owning slice MUST decide its question, record the decision in
+  `docs/DECISIONS.md`, and amend `docs/domain-model.md` in the same change —
+  never silently choose it.
