@@ -11,14 +11,14 @@
 **Input**: Parent roadmap: ROADMAP.md → R#.
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.9.0) - NORMATIVE:
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.10.0) - NORMATIVE:
   1. Technology-agnostic (Principle VII): this file MUST NOT name languages,
      frameworks, libraries, databases, products, or architectural patterns.
      Product behaviour only; every technical detail belongs in plan.md.
   2. Identifiers (Principle I): FR-### for functional requirements, AC-### for
      acceptance criteria (assigned in the Acceptance Criteria section and
-     nowhere else), SC-### for success criteria. Identifiers are stable for
-     the life of the feature: never renumber, never reuse; withdraw an item
+     nowhere else), SC-### for success criteria. Identifiers are stable for the
+     life of the feature: never renumber, never reuse; withdraw an item
      by keeping its identifier and marking it withdrawn.
   3. Every FR MUST be testable and unambiguous; every FR SHOULD be covered by
      at least one AC; every AC MUST be referenced by at least one task.
@@ -29,13 +29,21 @@
   5. Project Context Sources (binding) — read these before writing this
      specification, and keep it consistent with them:
        - `.specify/memory/constitution.md` — principles and governance; the
-         Product Scope (pages, roles, product features), the Usage Limits, and
-         the Glossary that is the naming authority.
+         Product Scope (pages, roles, product features), the Product Register
+         (roles, the twenty-five pages, the data entities and the cross-entity
+         rules), the Usage Limits, and the Glossary that is the naming
+         authority.
        - `Core-Project.txt` — the product definition: roles and their
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
-       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-016). A
+       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-019). A
          specification that contradicts one is a blocking defect.
+       - `docs/domain-model.md` — the entities a Key Entities section may name,
+         and the invariants such a specification MUST NOT contradict. A
+         specification MUST NOT invent an entity, and MUST NOT restate the
+         entity's columns: an entity, a relationship, or an invariant is a
+         registered product fact changed only by amending the register and
+         recording an ADR.
      The technical sources (`docs/architecture.md`, `Project-Technologies.txt`,
      `wafar.single.css`) are bound in plan-template.md, NOT here: naming their
      content in this file would breach rule 1 (Principle VII).
@@ -121,6 +129,17 @@
 - **Coverage target for changed production code**: at least 80% of changed lines.
 
 ### Key Entities *(include if the feature involves data)*
+
+<!--
+  Entities come from `docs/domain-model.md`. Name an entity this feature
+  touches, say what it represents in business terms, and state the
+  relationships this feature relies on. Do NOT list columns, types, or field
+  names here: a specification stays technology-agnostic (Principle VII), and the
+  physical shape is the owning module's schema file plus the plan's
+  `data-model.md`. An entity this feature needs that the domain model does not
+  carry is a register amendment plus an ADR, recorded in Complexity Tracking —
+  never invented here.
+-->
 
 - **[Entity 1]**: [What it represents; key attributes in business terms; relationships to other entities]
 - **[Entity 2]**: [What it represents; relationships]

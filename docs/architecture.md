@@ -1,10 +1,11 @@
 # Architecture — Wafar
 
 This document records the repository layout, the API module map, and the data
-flow. Its sources of authority are `.specify/memory/constitution.md` (v2.9.0),
+flow. Its sources of authority are `.specify/memory/constitution.md` (v2.10.0),
 whose Technology Standards and Design System Standards are the registers, and
 `Project-Technologies.txt`; where this document and the constitution disagree,
-the constitution wins.
+the constitution wins. The data model's entities and their owning modules are
+stated in `docs/domain-model.md`, which this document does not restate.
 
 **Status**: baseline for a repository where production code does not exist yet.
 Directories are created by the first feature that owns them, and every
@@ -16,7 +17,7 @@ Project Structure > Ownership Map (Project Structure and Debt Control).
 ```text
 wafar/
 ├── apps/
-│   ├── web/              # Public site + merchant's authenticated area (Nuxt 4)
+│   ├── web/              # Public site + merchant's authenticated area (Nuxt 4); layouts: shell vs bare auth
 │   ├── admin/            # Administrator's separate application, separate login (Nuxt 4)
 │   ├── api/              # The API server (Hono, Modular Monolith)
 │   └── worker/           # File-processing worker (BullMQ processors)
@@ -51,11 +52,11 @@ Each module has its own `routes`, `service`, and `repository`. Communication
 between modules goes through the shared package — never through a direct
 import from one module to another.
 
-| Module | Baseline responsibility (proposed) | Notes |
+| Module | Baseline responsibility | Notes |
 |---|---|---|
 | `auth` | Sign-up, sign-in/out, password recovery, sessions. | Implemented with the designated proven library with `scim` and `sso` disabled (Identity, Authentication, and Session Policy). Password hashing, session timeout, and auth rate limits are recorded per plan in Constitution Mandated Values. |
 | `users` | Merchant accounts and profile data; account edits. | Only the account's owner edits it; no user may delete an account (role matrix). |
-| `catalogs` | Uploaded supplier files: metadata (supplier name, issue date, upload date, expiry date), processing status, retention, file bytes pointer. | Status is exactly one of `uploaded`, `processing`, `completed`, `failed`; automatic deletion after 90 days; duplicates rejected by content hash (File Processing Overview). |
+| `catalogs` | Uploaded supplier files: metadata (supplier name, issue date, upload date, expiry date), processing status, the `first_page_metadata_incomplete` flag, retention, and the pointer to the stored bytes. | Status is exactly one of `uploaded`, `processing`, `completed`, `failed`; `first_page_metadata_incomplete` is a boolean flag and never a fifth status; automatic deletion after 90 days; duplicates rejected by content hash (File Processing Overview). |
 | `parts` | Extracted part rows: part number, name, brand, car model, description. | A part belongs to exactly one catalog; merchants cannot edit or delete parts — the administrator does (Authorization and Access Control). |
 | `suppliers` | The supplier named on a catalog's first page, and its associations to catalogs. | One supplier may appear in many catalogs (Glossary). |
 | `bookmarks` | The "cart": a merchant's personal bookmark list of parts. | Carries no price and no quantity; maximum 99 parts; capacity is enforced server-side (Principle VI, Usage Limits). |
@@ -170,10 +171,14 @@ Read/write notes:
 
 ## 6. Governance pointers
 
-- Constitution: `.specify/memory/constitution.md` (v2.9.0) — principles I–X and
+- Constitution: `.specify/memory/constitution.md` (v2.10.0) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md`.
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-019; the
+  index table is at the top of that file).
+- Data model: `docs/domain-model.md` — the entities, their relationships and
+  invariants, and the owning module of each. This document names the modules;
+  that document explains what each one owns. Neither repeats the other.
 - Design system: `wafar.single.css` (single source of truth, fourteen modules).
 - Technology stack: `Project-Technologies.txt`; product scope and roles:
   `Core-Project.txt`.
@@ -181,4 +186,8 @@ Read/write notes:
   data shape; file ingestion internals; authorization model; retrieval
   interface. The first feature that implements one MUST record, in its plan's
   Constitution Check, which rules are still missing and when they will be
-  ratified.
+  ratified. The open product facts that touch this architecture — the message
+  sender's representation, the conversation's administrator reference, whether
+  an administrator is a distinct entity, `expires_at`, and notification
+  retention — are listed in `docs/domain-model.md` → Unresolved facts, each with
+  the slice that must decide it.

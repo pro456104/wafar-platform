@@ -12,7 +12,10 @@
 
   Rule: keep the heading names and their order in step with
   `.specify/memory/constitution.md`. When a section is added or renamed there,
-  change it here in the same change.
+  change it here in the same change, and change the version footer with it.
+  Sub-headings under a `##` section (for example `### Data entities` under
+  Product Register, or `### Register gaps a slice MUST close` under Technology
+  Standards) are not listed below and are not tracked here; the `##` order is.
 -->
 
 # Wafar Platform Constitution
@@ -43,6 +46,8 @@
 ## File Processing Overview
 
 ### File Processing Rules
+
+## Single-Reference Sufficiency
 
 ## Query Safety and Secrets
 
@@ -81,20 +86,23 @@
 ### Token families
 ### Breakpoints
 ### Component inventory
+### Decision values (binding)
 ### Interface State Matrix
 ### State map
-### Components the product requires and the system does not yet provide
+### Components the product requires and the design system does not yet provide
 ### Invariants
 ### Fonts and the framework bridge
 ### Extension procedure and design-system version
 ### Honoured media and capability states
 
-## Single-Reference Sufficiency
-
 ## Glossary
 
 ## References
 
+## Artifact Workflow and Traceability
+
+## Product Fact Clarifications
+
 ## Governance
 
-**Version**: 2.9.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03
+**Version**: 2.10.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03

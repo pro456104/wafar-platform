@@ -18,7 +18,7 @@ and the way it may restate them — are the register's, stated there and not her
 
 | التقنية | الدور | التفاصيل |
 |---|---|---|
-| **Monorepo** | مستودع واحد يجمع كل التطبيقات والحزم | يضم: `apps/web`، `apps/admin`، `apps/api`، `apps/worker` + `packages/shared`، `packages/db`، `packages/config`. يسهّل مشاركة الكود والأنواع بين الواجهة والخادم. |
+| **Monorepo** | مستودع واحد يجمع كل التطبيقات والحزم | يضم: `apps/web`، `apps/admin`، `apps/api`، `apps/worker` + `packages/shared`، `packages/db`، `packages/search`، `packages/config`. يسهّل مشاركة الكود والأنواع بين الواجهة والخادم. |
 | **pnpm** | مدير الحزم | أسرع من npm/yarn، يوفر مساحة القرص عبر الروابط الصلبة (Hard Links). يدعم **pnpm Catalogs** لإدارة الإصدارات المركزية في Monorepo. |
 | **Turborepo** | منسق المهام والبناء | يشغّل `build`، `test`، `lint` عبر كل الحزم بأمر واحد. يخزّن النتائج مؤقتاً (Caching) فلا يعيد البناء إن لم يتغير شيء. يبني الحزم بالترتيب الصحيح (shared ← web). الإصدار v2.8 مستقر. |
 
@@ -28,7 +28,7 @@ and the way it may restate them — are the register's, stated there and not her
 wafar/
 ├── apps/
 │   ├── web/              # الموقع العام (Nuxt 4)
-│   ├── admin/            # لوحة الأدمن (Nuxt 4)
+│   ├── admin/            # لوحة الأدمن (Nuxt 4) — بنية داخلية مماثلة لـ apps/web وتشمل layouts/
 │   ├── api/              # الخادم (Hono)
 │   └── worker/           # معالج الملفات (BullMQ)
 ├── packages/
@@ -47,7 +47,7 @@ wafar/
 
 | التقنية | الدور | التفاصيل |
 |---|---|---|
-| **Modular Monolith** | النمط المعماري للخادم | خادم واحد مقسّم إلى وحدات مستقلة (auth, users, catalogs, parts, suppliers, bookmarks, notifications, messages, admin). كل وحدة لها `routes`، `service`، `repository` خاص. لا استدعاء مباشر بين الوحدات — التواصل عبر `shared/`. |
+| **Modular Monolith** | النمط المعماري للخادم | خادم واحد مقسّم إلى وحدات مستقلة (auth, users, catalogs, parts, suppliers, bookmarks, notifications, messages, support, admin). كل وحدة لها `routes`، `service`، `repository` خاص. لا استدعاء مباشر بين الوحدات — التواصل عبر `shared/`. |
 | **Hono** | إطار الخادم | إطار خفيف فائق السرعة. الإصدار 4.13.5 (2026). حقق **88,525 طلب/ثانية** في اختبارات Node.js. يعمل على Node.js، Bun، Deno، Cloudflare Workers. |
 | **OpenAPI** | توثيق الـ API | توليد توثيق تلقائي من نفس كود Hono. يضمن تكاملاً سلساً بين الواجهة والخادم. |
 | **Zod** | التحقق من صحة البيانات | الإصدار 4.6 (2026). `.validate()` أسرع بـ **35x** من `safeParse().success`. يُستخدم في الواجهة والخادم معاً لمشاركة نفس schemas. |
@@ -104,6 +104,7 @@ apps/web/
 ├── components/         # مكونات Vue
 ├── composables/        # دوال قابلة لإعادة الاستخدام
 ├── stores/             # Pinia stores
+├── layouts/            # تخطيطات الصفحات (هيكل الموقع / مجرد للمصادقة)
 └── server/             # Nitro server routes (اختياري)
 ```
 
@@ -122,16 +123,16 @@ apps/web/
 ```
 packages/db/
 ├── schema/
+│   ├── auth.ts
 │   ├── users.ts
-│   ├── suppliers.ts
 │   ├── catalogs.ts
 │   ├── parts.ts
+│   ├── suppliers.ts
 │   ├── bookmarks.ts
 │   ├── notifications.ts
-│   ├── conversations.ts
 │   ├── messages.ts
-│   ├── contact-messages.ts
-│   └── audit-log.ts
+│   ├── support.ts
+│   └── admin.ts
 ├── migrations/         # Drizzle migrations
 └── index.ts
 ```

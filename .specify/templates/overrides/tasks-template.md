@@ -11,10 +11,11 @@ description: "Task list template for feature implementation"
 **Project Context Sources (binding)**: task generation reads `plan.md` for the
 technical detail and the ownership map, and it MUST agree with the project-level
 sources the plan was written against — `.specify/memory/constitution.md`,
-`docs/architecture.md`, and `docs/DECISIONS.md`. Every path a task touches MUST
-appear in the plan's ownership map, that map MUST match `docs/architecture.md`,
-and a task that contradicts an accepted decision in `docs/DECISIONS.md` MUST NOT
-be generated.
+`docs/architecture.md`, `docs/domain-model.md`, and `docs/DECISIONS.md`. Every
+path a task touches MUST appear in the plan's ownership map, that map MUST match
+`docs/architecture.md`, an entity a task touches MUST exist in
+`docs/domain-model.md`, and a task that contradicts an accepted decision in
+`docs/DECISIONS.md` MUST NOT be generated.
 
 **Tests**: Test tasks are generated only when the spec's **Test Coverage Request** section requests them (constitution Principle III reads the request from the specification, not from the plan). If requested, include unit, integration, and end-to-end tasks as requested; if not requested, say so here explicitly rather than omitting silently.
 
@@ -34,14 +35,16 @@ Every task MUST strictly follow this format:
 4. **[US#]**: required for user-story-phase tasks (`[US1]`, `[US2]`, ...); omit in Setup, Foundational, and Polish phases.
 5. **Description**: the action with the exact file path.
 6. **Reference tail — constitution Principle I, mandatory**: every task description MUST end with `(implements FR-###, AC-###)`, naming every requirement and acceptance criterion the task satisfies. Examples:
-   - `- [ ] T012 [P] [US1] Build the parts table component in apps/web/app/components/PartsTable.vue (implements FR-004, AC-002)`
-   - `- [ ] T014 [US1] Wire the pagination states in ... (implements FR-006, FR-007, AC-004)`
+   - `- [ ] T012 [P] [US1] Build the parts table component in apps/web/components/PartsTable.vue (implements FR-004, AC-002)`
+   - `- [ ] T014 [US1] Wire the pagination states in apps/web/components/parts/Pagination.vue (implements FR-006, FR-007, AC-004)`
 7. **Reference rule for work that implements no requirement**: use a direct FR/AC reference whenever the task's outcome is genuinely described by a requirement (for example, a migration whose table a story requires). When no requirement genuinely applies — an infrastructure scaffold, a refactor, a dependency or tooling change, a security fix, a spike — the tail is `(implements Complexity Tracking: <row>)`, and the named row MUST already exist in plan.md's Complexity Tracking table. Never cite an FR/AC the task does not implement.
 8. **Coverage check when generating tasks**: every FR-### and every AC-### in spec.md is referenced by at least one task; when tests are requested, every AC is exercised by at least one test task.
 
 ## Path Conventions
 
 Paths come from plan.md's Project Structure (this repository is a Monorepo: apps/, packages/). Every task carries the exact path it touches, and touched paths MUST appear in the plan's ownership map.
+
+The frontend locations are fixed by the constitution's Technology Standards → Internal layout and MUST NOT be re-derived: `apps/web/{pages,components,composables,stores,layouts}` and `apps/admin/{pages,components,composables,stores,layouts}`. There is no `app/` segment — the examples in this template use the fixed paths, and a path that adds one contradicts the register. If a frontend framework defaults to a different source directory, the deciding slice records that in an ADR and amends the register; until then the fixed path above is what a task uses.
 
 ## Phase 1: Setup (Shared Infrastructure)
 

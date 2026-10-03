@@ -11,8 +11,11 @@ list, not a purchase.
 This constitution governs engineering practice and product boundaries. It
 deliberately does not govern the shape of the product's data model, its
 extraction behaviour, or its retrieval interface, because those decisions are
-not yet made. It does govern how a schema change is made, and how repository
-structure is laid out, regardless of those shapes. See Deferred areas.
+not yet made. It does govern which entities exist, which module owns each, and
+which product rules bind across them (Product Register → Data entities); it does
+not govern their columns, types, or constraints. It also governs how a schema
+change is made, and how repository structure is laid out, regardless of those
+shapes. See Deferred areas.
 
 ## Core Principles
 
@@ -224,13 +227,20 @@ prohibited.
 - **Primary colour**: `#2563eb` (`--brand-600`). **Accent colour**:
   `#0ea5e9` (`--accent-500`).
 - **Type**: Tajawal (Variable, SIL OFL 1.1) for all text. JetBrains Mono for
-  technical numerals and part codes.
+  technical numerals and part codes. Noto Sans Arabic is permitted only as the
+  fallback in the font stack declared by `wafar.single.css`.
 - **Tables only** for data display. The exceptions are the statistical cards
   on the home page and the quick-actions grid.
+- **Shell scope**: the application shell (header plus sidebar) renders on the
+  public pages and the authenticated merchant area. The authentication pages
+  (sign-in, sign-up, forgot-password), the 404 page, and the static
+  policy/FAQ/contact pages use a bare layout with no header and no sidebar.
+  The administrator application carries its own independent shell.
 - **Sidebar** (`19rem` / `304px`) is fixed and always visible on desktop
   (≥1024px). It does not hide, does not slide. On mobile it becomes a drawer.
-- **Header** (`4.25rem` / `68px`): logo on the right, account, notifications,
-  and theme-toggle icons on the left.
+- **Header** (`4.25rem` / `68px`): the sidebar header carries the platform
+  logo; the header carries the account, notifications, and theme-toggle icons
+  plus the sidebar collapse control.
 - **Existing components first**: a new interface MUST be composed from the
   design system's existing components. A new Button, Input, Table, or Modal
   MUST NOT be created when an existing component performs that function. A
@@ -397,18 +407,51 @@ restated here. Each MUST be implemented through a specification that references
 that list. The product limits are the Usage Limits table in Performance Budgets
 and Verification and MUST NOT be restated here either.
 
-### Data entities (initial)
+### Data entities
 
-`User` (id, email, password hash, role, shop name, phone) · `Supplier` (id, name,
-contact) · `Catalog` (id, user, supplier, file name, file hash, status, uploaded
-at, expires at, issued date) · `Part` (id, catalog, part number, name, brand, car
-model, description) · `Bookmark` (id, user, part) · `Notification` (id, user,
-type, title, body, read at) · `Conversation` (id, user, administrator, status) ·
-`Message` (id, conversation, sender, body) · `SupportTicket` (id, user, title,
-body, status) · `ContactMessage` (id, name, phone, body) · `AuditLog` (id,
-administrator, action, target, details).
+Ten entities are in scope, and `docs/domain-model.md` is their source of truth:
+it carries the relationships, the cardinality, the invariants, and the owning
+module for each. This section maps them; it does not restate them, because a
+field list held here would be a second source that drifts from the one.
 
-The entity shape beyond these fields is a deferred area (Catalog data shape).
+| Entity | Owning module | One-line meaning |
+|---|---|---|
+| `User` | `users` | A registered merchant: identity, shop details, role. |
+| `Supplier` | `suppliers` | The company named on a catalog's first page. |
+| `Catalog` | `catalogs` | An uploaded supplier file, its metadata, its status, and its stored bytes. |
+| `Part` | `parts` | One row extracted from a catalog, representing one car part. |
+| `Bookmark` | `bookmarks` | One entry in a merchant's cart. |
+| `Notification` | `notifications` | A processing outcome or administrative message delivered to a user. |
+| `Conversation` | `messages` | The single thread between a merchant and the administrator. |
+| `Message` | `messages` | One message inside a conversation. |
+| `ContactMessage` | `support` | A message from the public contact form. |
+| `AuditLog` | `admin` | The append-only record of every administrator operation. |
+
+An entity absent from this table MUST NOT be introduced without amending this
+register, and an entity's shape is changed only through
+`docs/domain-model.md` and an ADR.
+
+Two facts bind across entities and are stated here because the feature map
+depends on them:
+
+- **`first_page_metadata_incomplete`** is a boolean on `Catalog`, set when the
+  file's first page yields neither the supplier's name nor the issue date
+  (File Processing Overview, step 4). It is a flag, never a status value.
+- **Deletion is soft** for `User` and `Catalog`. A soft-deleted row is retained
+  and filtered out of every read path; only the retention job and an
+  administrator operation remove a row for good. Soft deletion is not a
+  substitute for a cascade: deleting a catalog still withdraws its parts, their
+  bookmarks, and their search-index entries. Blocking a merchant does not remove
+  their public catalogs or the parts extracted from them, and blocking is not
+  deletion.
+- **An `AuditLog` target is namespaced** in a `type:id` form, so one target
+  column is unambiguous across every module an administrator can act on. The
+  `type` is the entity the action was performed on.
+
+The entity shape beyond what `docs/domain-model.md` states is a deferred area
+(Catalog data shape). Column types, constraints, and the physical schema are not
+governed here at all: they are the owning module's
+`packages/db/schema/<module>.ts` and the owning feature's `data-model.md`.
 Schema and Migration Control governs how any shape changes.
 
 ### Unresolved product facts (binding)
@@ -420,11 +463,22 @@ one on its own:
 
 | Conflict | Sources | Resolve in |
 |---|---|---|
-| Home carries three statistical cards (accounts, files, parts) or four (plus searches) | `Core-Project.txt` (four); Product Scope and ROADMAP (four) | R5 |
-| A sidebar is required on desktop and must not hide or slide | Principle IX and Design System Standards; `Core-Project.txt` describes a header only, and the design system ships bottom-navigation and collapsed-sidebar tokens | R1 |
-| Support reaches the administrator through a conversation, a ticket, or a contact message | Product Register entities and the `support` module; Product Scope defines the Contact page only | R11 |
+| Support reaches the administrator through a conversation or a contact message | Product Register entities (`Conversation`, `ContactMessage`) and the `support` module; Product Scope defines the Contact page only | R11 |
 | `expires_at` is the retention deadline or the supplier's printed expiry date | Schema and Migration Control, Glossary (retention); `Core-Project.txt` (supplier date) | R15 |
 | Notification retention is undetermined | The product statement defers it ("to be determined later") | R9 |
+| A message's sender is either a merchant or an administrator, and the register names one sender | Product Register (`Message` carries a single sender); Authorization and Access Control (the administrator is a separate principal with a separate login) | R10 |
+| `Conversation` carries an administrator reference, yet every administrator account sees the same single thread | Product Register (`Conversation` carries an administrator); `Core-Project.txt` (one administrator account type, all administrators see the same conversations) | R10 |
+| An administrator is a role on `User` in one place and a separate party that `Conversation` and `AuditLog` refer to in another | Product Register (roles); Authorization and Access Control (a separate application with a separate login) | R13 |
+
+**Resolved conflict (2026-10-03).** The sidebar conflict is resolved: the
+sidebar is required on desktop and must not hide or slide (Principle IX);
+`Core-Project.txt` now defines the shell including the sidebar; authentication,
+404, static, and administrator pages are exempt from the shell. Recorded in
+`docs/DECISIONS.md` (ADR-017).
+
+**Resolved conflict (2026-10-03).** Home carries four statistical cards
+(accounts, files, parts, searches) across Product Scope and the mirror; R5's
+plan records the choice in `docs/DECISIONS.md` when it plans.
 
 ## File Processing Overview
 
@@ -478,8 +532,9 @@ A feature MUST NOT need a source outside this constitution for any rule it must
 obey. Every project-level source is named in References, and this constitution
 carries the register of each: the repository's structure and the approved stack
 in Technology Standards, the design system's structure in Design System
-Standards, and the product's roles, pages, and facts in Product Scope and
-Product Register.
+Standards, the product's roles, pages, and facts in Product Scope and Product
+Register, and the data model's entities and their ownership in the Data entities
+register.
 
 - Detail lives in the referenced sources; the register lives here. A rule that
   cannot be discharged without reading a referenced source MUST name that source
@@ -487,13 +542,17 @@ Product Register.
 - A value a referenced source leaves open, or defers, MUST be given a binding
   value under Constitution Mandated Values by the first plan that needs it, and
   the choice MUST be recorded in `docs/DECISIONS.md` as an ADR.
-- A technology, token, component, page, feature, or role that is absent from the
-  registers above is not approved. Finding it in a referenced source does not
-  approve it; the register MUST be amended first.
+- A technology, token, component, page, feature, role, or entity that is absent
+  from the registers above is not approved. Finding it in a referenced source
+  does not approve it; the register MUST be amended first.
 - A register is a map, not a copy: a design value, a token, a class, a line of
   code, or a table definition MUST NOT be copied into this constitution. A
   register that duplicates its source is a drift defect, because the two copies
   will disagree.
+- A register row MUST name a value its source actually defines. A register that
+  names a token, entity, or field the source does not contain is the same
+  defect read in the other direction, and it is corrected by amending the
+  register rather than by inventing the value.
 - The feature templates' binding block MUST stay in step with this constitution:
   a register added here, renamed here, or renumbered here MUST be reflected there
   in the same change, together with the constitution's version.
@@ -918,10 +977,12 @@ amendment to this section.
 |---|---|
 | API module | `apps/api/src/modules/<module>/{routes,service,repository}` — one directory per module named in Principle X. |
 | Worker | `apps/worker/src/processors/{extract-parts,normalize,deduplicate,index-parts}.ts`, `apps/worker/src/queues/file-processing.ts`. |
-| Database | `packages/db/schema/*.ts`, `packages/db/migrations/`. |
+| Database | `packages/db/schema/<module>.ts`, `packages/db/migrations/`. |
 | Search | `packages/search/client.ts`, `packages/search/mappings/`. |
-| Frontend | `apps/web/{pages,components,composables,stores}`. |
+| Frontend | `apps/web/{pages,components,composables,stores,layouts}`. |
+| Administrator frontend | `apps/admin/{pages,components,composables,stores,layouts}`. |
 | Validation | `packages/shared` only; a second local schema MUST NOT be created. |
+| Database ownership | `packages/db/schema/<module>.ts` — one file per module named in Principle X; the table it declares belongs to that module. |
 
 A feature MUST NOT create a parallel location for an artifact whose location is
 fixed above.
@@ -1021,8 +1082,13 @@ change.
   bottom-navigation tokens, and the safe-area tokens.
 - Radii: the radius ladder plus the named radii `shell`, `canvas`, `sheet`,
   `overlay`, `media`, `control`, `pill`, and `card`.
-- Shadows: the shadow ladder plus the named shadows `brand`, `cinematic`,
-  `glass`, `overlay`, `panel`, `control`, `focus`, `inner`, and `none`.
+- Shadows: the size ladder (`--shadow-xs`, `--shadow-sm`, `--shadow-md`,
+  `--shadow-lg`, `--shadow-xl`, `--shadow-2xl`) plus the named shadows `card`,
+  `card-raised`, `cinematic`, `cinematic-hover`, `cinematic-panel`, `control`,
+  `focus`, `glass`, `inner`, `none`, `overlay`, and `panel`, plus the brand
+  tints `brand-sm`, `brand-md`, and `brand-lg`. The brand tints are a
+  three-step sub-ladder and not a single `brand` shadow; a `brand` shadow does
+  not exist and MUST NOT be used.
 - Motion: the duration steps, the easing curves, the transition shorthands, and
   the motion steps for hover lift, press scale, stagger, and slide.
 - Z-index: the defined layer scale. Every layer takes a value from it.
@@ -1206,6 +1272,7 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 |---|---|---|
 | `Project-Technologies.txt` | The technology register's detail: exact versions, per-technology notes, and the repository trees. Mirrors Technology Standards, which wins on conflict. | Repository root. |
 | `Core-Project.txt` | The product's detail: pages, roles, and the acceptance criteria the product already states. Mirrors Product Register and Product Scope, which win on conflict. | Repository root. |
+| `docs/domain-model.md` | The data model's source of truth: entities, relationships, cardinality, invariants, and the owning module of each. Mirrors the Data entities register, which holds the map. | `docs/`. |
 | `wafar.single.css` | The design system's values — the only permitted source of design values, composed of fourteen modules. Mirrors Design System Standards, which holds the register. | Repository root. |
 | `docs/DECISIONS.md` | The record of design decisions and the reasoning behind them. | `docs/`. |
 | `docs/architecture.md` | The repository layout, module map, and data-flow descriptions. | `docs/`. |
@@ -1252,9 +1319,12 @@ the same force as the principles above.
 - A message sent by a merchant is visible to the sender immediately; the
   administrator's reply is visible after a page refresh unless a live-update
   mechanism has been specified.
-- Every page header MUST carry the brand logo, the quick search field, and the
-  account and notifications dropdowns for an authenticated user. A guest MUST
-  see a login action instead of those dropdowns.
+- Every page header in the shell MUST carry the account, notifications,
+  theme-toggle, and sidebar-collapse controls for an authenticated user. A
+  guest MUST see a login action instead of those controls. The platform logo
+  sits in the sidebar header, and the quick search field lives on the Home
+  page (see Product Scope). Pages without the shell — authentication, 404,
+  static, and administrator pages — carry no header.
 
 ## Governance
 
@@ -1360,4 +1430,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.9.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03
+**Version**: 2.10.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03

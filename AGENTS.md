@@ -23,10 +23,11 @@ and a feature artifact references it rather than restating it.
 |---|---|
 | Engineering law, product scope, limits | `.specify/memory/constitution.md` |
 | How the system is built (layout, module map, data flow) | `docs/architecture.md` |
+| The data model (entities, relationships, invariants, owning module) | `docs/domain-model.md` |
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-016) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-019; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -41,11 +42,11 @@ re-invent what already exists. See `docs/DECISIONS.md` → ADR-007.
   technical sources: a specification stays technology-agnostic (Principle VII).
 - `/speckit.plan` → the constitution's registers (Technology Standards, Design
   System Standards, Product Register) plus `docs/architecture.md`,
-  `wafar.single.css`, and `docs/DECISIONS.md`. The plan is the only artifact
-  that carries technical detail, and its Ownership Map must match
-  `docs/architecture.md`.
-- `/speckit.tasks` → `plan.md`, plus `docs/architecture.md` and
-  `docs/DECISIONS.md`. Every path a task touches must appear in the plan's
+  `docs/domain-model.md`, `wafar.single.css`, and `docs/DECISIONS.md`. The plan
+  is the only artifact that carries technical detail, and its Ownership Map must
+  match `docs/architecture.md`.
+- `/speckit.tasks` → `plan.md`, plus `docs/architecture.md`, `docs/domain-model.md`,
+  and `docs/DECISIONS.md`. Every path a task touches must appear in the plan's
   ownership map.
 - `/speckit.implement` → `plan.md`, `tasks.md`, and the constitution.
 
@@ -69,6 +70,15 @@ until converge reports Converged (ADR-013).
 Installed extensions: `assess` (idea triage before specifying) and `bug` (bug
 triage). Templates resolve from `.specify/templates/overrides/` first, then
 presets, then extensions, then core.
+
+**The bundled `speckit` workflow is not the whole cycle.**
+`.specify/workflows/speckit/workflow.yml` runs `specify → plan → tasks →
+implement` with two human review gates. It does **not** run `/speckit.analyze`
+or `/speckit.converge`: converge is a separate command by decision (ADR-013), and
+analyze has no workflow step because the consistency gate is run by hand, on
+purpose, before implementation begins. The cycle in §5 above — the six commands
+including `analyze` and the `implement ↔ converge` loop — is the binding one.
+Do not treat the workflow file as the definition of the cycle.
 
 ## 6. Before reporting a change complete
 

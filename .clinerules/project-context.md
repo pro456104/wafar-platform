@@ -5,18 +5,20 @@ Authority: `.specify/memory/constitution.md` supersedes this file. Read
 ones:
 
 1. **Project-level knowledge is not a feature.** `.specify/memory/constitution.md`,
-   `docs/architecture.md`, `Project-Technologies.txt`, `wafar.single.css`,
-   `Core-Project.txt`, `docs/DECISIONS.md`, and `ROADMAP.md` are read by name.
-   Never create a numbered feature for the architecture, the design system, the
-   technology stack, or conventions (see `docs/DECISIONS.md` → ADR-007).
+   `docs/architecture.md`, `docs/domain-model.md`, `Project-Technologies.txt`,
+   `wafar.single.css`, `Core-Project.txt`, `docs/DECISIONS.md`, and `ROADMAP.md`
+   are read by name. Never create a numbered feature for the architecture, the
+   data model, the design system, the technology stack, or conventions (see
+   `docs/DECISIONS.md` → ADR-007).
 
 2. **Before any `/speckit.*` feature command, load those sources:**
    - `specify` → constitution + `Core-Project.txt` + `docs/DECISIONS.md`
      (no technology in a specification — Principle VII).
    - `plan` → the constitution's registers (Technology Standards, Design System
-     Standards, Product Register) plus the project-level sources; its Ownership Map
-     must match `docs/architecture.md`.
-   - `tasks` → `plan.md` + `docs/architecture.md` + `docs/DECISIONS.md`.
+     Standards, Product Register) plus the project-level sources, including
+     `docs/domain-model.md`; its Ownership Map must match `docs/architecture.md`.
+   - `tasks` → `plan.md` + `docs/architecture.md` + `docs/domain-model.md` +
+     `docs/DECISIONS.md`.
    - `implement` → `plan.md` + `tasks.md` + constitution.
 
 3. **The feature templates carry this as binding text** —

@@ -27,10 +27,11 @@ templates.
 |---|---|
 | Engineering law, product scope, limits | `.specify/memory/constitution.md` |
 | How the system is built | `docs/architecture.md` |
+| The data model — entities, relationships, invariants | `docs/domain-model.md` |
 | Approved technology stack | `Project-Technologies.txt` |
 | Design system (tokens, components) | `wafar.single.css` |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-016) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-019) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -44,7 +45,7 @@ rules drift. It MUST NOT be created. See `docs/DECISIONS.md` → ADR-007.
 | ID | Sub-feature | Intent | Scope boundary | Depends on | Status | Sub-spec |
 |----|-------------|--------|----------------|-----------|--------|----------|
 | R1 | Identity and foundation | A merchant signs up, signs in and out, and recovers a password; sessions, password hashing, and auth rate limits follow the constitution's Identity, Authentication, and Session Policy. This slice also creates the repository workspaces and registers the `auth` and `users` modules. | The merchant's account only. The administrator's separate login belongs to R13. Workspace, design-system extension, and delivery duties are listed under "First obligations" below. | — | planned | — |
-| R2 | File intake | A merchant uploads an Excel, PDF, or Word catalog; size and content-type are validated before storage; bytes are stored in object storage; a content hash is computed; a duplicate is rejected by hash; the catalog record's status is recorded. | Validation, storage, hash, duplicate check, and status only. Extraction is R3. | R1 | planned | — |
+| R2 | File intake | A merchant uploads an Excel, PDF, or Word catalog; size and content-type are validated before storage; bytes are stored in object storage; a content hash is computed; a duplicate is rejected by hash; the catalog record's status is recorded; the per-user upload quotas are enforced server-side (50 files per calendar month, 100 files in total, with manually deleted files not counting toward the total). | Validation, storage, hash, duplicate check, status, and upload quota only. Extraction is R3. | R1 | planned | — |
 | R3 | Catalog extraction | The worker pipeline: extract parts from the file's tables, read the supplier name and issue date from the first page, normalise columns, deduplicate by file/page/row, index the parts, set status to `completed` or `failed`, and allow retry without re-uploading bytes. | The pipeline only. The parts read surface is R5. Extraction algorithm and catalog data shape are deferred areas. | R2 | planned | — |
 | R4 | My Files | The merchant's page for the files they uploaded: the file table, the upload action, the processing status of each file, deleting a file they uploaded, bookmarking an already-present file, and the retry action for a failed file. | The merchant's own files only. Upload validation and storage are R2; extraction is R3. | R2, R3 | planned | — |
 | R5 | Parts search | The public Parts page and the Home page: Arabic root-aware search, filters (part number, brand, car model, catalog file, supplier), a parts table with column sorting, pagination 20/50/100, `?file=<id>` filtering, within the p95 < 1 s budget. Home carries the platform name, the quick search field, and the four statistical cards. | Reading and filtering only. Search ranking beyond the sortable columns is a deferred area. | R3 | planned | — |
@@ -70,9 +71,9 @@ an owner.
 | The workspace, `packages/config`, and the shared tooling | R1 | Technology Standards → repository topology; `docs/architecture.md` |
 | The test runner and the continuous-integration provider that enforces the 80% coverage gate | R1 | Principle III; Register gaps |
 | Backup and restore tooling, and the RTO/RPO numbers | R1 | Deployment and Observability (R1 introduces persistent storage) |
-| The application shell: header, sidebar, drawer, theme toggle, icon set, fonts, and the framework bridge | R1 | Principle IX; Design System Standards |
+| The application shell — header, sidebar (fixed on desktop, drawer on mobile), drawer, theme toggle, icon set, fonts, and the framework bridge — scoped to public pages and the merchant area, never on auth/404/static pages; resolved sidebar logo/header placement per ADR-017 | R1 | Principle IX; Design System Standards; ADR-017 |
 | CSRF, output-encoding, and security-header tests | R1 | Identity, Authentication, and Session Policy (first browser-facing feature) |
-| The resolution of the sidebar conflict | R1 | Product Register → unresolved facts (first surface that lays out a page) |
+| The resolution of the sidebar conflict | Resolved 2026-10-03 in ADR-017: sidebar required fixed on desktop; auth/404/static pages bare; `Core-Project.txt` now defines the shell | Closed by ADR-017 |
 | Setup, testing, and deployment documentation | R1 | Documentation (first feature that creates the workspace) |
 | Staging parity, error tracker, secret management, TLS, log pipeline, dependency update process, load test | R12 | Register gaps ("the first deploying slice") |
 | The documentation-drift test for the first public interface, and the first N+1 query-count assertion | R2 | Documentation; Performance Budgets and Verification |
@@ -86,7 +87,7 @@ carried. Each names the slice that closes it.
 |---|--------|-----------|
 | 1 | The My Files page had no owning slice; the file-intake slice's scope boundary excluded it | R4 |
 | 2 | Six register gaps were assigned to "the first deploying slice" or "the first slice that introduces the test runner", which no slice satisfied | R1 (test runner, backup tooling) · R12 (the rest) |
-| 3 | The sidebar conflict was assigned to "the first surface that lays out a page", which no slice satisfied | R1 |
+| 3 | The sidebar conflict was assigned to "the first surface that lays out a page", which no slice satisfied | Closed by ADR-017 (2026-10-03); no slice owns it |
 | 4 | The administrator slice did not depend on the extraction slice whose output it administers | R13 |
 | 5 | The administrator slice shipped operations before the audit log existed, though every administrator operation must be recorded | R13 records each operation; R14 is the read surface |
 | 6 | The contact form reaches the administrator, but no administrator page receives it | R11 decides; a new page is an amendment |
@@ -97,6 +98,9 @@ carried. Each names the slice that closes it.
 | 11 | The product mirror listed five catalog status values, and pre-empted two facts the constitution assigns to R9 and R15 | Fixed 2026-10-03 in `Core-Project.txt` |
 | 12 | The product mirror carried an unreferenced TODO for a budget the constitution had already fixed | Fixed 2026-10-03 in `Core-Project.txt` |
 | 13 | The binding specification template did not carry the sub-spec `Input` line the constitution requires | Fixed 2026-10-03 |
+| 14 | The per-user upload quotas (50 files/month, 100 files total) were binding limits that no slice's scope named, so nothing would have implemented them | Fixed 2026-10-03: R2 |
+| 15 | The data model existed in three copies that had already diverged, and six facts existed only in the product mirror — so they were unbuildable under the Product Register's own rule | Fixed 2026-10-03 by ADR-019: `docs/domain-model.md` is the single authority |
+| 16 | Three product conflicts were invisible because nobody compared the copies: how a message's sender is represented, whether a conversation carries an administrator reference, and whether an administrator is a distinct entity | Recorded as unresolved product facts; R10, R10, R13 |
 
 ## Notes
 
@@ -108,9 +112,21 @@ carried. Each names the slice that closes it.
 - **Independent verification.** Each slice is independently testable: R1 alone
   yields a working account on a working shell, R2 alone yields an accepted and
   stored file, R5 alone yields a searchable parts table.
+- **Structure registers.** R1 creates the workspace; it MUST follow the fixed
+  locations in the constitution (v2.10.0) and `docs/architecture.md`, including
+  `apps/web/layouts` and `apps/admin`, and records the documentation-drift
+  check for collection in R2.
 - **Deferred areas.** R3, R5, and R13 are the first slices to implement the
   deferred areas (extraction algorithm; catalog data shape; file ingestion
   internals; retrieval interface; authorization model). Per the constitution's
   Governance section, each MUST record in its plan's Constitution Check which
   rules are still missing and how they will be ratified, no later than that
   slice's acceptance.
+- **Open data-model questions.** The facts below exist in the product mirror or
+  in two disagreeing sources and are not yet in the Product Register, so the
+  slice named MUST decide each one, record it in `docs/DECISIONS.md`, and amend
+  `docs/domain-model.md` in the same change — never silently choose it: the
+  account's status value (R1), the stored bytes' size and content-type fields
+  (R2), a part's page and row of origin (R3), a contact message's status and
+  administrator note (R11), the three sender and administrator questions
+  (R10, R13). `docs/domain-model.md` → Unresolved facts carries the full list.

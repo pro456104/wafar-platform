@@ -7,7 +7,7 @@
 **Note**: This template is filled in by the `/speckit.plan` command; its definition describes the execution workflow.
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.9.0) - NORMATIVE:
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.10.0) - NORMATIVE:
   - This file carries every technical detail; spec.md stays technology-agnostic.
   - The Technical Context MUST contain the Constitution Mandated Values heading;
     a value named by a rule but written elsewhere does not discharge that rule,
@@ -21,12 +21,20 @@
     rather than from the feature spec alone — `.specify/memory/constitution.md`,
     `docs/architecture.md` (the layout), the constitution's registers
     (Technology Standards, Design System Standards, Product Register),
+    `docs/domain-model.md` (the entities, their relationships, and their
+    invariants, which the plan's Phase 1 `data-model.md` MUST NOT contradict),
     `Project-Technologies.txt` (a mirror), `wafar.single.css` (the design values),
     `Core-Project.txt`, `docs/DECISIONS.md`. A plan that contradicts an
     accepted ADR (docs/DECISIONS.md) or the Technology Standards is an ERROR,
     not a preference. The Ownership Map MUST record paths that match
-    `docs/architecture.md`, and a project-level concern (architecture, design
-    system, technology stack, conventions) MUST NOT be turned into a feature.
+    `docs/architecture.md`, and a project-level concern (architecture, data
+    model, design system, technology stack, conventions) MUST NOT be turned into
+    a feature.
+  - A plan that resolves an entity, a relationship, an invariant, or an open
+    product fact MUST amend `docs/domain-model.md` and record an ADR in the same
+    change, and MUST name the entity it resolved under Gate 2 → Product Register.
+    A column, a type, and an index belong to this plan's `data-model.md` and to a
+    migration; they do not belong to the constitution or to the domain model.
 -->
 
 ## Summary
@@ -68,6 +76,12 @@
 | 7 | Maximum query execution time | [number] |
 | 8 | Recovery Time Objective (RTO) | [number, or "not introduced — no persistent storage"] |
 | 9 | Recovery Point Objective (RPO) | [number, or "not introduced — no persistent storage"] |
+| 10 | Runtime version | [pinned version, or "not introduced — no runtime surface"] |
+| 11 | Design-system version | [version from wafar.single.css header, or "not introduced — no UI change"] |
+| 12 | Icon set | [the approved set, or "not introduced — no icon surface"] |
+| 13 | Extraction libraries | [the approved libraries, or "not introduced — no extraction surface"] |
+| 14 | Email transport | [the approved transport, or "not introduced — no email surface"] |
+| 15 | Continuous-integration provider | [the approved provider, or "not introduced — CI unchanged"] |
 
 ### Verification Notes *(required where applicable)*
 
@@ -127,8 +141,8 @@
 | Design System Standards | | [dark default; tables for data; motion scale; z-index scale; AA contrast] |
 | Product Scope | | [pages and features stay inside the defined list; an addition is recorded in Complexity Tracking] |
 | File Processing Overview | | [single pipeline sequence; status enum exactly uploaded/processing/completed/failed; validation before storage; duplicate rejected] |
-| Product Register | | [roles respected; no page outside the twenty-five; no feature outside the sixteen; every unresolved product fact handled or recorded] |
-| Single-Reference Sufficiency | | [no rule discharged from an unregistered source; every open value recorded under Constitution Mandated Values and as an ADR; no register copied into this plan] |
+| Product Register | | [roles respected; no page outside the twenty-five; no feature outside the sixteen; every unresolved product fact handled or recorded — the register's open facts are listed in `docs/domain-model.md` → Unresolved facts, and the slice named MUST resolve the ones this feature touches] |
+| Single-Reference Sufficiency | | [no rule discharged from an unregistered source; every open value recorded under Constitution Mandated Values and as an ADR; no register copied into this plan; no column, entity field, or design value copied out of its source into this plan instead of referenced] |
 
 ### Gate 3 — Deferred Areas Touched
 
@@ -139,11 +153,21 @@
   after the area is in production. The five deferred areas: extraction
   algorithm; catalog data shape; file ingestion internals; authorization
   model; retrieval interface.
+
+  `docs/domain-model.md` → Unresolved facts is a second, related list: the open
+  *product* questions the register carries, each already assigned to a slice.
+  A feature that touches one MUST fill the matching row below too, or state that
+  it does not touch it. The two lists are not the same — a deferred area is a
+  class of decision, an unresolved fact is a specific question.
 -->
 
 | Deferred area | What this feature decides | Rules still missing | Ratification plan (owner, deadline ≤ feature acceptance) |
 |---|---|---|---|
 | [e.g., Retrieval interface] | [ranking / order beyond the sortable columns / table presentation beyond Product Scope columns] | [list] | [owner; deadline] |
+
+| Unresolved product fact (from `docs/domain-model.md`) | Touched by this feature? | How it is resolved here | ADR + domain-model.md amendment recorded? |
+|---|---|---|---|
+| [e.g., #1 the message sender's representation] | [yes / no] | [the decision, or "not touched — R10 owns it"] | [ADR-###, or "not applicable"] |
 
 *If none: "None — no deferred area is implemented by this feature."*
 

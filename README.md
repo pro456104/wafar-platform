@@ -14,7 +14,8 @@ not sell, buy, process payment, or host user-to-user chat.
 | `Core-Project.txt` | Product definition: roles, permissions, pages, file processing, acceptance criteria. |
 | `Project-Technologies.txt` | Mirror of the approved technology register. The register itself is `.specify/memory/constitution.md` → Technology Standards. |
 | `docs/architecture.md` | Repository layout, API module map, data flow. |
-| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-016). |
+| `docs/domain-model.md` | The data model: entities, relationships, cardinality, invariants, and the module that owns each. |
+| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-019; index at the top). |
 | `wafar.single.css` | The design system's values — the only permitted source of design values. Its register is `.specify/memory/constitution.md` → Design System Standards. |
 | `ROADMAP.md` | The MVP slice order. Names and orders slices; does not design them. |
 | `AGENTS.md` | Operating instructions for agent assistants. |
@@ -41,10 +42,19 @@ This repository is driven by Spec Kit. With `.specify/` present and the
 Templates resolve from `.specify/templates/overrides/` first; those overrides are
 the project's binding templates and must not be replaced with the core ones.
 
-**Project-level knowledge is not a feature.** The constitution, the architecture,
-the technology stack, the design system, the product definition, and the accepted
-decisions live outside the feature sequence and never take a feature number. See
-`AGENTS.md` §2 and `docs/DECISIONS.md` → ADR-007.
+**Project-level knowledge is not a feature.** The constitution, the
+architecture, the data model, the technology stack, the design system, the
+product definition, and the accepted decisions live outside the feature
+sequence and never take a feature number. See `AGENTS.md` §2 and
+`docs/DECISIONS.md` → ADR-007.
+
+**The data model has one authority.** `docs/domain-model.md` holds the logical
+model — entities, relationships, invariants, owning module. The constitution's
+Product Register maps it. Column types and the physical schema are not in
+either: they are the owning module's `packages/db/schema/<module>.ts` and the
+owning feature's `specs/[###-feature]/data-model.md`. A feature that adds an
+entity, a relationship, or an invariant amends the register and records an ADR;
+a feature that adds a column owns it in its own data model and migration.
 
 ## Setup, testing, and deployment
 
