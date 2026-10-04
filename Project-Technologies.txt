@@ -49,9 +49,9 @@ wafar/
 | التقنية | الدور | التفاصيل |
 |---|---|---|
 | **Modular Monolith** | النمط المعماري للخادم | خادم واحد مقسّم إلى وحدات مستقلة (auth, users, catalogs, parts, suppliers, bookmarks, notifications, messages, support, admin). كل وحدة لها `routes`، `service`، `repository` خاص. لا استدعاء مباشر بين الوحدات — التواصل عبر `shared/`. |
-| **Hono** | إطار الخادم | إطار خفيف فائق السرعة. الإصدار 4.13.5 (2026). حقق **88,525 طلب/ثانية** في اختبارات Node.js. يعمل على Node.js، Bun، Deno، Cloudflare Workers. |
+| **Hono** | إطار الخادم | إطار خفيف فائق السرعة. الإصدار 4.13.5 (2026)، بأداء أعلنت عنه اختبارات الفريق بعشرات آلاف الطلبات/ثانية على Node.js. يعمل على Node.js، Bun، Deno، Cloudflare Workers. |
 | **OpenAPI** | توثيق الـ API | توليد توثيق تلقائي من نفس كود Hono. يضمن تكاملاً سلساً بين الواجهة والخادم. |
-| **Zod** | التحقق من صحة البيانات | الإصدار 4.6 (2026). `.validate()` أسرع بـ **35x** من `safeParse().success`. يُستخدم في الواجهة والخادم معاً لمشاركة نفس schemas. |
+| **Zod** | التحقق من صحة البيانات | الإصدار 4.6 (2026). تحسينات أداء ملموسة في مسارات التحقق. يُستخدم في الواجهة والخادم معاً لمشاركة نفس schemas. |
 
 ### 📁 بنية الوحدات (Modular Monolith)
 
@@ -78,7 +78,7 @@ apps/api/src/
 
 | التقنية | الدور | التفاصيل |
 |---|---|---|
-| **Nuxt 4** | إطار العمل | الإصدار 4.0 صدر يوليو 2025. الإصدار الحالي **4.5** (يوليو 2026). Nuxt 3 وصل EOL في 31 يوليو 2026. |
+| **Nuxt 4** | إطار العمل | الإصدار 4.0 صدر يوليو 2025. الإصدار الحالي **4.5** (يوليو 2026). الاتجاه المعتمد للمشاريع الجديدة هو Nuxt 4؛ Nuxt 3 لم يعد التوصية. |
 | **Vue 3** | لغة بناء الواجهات | Composition API + `<script setup>`. |
 | **TypeScript** | لغة البرمجة | strict mode إلزامي. |
 | **Tailwind CSS** | تنسيق التصميم | الإصدار v4.2 مع 4 خيارات ألوان محايدة جديدة. |
@@ -295,3 +295,27 @@ Mirrors phone-only authentication.
   rule (choice, licence record, vulnerability scan recorded in R1's plan).
 - **E.164 mobile number** — the sole account identifier; no email address
   exists anywhere in the platform.
+
+---
+
+## Constitution 2.14.0 additions (2026-10-04, ADR-033)
+
+Mirrors the audit fix set. No new technology was introduced; no new dependency
+or licence obligation.
+
+- **Merchant full name** — a registered field of `User`; sign-up already
+  collects it, and the register now carries it.
+- **`/speckit.analyze` wording** — the consistency gate runs after
+  `/speckit.tasks` and before implementation, by the engine workflow or by
+  hand (ADR-033 reconciles the two texts).
+- **Catalog-delete cascade ownership** — implemented once in the `catalogs`
+  module service by R4 and reused by R13 and R15 (no duplicated routine).
+- **Single shared entry point** — tenant scoping and later permission
+  resolution are applied through one entry point introduced by R2 and
+  ratified by R13.
+- **Dependency budget** — the numeric cap on direct runtime dependencies is
+  recorded under Constitution Mandated Values; R1 owns setting it.
+- **Mirror claims cleanup** — unsourced or unverifiable figures (a Zod
+  `.validate()` 35x claim, an exact Hono benchmark number, a Nuxt 3 EOL
+  date) were replaced by neutral wording. A mirror MUST NOT carry a precise
+  figure it cannot attribute to its vendor source.

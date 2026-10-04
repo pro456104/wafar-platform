@@ -5,7 +5,7 @@ entities the product reasons about, the relationships between them, their
 cardinality, their invariants, and the module that owns each one. It is the
 source the constitution's Product Register maps.
 
-Its authority is `.specify/memory/constitution.md` (v2.13.0); where this
+Its authority is `.specify/memory/constitution.md` (v2.14.0); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
 change to a registered product fact and MUST be recorded as an ADR in
@@ -66,7 +66,7 @@ every other module reaches it through that module's service.
 
 | Entity | Owning module | What it represents | Cardinality |
 |---|---|---|---|
-| `User` | `users` | A registered merchant whose identity is a mobile number (E.164, unique) with its country code, a city, an optional shop name, and the role that separates a merchant from an administrator. No email address exists. | One account has many catalogs, bookmarks, notifications, and at most one conversation. |
+| `User` | `users` | A registered merchant whose identity is a full name, a mobile number (E.164, unique) with its country code, a city, an optional shop name, and the role that separates a merchant from an administrator. No email address exists. | One account has many catalogs, bookmarks, notifications, and at most one conversation. |
 | `Supplier` | `suppliers` | The company named on a catalog's first page, from which the parts originate. | One supplier appears in many catalogs. |
 | `Catalog` | `catalogs` | An uploaded supplier file with its metadata, its processing status, and a pointer to its stored bytes. | One catalog belongs to one uploading user and to at most one supplier, and contains many parts. |
 | `Part` | `parts` | A single row extracted from a catalog, representing one car part. | One part belongs to exactly one catalog. |

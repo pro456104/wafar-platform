@@ -447,7 +447,7 @@ field list held here would be a second source that drifts from the one.
 
 | Entity | Owning module | One-line meaning |
 |---|---|---|
-| `User` | `users` | A registered merchant: mobile number (E.164, unique), country code, city, optional shop name, role. |
+| `User` | `users` | A registered merchant: full name, mobile number (E.164, unique), country code, city, optional shop name, role. |
 | `Supplier` | `suppliers` | The company named on a catalog's first page. |
 | `Catalog` | `catalogs` | An uploaded supplier file, its metadata, its status, and its stored bytes. |
 | `Part` | `parts` | One row extracted from a catalog, representing one car part. |
@@ -1399,8 +1399,7 @@ the same force as the principles above.
   task identifiers.
 - `plan.md` Constitution Check MUST be evaluated before Phase 0 and
   re-evaluated after Phase 1 design.
-- `/speckit.analyze` runs the consistency gate by hand after `/speckit.tasks`
-  and before implementation begins; its findings MUST be resolved before
+- `/speckit.analyze` runs the consistency gate after `/speckit.tasks` and before implementation begins — by the engine workflow or by hand; its findings MUST be resolved before
   `/speckit.implement` starts (see Governance â†’ Module Discipline).
 - `/speckit.implement` and `/speckit.converge` MUST repeat until Converged; a
   feature reports Converged only when converge reports Converged.
@@ -1540,4 +1539,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.13.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03
+**Version**: 2.14.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-04

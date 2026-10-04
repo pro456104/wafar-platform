@@ -112,4 +112,4 @@
 
 ## Governance
 
-**Version**: 2.13.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-03
+**Version**: 2.14.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-04
