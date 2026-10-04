@@ -1,5 +1,9 @@
 # Project-Technologies.txt — the detail of the technology register
 
+**Constitution**: `.specify/memory/constitution.md` v2.17.0 (last amended
+2026-10-04, ADR-037/ADR-038). On any conflict with this file, the constitution
+wins and this file is corrected.
+
 **Status**: detail mirror, not a source of rules. The register is
 `.specify/memory/constitution.md` → **Technology Standards**; on any conflict the
 register wins and this file is corrected. ADR-008 and ADR-010 record the decision.
@@ -115,7 +119,7 @@ apps/web/
 
 | التقنية | الدور | التفاصيل |
 |---|---|---|
-| **PostgreSQL** | قاعدة البيانات الرئيسية | الإصدار 16+. تخزين المستخدمين، الموردين، الملفات، القطع، السلة، الإشعارات، المراسلات، Audit Log. |
+| **PostgreSQL** | قاعدة البيانات الرئيسية | الإصدار 16+. تخزين المستخدمين، الموردين، الملفات، القطع، المحفوظات، الإشعارات، المراسلات، Audit Log. |
 | **Drizzle ORM** | وسيط قاعدة البيانات | **48.1 مليون تحميل** (يوليو 2026). كل شيء في TypeScript. يستنتج الأنواع هيكلياً بدلاً من خطوة توليد منفصلة. خفيف وسريع. |
 | **PgDog** | مجمّع الاتصالات | الإصدار **v0.1**. مكتوب بلغة **Rust**. بديل PgBouncer. يدير **آلاف الاتصالات** على أجهزة عادية. أسرع من PgBouncer عند تجاوز 50 اتصالاً. مرخّص **AGPL-3.0**؛ يخضع لسجل معالجة تراخيص خدمات البنية التحتية في الدستور. |
 

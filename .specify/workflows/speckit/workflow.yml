@@ -4,7 +4,7 @@ workflow:
   name: "Full SDD Cycle"
   version: "1.1.0"
   author: "GitHub"
-  description: "Runs constitution → specify → clarify → plan → checklist → tasks → analyze → implement → converge with review gates"
+  description: "Runs constitution → specify → clarify → plan → checklist → tasks → analyze → implement → converge with review gates; implement and converge repeat until converge reports Converged (ADR-013)"
 
 requires:
   # ">=1.1.0" matches the pinned install (ADR-021); 0.8.5 was the first
@@ -142,6 +142,9 @@ steps:
     integration: "{{ inputs.integration }}"
     input:
       args: "{{ inputs.spec }}"
+
+  # ADR-013: implement and converge repeat (implement ↔ converge) until converge
+  # reports Converged; a feature is Converged only when converge says so.
 
   # git extension hooks (auto-executed; auto_commit default=false)
   # after_converge: speckit.git.commit (optional, disabled by default)

@@ -23,6 +23,19 @@ path a task touches MUST appear in the plan's ownership map, that map MUST match
 
 ## Format (REQUIRED)
 
+<!--
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.17.0) - NORMATIVE:
+  1. Every task MUST end with `(implements FR-###, AC-###)`, or
+     `(implements Complexity Tracking: <row>)` when no requirement genuinely
+     applies (Principle I).
+  2. Every path a task touches MUST appear in plan.md's ownership map, and that
+     map MUST match `docs/architecture.md`.
+  3. Test tasks are generated only when spec.md's Test Coverage Request asks
+     for them (Principle III).
+  4. Commits and pull requests MUST reference the spec, plan, and task
+     identifiers (Principle I).
+-->
+
 Every task MUST strictly follow this format:
 
 ```text

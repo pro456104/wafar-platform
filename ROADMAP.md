@@ -7,6 +7,9 @@ into independently specifiable slices. It names and orders them; it does **not**
 design them — the design happens when each slice runs through its own
 `/speckit.specify`.
 
+**Constitution**: `.specify/memory/constitution.md` (v2.17.0, last amended
+2026-10-04). On any conflict with this file, the constitution wins.
+
 Convention: the Spec Kit "spec of specs" procedure. A sub-spec opens with
 `**Input**: Parent roadmap: ROADMAP.md → R#.` and this table's
 `Sub-spec` column is filled in with that slice's directory.

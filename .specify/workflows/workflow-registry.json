@@ -4,10 +4,10 @@
     "speckit": {
       "name": "Full SDD Cycle",
       "version": "1.1.0",
-      "description": "Runs constitution → specify → clarify → plan → checklist → tasks → analyze → implement → converge with review gates; git extension hooks (git.initialize, git.feature mandatory; git.commit optional, disabled by default)",
+      "description": "Runs constitution → specify → clarify → plan → checklist → tasks → analyze → implement → converge with review gates, repeating implement ↔ converge until converge reports Converged (ADR-013); extensions: assess (optional before_specify intake hook), bug (triage), git (git.initialize, git.feature mandatory; git.commit optional, disabled by default)",
       "source": "bundled",
       "installed_at": "2026-09-30T00:43:42.339552+00:00",
-      "updated_at": "2026-10-03T00:00:00.000000+00:00"
+      "updated_at": "2026-10-04T00:00:00.000000+00:00"
     }
   }
 }

@@ -742,7 +742,7 @@ relies on a breakpoint, and no slice owned that.
 
 **Decision.** The icon set and the theme toggle are owned by the shell duties in
 R1, and the constitution's register-gap row for the icon set names R1.
-`wafar.single.css` moves to 1.0.2 in R1's change: the self-hosted Tajawal and
+`wafar.single.css` moves to 1.1.0 in R1's change: the self-hosted Tajawal and
 JetBrains Mono delivery, the icon set, the theme toggle, and the disposal of every
 `--screen-*` token the new shell does not wire to a media query.
 
@@ -1488,4 +1488,6 @@ durable record of this amendment is this entry.
 **What deliberately did not change.** No slice is added, reordered, or renumbered; no runtime dependency is introduced; the 10-module list and the topology are unchanged.
 
 **Consequences.** Living ADR range strings move to ADR-001 … ADR-038; version stamps move to constitution 2.17.0 across `ROADMAP.md`, `AGENTS.md`, `README.md`, `docs/architecture.md`, `docs/domain-model.md`, `spec-template.md`, `plan-template.md`, `checklist-template.md`, and `constitution-template.md`. The mirror carries the role-split note and the four gap rows in a Constitution 2.17.0 additions section. This entry is the durable amendment record.
+
+**Annotation (2026-10-04, audit follow-up).** The deep-file audit closed the remaining stamp gaps named by this record: an independent constitution stamp (v2.17.0) now heads `ROADMAP.md` and an explicit v2.17.0 line heads `Project-Technologies.txt`; the `tasks-template.md` override gains the binding-rules block carrying `constitution v2.17.0`; `workflow-registry.json` now names the assess, bug, and git extensions and records the implement ↔ converge repetition (ADR-013), which `workflow.yml` also states; and the cart label «المحفوظات» replaces the stray «السلة» in the PostgreSQL mirror row. Separately, the undeclared `--sidebar-width-collapsed` token was removed from `wafar.single.css` (bumped to 1.0.2), because the constitution reserves the collapsed/rail width for the slice that first needs it.
 

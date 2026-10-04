@@ -8,7 +8,7 @@
      <link rel="stylesheet" href="wafar.single.css" />
      أو:  @import "wafar.single.css";
 
-    الإصدار:  1.0.1
+    الإصدار:  1.0.2
     الدستور:          .specify/memory/constitution.md → Design System Standards · docs/DECISIONS.md → ADR-009, ADR-012
    إعادة التوليد:    هذا الملف هو المصدر الوحيد للقيم؛ والدستور يحمل السجل فقط
    ============================================================ */
@@ -937,7 +937,6 @@ svg {
      ------------------------------------------------------------- */
   --navbar-height: 4.25rem; /* 68px */
   --sidebar-width: 19rem; /* 304px */
-  --sidebar-width-collapsed: 6rem; /* 96px */
   --bottom-nav-height: 64px;
   --bottom-nav-height-compact: 54px;
   --bottom-nav-fab-size: 56px; /* 3.5rem */
