@@ -31,7 +31,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-036) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-038) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -74,7 +74,7 @@ an owner.
 | Provisioning of PostgreSQL, Redis, SeaweedFS, and OpenSearch for development, plus the PgDog fallback and its review date | R1 | Technology Standards (PgDog is pre-1.0 and MUST name a fallback and a review date) |
 | Enabling Dependabot/Renovate so the update process exists from the first merge; the full dependency-update policy is R12's | R1 (enablement), R12 (policy) | Dependency Governance (before the first public release) |
 | Backup and restore tooling, and the RTO/RPO numbers | R1 | Deployment and Observability (R1 introduces persistent storage) |
-| The application shell — header, sidebar (fixed on desktop, drawer on mobile), drawer, theme toggle, icon set, fonts, and the framework bridge — scoped to public pages and the merchant area, never on auth/404/static pages; resolved sidebar logo/header placement per ADR-017; icon set and theme toggle per ADR-016 | R1 | Principle IX; Design System Standards; ADR-016, ADR-017 |
+| The application shell — header, sidebar (full width or an icon rail on desktop, drawer on mobile), drawer, theme toggle, icon set, fonts, and the framework bridge — scoped to public pages and the merchant area, never on auth/404/static pages; resolved sidebar logo/header placement per ADR-017; icon set and theme toggle per ADR-016 | R1 | Principle IX; Design System Standards; ADR-016, ADR-017 |
 | CSRF, output-encoding, and security-header tests | R1 | Identity, Authentication, and Session Policy (first browser-facing feature) |
 | The automated accessibility scan and the manual keyboard-only pass | R1 | Principle IV (interface verification) |
 | The resolution of the sidebar conflict | Resolved 2026-10-03 in ADR-017: sidebar required fixed on desktop; auth/404/static pages bare; `Core-Project.txt` now defines the shell | Closed by ADR-017 |
@@ -148,7 +148,7 @@ carried. Each names the slice that closes it.
   yields a working account on a working shell, R2 alone yields an accepted and
   stored file, R5 alone yields a searchable parts table.
 - **Structure registers.** R1 creates the workspace; it MUST follow the fixed
-  locations in the constitution (v2.15.2) and `docs/architecture.md`, including
+  locations in the constitution (v2.17.0) and `docs/architecture.md`, including
   `apps/web/layouts` and `apps/admin`, and records the documentation-drift
   check for collection in R2 (R1's public surface is covered by OpenAPI
   generation from the Hono routes; ADR-002).
@@ -178,3 +178,12 @@ carried. Each names the slice that closes it.
   Each owning slice MUST decide its question, record the decision in
   `docs/DECISIONS.md`, and amend `docs/domain-model.md` in the same change —
   never silently choose it.
+- **Release gate.** Several rules (load test, Dependabot/Renovate, SBOM and
+  scan gate, TLS/secret management, staging anonymisation, monitoring) name "the
+  first public release" without a slice. The release gate is R12's acceptance:
+  a production deployment with staging parity, the load test against the stated
+  budgets, the dependency-update process configured, SBOM and vulnerability/SAST
+  scans blocking, TLS certificate management and secret injection, and backups
+  restored once. R15 (retention) and the R14 audit-log page are release-blocking
+  leaves: a slice no other slice depends on still blocks the gate.
+

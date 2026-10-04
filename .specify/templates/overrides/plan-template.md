@@ -7,7 +7,7 @@
 **Note**: This template is filled in by the `/speckit.plan` command; its definition describes the execution workflow.
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.15.1) - NORMATIVE:
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.17.0) - NORMATIVE:
   - This file carries every technical detail; spec.md stays technology-agnostic.
   - The Technical Context MUST contain the Constitution Mandated Values heading;
     a value named by a rule but written elsewhere does not discharge that rule,
@@ -86,6 +86,8 @@
 | 13 | Extraction libraries | [the approved libraries, or "not introduced — no extraction surface"] |
 | 14 | Transactional SMS transport | [the approved transport, or "not introduced — no SMS surface"] |
 | 15 | Continuous-integration provider | [the approved provider, or "not introduced — CI unchanged"] |
+| 16 | Decoded-size cap that rejects a zip-bomb upload | [the recorded cap, or "not introduced — no upload surface"] |
+| 17 | Supported-browser statement | [the stated browser set, or "not introduced — no UI change"] |
 
 ### Verification Notes *(required where applicable)*
 

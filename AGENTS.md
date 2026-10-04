@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-036; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-038; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -57,7 +57,10 @@ replace them with the core templates.
 ## 4. Language and layout
 
 - User-facing text: Arabic, `<html dir="rtl" lang="ar">` on every page.
-- Code identifiers, code comments, commits, and governance text: English.
+- Code identifiers, code comments, commits, and governance text: English. The
+  only exceptions are `wafar.single.css` comments (Arabic), the two Arabic
+  mirrors (`Core-Project.txt`, `Project-Technologies.txt`), and Arabic strings
+  quoted as the subject of a rule (for example an Arabic-Indic numeral example).
 - Numerals rendered to the user: Latin (1234567890), never Arabic-Indic.
 - Logical CSS properties only (`margin-inline-start`, not `margin-left`).
 

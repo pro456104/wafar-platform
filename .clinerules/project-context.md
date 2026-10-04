@@ -34,9 +34,12 @@ ones:
      implement until it reports Converged — ADR-013, AGENTS.md §5).
 
 3. **The feature templates carry this as binding text** —
-   `.specify/templates/overrides/{spec,plan,tasks}-template.md` resolve as the
+   `.specify/templates/overrides/{spec,plan,tasks,checklist,constitution}-template.md` resolve as the
    top layer with `strategy: replace`. Do not replace them with the core
    templates, and keep them in step with the constitution's version.
 
 4. **Language and layout** — Arabic UI with `<html dir="rtl" lang="ar">`, Latin
    numerals only, logical CSS properties only, English code and governance text.
+   Exceptions that mirror the constitution: `wafar.single.css` comments, the
+   two Arabic mirrors (`Core-Project.txt`, `Project-Technologies.txt`), and
+   Arabic strings quoted as the subject of a rule.

@@ -161,7 +161,14 @@ surface.
 - `<html dir="rtl" lang="ar">` MUST be set on every page, without exception.
 - Code identifiers, code comments, and governance documents MUST be English.
   Technical names that do not translate (PDF, Excel, OEM, SKU) MAY appear in
-  user-facing text.
+  user-facing text. Three exceptions are named here so that the rule is read
+  with them rather than against them: `wafar.single.css` carries its explanatory
+  comments in Arabic, and the two mirrors `Core-Project.txt` and
+  `Project-Technologies.txt` are Arabic documents. Their identifiers, tokens,
+  rules, and structure are English; the prose a reader reads is Arabic. An
+  Arabic string quoted as the subject of a rule — an Arabic-Indic numeral, an
+  Arabic search example — is an illustration of that rule, not a violation of
+  it.
 - Numerals rendered to the user MUST be Latin (1234567890), not
   Arabic-Indic (٠١٢٣٤٥٦٧٨٩), applied through the designated numeric utility
   with `direction: ltr; unicode-bidi: isolate`.
@@ -196,6 +203,13 @@ not process payment, and does not host direct user-to-user chat.
   the administrator. Direct user-to-user messaging is prohibited.
 - Sale and purchase are deferred. Enabling them requires an amendment to
   this constitution, as a MAJOR change.
+- **Cart page name.** The cart's user-facing Arabic name is «المحفوظات».
+  Naming it «سلة المشتريات» pairs a purchase metaphor with a scope that
+  forbids purchase; the scope forbids the purchase metaphor.
+- **Reports scope.** "Reports" are limited to the statistics and summaries
+  the administrator Dashboard shows over entities already in this scope.
+  Advanced reporting is out of scope and MUST NOT be built without a
+  specification that records the addition.
 
 **Rationale:** The product solves one problem — searching supplier catalogs
 that are currently searched by hand. Adding commerce expands the legal,
@@ -262,11 +276,16 @@ prohibited.
   (sign-in, sign-up, forgot-password), the 404 page, and the static
   policy/FAQ/contact pages use a bare layout with no header and no sidebar.
   The administrator application carries its own independent shell.
-- **Sidebar** (`19rem` / `304px`) is fixed and always visible on desktop
-  (≥1024px). It does not hide, does not slide. On mobile it becomes a drawer.
+- **Sidebar** (`19rem` / `304px`) is visible on desktop (≥1024px) at all times.
+  It does not hide and it does not slide off-screen. The header's collapse
+  control narrows it on desktop to an icon rail: the sidebar stays on screen at
+  a narrow width, carrying each page's icon without its name, and the control
+  restores the full width. On mobile the sidebar is a drawer, and the same
+  control opens and closes it.
 - **Header** (`4.25rem` / `68px`): the sidebar header carries the platform
   logo; the header carries the account, notifications, and theme-toggle icons
-  plus the sidebar collapse control.
+  plus the sidebar collapse control, which is the desktop rail toggle and the
+  mobile drawer toggle.
 - **Existing components first**: a new interface MUST be composed from the
   design system's existing components. A new Button, Input, Table, or Modal
   MUST NOT be created when an existing component performs that function. A
@@ -312,6 +331,9 @@ Each module has one responsibility and no direct call into another module.
 - A production source file SHOULD NOT exceed 500 non-empty lines. The binding
   rule is that a module has exactly one responsibility: a long file holding
   one responsibility is acceptable, and a short file holding several is not.
+  The line limit is advisory: an exception MUST be recorded in the plan's
+  Complexity Tracking table with its rationale and a review date, and a
+  SHOULD MUST NOT be reported as a critical finding.
 - Business logic MUST NOT be duplicated across modules or layers. Every
   business rule MUST have exactly one owning module, circular imports are
   prohibited, and a general-purpose utility collection MUST NOT be used to
@@ -557,6 +579,11 @@ implemented as a single sequence; a shortcut that skips a step is a defect.
   zip-bomb archives (Office documents are ZIP containers); and macro stripping
   before extraction. A file failing any step MUST be rejected and MUST NOT be
   stored or processed.
+- **Retry vs reprocess.** A retry re-enqueues a failed file's processing job
+  over its stored bytes, without re-uploading anything. A reprocess is the
+  administrator's re-run of the same pipeline over a catalog's stored bytes,
+  from the admin Files page; see the Glossary. Both keep the catalog record
+  and its extracted parts until the new run settles.
 - Processing MUST complete within the budget stated in Performance Budgets
   and Verification.
 - A failed file MUST be retryable without re-uploading the bytes.
@@ -588,7 +615,10 @@ register.
 - A register is a map, not a copy: a design value, a token, a class, a line of
   code, or a table definition MUST NOT be copied into this constitution. A
   register that duplicates its source is a drift defect, because the two copies
-  will disagree.
+  will disagree. The single exception is the design values a rule depends on —
+  those in Design System Standards → Decision values and those named in
+  Principles IV and IX — which are restatements of `wafar.single.css` and MUST
+  move with it.
 - A register row MUST name a value its source actually defines. A register that
   names a token, entity, or field the source does not contain is the same
   defect read in the other direction, and it is corrected by amending the
@@ -769,10 +799,13 @@ requirement.
   not itself a justification. The query count of a representative request
   SHOULD be asserted by an automated test no later than the first feature
   that introduces a data-fetching path.
-- Search results MUST return in under one second.
-- Adding to the cart MUST complete in under 200 milliseconds.
-- Processing a file (Excel, PDF, or Word, up to 100 MB) MUST complete in
-  under five minutes.
+- **Search results MUST return in under one second at p95**, the percentile the
+  Usage Limits table fixes.
+- **Adding to the cart MUST complete in under 200 milliseconds at p95.**
+- **Processing a file (Excel, PDF, or Word, up to 100 MB) MUST complete in
+  under five minutes at p95**: 95% of the files a merchant uploads finish
+  inside that budget, and the remainder are visible as `processing` until they
+  finish or fail.
 - Filters MUST apply without a page reload.
 - Pagination MUST offer 20, 50, and 100 rows per page.
 - A read whose result changes less frequently than it is read SHOULD be
@@ -804,8 +837,8 @@ an amendment to this constitution.
 | Maximum cart size | 99 parts |
 | Automatic file deletion | after 90 days |
 | Search latency budget | p95 < 1 s |
-| Cart-add latency budget | < 200 ms |
-| File processing budget | < 5 min |
+| Cart-add latency budget | p95 < 200 ms |
+| File processing budget | p95 < 5 min |
 
 **Rationale:** A budget without a percentile and a measurement point is a number
 in a document that nothing checks. These rules exist so that performance is
@@ -866,10 +899,14 @@ the two ways a dependency base rots without a decision ever being made.
   lifetime; the dependency budget; the performance budget percentiles and
   the maximum query execution time; the Recovery Time Objective and Recovery
   Point Objective; the runtime version; the design-system version; the icon set;
-  the extraction libraries; the transactional SMS transport; and the continuous-integration
-  provider. A value written in the body of the plan but not
+  the extraction libraries; the transactional SMS transport; the
+  continuous-integration provider; the decoded-size cap that rejects a
+  zip-bomb upload; and the supported-browser statement. A value written in the
+  body of the plan but not
   under that heading does not satisfy the rule that names it, and a plan
-  with no such heading has not discharged any of them.
+  with no such heading has not discharged any of them. The list is closed: a
+  MUST that names a value adds it here first, in the same change, and the
+  plan template's table gains the matching row.
 - The consistency gate MUST report no unresolved critical findings before
   implementation begins, and checklist items MUST be reviewed and marked
   before implementation begins.
@@ -1058,7 +1095,7 @@ amendment to this section.
 | Database | `packages/db/schema/<module>.ts`, `packages/db/migrations/`. |
 | Search | `packages/search/client.ts`, `packages/search/mappings/`. |
 | Frontend | `apps/web/{pages,components,composables,stores,layouts}`. |
-| Web server routes | `apps/web/server/` — optional Nitro routes; created only by the feature that declares them in its Ownership Map. |
+| Web server routes | `apps/web/server/` — optional Nitro server routes (Nitro is part of Nuxt 4; it is named here in Internal layout and is deliberately not a row of the Approved register); created only by the feature that declares them in its Ownership Map. |
 | Administrator frontend | `apps/admin/{pages,components,composables,stores,layouts}`. |
 | Validation | `packages/shared` only; a second local schema MUST NOT be created. |
 | Database ownership | `packages/db/schema/<module>.ts` — one file per module named in Principle X; the table it declares belongs to that module. |
@@ -1082,6 +1119,13 @@ fixed above.
 | Testing | Vitest, Playwright | unit and integration in Vitest, end-to-end in Playwright |
 | Quality | ESLint, Prettier, Stylelint | `any` and double assertions are rejected |
 | Delivery | VPS (Hetzner or equivalent), Nginx or HAProxy, Docker (optional) | Docker is used only for staging parity |
+| Security | ClamAV | File-upload antivirus scan (File Processing Rules); registered with an explicit exception — a scanner, not a runtime dependency |
+| Quality | Lighthouse CI | LCP/INP/CLS budget assertion (Performance Budgets and Verification); registered with an explicit exception — a CI gate, not a runtime dependency |
+
+The frontend row's libraries split their roles and MUST NOT overlap: Nuxt UI
+v4 provides the UI components; Pinia holds client-side stores; TanStack Query
+owns server-state fetching, caching, and invalidation. Server state copied
+into a Pinia store, or a UI component built around a query, is a defect.
 
 ### Version-change rule
 
@@ -1111,6 +1155,10 @@ fail Dependency Governance:
 | Backup and restore tooling | Deployment and Observability | R1 (the slice that introduces persistent storage) |
 | Log pipeline | Deployment and Observability | R12 (the first deploying slice) |
 | Icon set used by the interface | Product Scope; Design System Standards | R1 |
+| Redis client library | Files register row (BullMQ, Redis); Deployment's worker-durability rules | R3 |
+| OpenSearch client library | Search register row; `packages/search` | R5 |
+| Automated accessibility checker | Principle IV's verification MUST | R1 |
+| Arabic analyzer configuration and verification | Principle V's root-aware search; Search register row | R5 |
 
 ### Licence treatment for infrastructure services
 
@@ -1127,7 +1175,13 @@ permitted source of design values. This section is its register: what the file
 contains, and the rules that keep it single. A value, family, class, or component
 absent from this register is not part of the design system and MUST NOT be used.
 A design value MUST NOT appear in this constitution — the register maps, the CSS
-holds the values, and a copy here would be a second source that drifts.
+holds the values, and a copy here would be a second source that drifts. The one
+exception is the set of values a rule in this constitution depends on: the
+Decision values below, and the values Principles IV and IX name. Those are the
+register's reading of `wafar.single.css` rather than a second copy of it, which
+is why the file stays the source and a change to it MUST move them in the same
+change. No other value belongs here: not a token step, not a class, not a
+spacing or colour rung.
 
 ### Module map
 
@@ -1225,8 +1279,9 @@ rule depends on each one.
 - **Motion**: `--duration-fast` (200ms) for micro-interactions,
   `--duration-base` (300ms) for transitions, `--duration-slow` (400ms) for
   the theme toggle, and `--duration-slower` (600ms) for long transitions.
-- **Sidebar**: `--sidebar-width` (19rem / 304px), fixed on desktop, drawer
-  on mobile.
+- **Sidebar**: `--sidebar-width` (19rem / 304px), full width or icon rail on
+  desktop, drawer on mobile. The rail's width is not fixed here; it is a token
+  the slice that first needs it MUST add to `wafar.single.css`.
 - **Header**: `--navbar-height` (4.25rem / 68px).
 - **Accessibility**: `:focus-visible` (2px `--brand-500`), touch targets
   ≥44px on mobile, contrast at least AA.
@@ -1243,7 +1298,7 @@ not apply MUST be justified in the feature's plan, not silently omitted.
 | error | A user-facing error state with a recovery action where one exists. |
 | success | The normal rendered state, verified against the design system. |
 | disabled | A disabled state for every control that can be unavailable. |
-| responsive | Layout at the design system's breakpoints (sidebar fixed on desktop, drawer on mobile). |
+| responsive | Layout at the design system's breakpoints (sidebar at full width or as an icon rail on desktop, drawer on mobile). |
 | accessibility | WCAG 2.2 AA, keyboard operable, `:focus-visible`, touch targets ≥ --touch-floor (Principle IV). |
 
 ### State map
@@ -1268,9 +1323,10 @@ page-size selector); a column sort indicator; the filters toolbar; file upload
 with progress; a confirmation overlay (the overlay Principle IX names "Modal" —
 the system has `ds-overlay-root`, `ds-backdrop`, and `ds-drawer-panel`, but no
 modal); a toast; the message-thread surface; the cart add/remove toggle; the
-notification bell with its counter; the theme toggle; the icon set; and the
-sticky table header (the system ships `ds-sticky-top`, but `.ds-table thead`
-does not use it).
+notification bell with its counter; the theme toggle; the icon set; the
+collapsed sidebar rail (its width token, and the rail's rendering beside the
+full sidebar); and the sticky table header (the system ships `ds-sticky-top`,
+but `.ds-table thead` does not use it).
 
 Each MUST be added to `wafar.single.css`, in the module that owns its concern,
 by the slice that first needs it, in that slice's change. It MUST NOT be created
@@ -1340,7 +1396,7 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | **Catalog** | An uploaded supplier file, together with its extracted parts, its processing status, and its metadata (supplier name, issue date, upload date, expiry date). A catalog is owned by the merchant who uploaded it. |
 | **Part** | A single row extracted from a catalog, representing one car part. Fields: part number, name, brand, car model, description. A part belongs to exactly one catalog. |
 | **Supplier** | The company named on the first page of an uploaded catalog, from which the parts originate. A supplier may appear in many catalogs. |
-| **Cart** | A merchant's personal bookmark list of parts. It is not a purchase order. It carries no price and no quantity. See Principle VI. |
+| **Cart** | A merchant's personal bookmark list of parts. It is not a purchase order. It carries no price and no quantity. See Principle VI. Its user-facing Arabic name is «المحفوظات». |
 | **Bookmark** | A single entry in the cart, linking a user to a part. |
 | **Notification** | A message delivered to a user in the notification list, either because a processing job completed or failed, or because the administrator sent an administrative message. |
 | **Conversation** | The single thread between a merchant and the administrator. A user has at most one conversation. |
@@ -1361,6 +1417,9 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | **ZIP bomb** | A small archive that expands to disproportionate bytes on decompression; rejected by the decoded-size cap. |
 | **Macro stripping** | Removing executable document macros before extraction. |
 | **DLQ** | Dead-letter queue for jobs that exhaust retries. |
+| **Reprocess** | The administrator's re-run of the file-processing pipeline over a catalog's stored bytes, from the admin Files page (for example after an extraction fix). Distinct from a retry, which the merchant triggers for a failed job. |
+| **Retry** | The merchant's re-enqueue of a failed file's processing job, without re-uploading the bytes. |
+| **Wafar** | The platform's trade name, written «Wafar» (وَفَّر); the diacritics are mandatory in every appearance. |
 | **SBOM** | Software Bill of Materials produced per build. |
 | **Presigned multipart upload** | Direct-to-object-storage upload in parts, avoiding buffering through the API. |
 | **Tenant isolation** | A merchant-reachable query path MUST NOT return another tenant's rows. |
@@ -1380,6 +1439,8 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | `.specify/memory/constitution.md` | This document. | `.specify/memory/`. |
 | `ROADMAP.md` | The MVP slice order. Names and orders slices; does not design them. | Repository root. |
 | `AGENTS.md` | Operating instructions for agent assistants. | Repository root. |
+| `.specify/extensions.yml` | The installed extensions and the hook registry every Spec Kit command reads before and after it runs. | `.specify/`. |
+| `.specify/workflows/speckit/workflow.yml` | The bundled workflow that runs the binding cycle in order, with its human review gates. | `.specify/workflows/speckit/`. |
 | `.clinerules/project-context.md` | The same operating duty expressed to the Cline agent. | `.clinerules/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
 
@@ -1405,6 +1466,9 @@ the same force as the principles above.
   `/speckit.implement` starts (see Governance → Module Discipline).
 - `/speckit.implement` and `/speckit.converge` MUST repeat until Converged; a
   feature reports Converged only when converge reports Converged.
+- The binding cycle runs in full order: specify → clarify → plan → checklist
+  → tasks → analyze → implement → converge, repeated (implement ↔ converge)
+  until converge reports Converged.
 - Every ADR first named by a plan MUST be reaffirmed in that plan's
   Constitution Check.
 - All artifacts and tools that read or write them MUST use UTF-8. A file that merely decodes as UTF-8 but was written after a UTF-8-as-Windows-1252 mis-encoding (mojibake) is a defect of the same kind: decodability does not prove the characters are correct, and Arabic content MUST be visually verified legible.
@@ -1414,6 +1478,13 @@ the same force as the principles above.
 ## Product Fact Clarifications
 
 - Contact form fields are exactly `name`, `phone`, and `body`.
+- The platform's trade name is «Wafar» (وَفَّر); the diacritics are mandatory
+  in every appearance of the name.
+- "Reports" means the statistics and summaries the administrator Dashboard
+  shows over entities already in scope. Advanced reports
+  (تقارير متقدمة) are out of scope until specified.
+- The cart page's Arabic name is «المحفوظات»; «سلة المشتريات» is a purchase
+  metaphor the scope forbids.
 - No email address exists anywhere in the platform: no sign-up email, no
   login email, no transactional email. The mobile number in E.164 form is
   the sole account identifier.
@@ -1428,11 +1499,26 @@ the same force as the principles above.
 - A PWA (installable app, service worker, offline surface) MUST NOT be
   shipped. The platform is a browser catalog only.
 - Every page header in the shell MUST carry the account, notifications,
-  theme-toggle, and sidebar-collapse controls for an authenticated user. A
-  guest MUST see a login action instead of those controls. The platform logo
+  theme-toggle, and sidebar-collapse controls for an authenticated user. The
+  sidebar-collapse control narrows the sidebar to its icon rail on desktop and
+  opens and closes the drawer on mobile. A guest MUST see a login action instead
+  of those controls. The platform logo
   sits in the sidebar header, and the quick search field lives on the Home
   page (see Product Scope). Pages without the shell — authentication, 404,
-  static, and administrator pages — carry no header.
+  static, and administrator pages — carry no header. The contact page is one of
+  those pages: it is reached by a direct link or by a contact action on a page
+  that carries one, and it MUST NOT be listed as a sidebar item.
+- Every data table's default order is newest first, taken from the record's
+  immutable creation timestamp (Schema and Migration Control). Any other order
+  beyond the table's own sortable columns is a deferred area (Retrieval
+  interface), owned by R5.
+- The Libyan city list is one dataset, named once. Sign Up selects from it:
+  every Libyan governorate, city, and area, searchable, with Libya (+218) as
+  the default country. R1 records the list once as reference data of the
+  `users` module and names the record in `docs/DECISIONS.md`; every later
+  slice reads that record instead of writing a list of its own, and changing
+  the list is an amendment to that record rather than an edit made inside a
+  feature.
 
 ## Governance
 
@@ -1448,7 +1534,13 @@ and Development Workflow, Project Structure and Debt Control, Documentation,
 Deployment and Observability, Technology Standards, Design System Standards,
 Product Scope, Product Register, Single-Reference Sufficiency, File
 Processing Overview, Artifact Workflow and Traceability, and Product Fact
-Clarifications. A SHOULD is advisory and MUST NOT
+Clarifications. This adjudication spans all ten principles — I. Evident,
+Traceable Change; II. Strict Type Safety; III. Measured Test Coverage; IV.
+Accessible User Interfaces; V. Arabic-First and RTL Interfaces; VI.
+Catalog-Only Scope; VII. Specification-First and Documentation Separation;
+VIII. User Story Independence; IX. Design System Fidelity; X. Modular
+Monolith Architecture — and every binding section named above. A SHOULD is
+advisory and MUST NOT
 be reported as a critical
 finding; an unmet SHOULD MUST still be recorded in the plan's Complexity
 Tracking table with its reason.
@@ -1482,7 +1574,12 @@ constitution command produces is review material for the person ratifying the
 amendment: it MUST NOT be committed, because it describes the document rather
 than governing it, and it restates MUSTs the document already states. The
 durable record of an amendment is an entry in `docs/DECISIONS.md` naming the
-version, what changed, and what deliberately did not. A MAJOR amendment MUST
+version, what changed, and what deliberately did not. On every amendment,
+the version stamps MUST move in the same change: the constitution's version
+footer; the binding-block `constitution vX.Y.Z` strings in the spec, plan,
+and checklist template overrides; the constitution-template scaffold's own
+version footer; and the version stamps in `docs/architecture.md`,
+`docs/domain-model.md`, `ROADMAP.md`, and `Project-Technologies.txt`. A MAJOR amendment MUST
 additionally include a migration or backfill plan for artifacts produced
 under the previous version.
 
@@ -1541,4 +1638,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.15.2 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-04
+**Version**: 2.17.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-04

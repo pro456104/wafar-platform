@@ -49,7 +49,7 @@ wafar/
 
 | التقنية | الدور | التفاصيل |
 |---|---|---|
-| **Modular Monolith** | النمط المعماري للخادم | خادم واحد مقسّم إلى وحدات مستقلة (auth, users, catalogs, parts, suppliers, bookmarks, notifications, messages, support, admin). كل وحدة لها `routes`، `service`، `repository` خاص. لا استدعاء مباشر بين الوحدات — التواصل عبر `shared/`. |
+| **Modular Monolith** | النمط المعماري للخادم | خادم واحد مقسّم إلى وحدات مستقلة (auth, users, catalogs, parts, suppliers, bookmarks, notifications, messages, support, admin). كل وحدة لها `routes`، `service`، `repository` خاص. لا استدعاء مباشر بين الوحدات — التواصل عبر `packages/shared`. |
 | **Hono** | إطار الخادم | إطار خفيف فائق السرعة. الإصدار 4.13.5 (2026)، بأداء أعلنت عنه اختبارات الفريق بعشرات آلاف الطلبات/ثانية على Node.js. يعمل على Node.js، Bun، Deno، Cloudflare Workers. |
 | **OpenAPI** | توثيق الـ API | توليد توثيق تلقائي من نفس كود Hono. يضمن تكاملاً سلساً بين الواجهة والخادم. |
 | **Zod** | التحقق من صحة البيانات | الإصدار 4.6 (2026). تحسينات أداء ملموسة في مسارات التحقق. يُستخدم في الواجهة والخادم معاً لمشاركة نفس schemas. |
@@ -64,12 +64,11 @@ apps/api/src/
 │   ├── catalogs/       # الملفات المرفوعة
 │   ├── parts/          # القطع المستخرجة
 │   ├── suppliers/      # الموردون
-│   ├── bookmarks/      # سلة المشتريات
+│   ├── bookmarks/      # المحفوظات
 │   ├── notifications/  # الإشعارات
 │   ├── messages/       # المراسلة
 │   ├── support/        # الدعم
 │   └── admin/          # وظائف الأدمن
-├── shared/             # كود مشترك
 └── index.ts
 ```
 
@@ -99,7 +98,7 @@ apps/web/
 │   ├── contact.vue     # اتصل بنا
 │   ├── auth/           # تسجيل الدخول / إنشاء حساب
 │   ├── my-files/       # ملفاتي
-│   ├── cart/           # سلة المشتريات
+│   ├── cart/           # المحفوظات
 │   ├── notifications/  # الإشعارات
 │   ├── messages/       # المراسلة
 │   └── profile/        # الملف الشخصي
@@ -342,3 +341,30 @@ named in the sources.
 - **BullMQ backend corrected** — BullMQ uses Redis only; the earlier
   "PostgreSQL backend" note was inaccurate and is removed. Redis stays the
   sole queue backend, per Technology Standards.
+
+## Constitution 2.16.0 + 2.17.0 additions (2026-10-04, ADR-037/ADR-038)
+
+- **Cart Arabic name** - the cart page's user-facing Arabic name is «المحفوظات»;
+  «سلة المشتريات» is removed from this mirror.
+- **Trade name** - Wafar is written with mandatory diacritics («وَفَّر»)
+  everywhere (mirrors, CSS comments, page titles).
+- **Reports limit** - the admin Dashboard's "reports" are the statistics and
+  summaries of in-scope entities; advanced reports are out of scope.
+- **Retry vs reprocess** - retry (merchant) re-enqueues a failed job over stored
+  bytes; reprocess (administrator) re-runs the pipeline over stored bytes from
+  the admin Files page.
+- **ClamAV and Lighthouse CI** - registered in the constitution (Technology
+  Standards) with explicit notes that they are gates, not runtime dependencies.
+- **Nitro** - named as part of Nuxt 4 in Internal layout (`apps/web/server/`);
+  deliberately not a row of the Approved register.
+- **Role split** - design components come from Nuxt UI v4, module stores from
+  Pinia, server-state cache from TanStack Query; validation schemas live in
+  `packages/shared`.
+- **Open register gaps** (owners in parentheses): Redis client library for
+  BullMQ (R3), OpenSearch client library (R5), automated accessibility checker
+  (R1), Arabic analyzer configuration and verification (R5).
+- **500-line rule** - advisory (SHOULD); an exception is recorded in the plan's
+  Complexity Tracking table with rationale and review date.
+- **Shared location** - the API's cross-module channel is the single shared
+  package (`packages/shared`); the `apps/api/src/shared` tree entry is removed
+  (a second shared location is a violation).
