@@ -72,7 +72,9 @@ The binding cycle, in order: `/speckit.constitution` → `/speckit.specify` →
 Installed extensions: `assess` (idea triage before specifying), `bug` (bug
 triage), and `git` (mandatory feature branch creation before specification).
 Templates resolve from `.specify/templates/overrides/` first, then
-presets, then extensions, then core.
+presets, then extensions, then core. The `speckit.taskstoissues` command is a
+reserved optional surface: no product requirement names it today, and adopting
+it later requires recording the owner and the requirement it serves.
 
 **The bundled `speckit` workflow mirrors the binding cycle.**
 `.specify/workflows/speckit/workflow.yml` runs `constitution → specify →
