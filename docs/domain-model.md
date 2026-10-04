@@ -5,7 +5,7 @@ entities the product reasons about, the relationships between them, their
 cardinality, their invariants, and the module that owns each one. It is the
 source the constitution's Product Register maps.
 
-Its authority is `.specify/memory/constitution.md` (v2.15.1); where this
+Its authority is `.specify/memory/constitution.md` (v2.15.2); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
 change to a registered product fact and MUST be recorded as an ADR in
@@ -136,6 +136,8 @@ service layer re-checks the ones a constraint cannot express.
   meaning.
 - **Retention is 90 days from upload**, enforced by R15 and expressed through
   the same window in the search index's lifecycle.
+- **Upload quotas are 50 files per calendar month and 100 files in total per
+  user**, enforced server-side by the `catalogs` module service (R2).
 
 ### Part
 
@@ -273,7 +275,7 @@ to the mirror.
 | 2 | Whether `Conversation` carries an administrator reference when every administrator account sees the same thread. | The thread is single and shared; whether the administrator side is a reference, a role, or absent is a schema decision. | R10 |
 | 3 | Whether `expires_at` is the retention deadline or the supplier's printed expiry date. | Two product sources disagree; both readings are defensible. | R15 |
 | 4 | Notification retention. | The product statement defers it. | R9 |
-| 5 | ~~Whether a contact message becomes a conversation or is read in its own inbox.~~ Resolved 2026-10-03 by ADR-028: a dedicated administrator "Contact messages" page. | — | — |
+| 5 | ~~Whether a contact message becomes a conversation or is read in its own inbox.~~ Resolved 2026-10-03 by ADR-028: a dedicated administrator "Contact messages" page. | — | ADR-028 (owning slice: R13) |
 | 6 | Whether an administrator is a distinct entity or a role on `User`. | The register treats administrators as a role on `User`, while the conversation and the audit record refer to an administrator as a party. | R13 |
 | 7 | What state an account carries, and whether a blocked merchant is a state or a separate flag. No field is registered for it today. | The Product Register's roles make blocking an administrator power, but no state is registered for it, so `block user` currently has nothing to write. | R1 |
 | 8 | Whether the `auth` module owns any stored entity of its own, or whether an account's identity and credential data belong entirely to `users`. | Principle X lists `auth` as a module and Technology Standards fixes `packages/db/schema/auth.ts` as its schema file, yet no registered entity is owned by `auth`. Either the module owns a table that the register does not name, or the schema file is a peer of `users.ts` rather than the owner of one. R1 introduces both modules, so R1 is where this is answered. | R1 |

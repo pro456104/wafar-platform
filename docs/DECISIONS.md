@@ -54,6 +54,7 @@ Constitution Check; from then on the record has a feature owner.
 | [ADR-033](#adr-033--audit-fix-set-full-name-cascade-ownership-entry-point-dependency-budget-analyze-wording-mirror-claims-cleanup) | Audit fix set: full name, cascade ownership, entry point, dependency budget, analyze wording, mirror-claims cleanup | 2026-10-04 | 2.14.0 |
 | [ADR-034](#adr-034--constitution-2150-metrics-stack-dependency-scanner-staging-anonymiser-and-the-optional-web-server-directory) | Constitution 2.15.0: metrics stack, dependency scanner, staging anonymiser, optional web-server dir | 2026-10-04 | 2.15.0 |
 | [ADR-035](#adr-035--constitution-2151-encoding-repair-and-utf-8-verification-note) | Constitution 2.15.1: encoding repair and UTF-8 verification note | 2026-10-04 | 2.15.1 |
+| [ADR-036](#adr-036--constitution-2152-audit-fix-set-quotas-breakpoints-table-mirror-omissions) | Audit fix set: quota invariant, breakpoint table wording, mirror omissions, roadmap fact rows | 2026-10-04 | 2.15.2 |
 
 ---
 
@@ -1429,7 +1430,7 @@ legibility of the decoded characters, so the defect passed that check.
 2. The UTF-8 bullet in Artifact Workflow and Traceability now states that
    decodability does not prove correct characters, that mojibake is a defect
    of the same kind, and that Arabic content MUST be verified legible.
-3. The living range strings move to ADR-001 … ADR-035 and the version
+3. The living range strings move to ADR-001 … ADR-036 and the version
    stamps move to 2.15.1 in the same change.
 
 **What deliberately did not change.** No principle text, module map,
@@ -1439,3 +1440,18 @@ stands; its check is now read together with the new verification note.
 **Consequences.** The constitution's defining Arabic examples are readable
 again, and future audits must verify legibility, not only decodability. The
 durable record of this amendment is this entry.
+
+---
+
+## ADR-036 — Constitution 2.15.2: audit fix set — quota invariant, breakpoint table wording, mirror omissions, roadmap fact rows
+
+**Status**: Accepted — 2026-10-04
+**Owning directory**: `.specify/memory/`, `docs/`, `ROADMAP.md`, `Project-Technologies.txt`, `.specify/templates/overrides/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A deep audit of the governance documents found six defects: (1) `docs/domain-model.md` never recorded the binding 50-files-per-month / 100-files-total upload quotas as a model invariant; (2) row 5 of its Unresolved facts carried no owner while the roadmap mirrored one; (3) ROADMAP slice rows R10, R11, R13, and R15 did not name the open facts each one owns, unlike R1, R2, R3, and R9; (4) the constitution's Breakpoints table headed a column "Consumed by a media query?" with `yes` while the adjacent text and the stylesheet state every `--screen-*` token is declared-but-unused; (5) the Usage Limits table listed "Very large files (exceptional): up to 20 MB" without stating that 100 MB remains the binding ceiling; (6) `Project-Technologies.txt` recommended Playwright as the CI provider although the CI provider remains an open register gap, carried MinIO as a passing predecessor mention, and never stated that the coverage gate and the dependency policy live only in the register.
+
+**Decision.** The constitution is amended to 2.15.2 (PATCH: clarifications only, no rule, number, or deferral changed). `docs/domain-model.md` gains the quota invariant, and row 5 names ADR-028 with R13. ROADMAP rows R10, R11, R13, and R15 now name their open facts (#1/#2, #11, #6, #3). `Project-Technologies.txt` neutralises the CI-provider recommendation, rewords the MinIO note, and names the coverage gate and dependency policy as register-owned. Living range strings move to ADR-001 … ADR-036.
+
+**Consequences.** No slice is added, reordered, or renumbered; no runtime dependency changes. This entry is the durable amendment record.
+

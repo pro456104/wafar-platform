@@ -798,7 +798,7 @@ an amendment to this constitution.
 | Maximum file size | 100 MB |
 | Typical file size | 1 – 4 MB |
 | Large files (rare) | 10 – 15 MB |
-| Very large files (exceptional) | up to 20 MB |
+| Very large files in practice (exceptional) | up to 20 MB (the binding ceiling stays 100 MB) |
 | Monthly upload limit per user | 50 files per calendar month |
 | Total upload limit per user | 100 files |
 | Maximum cart size | 99 parts |
@@ -1182,7 +1182,7 @@ The media queries use 640, 768, 1024, 1280, 1536, and 1920 px as minimum widths,
 plus the `max-width` cases at 359, 639, and 1023 px and the 768–1023 px tablet
 band. The token ladder names them, and the mapping below is binding:
 
-| Token | Value | Consumed by a media query? |
+| Token | Value | Mirrored by a hardcoded media-query value? |
 |---|---|---|
 | `--screen-tiny` | 360px | yes, as `max-width: 359px` |
 | `--screen-xs` | 480px | no |
@@ -1541,4 +1541,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.15.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-04
+**Version**: 2.15.2 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-04

@@ -8,7 +8,8 @@ register wins and this file is corrected. ADR-008 and ADR-010 record the decisio
 explains why it was chosen, and the repository trees at file granularity — the
 detail a reader wants while implementing.
 
-**What does not live here**: any rule. The gaps a slice closes, the MAJOR/MINOR
+**What does not live here**: any rule. The 80% coverage gate (Principle III),
+the dependency policy (Dependency Governance), the gaps a slice closes, the MAJOR/MINOR
 version-change rule, and the licence treatment for infrastructure services exist
 only in the register. The constraints on this file — the technologies it may name
 and the way it may restate them — are the register's, stated there and not here
@@ -164,7 +165,7 @@ packages/search/
 
 | التقنية | الدور | التفاصيل |
 |---|---|---|
-| **SeaweedFS** | تخزين الملفات | الإصدار **v4.48** (سبتمبر 2026). مرخّص **Apache 2.0**. بديل MinIO (الذي توقف عن التطوير أبريل 2026). يتعامل مع كميات هائلة من الملفات الصغيرة بكفاءة. |
+| **SeaweedFS** | تخزين الملفات | الإصدار **v4.48** (سبتمبر 2026). مرخّص **Apache 2.0**. البديل المعتمد عن MinIO (الذي توقف عن التطوير أبريل 2026). يتعامل مع كميات هائلة من الملفات الصغيرة بكفاءة. |
 | **BullMQ** | طابور المهام | يتطلب **Redis** كخلفية إلزامية (انظر `apps/worker`). يدعم ioredis و node-redis و Bun's Redis client. |
 | **Redis** | خلفية الطابور + التخزين المؤقت | BullMQ يتطلب **Redis >= 5.0.0**. الاعتماد على خدمة بنية تحتية؛ ترخيصها (RSAL/SSPL (7.4+; BSD-3 قبلها)) يخضع لسجل معالجة تراخيص خدمات البنية التحتية في الدستور (Licence treatment). |
 | **Worker** | تطبيق تشغيلي (`apps/worker`) | استخراج القطع، توحيد الأعمدة، إزالة التكرار، الفهرسة في OpenSearch. ليس مكتبة ولا اعتماداً خارجياً. |
@@ -197,7 +198,7 @@ apps/worker/src/
 
 | التقنية | الدور | التفاصيل |
 |---|---|---|
-| **Vitest** | اختبارات الوحدة | أداة الاختبار القياسية لمشاريع Vite. **يوصى بـ Playwright** كـ provider للاختبارات في CI. |
+| **Vitest** | اختبارات الوحدة | أداة الاختبار القياسية لمشاريع Vite. Playwright يُستخدم للاختبارات الطرفية، واختيار مزوّد CI يظل فجوة مسجلة يملكها R1. |
 | **Playwright** | اختبارات الواجهة (E2E) | يدعم التنفيذ المتوازي — أسرع من webdriverio. |
 
 ---
