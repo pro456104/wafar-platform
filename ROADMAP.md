@@ -87,7 +87,7 @@ an owner.
 | Honeypot field, minimum time-to-submit, and rate-limit protection on registration and contact forms, with automated tests | R1 (registration) and R11 (contact form) | Identity, Authentication, and Session Policy (anti-spam enforcement) |
 | The tenant-isolation query-path test that fails the build when a merchant-reachable path returns another tenant's rows | R2 | Deployment and Observability (first tenant-scoped query surface) |
 | The single shared entry point through which tenant scoping and (later) permission resolution are applied | R2 | Schema and Migration Control; Authorization and Access Control (R13 ratifies the permission model on the same entry point) |
-| The dependency budget — the numeric cap on direct runtime dependencies, recorded under Constitution Mandated Values | R1 | Project Structure and Debt Control (the UI list mandates the value but no slice owned it before ADR-033) |
+| The dependency budget — the numeric cap on direct runtime dependencies, recorded under Constitution Mandated Values | R1 | Project Structure and Debt Control (the CMV list mandates the value but no slice owned it before ADR-033) |
 | The content-safety pipeline: magic-byte validation, ClamAV scan, decoded-size cap, and macro stripping before extraction | R2 (validation), R3 (processing) | File Processing Rules; File Processing Overview |
 | Presigned multipart upload transport for large files | R2 | Deployment and Observability (Upload transport) |
 | Worker durability: bounded retries with exponential backoff, dead-letter queue, per-worker concurrency cap, and temporary-file sweep | R3 | Deployment and Observability (Worker durability) |
