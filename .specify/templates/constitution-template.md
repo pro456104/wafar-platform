@@ -1,3 +1,12 @@
+<!--
+  FALLBACK LAYER - NOT THE BINDING SCAFFOLD. The binding scaffold is
+  `.specify/templates/overrides/constitution-template.md`, which replaces this
+  file wholesale (overrides resolve first; see
+  `.specify/scripts/powershell/common.ps1` -> Resolve-TemplateContent). This
+  copy is the installed default kept as the last fallback in the resolution
+  stack; it carries no Wafar rule. A Spec Kit refresh may replace it. Recorded
+  in docs/DECISIONS.md -> ADR-039.
+-->
 # [PROJECT_NAME] Constitution
 <!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
 

@@ -2,7 +2,8 @@
 # The repository stores text as LF; the working tree follows these rules.
 # Rationale: Spec Kit reads the constitution, templates, and commands as text;
 # mixed CRLF/LF (Windows checkout with core.autocrlf=true) risks corrupting them.
-# See docs/DECISIONS.md -> ADR-008.
+# Encoding (UTF-8, no BOM, legible Arabic) is the same decision's other half.
+# See docs/DECISIONS.md -> ADR-039.
 
 * text=auto
 

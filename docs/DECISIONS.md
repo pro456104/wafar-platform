@@ -57,6 +57,7 @@ Constitution Check; from then on the record has a feature owner.
 | [ADR-036](#adr-036--constitution-2152-audit-fix-set-quotas-breakpoints-table-mirror-omissions) | Audit fix set: quota invariant, breakpoint table wording, mirror omissions, roadmap fact rows | 2026-10-04 | 2.15.2 |
 | [ADR-037](#adr-037--constitution-2160-design-values-carve-out-p95-budgets-sidebar-icon-rail-and-two-cmv-rows) | Constitution 2.16.0: design-values carve-out, p95 budgets, sidebar icon rail, two CMV rows | 2026-10-04 | 2.16.0 |
 | [ADR-038](#adr-038--constitution-2170-register-gaps-clamav-lighthouse-role-split-and-terms) | Constitution 2.17.0: register gaps, ClamAV/Lighthouse CI, role split, reprocess/trade-name/reports/cart-name terms | 2026-10-04 | 2.17.0 |
+| [ADR-039](#adr-039--repository-line-ending-and-encoding-policy-recorded-mirror-stops-restating-rules-fallback-templates-labelled) | Repository line-ending and encoding policy recorded; mirror stops restating rules; fallback templates labelled | 2026-10-04 | — (unchanged) |
 
 ---
 
@@ -837,7 +838,7 @@ No exception was granted; the exception register stays empty.
 
 ## ADR-020 — Constitution register restored to its own rules
 
-**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.10.1.
+**Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.10.1.
 
 **Provenance (2026-10-03).** This record was reconstructed from review material
 after the uncommitted working-tree copy of this file was reverted by mistake. The
@@ -869,7 +870,7 @@ and `ROADMAP.md` moved to 2.10.1.
 
 ## ADR-021 — Spec Kit 1.1.0 and Node 22 LTS pin
 
-**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.10.1
+**Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.10.1
 (unchanged; this is a tooling pin, not a governance amendment).
 
 **Provenance (2026-10-03).** Reconstructed from review material after the
@@ -893,7 +894,7 @@ Integration manifests and the mirror were regenerated, not hand-edited.
 
 ## ADR-022 — Constitution 2.10.2 (audit fixes)
 
-**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.10.2.
+**Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.10.2.
 
 **Provenance (2026-10-03).** Reconstructed from review material after the
 uncommitted working-tree copy of this file was reverted by mistake; the decision
@@ -921,7 +922,7 @@ in `.specify/integrations/speckit.manifest.json`.
 
 ## ADR-023 — Constitution 2.11.0 (security hardening, anti-spam, static design enforcement, ops controls)
 
-**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.11.0.
+**Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.11.0.
 
 **Context.** A deep review of the constitution found gaps in file-intake
 security (uploads are ZIP-based Word/Excel/PDF, un-scanned), account
@@ -981,7 +982,7 @@ slice may implement it.
 
 ## ADR-024 — Constitution 2.11.1: Stylelint named in Technology Standards
 
-**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.11.1.
+**Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.11.1.
 
 **Context.** An audit found that Design System Standards (Static enforcement)
 and ADR-023 already mandated Stylelint as a build gate, but Technology
@@ -1015,7 +1016,7 @@ ADR-022 established for the previous template edits.
 
 ## ADR-025 — The Segoe UI fallback leaves the Tajawal font stack
 
-**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.11.1
+**Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.11.1
 (unchanged; this is a design-value correction, not a governance amendment).
 
 **Context.** `wafar.single.css` carried `"Segoe UI"` in `--font-sans` and
@@ -1054,7 +1055,7 @@ stylesheet's version under Constitution Mandated Values when it performs the
 
 ## ADR-026 — Git Branching Workflow Extension adopted; mandatory feature branches
 
-**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.11.1
+**Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.11.1
 (unchanged; this records an extension adoption, not a governance amendment).
 
 **Context.** The bundled Spec Kit extension `git` (v1.0.1, MIT) was installed.
@@ -1096,7 +1097,7 @@ three integration manifests per ADR-022 practice.
 
 ## ADR-027 — Audit fix set: ADR stamps, workflow version, hook state, cline registration, CSS token
 
-**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.11.1
+**Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.11.1
 (unchanged; this is a documentation/config consistency fix set, not a
 governance amendment).
 
@@ -1146,7 +1147,7 @@ should find no stamp drift.
 
 ## ADR-028 — Constitution 2.12.0: quota window and contact-message path
 
-**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.12.0.
+**Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.12.0.
 
 **Context.** A deep audit of `ROADMAP.md` against the constitution found two
 facts the constitution underdetermined: the window semantics of the monthly
@@ -1180,7 +1181,7 @@ stamps in `docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`,
 
 ## ADR-029 — Roadmap dependency and ownership corrections
 
-**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.12.0
+**Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.12.0
 (unchanged; governance documents only).
 
 **Context.** The same audit found roadmap defects: the `suppliers` module had
@@ -1219,7 +1220,7 @@ cross-reading data-model notes.
 
 ## ADR-030 — Constitution 2.13.0: phone-only authentication
 
-**Status:** Accepted. **Date:** 2026-10-03. **Constitution version:** 2.13.0.
+**Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.13.0.
 
 **Context.** The platform's identity model carried an email address it never
 needed: the Log In page read "Email and password", a register gap reserved a
@@ -1490,4 +1491,86 @@ durable record of this amendment is this entry.
 **Consequences.** Living ADR range strings move to ADR-001 … ADR-038; version stamps move to constitution 2.17.0 across `ROADMAP.md`, `AGENTS.md`, `README.md`, `docs/architecture.md`, `docs/domain-model.md`, `spec-template.md`, `plan-template.md`, `checklist-template.md`, and `constitution-template.md`. The mirror carries the role-split note and the four gap rows in a Constitution 2.17.0 additions section. This entry is the durable amendment record.
 
 **Annotation (2026-10-04, audit follow-up).** The deep-file audit closed the remaining stamp gaps named by this record: an independent constitution stamp (v2.17.0) now heads `ROADMAP.md` and an explicit v2.17.0 line heads `Project-Technologies.txt`; the `tasks-template.md` override gains the binding-rules block carrying `constitution v2.17.0`; `workflow-registry.json` now names the assess, bug, and git extensions and records the implement ↔ converge repetition (ADR-013), which `workflow.yml` also states; and the cart label «المحفوظات» replaces the stray «السلة» in the PostgreSQL mirror row. Separately, the undeclared `--sidebar-width-collapsed` token was removed from `wafar.single.css` (bumped to 1.0.2), because the constitution reserves the collapsed/rail width for the slice that first needs it.
+
+---
+
+## ADR-039 — Repository line-ending and encoding policy recorded; mirror stops restating rules; fallback templates labelled
+
+**Status**: Accepted — 2026-10-04
+**Owning directory**: `.gitattributes`, `docs/`, `Project-Technologies.txt`, `ROADMAP.md`, `.specify/templates/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A full-file audit of the governance set found four defects of the
+same class — a rule or a claim living in more than one place, or a pointer that
+points at nothing:
+
+1. `.gitattributes` stated the line-ending policy and cited
+   `docs/DECISIONS.md` -> ADR-008 as its record. ADR-008 is "Registers live in
+   the constitution", so the citation pointed at an unrelated decision, and no
+   record anywhere covered line endings at all. The encoding half of the same
+   concern was recorded separately (ADR-011, ADR-035), so the policy existed in
+   three pieces and one file.
+2. `Project-Technologies.txt` restated binding rules in its amendment-mirror
+   sections: the lockout numbers, the honeypot and minimum-time-to-submit
+   controls, the CAPTCHA prohibition, `/api/v1` and its removal notice, the
+   upload quotas, the cart page's Arabic label, the trade name's diacritics, the
+   reports limit, the 500-line advisory, and the shared-location prohibition. The
+   file's own header states that no rule lives in it (constitution ->
+   Single-Reference Sufficiency), so each restatement was a second source that
+   could drift from the register.
+3. The same mirror contradicted an open register gap: its Arabic-analyzer row
+   claimed the analyzer "needs no extra configuration" while the constitution
+   lists Arabic analyzer configuration and verification as an open gap owned by
+   R5. It also named three Redis client libraries as supported while the Redis
+   client library is an open gap owned by R3, and it carried two precise figures
+   it could not attribute (a download count, a predecessor's end-of-development
+   date) although ADR-033 requires a mirror to carry no unattributable figure.
+4. The constitution reserves two design-system duties to "the slice that first
+   needs it" — the sidebar icon-rail width token and the sticky table header the
+   stylesheet does not yet provide — but `ROADMAP.md`'s First obligations table,
+   whose purpose is to give every such duty an owner, named neither.
+5. The five installed core templates under `.specify/templates/` differ from
+   their project overrides by 24 to 244 lines and carry no Wafar rule. They are
+   the last fallback in the resolution stack and are never the file a run
+   resolves, but nothing in the files themselves said so, so a reader opening a
+   core template directly could take it for the binding one.
+
+**Decision.** (1) The line-ending and encoding policy is recorded once, as this
+ADR; `.gitattributes` cites it and states that encoding is the same decision's
+other half. No new attribute is introduced, so no file's stored bytes change.
+(2) Every rule restated in `Project-Technologies.txt` is replaced by a pointer to
+the constitution section that owns it. The mirror keeps what the register
+delegates to it — versions, the per-technology note, the repository trees, the
+licence facts, and which tool serves which mandate. (3) The analyzer row names
+its open gap, the Redis client row names R3 and states that a candidate is not
+an approval, and the two unattributable figures are removed. (4) `ROADMAP.md`
+names R1 for the rail-width token and R5 for the sticky table header. (5) The
+eleven records ADR-020 to ADR-030 carry their header in the same
+`**Status**: / **Date**: / **Constitution version**:` form as the rest of the
+file; wording and dates are unchanged. (6) Each core template carries a header
+banner naming the override that replaces it and stating that it is the fallback
+layer; the banner is a comment, so the template's own structure, including the
+tasks template's frontmatter, is unchanged and no override content changes.
+
+**What deliberately did not change.** The constitution is not amended and no
+version stamp moves: no rule, register, value, limit, slice, or dependency
+changed, and every rule the mirror used to restate is already binding in the
+constitution. No line-ending attribute changed, so no file is rewritten.
+`wafar.single.css` is not touched: its eight `--screen-*` tokens were verified to
+be declared once each and never referenced, which is exactly the state the
+constitution's Breakpoints table records, and that table already requires the
+first surface that wires a token to delete the ones it leaves unused. Deleting
+them now would remove a registered ladder that no slice has needed yet. The core
+templates stay in place, because the resolution stack's last layer must exist.
+
+**Consequences.** A reader of the mirror now learns which technology serves a
+mandate and where the mandate is written, and the register stays the single
+source. The constitution's Design System Standards keeps reserving the rail
+width and the sticky header to the first slice that needs them; R1 and R5 are
+now that named assignment, so neither can be built as if the token and the
+component already exist. A core template opened directly now says on its first
+line that it is the fallback and names its override; a Spec Kit refresh may
+restore the installed default, which is harmless because the override still
+resolves first. Living ADR range strings move to ADR-001 … ADR-039.
+This entry is the durable record.
 

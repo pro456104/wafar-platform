@@ -120,7 +120,7 @@ apps/web/
 | التقنية | الدور | التفاصيل |
 |---|---|---|
 | **PostgreSQL** | قاعدة البيانات الرئيسية | الإصدار 16+. تخزين المستخدمين، الموردين، الملفات، القطع، المحفوظات، الإشعارات، المراسلات، Audit Log. |
-| **Drizzle ORM** | وسيط قاعدة البيانات | **48.1 مليون تحميل** (يوليو 2026). كل شيء في TypeScript. يستنتج الأنواع هيكلياً بدلاً من خطوة توليد منفصلة. خفيف وسريع. |
+| **Drizzle ORM** | وسيط قاعدة البيانات | كل شيء في TypeScript. يستنتج الأنواع هيكلياً بدلاً من خطوة توليد منفصلة. خفيف وسريع. |
 | **PgDog** | مجمّع الاتصالات | الإصدار **v0.1**. مكتوب بلغة **Rust**. بديل PgBouncer. يدير **آلاف الاتصالات** على أجهزة عادية. أسرع من PgBouncer عند تجاوز 50 اتصالاً. مرخّص **AGPL-3.0**؛ يخضع لسجل معالجة تراخيص خدمات البنية التحتية في الدستور. |
 
 ### 📁 بنية قاعدة البيانات
@@ -149,8 +149,8 @@ packages/db/
 | التقنية | الدور | التفاصيل |
 |---|---|---|
 | **OpenSearch** | محرك البحث | **محلل عربي مدمج** (`arabic` analyzer) مع تجذيع وإزالة كلمات التوقف. يدعم **`icu_analyzer`** لتطبيع النصوص العربية. |
-| **Arabic Analyzer** | محلل اللغة العربية | مدمج في OpenSearch. لا يحتاج إعداداً إضافياً. |
-| **ILM** | إدارة دورة حياة الفهارس | حذف تلقائي للفهارس الأقدم من 90 يوم. |
+| **Arabic Analyzer** | محلل اللغة العربية | مدمج في OpenSearch. **إعدادته والتحقق منه فجوة مسجلة يملكها R5**؛ هذا Mirror لا يسمّي إعداداً ولا يقرّر ضبطه. |
+| **ILM** | إدارة دورة حياة الفهارس | آليات حذف الفهارس؛ نافذة الاحتفاظ بالكتالوجات قاعدة في الدستور (Usage Limits) وملكها R15. |
 
 ### 📁 بنية البحث
 
@@ -168,8 +168,8 @@ packages/search/
 
 | التقنية | الدور | التفاصيل |
 |---|---|---|
-| **SeaweedFS** | تخزين الملفات | الإصدار **v4.48** (سبتمبر 2026). مرخّص **Apache 2.0**. البديل المعتمد عن MinIO (الذي توقف عن التطوير أبريل 2026). يتعامل مع كميات هائلة من الملفات الصغيرة بكفاءة. |
-| **BullMQ** | طابور المهام | يتطلب **Redis** كخلفية إلزامية (انظر `apps/worker`). يدعم ioredis و node-redis و Bun's Redis client. |
+| **SeaweedFS** | تخزين الملفات | الإصدار **v4.48** (سبتمبر 2026). مرخّص **Apache 2.0**. البديل المعتمد (ADR-005) بعد استبعاد سلفه. يتعامل مع كميات هائلة من الملفات الصغيرة بكفاءة. |
+| **BullMQ** | طابور المهام | يتطلب **Redis** كخلفية إلزامية (انظر `apps/worker`). مكتبة عميل Redis **فجوة مسجلة يملكها R3**؛ أي مرشّح يسميه هذا Mirror مرشّح فقط، ولا يسجّل في سجل التقنيات إلا ما تختاره R3 وتوثّقه. |
 | **Redis** | خلفية الطابور + التخزين المؤقت | BullMQ يتطلب **Redis >= 5.0.0**. الاعتماد على خدمة بنية تحتية؛ ترخيصها (RSAL/SSPL (7.4+; BSD-3 قبلها)) يخضع لسجل معالجة تراخيص خدمات البنية التحتية في الدستور (Licence treatment). |
 | **Worker** | تطبيق تشغيلي (`apps/worker`) | استخراج القطع، توحيد الأعمدة، إزالة التكرار، الفهرسة في OpenSearch. ليس مكتبة ولا اعتماداً خارجياً. |
 
@@ -255,14 +255,14 @@ the rules stay in `.specify/memory/constitution.md`.
 - **Semgrep OSS** (or equivalent) + **osv-scanner** — SAST and vulnerability scanning that block release; SBOM produced per build.
 - **Prometheus + Grafana** — p95 request latency, search p95, processing success rate, queue depth, with alerting on budget breach.
 - **BullMQ** — bounded retries with exponential backoff, dead-letter queue, per-worker concurrency cap, temporary-file sweep.
-- **SeaweedFS presigned multipart uploads** — direct-to-object-storage; the API does not buffer a 100 MB file.
+- **SeaweedFS presigned multipart uploads** — direct-to-object-storage; the API never buffers the uploaded file. The size ceiling is the constitution's Usage Limits.
 - **pg_anonymize** (or equivalent) — staging holds no production personal data.
-- Content-safety pipeline — magic-byte validation, ClamAV, decoded-size cap, macro stripping before extraction.
-- **API versioning** — `/api/v1`, with removal announced one release ahead.
-- **Session revocation** — every authenticated session revocable server-side, including "sign out everywhere"; browser-stored tokens revocable on password change.
-- Account protection — uniform sign-in/registration/recovery responses, five-attempt/fifteen-minute lockout, honeypot fields, minimum time-to-submit, per-client rate limits; **CAPTCHA is never used**. The administrator account is created by a seeded CLI command with a forced password change at first sign-in.
-- **Tenant isolation verification** — a query-path test fails the build if any merchant-reachable path returns another tenant's rows.
-- **Supported browsers** — the two latest major versions of Chrome, Edge, Firefox, and Safari, stated in the plan's Constitution Mandated Values.
+- Content-safety tools — magic-byte validation, ClamAV, decoded-size cap, and macro stripping; the pipeline order and the cap's rule are the constitution's (File Processing Rules, File Processing Overview).
+- **API versioning** — the deployment version prefix is `/api/v1`; the removal-notice rule is the constitution's (Deployment and Observability).
+- **Session revocation** — server-side revocation of every authenticated session, including "sign out everywhere" and browser-stored tokens on password change; the mandate is the constitution's (Identity, Authentication, and Session Policy).
+- Account-protection controls — the tools that enforce uniform responses, an attempt/window lockout, honeypot fields, a minimum time-to-submit, per-client rate limits, the CAPTCHA prohibition, and the seeded administrator CLI with its forced first-sign-in password change. The numeric values are the constitution's (Identity, Authentication, and Session Policy); this mirror restates none of them.
+- **Tenant isolation verification** — the query-path test that fails the build when a merchant-reachable path returns another tenant's rows; the mandate is the constitution's (Deployment and Observability).
+- **Browser coverage** — where the plan states its supported browsers (constitution → Design System Standards → Supported browsers, recorded under Constitution Mandated Values); this mirror names no browser set of its own.
 - Design-system tokens — `ds-table-density-compact|normal|comfortable`, `--duration-fast|base|slow|slower`, the honoured media/capability states (`ds-touch-optimized`, small-screen handling); a sticky table header is a required missing component tracked in the constitution's missing-components list.
 
 ---
@@ -280,10 +280,12 @@ Mirrors the amendment that named an already-mandated tool in the register.
 Mirrors the quota-window clarification and the contact-message path. No new
 technology was introduced; no new dependency or licence obligation.
 
-- **Quota wording** — "50 files per calendar month, 100 files in total" is now
-  stated explicitly in Usage Limits.
-- **Contact messages** — the contact form reaches the administrator through a
-  dedicated "Contact messages" admin page owned by R13, per ADR-028.
+- **Quota window** — the per-user upload quotas (calendar-month window and the
+  total ceiling) are stated in the constitution's Usage Limits; this mirror
+  restates no quota figure.
+- **Contact messages** — no technology is involved: the contact form's path to
+  the administrator is a product fact recorded in ADR-028 and owned by R11 and
+  R13.
 
 ---
 
@@ -297,8 +299,9 @@ Mirrors phone-only authentication.
 - **Transactional SMS provider** (international, e.g. Twilio or Vonage) — OTP
   at sign-up and password-reset delivery. Owned by R1, per the register-gap
   rule (choice, licence record, vulnerability scan recorded in R1's plan).
-- **E.164 mobile number** — the sole account identifier; no email address
-  exists anywhere in the platform.
+- **E.164 mobile number** — the identifier format the phone-number extension
+  stores; the choice of identifier itself is the constitution's (Identity,
+  Authentication, and Session Policy; ADR-030).
 
 ---
 
@@ -307,16 +310,18 @@ Mirrors phone-only authentication.
 Mirrors the audit fix set. No new technology was introduced; no new dependency
 or licence obligation.
 
-- **Merchant full name** — a registered field of `User`; sign-up already
-  collects it, and the register now carries it.
-- **`/speckit.analyze` wording** — the consistency gate runs after
-  `/speckit.tasks` and before implementation, by the engine workflow or by
-  hand (ADR-033 reconciles the two texts).
-- **Catalog-delete cascade ownership** — implemented once in the `catalogs`
-  module service by R4 and reused by R13 and R15 (no duplicated routine).
-- **Single shared entry point** — tenant scoping and later permission
-  resolution are applied through one entry point introduced by R2 and
-  ratified by R13.
+- **Merchant full name** — a field the sign-up schema collects through
+  `packages/shared`; the register entry for it is the constitution's
+  (Product Register; ADR-033).
+- **`/speckit.analyze` timing** — where the consistency gate sits in the cycle
+  is a workflow rule; the workflow file and the constitution (Artifact Workflow
+  and Traceability) own it, and this mirror records no ordering of its own.
+- **Catalog-delete cascade** — implemented once in the `catalogs` module service
+  and reused downstream; which slice owns it is ROADMAP.md's record (R4), not
+  this mirror's.
+- **Single shared entry point** — the one channel through which tenant scoping
+  is applied; the owning slice and the permission model's ratification are
+  ROADMAP.md's (R2, then R13).
 - **Dependency budget** — the numeric cap on direct runtime dependencies is
   recorded under Constitution Mandated Values; R1 owns setting it.
 - **Mirror claims cleanup** — unsourced or unverifiable figures (a Zod
@@ -348,15 +353,17 @@ named in the sources.
 
 ## Constitution 2.16.0 + 2.17.0 additions (2026-10-04, ADR-037/ADR-038)
 
-- **Cart Arabic name** - the cart page's user-facing Arabic name is «المحفوظات»;
-  «سلة المشتريات» is removed from this mirror.
-- **Trade name** - Wafar is written with mandatory diacritics («وَفَّر»)
-  everywhere (mirrors, CSS comments, page titles).
-- **Reports limit** - the admin Dashboard's "reports" are the statistics and
-  summaries of in-scope entities; advanced reports are out of scope.
-- **Retry vs reprocess** - retry (merchant) re-enqueues a failed job over stored
-  bytes; reprocess (administrator) re-runs the pipeline over stored bytes from
-  the admin Files page.
+- **Cart label** - the cart page's user-facing Arabic label is a product fact
+  fixed by the constitution (Product Scope; ADR-038). Where this mirror shows
+  the cart's path or its table row, it shows that constitution label and states
+  no label of its own.
+- **Trade name** - the product name and its mandatory diacritics are registered
+  in the constitution (Glossary; ADR-038); no technology row depends on them.
+- **Reports** - the admin Dashboard's reports are built from in-scope entities;
+  the limit itself is the constitution's (Product Scope; ADR-038).
+- **Worker re-runs** - retry (merchant) and reprocess (administrator) both
+  re-enqueue BullMQ jobs over stored bytes; the two definitions are the
+  constitution's Glossary (ADR-038).
 - **ClamAV and Lighthouse CI** - registered in the constitution (Technology
   Standards) with explicit notes that they are gates, not runtime dependencies.
 - **Nitro** - named as part of Nuxt 4 in Internal layout (`apps/web/server/`);
@@ -367,8 +374,8 @@ named in the sources.
 - **Open register gaps** (owners in parentheses): Redis client library for
   BullMQ (R3), OpenSearch client library (R5), automated accessibility checker
   (R1), Arabic analyzer configuration and verification (R5).
-- **500-line rule** - advisory (SHOULD); an exception is recorded in the plan's
-  Complexity Tracking table with rationale and review date.
-- **Shared location** - the API's cross-module channel is the single shared
-  package (`packages/shared`); the `apps/api/src/shared` tree entry is removed
-  (a second shared location is a violation).
+- **Module size** - advisory; the rule and its exception route are the
+  constitution's (Module Discipline and Development Workflow).
+- **Shared location** - `packages/shared` is the API's only cross-module
+  channel; `apps/api/src/shared` is not a location (constitution → Module
+  Discipline; ADR-038).

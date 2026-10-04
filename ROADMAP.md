@@ -34,7 +34,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-038) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-039) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -78,6 +78,8 @@ an owner.
 | Enabling Dependabot/Renovate so the update process exists from the first merge; the full dependency-update policy is R12's | R1 (enablement), R12 (policy) | Dependency Governance (before the first public release) |
 | Backup and restore tooling, and the RTO/RPO numbers | R1 | Deployment and Observability (R1 introduces persistent storage) |
 | The application shell — header, sidebar (full width or an icon rail on desktop, drawer on mobile), drawer, theme toggle, icon set, fonts, and the framework bridge — scoped to public pages and the merchant area, never on auth/404/static pages; resolved sidebar logo/header placement per ADR-017; icon set and theme toggle per ADR-016 | R1 | Principle IX; Design System Standards; ADR-016, ADR-017 |
+| The sidebar icon rail's width token, added to `wafar.single.css` and consumed by the shell's desktop collapsed state; the width itself is R1's to choose | R1 | Design System Standards → Decision values (Sidebar): the rail token is reserved for the first slice that needs it (ADR-039) |
+| The sticky table header the design system does not yet provide, added to `wafar.single.css` and used by the first table that requires it | R5 | Design System Standards → Decision values (Table) and the missing-components list; Principle IX; ADR-039 |
 | CSRF, output-encoding, and security-header tests | R1 | Identity, Authentication, and Session Policy (first browser-facing feature) |
 | The automated accessibility scan and the manual keyboard-only pass | R1 | Principle IV (interface verification) |
 | The resolution of the sidebar conflict | Resolved 2026-10-03 in ADR-017: sidebar required fixed on desktop; auth/404/static pages bare; `Core-Project.txt` now defines the shell | Closed by ADR-017 |
