@@ -46,6 +46,7 @@ steps:
   # git extension hooks (auto-executed by engine; defined in .specify/extensions.yml)
   # before_constitution: speckit.git.initialize (mandatory, no-op if repo exists)
   # before_specify: speckit.git.feature (mandatory, creates feature branch)
+  # before_specify: speckit.assess.intake (optional, enabled; prompts to normalize a raw idea)
 
   - id: specify
     command: speckit.specify

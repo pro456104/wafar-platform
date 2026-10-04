@@ -31,7 +31,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-033) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-035) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -148,7 +148,7 @@ carried. Each names the slice that closes it.
   yields a working account on a working shell, R2 alone yields an accepted and
   stored file, R5 alone yields a searchable parts table.
 - **Structure registers.** R1 creates the workspace; it MUST follow the fixed
-  locations in the constitution (v2.14.0) and `docs/architecture.md`, including
+  locations in the constitution (v2.15.1) and `docs/architecture.md`, including
   `apps/web/layouts` and `apps/admin`, and records the documentation-drift
   check for collection in R2 (R1's public surface is covered by OpenAPI
   generation from the Hono routes; ADR-002).
@@ -161,8 +161,8 @@ carried. Each names the slice that closes it.
 - **Open data-model questions.** `docs/domain-model.md` → Unresolved facts is
   the full list; this note mirrors it so the owning slice is visible at a
   glance. Rows 1–4 and 6 are also binding in the constitution's Product Register
-  (Unresolved product facts); rows 7–11 are open facts carried by the model
-  and the mirror:
+  (Unresolved product facts); rows 7–11 are open field-level facts carried by
+  the model alone — the mirror carries the concepts, never field identifiers:
   1. Sender representation on a message (R10)
   2. `Conversation`'s administrator reference (R10)
   3. `expires_at`: retention deadline or supplier's printed expiry (R15)

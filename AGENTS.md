@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-033; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-035; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -71,6 +71,10 @@ The binding cycle, in order: `/speckit.constitution` → `/speckit.specify` →
 
 Installed extensions: `assess` (idea triage before specifying), `bug` (bug
 triage), and `git` (mandatory feature branch creation before specification).
+The `assess` extension also registers an optional `before_specify` hook,
+`speckit.assess.intake`: prompting to normalize a raw idea into an intake
+note before specification (`optional: true`, enabled). It is a prompt, not a
+mandatory step of the binding cycle.
 Templates resolve from `.specify/templates/overrides/` first, then
 presets, then extensions, then core. The `speckit.taskstoissues` command is a
 reserved optional surface: no product requirement names it today, and adopting

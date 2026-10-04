@@ -5,7 +5,7 @@ entities the product reasons about, the relationships between them, their
 cardinality, their invariants, and the module that owns each one. It is the
 source the constitution's Product Register maps.
 
-Its authority is `.specify/memory/constitution.md` (v2.14.0); where this
+Its authority is `.specify/memory/constitution.md` (v2.15.1); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
 change to a registered product fact and MUST be recorded as an ADR in
@@ -256,11 +256,16 @@ answer in `docs/DECISIONS.md`. A slice MUST NOT decide one on its own.
 in the constitution's Unresolved product facts table, so a slice reading either
 document sees the same questions with the same owners. The remaining rows exist
 only in this table and in `ROADMAP.md` → Open data-model questions; they are
-the facts that reached the product mirror without ever reaching the
-constitution's register, which is why they were unbuildable before this
-document existed. Row 5 was resolved 2026-10-03 by ADR-028 (a dedicated
+open field-level facts that were never registered anywhere else. Row 5 was resolved 2026-10-03 by ADR-028 (a dedicated
 administrator "Contact messages" page, owned by R13) and is kept struck-through
 for traceability.
+
+None of rows 7–11 names a field that `Core-Project.txt` or the constitution
+currently registers. The identifiers that appeared in earlier drafts of this
+table (`User.status`, `Catalog.size`, `Catalog.mime_type`, `Part.page`,
+`Part.row`, `ContactMessage.status`, `ContactMessage.admin_note`) were never
+added to the product mirror; any use of them is a reference to this table, not
+to the mirror.
 
 | # | Unresolved fact | Why it is not decided here | Decided in |
 |---|---|---|---|
@@ -270,11 +275,11 @@ for traceability.
 | 4 | Notification retention. | The product statement defers it. | R9 |
 | 5 | ~~Whether a contact message becomes a conversation or is read in its own inbox.~~ Resolved 2026-10-03 by ADR-028: a dedicated administrator "Contact messages" page. | — | — |
 | 6 | Whether an administrator is a distinct entity or a role on `User`. | The register treats administrators as a role on `User`, while the conversation and the audit record refer to an administrator as a party. | R13 |
-| 7 | What state an account carries, and whether a blocked merchant is a state or a separate flag. The product mirror's identifier for it is `User.status`. | The Product Register's roles make blocking an administrator power, but no state is registered for it, so `block user` currently has nothing to write. | R1 |
+| 7 | What state an account carries, and whether a blocked merchant is a state or a separate flag. No field is registered for it today. | The Product Register's roles make blocking an administrator power, but no state is registered for it, so `block user` currently has nothing to write. | R1 |
 | 8 | Whether the `auth` module owns any stored entity of its own, or whether an account's identity and credential data belong entirely to `users`. | Principle X lists `auth` as a module and Technology Standards fixes `packages/db/schema/auth.ts` as its schema file, yet no registered entity is owned by `auth`. Either the module owns a table that the register does not name, or the schema file is a peer of `users.ts` rather than the owner of one. R1 introduces both modules, so R1 is where this is answered. | R1 |
-| 9 | The stored byte count and content type a catalog carries. The product mirror's identifiers for them are `Catalog.size` and `Catalog.mime_type`. | Both were stated only in the product mirror. They are validation facts (File Processing Overview step 1) as much as stored ones, so the slice that enforces validation is the slice that settles them. | R2 |
-| 10 | Whether a part stores the page and the row it came from. The product mirror's identifiers for them are `Part.page` and `Part.row`. | Beyond the Glossary's list of a part's fields, so **Catalog data shape**. Deduplication compares file, page, and row whatever a part stores, so nothing in the pipeline forces the answer either way. | R3 |
-| 11 | The state a contact message moves through, and whether the administrator's response to one is recorded on it. The product mirror's identifiers for them are `ContactMessage.status` and `ContactMessage.admin_note`. | The contact form is the only way a visitor reaches the administrator, and nothing registers what happens to the message afterwards. | R11 |
+| 9 | The stored byte count and content type a catalog carries. No fields are registered for them today. | Both would be validation facts (File Processing Overview step 1) as much as stored ones, so the slice that enforces validation is the slice that settles them. | R2 |
+| 10 | Whether a part stores the page and the row it came from. No such fields are registered today. | Beyond the Glossary's list of a part's fields, so **Catalog data shape**. Deduplication compares file, page, and row whatever a part stores, so nothing in the pipeline forces the answer either way. | R3 |
+| 11 | The state a contact message moves through, and whether the administrator's response to one is recorded on it. No such fields are registered today. | The contact form is the only way a visitor reaches the administrator, and nothing registers what happens to the message afterwards. | R11 |
 
 Rows 7 through 11 are field-level questions, not conceptual ones: the entity and
 its owner are not in doubt, only what the entity carries. Each is decided by the

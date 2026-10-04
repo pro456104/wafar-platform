@@ -51,7 +51,9 @@ Constitution Check; from then on the record has a feature owner.
 | [ADR-030](#adr-030--constitution-2130-phone-only-authentication) | Constitution 2.13.0: phone-only authentication | 2026-10-03 | 2.13.0 |
 | [ADR-031](#adr-031--roadmap-audit-fix-set) | Roadmap audit fix set | 2026-10-04 | 2.13.0 (unchanged) |
 | [ADR-032](#adr-032--roadmap-second-audit-fix-set) | Roadmap second audit fix set | 2026-10-04 | 2.13.0 (unchanged) |
-| [ADR-033](#adr-033--audit-fix-set-full-name-cascade-entry-point-budget-mirror-claims) | Audit fix set: full name, cascade ownership, entry point, dependency budget, analyze wording, mirror-claims cleanup | 2026-10-04 | 2.14.0 |
+| [ADR-033](#adr-033--audit-fix-set-full-name-cascade-ownership-entry-point-dependency-budget-analyze-wording-mirror-claims-cleanup) | Audit fix set: full name, cascade ownership, entry point, dependency budget, analyze wording, mirror-claims cleanup | 2026-10-04 | 2.14.0 |
+| [ADR-034](#adr-034--constitution-2150-metrics-stack-dependency-scanner-staging-anonymiser-and-the-optional-web-server-directory) | Constitution 2.15.0: metrics stack, dependency scanner, staging anonymiser, optional web-server dir | 2026-10-04 | 2.15.0 |
+| [ADR-035](#adr-035--constitution-2151-encoding-repair-and-utf-8-verification-note) | Constitution 2.15.1: encoding repair and UTF-8 verification note | 2026-10-04 | 2.15.1 |
 
 ---
 
@@ -126,6 +128,11 @@ the implementation.
 **Consequences.** Validation stays in shared Zod schemas rather than in
 framework-specific schema objects; the framework boundary is kept thin so the
 choice remains replaceable in principle — but only through an amendment.
+
+**Annotation (2026-10-04).** ADR-033 replaced the precise benchmark figure in
+`Project-Technologies.txt` with neutral wording, so the "88,525
+requests/second" recorded in this decision's Rationale is now historical and
+is no longer reproduced in the mirror.
 
 ---
 
@@ -505,6 +512,12 @@ enforceable by review: it MUST NOT name a technology the register does not name,
 and MUST NOT restate a rule. The `--screen-*` ladder now carries a binding
 mapping table, and the first surface that wires a token must delete the tokens it
 leaves unused.
+
+**Annotation (2026-10-04).** The counts above (4294 lines, 415 unique tokens,
+290 classes, 30 keyframes) were measured on design-system v1.0.0. After
+ADR-012's v1.0.1 edits the file is 4291 lines and still carries fourteen
+modules and 30 keyframes. The historical figures remain here as the v1.0.0
+record.
 
 ---
 ## ADR-011 — Mirror files confirmed as valid UTF-8
@@ -1285,7 +1298,7 @@ durable record.
 
 ---
 
-## ADR-031 - Roadmap audit fix set
+## ADR-031 — Roadmap audit fix set
 
 **Status**: Accepted — 2026-10-04
 **Owning directory**: `docs/`, `ROADMAP.md`, `AGENTS.md`, `README.md`, `docs/architecture.md`
@@ -1310,7 +1323,7 @@ durable record.
 
 ---
 
-## ADR-032 - Roadmap second audit fix set
+## ADR-032 — Roadmap second audit fix set
 
 **Status**: Accepted — 2026-10-04
 **Owning directory**: `docs/`, `ROADMAP.md`, `AGENTS.md`, `README.md`, `docs/architecture.md`, `.specify/templates/overrides/`
@@ -1337,7 +1350,7 @@ durable record.
 
 ---
 
-## ADR-033 - Audit fix set: full name, cascade ownership, entry point, dependency budget, analyze wording, mirror-claims cleanup
+## ADR-033 — Audit fix set: full name, cascade ownership, entry point, dependency budget, analyze wording, mirror-claims cleanup
 
 **Status**: Accepted — 2026-10-04
 **Owning directory**: `.specify/memory/`, `docs/`, `ROADMAP.md`, `Project-Technologies.txt`, `.specify/templates/overrides/`
@@ -1365,3 +1378,64 @@ durable record.
 - *Leave the mirror figures.* Rejected: a precise number an agent cannot attribute becomes invented precision in every plan's CMV row.
 
 **Consequences.** No slice is added, reordered, or renumbered; two dependency edges are added (R15 → R4 and R13 → R4). The constitution version moves to 2.14.0; this entry is the durable amendment record. Sync Impact Report from `/speckit.constitution`, when the next run produces it, is review material and is not committed.
+
+---
+
+## ADR-034 — Constitution 2.15.0: metrics stack, dependency scanner, staging anonymiser, and the optional web-server directory
+
+**Status**: Accepted — 2026-10-04
+**Owning directory**: `.specify/memory/`, `Project-Technologies.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A final cross-document audit found that `Project-Technologies.txt` and `docs/architecture.md` named three tools the constitution's register does not name — Prometheus + Grafana (metrics), osv-scanner (dependency vulnerability scan), and pg_anonymize (staging anonymisation) — which the mirror rule ("the mirror MUST NOT introduce a technology this register does not name") forbids. The same audit found `apps/web/server/` in the mirror's tree but absent from the constitution's Internal layout, and a technically inaccurate claim that BullMQ can use PostgreSQL as its queue backend. Two unresolved-facts rows also attributed field identifiers to `Core-Project.txt` that the mirror does not carry (`User.status`, `Catalog.size`, `Catalog.mime_type`, `Part.page`, `Part.row`, `ContactMessage.status`, `ContactMessage.admin_note`), and an ADR still quoted the benchmark figure ADR-033 had neutralised in the mirror.
+
+**Decision.**
+
+1. The constitution is amended to 2.15.0 (MINOR: material expansion of the registers): Prometheus + Grafana named under Monitoring and alerting; osv-scanner named under Supply-chain controls; pg_anonymize named under Staging data anonymisation; `apps/web/server/` added to Internal layout as an optional, feature-declared location.
+2. `Project-Technologies.txt` corrects the BullMQ backend claim (Redis only) and gains a Constitution 2.15.0 additions section.
+3. `docs/domain-model.md` and `ROADMAP.md` no longer attribute the working field identifiers to the product mirror; rows 7–11 are carried by the domain model alone.
+4. ADR-002 and ADR-010 carry annotations marking their precise figures historical (the mirror having been neutralised in ADR-033).
+5. Range strings and version stamps move to ADR-001 … ADR-034 and constitution 2.15.0 across `ROADMAP.md`, `AGENTS.md`, `README.md`, `docs/architecture.md`, `docs/domain-model.md`, `spec-template.md`, `plan-template.md`, `checklist-template.md`, and `constitution-template.md`.
+
+**Alternatives considered.**
+
+- *Remove the names from `Project-Technologies.txt`.* Rejected: the obligation to run each control already exists; deleting the names reintroduces the "review comment as enforcement" failure mode the registers exist to prevent.
+- *Leave the identifiers attributed to the mirror.* Rejected: a register row that names a token or field its source does not contain is the same drift defect as a missing decision, read in the other direction.
+- *Cite the BullMQ PostgreSQL backend as a plan-time choice.* Rejected: BullMQ requires Redis; the note was inaccurate and stayed until corrected.
+
+**Consequences.** The mirror now carries only names the constitution also carries, and the constitution's Internal layout covers every path in the mirror's tree. No slice is added, reordered, or renumbered; no new runtime dependency is introduced, so no new licence record or vulnerability scan accompanies this amendment. The constitution version moves to 2.15.0; this entry is the durable amendment record. Sync Impact Report from `/speckit.constitution`, when the next run produces it, is review material and is not committed.
+---
+
+## ADR-035 — Constitution 2.15.1: encoding repair and UTF-8 verification note
+
+**Status**: Accepted — 2026-10-04
+**Owning directory**: .specify/memory/, docs/, ROADMAP.md, AGENTS.md, README.md, docs/architecture.md, docs/domain-model.md, .specify/templates/overrides/
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A final audit found that .specify/memory/constitution.md itself
+carried double-encoded UTF-8 (UTF-8 bytes interpreted as Windows-1252 and
+re-saved as UTF-8): corrupted em-dashes (â€"), corrupted arrows (â†'), and
+every Arabic example unreadable (the Principle V root example and the
+Arabic-Indic numeral examples among them). The mirror files and the ADRs were
+correctly UTF-8; ADR-011's byte-level check verified decodability, not the
+legibility of the decoded characters, so the defect passed that check.
+
+**Decision.**
+
+1. Constitution 2.15.1 (PATCH: non-semantic repair plus one clarification):
+   every corrupted character is restored to its intended one — em-dash, arrow
+   (→), and the Arabic examples — with no rule, number, register row,
+   heading, or ADR reference changed.
+2. The UTF-8 bullet in Artifact Workflow and Traceability now states that
+   decodability does not prove correct characters, that mojibake is a defect
+   of the same kind, and that Arabic content MUST be verified legible.
+3. The living range strings move to ADR-001 … ADR-035 and the version
+   stamps move to 2.15.1 in the same change.
+
+**What deliberately did not change.** No principle text, module map,
+ownership decision, usage limit, slice order, or deferral is altered. ADR-011
+stands; its check is now read together with the new verification note.
+
+**Consequences.** The constitution's defining Arabic examples are readable
+again, and future audits must verify legibility, not only decodability. The
+durable record of this amendment is this entry.
