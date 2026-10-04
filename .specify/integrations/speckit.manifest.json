@@ -9,17 +9,16 @@
     ".specify/scripts/powershell/resolve-template.ps1": "e49c565a09902e4ebd4b5a51c4e014d5067fdee5b1592f15cb44ef31f430d745",
     ".specify/scripts/powershell/setup-plan.ps1": "3b8173f1553bbf67ae021af949a29e2d3e3bb35805be95e4ba8d0ab83173c66f",
     ".specify/scripts/powershell/setup-tasks.ps1": "5aebeff2b84d6e369ec9bb3b5b73a9a1195ec4b927274f6a2df95aa9eba7e949",
-    ".specify/templates/checklist-template.md": "3f4124a13ffbc0c2d8e979d9a08248f29ce53cc6c324a8303a6ae0d231b78836",
-    ".specify/templates/constitution-template.md": "ce7549540fa45543cca797a150201d868e64495fdff39dc38246fb17bd4024b3",
-    ".specify/templates/plan-template.md": "5ef0e4c97b36e9f91372dc6eb8e5a7e515af8958cf1a9286e43a1ebd9bd48540",
-    ".specify/templates/spec-template.md": "3945437fc35cd30a5b2bf7beea680337c3516826d3efa5a6b92c4a7eca1ba28e",
-    ".specify/templates/tasks-template.md": "c731575d8099b3f871861186fbd1a592b51b2ba57fb99e1a0dab439ff6d5608f",
-    ".specify/templates/overrides/constitution-template.md": "5f7c043c9ddad7ab3c6cef9e1572688fd0ab8650179a85a99ee774af9641b807",
-    ".specify/templates/overrides/plan-template.md": "dc021ad90c74b30d736f46dd98c5a0d6cd598a6ce809d044805e375c704d387d",
-    ".specify/templates/overrides/spec-template.md": "bae9fcc2886d8945e6fe2fe39d509070d93616e374d6e94415640e4e75a15a35",
-    ".specify/templates/overrides/tasks-template.md": "ef4f97945273d8f331ac1d11bb9a1ac8b6c118ac0417f38c1112891995420869",
-    ".specify/templates/overrides/checklist-template.md": "92d07588ef567273d5aed1a6a676affe1b2dbae59edf0b78ba8d6658d7a95023",
+    ".specify/templates/checklist-template.md": "ec3010a95715da39d6e783783e299812a6f3a078937b25dcd34ce23211b1c658",
+    ".specify/templates/constitution-template.md": "3f4b810af6079c98ecf5764ba56d7ad19e647c5908e55939a98d2869d10e5f77",
+    ".specify/templates/plan-template.md": "2a6e9d5ae4b537d4f6f5068641453aa6b553982711c05e917f078e23838a1635",
+    ".specify/templates/spec-template.md": "58142f1f61a4926fb7e36f408d7c7b33e9e418afa9c0f83853f0e730d6c51405",
+    ".specify/templates/tasks-template.md": "85df2ca609e62ae6b0727f92af73da4d15d2c6010cc24d4b12a95e559eb4a47c",
+    ".specify/templates/overrides/constitution-template.md": "99e9c42ce9d8725685afb4a44dfc519225860014d618f03d825ded2c6bac041d",
+    ".specify/templates/overrides/plan-template.md": "5c9a46b116c1164cc0cc92e6dae342e5e0f0960acfc96e04ac27d2b826aa7e9f",
+    ".specify/templates/overrides/spec-template.md": "0ddc6de72b5c980c8bb26d6bf5797321ede433f6428ef2474d7db57949f25887",
+    ".specify/templates/overrides/tasks-template.md": "1575214791417bcc1cbd8ce46073a6bda96a5d640892ad97067bf7cc66d0df75",
+    ".specify/templates/overrides/checklist-template.md": "30d011d8d940b578ec8e567d3bc9b6ff434aa43afac7ec7650568b43fff21258",
     ".specify/.gitignore": "8c908410d177a1ef3d0dee16d7ad55f2ac3333df3104c4d4adee1c9b82f1dbc1"
   }
 }
-
