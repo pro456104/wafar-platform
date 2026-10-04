@@ -31,7 +31,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-030) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-032) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -44,18 +44,18 @@ rules drift. It MUST NOT be created. See `docs/DECISIONS.md` → ADR-007.
 
 | ID | Sub-feature | Intent | Scope boundary | Depends on | Status | Sub-spec |
 |----|-------------|--------|----------------|-----------|--------|----------|
-| R1 | Identity and foundation | A merchant signs up (OTP-verified mobile number, password, city, optional shop name per ADR-030), signs in and out, and recovers a password via SMS OTP; sessions, password hashing, and auth rate limits follow the constitution's Identity, Authentication, and Session Policy. This slice also creates the repository workspaces and registers the `auth` and `users` modules. | The merchant's account only. The administrator's separate login belongs to R13. Workspace, design-system extension, and delivery duties are listed under "First obligations" below. | — | planned | — |
-| R2 | File intake | A merchant uploads an Excel, PDF, or Word catalog; size and content-type are validated before storage; bytes are stored in object storage; a content hash is computed; a duplicate is rejected by hash; the catalog record's status is recorded; the per-user upload quotas are enforced server-side (50 files per calendar month, 100 files in total). | Validation, storage, hash, duplicate check, status, and upload quota only. Extraction is R3. | R1 | planned | — |
-| R3 | Catalog extraction | The worker pipeline: extract parts from the file's tables, read the supplier name and issue date from the first page, normalise columns, deduplicate by file/page/row, index the parts, set status to `completed` or `failed`, and allow retry without re-uploading bytes. This slice also creates the `suppliers` module when the first-page extraction names the supplier. | The pipeline only. The parts read surface is R5. Extraction algorithm and catalog data shape are deferred areas. | R2 | planned | — |
-| R4 | My Files | The merchant's page for the files they uploaded: the file table, the upload action, the processing status of each file, deleting a file they uploaded, and the retry action for a failed file. | The merchant's own files only. Upload validation and storage are R2; extraction is R3. | R1, R2, R3 | planned | — |
-| R5 | Parts search | The public Parts page and the Home page: Arabic root-aware search, filters (part number, brand, car model, catalog file, supplier), a parts table with column sorting, pagination 20/50/100, `?file=<id>` filtering, within the p95 < 1 s budget. Home carries the platform name, the quick search field, and the four statistical cards. | Reading and filtering only. Search ranking beyond the sortable columns is a deferred area. | R1, R2, R3 | planned | — |
-| R6 | Catalog files page | The public Catalog page: a table of every uploaded catalog file; a row links to R5 filtered by that file. | Read-only listing. Management actions live in R13. The table lists the supplier named on the first page, extracted by R3. | R1, R2, R3 | planned | — |
-| R7 | Profile | A registered user edits the non-identifier account details (city, optional shop name) and changes the password. The mobile number is the identifier and is not editable here. | The caller's own account only. Account deletion is not permitted. | R1 | planned | — |
+| R1 | Identity and foundation | A merchant signs up (OTP-verified mobile number, password, city, optional shop name per ADR-030), signs in and out, and recovers a password via SMS OTP; sessions, password hashing, and auth rate limits follow the constitution's Identity, Authentication, and Session Policy, and the Libyan city list is fixed here. This slice also creates the repository workspaces and registers the `auth` and `users` modules, and decides open facts #7 (the account's status value) and #8 (whether the `auth` module owns a stored entity). | The merchant's account only. The administrator's separate login belongs to R13. Workspace, design-system extension, and delivery duties are listed under "First obligations" below. | — | planned | — |
+| R2 | File intake | A merchant uploads an Excel, PDF, or Word catalog; size and content-type are validated before storage; bytes are stored in object storage; a content hash is computed; a duplicate is rejected by hash; the catalog record's status is recorded; the per-user upload quotas are enforced server-side (50 files per calendar month, 100 files in total); the stored byte count (`Catalog.size`) and content type (`Catalog.mime_type`) are recorded (open fact #9). | Validation, storage, hash, duplicate check, status, and upload quota only. Content safety (magic-byte validation, ClamAV scan, decoded-size cap, macro stripping) runs at intake; extraction is R3. | R1 | planned | — |
+| R3 | Catalog extraction | The worker pipeline: extract parts from the file's tables, read the supplier name and issue date from the first page, normalise columns, deduplicate by file/page/row, index the parts, set status to `completed` or `failed`, and allow retry without re-uploading bytes. This slice also creates the `suppliers` module when the first-page extraction names the supplier. | The pipeline only. The parts read surface is R5. Extraction algorithm and catalog data shape are deferred areas, ratified in this slice's plan; open fact #10 (a part's page and row of origin) is decided here. | R2 | planned | — |
+| R4 | My Files | The merchant's page for the files they uploaded: the file table, the upload action, the processing status of each file, deleting a file they uploaded, and the retry action for a failed file. Each file row carries the open control of the constitution-required "My Files → Parts (filtered by that file)" transition, wired in R5. | The merchant's own files only. Upload validation and storage are R2; extraction is R3. | R1, R2, R3 | planned | — |
+| R5 | Parts search | The public Parts page and the Home page: Arabic root-aware search, filters (part number, brand, car model, catalog file, supplier), a parts table with column sorting, pagination 20/50/100, `?file=<id>` filtering, within the p95 < 1 s budget. Home carries the platform name, the quick search field, and the four statistical cards. R5 also wires the file-row open control from My Files (R4) to `?file=<id>` filtering, and records the "searches" counter decision as an ADR, amending the Product Register in the same change if a new entity is required. The public table's design components (pagination, sort indicator, filter bar, sticky header) come from `wafar.single.css`. | Reading and filtering only. Search ranking beyond the sortable columns is a deferred area. | R1, R2, R3, R4 | planned | — |
+| R6 | Catalog files page | The public Catalog page: a table of every uploaded catalog file; a row links to R5 filtered by that file. | Read-only listing. Management actions live in R13. The table lists the supplier named on the first page, extracted by R3. | R1, R2, R3, R5 | planned | — |
+| R7 | Profile | A registered user edits the non-identifier account details (city, optional shop name) and changes the password. The mobile number is the identifier and is not editable here; the account carries no delete control. | The caller's own account only. The mobile number is not editable, and account deletion is not permitted. | R1 | planned | — |
 | R8 | Cart (bookmarks) | A registered user adds and removes a part in a personal bookmark list, maximum 99 parts, add completing in under 200 ms; the `+` control becomes a red cart icon once saved. | A bookmark list only: no price, no quantity, no checkout (Principle VI). | R1, R5 | planned | — |
-| R9 | Notifications | A notification list with a counter and a mark-as-read action, generated by processing outcomes and by administrator messages. | Delivery to the in-app notification list only. Notification retention is decided here and recorded as an ADR. | R1, R3 | planned | — |
-| R10 | Messaging | One conversation thread between a merchant and the administrator; the merchant sees a reply after refresh; a notification is delivered on reply. | Merchant to administrator only. User-to-user chat is prohibited (Principle VI). | R1, R9 | planned | — |
-| R11 | Support surfaces | Contact form (name, phone, body) that reaches the administrator through the "Contact messages" admin page (ADR-028), plus the FAQ, privacy policy, terms of use, and 404 pages. This slice also creates the `support` module. | Static content and the contact form only. The administrator read surface is R13. | R1 | planned | — |
-| R12 | Delivery and operations | Three environments with staging parity, health checks that verify the dependencies each service uses, the error tracker, secret management with pre-commit and CI scanning, TLS certificate management, the log pipeline, the dependency update process, and the pre-release load test. | Running the platform, not building product behaviour. | R1, R2, R3, R5 | planned | — |
+| R9 | Notifications | A notification list with a counter and a mark-as-read action, generated by processing outcomes and by administrator messages. | Delivery to the in-app notification list only; administrator messages become a source once R13 exists. Notification retention is decided here and recorded as an ADR. | R1, R3 | planned | — |
+| R10 | Messaging | One conversation thread between a merchant and the administrator; the merchant sees a reply after refresh; a notification is delivered on reply. The reply itself is authored through the administrator's surface (R13); before R13 lands, acceptance of this slice verifies the reply path via the admin API directly. | Merchant to administrator only. User-to-user chat is prohibited (Principle VI). | R1, R9 | planned | — |
+| R11 | Support surfaces | Contact form (name, phone, body) that reaches the administrator through the "Contact messages" admin page (ADR-028), plus the FAQ, privacy policy, terms of use, and 404 pages. This slice also creates the `support` module, with the contact form protected by a honeypot field, a minimum time-to-submit, and a per-client rate limit. | Static content and the contact form only. The administrator read surface is R13. | R1 | planned | — |
+| R12 | Delivery and operations | Three environments with staging parity, health checks that verify the dependencies each service uses, the error tracker, secret management with pre-commit and CI scanning, TLS certificate management, the log pipeline, the dependency update process, and the pre-release load test, plus staging data anonymisation and the monitoring and alerting set. | Running the platform, not building product behaviour. | R1, R2, R3, R5 | planned | — |
 | R13 | Admin application | The administrator's separate application with its own login: dashboard, users, files, suppliers, parts, messages, notifications, settings, contact messages. Every administrator operation is recorded as it happens. | The administrator's surface. The audit log's read surface is R14; authorization granularity is a deferred area. | R1, R2, R3, R5, R9, R10, R11 | planned | — |
 | R14 | Audit log | The administrator-facing page over the append-only record every administrator operation writes. | Reading only. The recording is part of R13. | R13 | planned | — |
 | R15 | Retention | Automatic deletion of a catalog 90 days after upload, with the search index lifecycle aligned to the same window. | The deletion job and the index lifecycle only; the delete cascades to the catalog's parts, bookmarks, and index entries. | R3, R8 | planned | — |
@@ -74,15 +74,16 @@ an owner.
 | Provisioning of PostgreSQL, Redis, SeaweedFS, and OpenSearch for development, plus the PgDog fallback and its review date | R1 | Technology Standards (PgDog is pre-1.0 and MUST name a fallback and a review date) |
 | Enabling Dependabot/Renovate so the update process exists from the first merge; the full dependency-update policy is R12's | R1 (enablement), R12 (policy) | Dependency Governance (before the first public release) |
 | Backup and restore tooling, and the RTO/RPO numbers | R1 | Deployment and Observability (R1 introduces persistent storage) |
-| The application shell — header, sidebar (fixed on desktop, drawer on mobile), drawer, theme toggle, icon set, fonts, and the framework bridge — scoped to public pages and the merchant area, never on auth/404/static pages; resolved sidebar logo/header placement per ADR-017 | R1 | Principle IX; Design System Standards; ADR-017 |
+| The application shell — header, sidebar (fixed on desktop, drawer on mobile), drawer, theme toggle, icon set, fonts, and the framework bridge — scoped to public pages and the merchant area, never on auth/404/static pages; resolved sidebar logo/header placement per ADR-017; icon set and theme toggle per ADR-016 | R1 | Principle IX; Design System Standards; ADR-016, ADR-017 |
 | CSRF, output-encoding, and security-header tests | R1 | Identity, Authentication, and Session Policy (first browser-facing feature) |
 | The automated accessibility scan and the manual keyboard-only pass | R1 | Principle IV (interface verification) |
 | The resolution of the sidebar conflict | Resolved 2026-10-03 in ADR-017: sidebar required fixed on desktop; auth/404/static pages bare; `Core-Project.txt` now defines the shell | Closed by ADR-017 |
 | Setup, testing, and deployment documentation | R1 | Documentation (first feature that creates the workspace) |
-| Staging parity, error tracker, secret management, TLS, log pipeline, dependency update process, load test | R12 | Register gaps ("the first deploying slice") |
-| The documentation-drift test for the first public interface, and the first N+1 query-count assertion | R2 | Documentation; Performance Budgets and Verification |
+| Staging parity, error tracker, secret management, TLS, log pipeline, dependency update process, load test | R12 | Deployment and Observability ("the first deploying slice"); Dependency Governance (dependency update process); Performance Budgets and Verification (load test) |
+| The documentation-drift test for the first public interface, and the first N+1 query-count assertion | R2 | Documentation; Performance Budgets and Verification. R1's public surface is covered by OpenAPI generation from the Hono routes (ADR-002), so the first standalone drift test appears in R2. |
 | The committed Stylelint + ESLint configuration that fails the build on physical direction properties and non-token design values | R1 | Design System Standards (Static enforcement) |
 | The seeded CLI command that creates the administrator account, the forced password change, and the anti-enumeration/lockout responses | R1 | Identity, Authentication, and Session Policy |
+| Automated detection of weak password hashing, and the "sign out everywhere" / browser-token revocation on password change | R1 | Identity, Authentication, and Session Policy |
 | Honeypot field, minimum time-to-submit, and rate-limit protection on registration and contact forms, with automated tests | R1 (registration) and R11 (contact form) | Identity, Authentication, and Session Policy (anti-spam enforcement) |
 | The tenant-isolation query-path test that fails the build when a merchant-reachable path returns another tenant's rows | R2 | Deployment and Observability (first tenant-scoped query surface) |
 | The content-safety pipeline: magic-byte validation, ClamAV scan, decoded-size cap, and macro stripping before extraction | R2 (validation), R3 (processing) | File Processing Rules; File Processing Overview |
@@ -116,25 +117,39 @@ carried. Each names the slice that closes it.
 | 12 | The product mirror carried an unreferenced TODO for a budget the constitution had already fixed | Fixed 2026-10-03 in `Core-Project.txt` |
 | 13 | The binding specification template did not carry the sub-spec `Input` line the constitution requires | Fixed 2026-10-03 |
 | 14 | The per-user upload quotas (50 files/month, 100 files total) were binding limits that no slice's scope named, so nothing would have implemented them | Fixed 2026-10-03: R2 |
-| 15 | The data model existed in three copies that had already diverged, and six facts existed only in the product mirror — so they were unbuildable under the Product Register's own rule | Fixed 2026-10-03 by ADR-019: `docs/domain-model.md` is the single authority |
+| 15 | The data model existed in three copies that had already diverged, and seven facts existed only in the product mirror — so they were unbuildable under the Product Register's own rule | Fixed 2026-10-03 by ADR-019: `docs/domain-model.md` is the single authority |
 | 16 | Three product conflicts were invisible because nobody compared the copies: how a message's sender is represented, whether a conversation carries an administrator reference, and whether an administrator is a distinct entity | Recorded as unresolved product facts; R10 (twice), R13 |
 
 ## Notes
 
+- **Administrator representation.** R1's seeded CLI creates the administrator
+  account under the current model, where the administrator is a role on `User`
+  (`constitution.md` → Product Register; row 6 of Unresolved facts). R13 decides the distinct-entity
+  question; if ratified, that decision amends the model and R1's seed in the
+  same change.
+- **Authorization model.** R4, R7, and R8 enforce ownership and tenant scope in
+  their own scopes; the ratified permission granularity remains deferred to
+  R13 (the deferred "authorization model" area; see `docs/domain-model.md`).
+- **My Files → Parts transition (ADR-031).** R4 renders each file row's open
+  control; R5 wires it to `?file=<id>` filtering. The constitution's required
+  transition is satisfied across the R4 + R5 pair, not by either slice alone;
+  R5's `Depends on` includes R4, so the edge is explicit.
 - **Home page.** The Home page (platform name, quick search field, four
   statistical cards) needs no slice of its own: its search field is R5 and its
   counters depend on R1, R2, R3, and R5. R5 also owns the four-cards question,
   and the product register's four cards (accounts, files, parts, searches)
   stand; R5's plan records the choice in `docs/DECISIONS.md`. The "searches"
   counter (including guest searches) has no entity today; R5 decides where it
-  is stored and records the choice as an ADR.
+  is stored, records the choice as an ADR, and amends the Product Register in
+  the same change if a new entity is required.
 - **Independent verification.** Each slice is independently testable: R1 alone
   yields a working account on a working shell, R2 alone yields an accepted and
   stored file, R5 alone yields a searchable parts table.
 - **Structure registers.** R1 creates the workspace; it MUST follow the fixed
-   locations in the constitution (v2.13.0) and `docs/architecture.md`, including
+  locations in the constitution (v2.13.0) and `docs/architecture.md`, including
   `apps/web/layouts` and `apps/admin`, and records the documentation-drift
-  check for collection in R2.
+  check for collection in R2 (R1's public surface is covered by OpenAPI
+  generation from the Hono routes; ADR-002).
 - **Deferred areas.** R2, R3, R5, and R13 are the first slices to implement the
   deferred areas (file ingestion internals; extraction algorithm; catalog data
   shape; retrieval interface; authorization model). Per the constitution's
@@ -143,9 +158,9 @@ carried. Each names the slice that closes it.
   slice's acceptance.
 - **Open data-model questions.** `docs/domain-model.md` → Unresolved facts is
   the full list; this note mirrors it so the owning slice is visible at a
-   glance. Rows 1–4 and 6 are also binding in the constitution's Product Register
-   (Unresolved product facts); rows 7–11 are open facts carried by the model
-   and the mirror:
+  glance. Rows 1–4 and 6 are also binding in the constitution's Product Register
+  (Unresolved product facts); rows 7–11 are open facts carried by the model
+  and the mirror:
   1. Sender representation on a message (R10)
   2. `Conversation`'s administrator reference (R10)
   3. `expires_at`: retention deadline or supplier's printed expiry (R15)

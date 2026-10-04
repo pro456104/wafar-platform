@@ -82,7 +82,7 @@ Cross-cutting rules for every module:
 
 ## 3. Data flow
 
-The canonical chain is **web → api → db → search → worker**:
+The canonical chain is **web → api → (PostgreSQL, SeaweedFS) for persistence, and api → queue → worker → (PostgreSQL, OpenSearch) for processing**:
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -128,7 +128,7 @@ The canonical chain is **web → api → db → search → worker**:
    analyzer (root-aware search) and Index Lifecycle Management aligned with
    the 90-day auto-deletion rule, and search results follow the p95 < 1 s
    budget (Usage Limits).
-4. **search → worker.** The worker is what keeps the projection current: it
+4. **worker → db and search.** The worker is what keeps the projection current: it
    consumes queued jobs, extracts and normalizes parts, then writes both the
    catalog status in the system of record and the parts in the search index.
    The pipeline's canonical step order is binding as a single sequence (File
@@ -199,7 +199,7 @@ Read/write notes:
 - Constitution: `.specify/memory/constitution.md` (v2.13.0) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-030; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-032; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;

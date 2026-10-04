@@ -38,7 +38,7 @@
   - Every ADR first named by this plan MUST be reaffirmed in this plan's
     Constitution Check gate.
   - All artifacts and tools that read or write them MUST be UTF-8, with a
-    UTF-8 reader on the tooling path (AGENTS.md §4).
+    UTF-8 reader on the tooling path (constitution § Artifact Workflow).
 -->
 
 ## Summary

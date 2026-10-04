@@ -6,9 +6,7 @@
 
 **Status**: Draft
 
-**Input**: Parent roadmap: ROADMAP.md → R#.
-
-**Input**: User description: "$ARGUMENTS"
+**Input**: Parent roadmap: ROADMAP.md → R#. User description: "$ARGUMENTS"
 
 <!--
   BINDING RULES FOR THIS DOCUMENT (constitution v2.13.0) - NORMATIVE:
@@ -36,7 +34,7 @@
        - `Core-Project.txt` — the product definition: roles and their
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
-       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-030). A
+       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-032). A
          specification that contradicts one is a blocking defect.
        - `docs/domain-model.md` — the entities a Key Entities section may name,
          and the invariants such a specification MUST NOT contradict. A
