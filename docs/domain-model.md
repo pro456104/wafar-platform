@@ -5,7 +5,7 @@ entities the product reasons about, the relationships between them, their
 cardinality, their invariants, and the module that owns each one. It is the
 source the constitution's Product Register maps.
 
-Its authority is `.specify/memory/constitution.md` (v2.17.0); where this
+Its authority is `.specify/memory/constitution.md` (v2.18.4); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
 change to a registered product fact and MUST be recorded as an ADR in
@@ -45,13 +45,18 @@ default, or index. A field that the constitution does not fix is either already
 registered in Unresolved facts below with the slice that owns it, or it does not
 exist yet.
 
-This is not a workaround for missing work. The shape of a part, the treatment
-of supplier-assigned identifiers, and the exact columns are **Catalog data
-shape**, a deferred area of the constitution. R3 is the first slice to implement
-it, and its plan's Constitution Check MUST record which rules are still missing
-and how they will be ratified, no later than R3's acceptance. Writing the
-columns here now would ratify a deferred area before the slice that owns it, and
-the constitution forbids exactly that.
+This is not a workaround for missing work. The *product-level* shape of a part
+was **Catalog data shape**, a deferred area of the constitution, and it was
+discharged on 2026-10-05: the Glossary now fixes a part's canonical columns and
+the role of the original number, and the invariants over them are stated below
+(ADR-040). What remains is the shape below the product — column types, lengths,
+nullability, defaults, and indexes — which is the owning module's schema file
+and the owning feature's `data-model.md`, plus whether a part persists the page
+and row it came from, which is open fact #10 owned by R3. R3 remains the first
+slice to implement any of it, and its plan's Constitution Check MUST record which
+rules are still missing and how they will be ratified, no later than R3's
+acceptance. Writing the *types* here would still be the defect the paragraph
+above exists to prevent.
 
 The entity names, their relationships, and their invariants below are **not**
 deferred: the product already fixes them in `Core-Project.txt` and the
@@ -66,10 +71,10 @@ every other module reaches it through that module's service.
 
 | Entity | Owning module | What it represents | Cardinality |
 |---|---|---|---|
-| `User` | `users` | A registered merchant whose identity is a full name, a mobile number (E.164, unique) with its country code, a city, an optional shop name, and the role that separates a merchant from an administrator. No email address exists. | One account has many catalogs, bookmarks, notifications, and at most one conversation. |
+| `User` | `users` | A registered merchant whose identity is a full name, a Libyan mobile number (E.164, unique, always +218), a city, an optional shop name, and the role that separates a merchant from an administrator. No email address exists, and no dial-code selector is offered. | One account has many catalogs, bookmarks, notifications, and at most one conversation. |
 | `Supplier` | `suppliers` | The company named on a catalog's first page, from which the parts originate. | One supplier appears in many catalogs. |
 | `Catalog` | `catalogs` | An uploaded supplier file with its metadata, its processing status, and a pointer to its stored bytes. | One catalog belongs to one uploading user and to at most one supplier, and contains many parts. |
-| `Part` | `parts` | A single row extracted from a catalog, representing one car part. | One part belongs to exactly one catalog. |
+| `Part` | `parts` | A single row extracted from a catalog, representing one car part, carrying the price its own catalog printed. | One part belongs to exactly one catalog. |
 | `Bookmark` | `bookmarks` | One entry in a merchant's cart: a link from a user to a part. | One user has at most 99 bookmarks; a bookmark links exactly one user and one part. |
 | `Notification` | `notifications` | A message delivered to a user in the notification list, from a processing outcome or from the administrator. | Many per user; no upper bound is fixed. |
 | `Conversation` | `messages` | The single thread between a merchant and the administrator. | A user has at most one conversation. |
@@ -150,18 +155,54 @@ service layer re-checks the ones a constraint cannot express.
   Overview, step 6; Product Features #5). That is a rule about what the
   extraction pipeline compares, and it binds the pipeline regardless of what a
   part stores.
-- **Whether a part persists its page and row of origin is undecided.** The
-  Glossary fixes a part's fields at part number, name, brand, car model, and
-  description; a position within the source is beyond that list, so it falls
-  under **Catalog data shape** — a deferred area. Until R3 decides it, a feature
-  MUST NOT treat page or row as a part field, and MUST NOT depend on either
-  being present. This is recorded as an unresolved fact below.
+- **A part's canonical columns are fixed by the constitution's Glossary**, and
+  this document does not repeat them (`Glossary` → `Part`). No feature may add a
+  canonical column without amending that Glossary, and a specification MUST NOT
+  restate the list (Single-Reference Sufficiency). Three consequences bind the
+  model rather than the list:
+  - **Brand, country of origin, and manufacturing grade are one column.** A
+    supplier prints them together, so the platform stores them together as free
+    text and does not enumerate them against a fixed list.
+  - **There is no description column.** It is neither extracted nor stored, so
+    no feature may read, index, filter, or display one.
+  - **The original number carries no uniqueness constraint.** Suppliers repeat a
+    number inside one file, and rival suppliers print the same number, so a
+    unique index would reject real data. Deduplication remains the pipeline's
+    rule (by file, page, row), not a constraint on this column.
+- **Every extracted value is assigned to a canonical column automatically, and
+  the canonical set is complete for a parts table.** The assignment is the
+  extraction pipeline's own work; no manual mapping step sits between upload and
+  processing, and a merchant is never asked to map columns (File Processing
+  Rules). A value that belongs to no canonical column is part of no stored
+  column and is not stored. There is no "unassigned" class of value and no
+  counter for one.
+- **The price is the price of this part's own catalog, in Libyan Dinar.** The
+  period and the comma in a printed price are decimal separators, so `123.000`
+  is 123 dinar. A printed price carrying more than one separator, or a file that
+  separates thousands instead, is a recorded unresolved fact owned by R3.
+- **The original number identifies without merging.** Two parts whose original
+  numbers are equal are the same part offered by different suppliers. The
+  platform identifies that sameness and shows the parts side by side in one
+  table; it performs no merge, introduces no equivalence entity, withdraws no
+  row, and joins no two catalogs (ADR-040).
+- **A guest never receives a price.** Every read path a guest can reach projects
+  the part without its price, through an allowlist of its own. Redaction belongs
+  to the projection, not to the presentation layer hiding a column afterwards.
+- **A part's price is never edited by a merchant.** Only the administrator edits
+  it, on the same path as any other part edit (Authorization and Access
+  Control).
+- **Whether a part persists its page and row of origin is undecided.** It is
+  beyond the canonical column set the Glossary fixes, so it is a recorded
+  unresolved fact owned by R3. Until R3 decides it, a feature MUST NOT treat
+  page or row as a part field, and MUST NOT depend on either being present.
 
 ### Bookmark (the cart)
 
 - **The cart is a bookmark list, not a purchase.** It carries no price, no
   quantity, and no checkout state, and it MUST NOT be described in
-  user-facing text as a purchase (Principle VI).
+  user-facing text as a purchase (Principle VI). The price lives on the part and
+  its catalog; the cart shows none of it, and the cart's own projection MUST NOT
+  carry the price even though the parts it links to have one.
 - **Maximum 99 parts per user, enforced server-side.** On reaching the cap the
   user is shown a full-cart notice. A client-side check does not satisfy the
   limit.
@@ -254,16 +295,18 @@ Recorded rather than silently resolved, per the constitution's Unresolved
 product facts rule. Each names the slice that must decide it and record the
 answer in `docs/DECISIONS.md`. A slice MUST NOT decide one on its own.
 
-**Read this table before planning.** The first four and row 6 are also carried
-in the constitution's Unresolved product facts table, so a slice reading either
-document sees the same questions with the same owners. The remaining rows exist
-only in this table and in `ROADMAP.md` → Open data-model questions; they are
-open field-level facts that were never registered anywhere else. Row 5 was resolved 2026-10-03 by ADR-028 (a dedicated
-administrator "Contact messages" page, owned by R13) and is kept struck-through
-for traceability.
+**Read this table before planning.** Rows 1–4 and 6 are also carried in the
+constitution's Unresolved product facts table, so a slice reading either document
+sees the same questions with the same owners. Row 12 joined them there on
+2026-10-05 with the price column. The remaining rows exist only in this table and
+in `ROADMAP.md` → Open data-model questions; they are open field-level facts that
+were never registered anywhere else. Row 5 was resolved 2026-10-03 by ADR-028 (a
+dedicated administrator "Contact messages" page, owned by R13) and is kept
+struck-through for traceability.
 
 None of rows 7–11 names a field that `Core-Project.txt` or the constitution
-currently registers. The identifiers that appeared in earlier drafts of this
+currently registers. Row 12 names no field at all: it is a reading rule for a
+value the pipeline reads. The identifiers that appeared in earlier drafts of this
 table (`User.status`, `Catalog.size`, `Catalog.mime_type`, `Part.page`,
 `Part.row`, `ContactMessage.status`, `ContactMessage.admin_note`) were never
 added to the product mirror; any use of them is a reference to this table, not
@@ -282,11 +325,13 @@ to the mirror.
 | 9 | The stored byte count and content type a catalog carries. No fields are registered for them today. | Both would be validation facts (File Processing Overview step 1) as much as stored ones, so the slice that enforces validation is the slice that settles them. | R2 |
 | 10 | Whether a part stores the page and the row it came from. No such fields are registered today. | Beyond the Glossary's list of a part's fields, so **Catalog data shape**. Deduplication compares file, page, and row whatever a part stores, so nothing in the pipeline forces the answer either way. | R3 |
 | 11 | The state a contact message moves through, and whether the administrator's response to one is recorded on it. No such fields are registered today. | The contact form is the only way a visitor reaches the administrator, and nothing registers what happens to the message afterwards. | R11 |
+| 12 | How a printed price carrying more than one separator is read (for example `1.250.000`), and how a file that separates thousands rather than decimals is read. | The product fixes the currency and the single-separator rule (Libyan Dinar, decimal separator, so `123.000` is 123 dinar), but real supplier files are not uniform, and only R3 can settle the multi-separator form from samples. No feature may settle it on its own. | R3 |
 
 Rows 7 through 11 are field-level questions, not conceptual ones: the entity and
-its owner are not in doubt, only what the entity carries. Each is decided by the
-slice named, recorded as an ADR, and added to this document and the constitution's
-register in the same change.
+its owner are not in doubt, only what the entity carries. Row 12 is a reading
+rule rather than a field, and binds the extraction pipeline the same way. Each is
+decided by the slice named, recorded as an ADR, and added to this document and
+the constitution's register in the same change.
 
 ## What this document deliberately does not contain
 
@@ -294,7 +339,9 @@ register in the same change.
   the owning module's schema file and the feature's `data-model.md`.
 - API request and response shapes. Those are the feature's `contracts/`.
 - Extraction, column-matching, and deduplication algorithms. Those are
-  **Extraction algorithm**, a separate deferred area owned by R3.
+  **Extraction algorithm**, a separate deferred area owned by R3. The canonical
+  columns those algorithms target are fixed by the constitution's Glossary, so an
+  algorithm chooses among fixed targets rather than inventing them.
 - Search ranking and result ordering. Those are **Retrieval interface**, owned
   by R5.
 - Permission resolution within a role. Those are **Authorization model**, owned

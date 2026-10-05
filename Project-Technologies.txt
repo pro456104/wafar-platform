@@ -1,7 +1,7 @@
 # Project-Technologies.txt — the detail of the technology register
 
-**Constitution**: `.specify/memory/constitution.md` v2.17.0 (last amended
-2026-10-04, ADR-037/ADR-038). On any conflict with this file, the constitution
+**Constitution**: `.specify/memory/constitution.md` v2.18.4 (last amended
+2026-10-05, ADR-040/041/042/043/044/045/046/047). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -68,7 +68,7 @@ apps/api/src/
 │   ├── catalogs/       # الملفات المرفوعة
 │   ├── parts/          # القطع المستخرجة
 │   ├── suppliers/      # الموردون
-│   ├── bookmarks/      # المحفوظات
+│   ├── bookmarks/      # سلة المشتريات
 │   ├── notifications/  # الإشعارات
 │   ├── messages/       # المراسلة
 │   ├── support/        # الدعم
@@ -102,7 +102,7 @@ apps/web/
 │   ├── contact.vue     # اتصل بنا
 │   ├── auth/           # تسجيل الدخول / إنشاء حساب
 │   ├── my-files/       # ملفاتي
-│   ├── cart/           # المحفوظات
+│   ├── cart/           # سلة المشتريات
 │   ├── notifications/  # الإشعارات
 │   ├── messages/       # المراسلة
 │   └── profile/        # الملف الشخصي
@@ -119,7 +119,7 @@ apps/web/
 
 | التقنية | الدور | التفاصيل |
 |---|---|---|
-| **PostgreSQL** | قاعدة البيانات الرئيسية | الإصدار 16+. تخزين المستخدمين، الموردين، الملفات، القطع، المحفوظات، الإشعارات، المراسلات، Audit Log. |
+| **PostgreSQL** | قاعدة البيانات الرئيسية | الإصدار 16+. تخزين المستخدمين، الموردين، الملفات، القطع، سلة المشتريات، الإشعارات، المراسلات، Audit Log. |
 | **Drizzle ORM** | وسيط قاعدة البيانات | كل شيء في TypeScript. يستنتج الأنواع هيكلياً بدلاً من خطوة توليد منفصلة. خفيف وسريع. |
 | **PgDog** | مجمّع الاتصالات | الإصدار **v0.1**. مكتوب بلغة **Rust**. بديل PgBouncer. يدير **آلاف الاتصالات** على أجهزة عادية. أسرع من PgBouncer عند تجاوز 50 اتصالاً. مرخّص **AGPL-3.0**؛ يخضع لسجل معالجة تراخيص خدمات البنية التحتية في الدستور. |
 
@@ -236,7 +236,7 @@ apps/worker/src/
 | **الواجهة الخلفية** | Hono، OpenAPI، Modular Monolith، Zod |
 | **قاعدة البيانات** | PostgreSQL، Drizzle ORM، PgDog |
 | **البحث** | OpenSearch، Arabic Analyzer، ILM |
-| **الملفات** | SeaweedFS، BullMQ، Redis، Worker |
+| **الملفات** | SeaweedFS، BullMQ، Redis |
 | **المصادقة** | better-auth |
 | **الاختبارات** | Vitest، Playwright |
 | **الجودة** | ESLint، Prettier، Stylelint |
@@ -379,3 +379,77 @@ named in the sources.
 - **Shared location** - `packages/shared` is the API's only cross-module
   channel; `apps/api/src/shared` is not a location (constitution → Module
   Discipline; ADR-038).
+
+---
+
+## Constitution 2.18.0 additions (2026-10-05, ADR-040/041/042/043)
+
+This section records what 2.18.0 added. The rules are in
+`.specify/memory/constitution.md`; this mirror states none of them.
+
+- **Icon set** — still a registered gap, owned by **R1**. No library is named
+  here. 2.18.0 states the constraints the choice must satisfy: an open-source
+  set under a permissive licence (MIT, Apache-2.0, ISC, or BSD), self-hosted as
+  SVG, with no emoji standing in for an icon. The emoji ban itself is a
+  user-facing-text rule (Principle V), not a tooling rule.
+- **Extraction libraries** — still a registered gap, owned by **R3**. 2.18.0
+  binds what they must do rather than which library does it: every extracted
+  value is assigned to the canonical column set the constitution's Glossary
+  fixes, with no manual mapping step and no question put to the merchant. The
+  canonical set is complete for a parts table, so a value that belongs to no
+  canonical column is part of no stored column and is not stored.
+- **Price reading** — a catalog's price is read in Libyan Dinar and its
+  separator is decimal, so `123.000` is 123 dinar. The multi-separator form is
+  an open fact owned by R3 (ADR-040). No currency-conversion library is added:
+  the platform performs no conversion.
+- **Guest price projection** — the price is a part column in PostgreSQL and in
+  the OpenSearch index, and a guest's read path projects it away through its own
+  allowlist. No technology changes; redaction is a projection rule (Query Safety
+  and Secrets).
+- **Sign-up dial-code selector** — removed; every number is `+218`. No library
+  is added or removed for it (ADR-041).
+- **Icon and text policy in review** — the emoji ban and the icon set's licence
+  requirement are reviewable by a reviewer reading a diff; no static check is
+  registered for them, unlike the physical-direction and non-token design-value
+  checks Stylelint and ESLint already enforce.
+
+## Constitution 2.18.1–2.18.4 additions (2026-10-05, ADR-044/045/046/047)
+
+### Party/header sync markers
+
+The mirror headers now track the constitution footer:
+`Constitution: .specify/memory/constitution.md v2.18.4 (last amended 2026-10-05,
+ADR-040/041/042/043/044/045/046/047)`. Every later header here is the same value:
+v2.18.4 / 2026-10-05 / that ADR list. If the constitution is amended, move these
+markers in the same change.
+
+### Audit fix set (ADR-047)
+
+ADR-047 records the repairs that follow the 2.18.1–2.18.3 set: the v2.18.x set
+is committed, integration manifest hashes are re-recorded, the cart label in
+`Core-Project.txt` is repaired, ADR-040's filter bullet is corrected, the
+stamp-site claims in ADR-028/030/034 are aligned with the Governance procedure,
+and the page-addition route is stated identically in Product Scope and Product
+Register. This mirror states none of those rules; they live in the constitution
+and `docs/DECISIONS.md`.
+
+### Cart label
+
+The cart's user-facing Arabic name is now «سلة المشتريات» (ADR-045). Every
+occurrence of «المحفوظات» in this mirror was repaired to that label; the cart
+remains a bookmark list with no price, quantity, or checkout (Principle VI).
+
+### Name diacritics
+
+«وَفَّر» (Wafar): the mandatory diacritics bind the Arabic form; the Latin
+"Wafar" carries none (ADR-045).
+
+### Price rendering
+
+The three-decimal form is now shown with both `10.000` and `15.000` examples
+wherever it is defined (ADR-045).
+
+### Notification definition
+
+«Notification» now explicitly includes an administrator's reply to the user's
+message (ADR-046).

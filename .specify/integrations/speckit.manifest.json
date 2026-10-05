@@ -1,4 +1,4 @@
-﻿{
+{
   "integration": "speckit",
   "version": "1.1.0",
   "installed_at": "2026-10-03T00:00:00.000000+00:00",
@@ -14,11 +14,11 @@
     ".specify/templates/plan-template.md": "2a6e9d5ae4b537d4f6f5068641453aa6b553982711c05e917f078e23838a1635",
     ".specify/templates/spec-template.md": "58142f1f61a4926fb7e36f408d7c7b33e9e418afa9c0f83853f0e730d6c51405",
     ".specify/templates/tasks-template.md": "85df2ca609e62ae6b0727f92af73da4d15d2c6010cc24d4b12a95e559eb4a47c",
-    ".specify/templates/overrides/constitution-template.md": "99e9c42ce9d8725685afb4a44dfc519225860014d618f03d825ded2c6bac041d",
-    ".specify/templates/overrides/plan-template.md": "5c9a46b116c1164cc0cc92e6dae342e5e0f0960acfc96e04ac27d2b826aa7e9f",
-    ".specify/templates/overrides/spec-template.md": "0ddc6de72b5c980c8bb26d6bf5797321ede433f6428ef2474d7db57949f25887",
-    ".specify/templates/overrides/tasks-template.md": "1575214791417bcc1cbd8ce46073a6bda96a5d640892ad97067bf7cc66d0df75",
-    ".specify/templates/overrides/checklist-template.md": "30d011d8d940b578ec8e567d3bc9b6ff434aa43afac7ec7650568b43fff21258",
+    ".specify/templates/overrides/constitution-template.md": "8c1a443a9be8f291234810f43f38ccd05b12d8adb66940a363506326c494c0bb",
+    ".specify/templates/overrides/plan-template.md": "05507a9512b7f81fe31d2677873db48bddff1402c8ea034cad6e85308615be97",
+    ".specify/templates/overrides/spec-template.md": "f5fb1794794f742d075b7b351e8914dc70924f1d7fd449e23c3631fdce98a6a1",
+    ".specify/templates/overrides/tasks-template.md": "2d63841927614fe56ad4ad0346eaf02309496aa7d3c73e190c6268bf1ea8928e",
+    ".specify/templates/overrides/checklist-template.md": "1670fd9ed23d553a14ee2afb9ccb123feca8c9c2c34d4bd22df657a1e439f90d",
     ".specify/.gitignore": "8c908410d177a1ef3d0dee16d7ad55f2ac3333df3104c4d4adee1c9b82f1dbc1"
   }
 }

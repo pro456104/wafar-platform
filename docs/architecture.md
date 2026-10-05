@@ -1,7 +1,7 @@
 # Architecture — Wafar
 
 This document records the repository layout, the API module map, and the data
-flow. Its sources of authority are `.specify/memory/constitution.md` (v2.17.0),
+flow. Its sources of authority are `.specify/memory/constitution.md` (v2.18.4),
 whose Technology Standards and Design System Standards are the registers, and
 `Project-Technologies.txt`; where this document and the constitution disagree,
 the constitution wins. The data model's entities and their owning modules are
@@ -17,7 +17,7 @@ Project Structure > Ownership Map (Project Structure and Debt Control).
 ```text
 wafar/
 ├── apps/
-│   ├── web/              # Public site + merchant's authenticated area (Nuxt 4); layouts: shell vs bare auth
+│   ├── web/              # Public site + merchant's authenticated area (Nuxt 4); layouts: shell vs bare (auth, 404, static, and contact pages); the admin app carries its own independent shell
 │   ├── admin/            # Administrator's separate application, separate login (Nuxt 4)
 │   ├── api/              # The API server (Hono, Modular Monolith)
 │   └── worker/           # File-processing worker (BullMQ processors)
@@ -57,9 +57,9 @@ import from one module to another.
 | `auth` | Sign-up, sign-in/out, password recovery, sessions. | Implemented with the designated proven library with `scim` and `sso` disabled (Identity, Authentication, and Session Policy). Password hashing, session timeout, and auth rate limits are recorded per plan in Constitution Mandated Values. Sign-in, registration, and password-recovery responses never reveal whether an account exists; after five consecutive failed sign-in attempts the account locks for fifteen minutes. Every session is revocable server-side, including a "sign out everywhere" operation, and browser-stored tokens are revocable on password change. Registration and contact forms are protected by a honeypot field, a minimum time-to-submit, and a per-client rate limit; CAPTCHA is never used. The administrator account is created by a seeded CLI command with a forced password change at first sign-in. |
 | `users` | Merchant accounts and profile data; account edits. | Only the account's owner edits it; no user may delete an account (roles: see Product Register in `.specify/memory/constitution.md`). |
 | `catalogs` | Uploaded supplier files: metadata (supplier name, issue date, upload date, expiry date), processing status, the `first_page_metadata_incomplete` flag, retention, and the pointer to the stored bytes. | Status is exactly one of `uploaded`, `processing`, `completed`, `failed`; `first_page_metadata_incomplete` is a boolean flag and never a fifth status; automatic deletion after 90 days; duplicates rejected by content hash (File Processing Overview). |
-| `parts` | Extracted part rows: part number, name, brand, car model, description. | A part belongs to exactly one catalog; merchants cannot edit or delete parts — the administrator does (Authorization and Access Control). |
-| `suppliers` | The supplier named on a catalog's first page, and its associations to catalogs. | One supplier may appear in many catalogs (Glossary). |
-| `bookmarks` | The "cart": a merchant's personal bookmark list of parts. | Carries no price and no quantity; maximum 99 parts; capacity is enforced server-side (Principle VI, Usage Limits). |
+| `parts` | Extracted part rows: the six canonical columns the constitution's Glossary fixes for a part (`Glossary` → `Part`), including the price its own catalog printed. The parts table additionally shows the supplier's name, which is read through the `suppliers` module and is not a part column. | A part belongs to exactly one catalog; merchants cannot edit or delete parts, and cannot edit a price — the administrator does (Authorization and Access Control). The price is per catalog, in Libyan Dinar, and every guest-reachable read path projects the part without it. |
+| `suppliers` | The supplier named on a catalog's first page, stored in its normalised form, and its associations to catalogs. | One supplier may appear in many catalogs. Normalisation makes two spellings of one name compare equal; it merges nothing, and only the administrator merges (Glossary, File Processing Rules). |
+| `bookmarks` | The "cart": a merchant's personal bookmark list of parts. | Carries no price, no quantity, and no checkout state; maximum 99 parts; capacity is enforced server-side (Principle VI, Usage Limits). |
 | `notifications` | Processing-completed/failed notices and administrative messages; read state. | Failed processing presents a retry action. |
 | `messages` | The single conversation thread between a merchant and the administrator. | Direct user-to-user messaging is prohibited (Principle VI). |
 | `support` | Support content and assistance flows: FAQ, privacy policy, terms of use; contact intake that reaches the administrator. | Public pages from Product Scope. |
@@ -82,7 +82,7 @@ Cross-cutting rules for every module:
 
 ## 3. Data flow
 
-The canonical chain is **web → api → (PostgreSQL, SeaweedFS) for persistence, and api → queue → worker → (PostgreSQL, OpenSearch) for processing**:
+The canonical chain is **web → api → PostgreSQL for the system of record; large file bytes go web → SeaweedFS directly (presigned multipart); processing runs api → queue → worker → (PostgreSQL, OpenSearch)**:
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -108,7 +108,7 @@ The canonical chain is **web → api → (PostgreSQL, SeaweedFS) for persistence
        │                   │ index writes
 ┌──────┴───────────────────┴──────────────────────────────────┐
 │ apps/worker — BullMQ processors                             │
-│ extract → normalize → deduplicate → index                   │
+│ extract-parts → normalize → deduplicate → index-parts        │
 └───────────────────────▲─────────────────────────────────────┘
                         │ jobs
               queue (BullMQ on Redis)
@@ -127,10 +127,18 @@ The canonical chain is **web → api → (PostgreSQL, SeaweedFS) for persistence
    authoritative; the index is a projection. The index uses the Arabic
    analyzer (root-aware search) and Index Lifecycle Management aligned with
    the 90-day auto-deletion rule, and search results follow the p95 < 1 s
-   budget (Usage Limits).
+   budget (Usage Limits). The projection is not one shape for everyone: a guest's
+   read path projects a part without its price, through an allowlist of its own,
+   so the price is absent from the response rather than hidden by the
+   presentation layer (Principle VI, Query Safety and Secrets).
 4. **worker → db and search.** The worker is what keeps the projection current: it
    consumes queued jobs, extracts and normalizes parts, then writes both the
    catalog status in the system of record and the parts in the search index.
+   Normalisation assigns every extracted value to the canonical column the
+   constitution's Glossary fixes, with no manual mapping step and no question put
+   to the merchant. The canonical set is complete for a parts table, so a value
+   that belongs to no canonical column is part of no stored column and is not
+   stored (File Processing Rules).
    The pipeline's canonical step order is binding as a single sequence (File
    Processing Overview): upload → storage and content hash → duplicate check →
    first-page extraction → queue → worker pipeline → status update →
@@ -151,10 +159,13 @@ the same retry action item 5 describes.
 
 Read/write notes:
 
-- Filters offered by the parts table: part number, brand, car model, catalog
-  file, supplier; pagination 20/50/100; column sorting; `?file=<id>` filters
-  by catalog (Product Scope). Search ranking beyond the sortable columns is a
-  deferred area.
+- Filters offered by the parts table: a search field over part number and
+  original number (partial match), multi-select filters over car model, type,
+  catalog file, and supplier (no selection means every supplier), and a price
+  range (minimum and maximum); pagination 20/50/100; column sorting on every
+  column except `type`; `?file=<id>` filters by catalog (Product Scope). The
+  price column, and any filter or sort over it, are rendered for a registered
+  merchant only. Search ranking beyond the sortable columns is a deferred area.
 - Sort and projection columns come from the explicit allowlist mapped to real
   columns (Query Safety and Secrets).
 
@@ -196,10 +207,10 @@ Read/write notes:
 
 ## 6. Governance pointers
 
-- Constitution: `.specify/memory/constitution.md` (v2.17.0) — principles I–X and
+- Constitution: `.specify/memory/constitution.md` (v2.18.4) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-039; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-047; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
@@ -207,14 +218,17 @@ Read/write notes:
 - Design system: `wafar.single.css` (single source of truth, fourteen modules).
 - Technology stack: `Project-Technologies.txt`; product scope and roles:
   `Core-Project.txt`.
-- Deferred areas that touch this architecture: extraction algorithm; catalog
-  data shape; file ingestion internals; authorization model; retrieval
-  interface. The first feature that implements one MUST record, in its plan's
-  Constitution Check, which rules are still missing and when they will be
-  ratified. The open product facts that touch this architecture — the message
-  sender's representation, the conversation's administrator reference, whether
-  an administrator is a distinct entity, `expires_at`, and notification
-  retention — are listed in
+- Deferred areas that touch this architecture: extraction algorithm; file
+  ingestion internals; authorization model; retrieval interface. Catalog data
+  shape was discharged on 2026-10-05 (ADR-040): the canonical columns are fixed,
+  and what remains is the shape below the product, which is the schema file and
+  the feature's `data-model.md`. The first feature that implements a deferred
+  area MUST record, in its plan's Constitution Check, which rules are still
+  missing and when they will be ratified. The open product facts that touch this
+  architecture — the message sender's representation, the conversation's
+  administrator reference, whether an administrator is a distinct entity,
+  `expires_at`, notification retention, and how a multi-separator printed price is
+  read — are listed in
   `docs/domain-model.md` → Unresolved facts, each with
   the slice that must decide it. The contact-message path was resolved
   2026-10-03 by ADR-028 (a dedicated "Contact messages" administrator page).

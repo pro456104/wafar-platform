@@ -54,10 +54,18 @@ Constitution Check; from then on the record has a feature owner.
 | [ADR-033](#adr-033--audit-fix-set-full-name-cascade-ownership-entry-point-dependency-budget-analyze-wording-mirror-claims-cleanup) | Audit fix set: full name, cascade ownership, entry point, dependency budget, analyze wording, mirror-claims cleanup | 2026-10-04 | 2.14.0 |
 | [ADR-034](#adr-034--constitution-2150-metrics-stack-dependency-scanner-staging-anonymiser-and-the-optional-web-server-directory) | Constitution 2.15.0: metrics stack, dependency scanner, staging anonymiser, optional web-server dir | 2026-10-04 | 2.15.0 |
 | [ADR-035](#adr-035--constitution-2151-encoding-repair-and-utf-8-verification-note) | Constitution 2.15.1: encoding repair and UTF-8 verification note | 2026-10-04 | 2.15.1 |
-| [ADR-036](#adr-036--constitution-2152-audit-fix-set-quotas-breakpoints-table-mirror-omissions) | Audit fix set: quota invariant, breakpoint table wording, mirror omissions, roadmap fact rows | 2026-10-04 | 2.15.2 |
-| [ADR-037](#adr-037--constitution-2160-design-values-carve-out-p95-budgets-sidebar-icon-rail-and-two-cmv-rows) | Constitution 2.16.0: design-values carve-out, p95 budgets, sidebar icon rail, two CMV rows | 2026-10-04 | 2.16.0 |
-| [ADR-038](#adr-038--constitution-2170-register-gaps-clamav-lighthouse-role-split-and-terms) | Constitution 2.17.0: register gaps, ClamAV/Lighthouse CI, role split, reprocess/trade-name/reports/cart-name terms | 2026-10-04 | 2.17.0 |
+| [ADR-036](#adr-036--constitution-2152-audit-fix-set--quota-invariant-breakpoint-table-wording-mirror-omissions-roadmap-fact-rows) | Audit fix set: quota invariant, breakpoint table wording, mirror omissions, roadmap fact rows | 2026-10-04 | 2.15.2 |
+| [ADR-037](#adr-037--constitution-2160-design-values-carve-out-p95-budgets-sidebar-icon-rail-two-cmv-rows) | Constitution 2.16.0: design-values carve-out, p95 budgets, sidebar icon rail, two CMV rows | 2026-10-04 | 2.16.0 |
+| [ADR-038](#adr-038--constitution-2170-register-gaps-clamavlighthouse-ci-role-split-and-defined-terms) | Constitution 2.17.0: register gaps, ClamAV/Lighthouse CI, role split, reprocess/trade-name/reports/cart-name terms | 2026-10-04 | 2.17.0 |
 | [ADR-039](#adr-039--repository-line-ending-and-encoding-policy-recorded-mirror-stops-restating-rules-fallback-templates-labelled) | Repository line-ending and encoding policy recorded; mirror stops restating rules; fallback templates labelled | 2026-10-04 | — (unchanged) |
+| [ADR-040](#adr-040--the-canonical-columns-of-a-part-its-price-and-the-original-number) | The canonical columns of a part: its price, and the original number | 2026-10-05 | 2.18.0 |
+| [ADR-041](#adr-041--registration-is-libya-only-and-the-dial-code-selector-is-removed) | Registration is Libya only, and the dial-code selector is removed | 2026-10-05 | 2.18.0 |
+| [ADR-042](#adr-042--no-emoji-in-user-facing-text-and-an-open-source-svg-icon-set) | No emoji in user-facing text, and an open-source SVG icon set | 2026-10-05 | 2.18.0 |
+| [ADR-043](#adr-043--supplier-names-are-normalised-and-never-merged-by-normalisation) | Supplier names are normalised, and never merged by normalisation | 2026-10-05 | 2.18.0 |
+| [ADR-044](#adr-044--constitution-2181-part-name-year-ranges-stay-in-the-name) | Constitution 2.18.1: part-name year ranges stay in the name | 2026-10-05 | 2.18.1 |
+| [ADR-045](#adr-045--constitution-2182-cart-label-diacritics-unused-tokens-price-shape) | Constitution 2.18.2: cart label, diacritics, unused-token note, price shape | 2026-10-05 | 2.18.2 |
+| [ADR-046](#adr-046--constitution-2183-notification-admin-reply-shadow-ladder-note) | Constitution 2.18.3: notification admin-reply, unused shadow ladder note | 2026-10-05 | 2.18.3 |
+| [ADR-047](#adr-047--audit-fix-set-commit-state-manifest-hashes-cart-label-filter-set-stamp-sites) | Audit fix set: commit state, manifest hashes, cart label, filter set, stamp sites | 2026-10-05 | 2.18.4 |
 
 ---
 
@@ -834,6 +842,8 @@ No exception was granted; the exception register stays empty.
 
 **Consequences.** A slice that changes an entity, a relationship, or an invariant now changes a registered product fact and MUST amend the register, record an ADR, and update `docs/domain-model.md` in the same change. A slice that introduces a column owns it in its own `data-model.md` and its migration; the two are no longer confused. R1, R2, R3, R11 and R13 each carry an open data-model question by name, so none of them can pass its Constitution Check by silently choosing.
 
+**Annotation (2026-10-05, audit follow-up).** The Context's statement that seven facts "existed only in the Arabic mirror" is corrected by ADR-034: the field identifiers named there (`User.status`, `Catalog.size`, `Catalog.mime_type`, `Part.page`, `Part.row`, `ContactMessage.status`, `ContactMessage.admin_note`) appeared in earlier drafts of the unresolved-facts table, not in `Core-Project.txt`. The current `docs/domain-model.md` carries rows 7–11 alone and attributes none of the identifiers to the product mirror. The decision this record made is unchanged; only the provenance sentence is superseded.
+
 ---
 
 ## ADR-020 — Constitution register restored to its own rules
@@ -1039,6 +1049,14 @@ theme toggle, and `--screen-*` disposal that belong to R1's shell change; a
 compliance correction that restores the already-decided stack is not a new
 extension of the system and must not consume that version.
 
+**Annotation (2026-10-05, audit follow-up).** The reference above to "ADR-016
+reserves `1.0.2`" is imprecise: ADR-016 reserves `1.1.0` for R1's shell change,
+and `1.0.2` was in fact consumed by ADR-038's removal of the undeclared
+`--sidebar-width-collapsed` token. R1's shell change records its own
+`wafar.single.css` version under Constitution Mandated Values; the constitution
+stays open on the exact number, and neither `1.0.2` nor `1.1.0` is a settled
+constant.
+
 **What deliberately did not change.** No module map entry, no token value, no
 typeface outside the three permitted families. The generic keywords
 `system-ui`, `sans-serif`, `ui-monospace`, and `monospace` are retained: they
@@ -1048,8 +1066,9 @@ theme toggle; this record does not widen it.
 
 **Consequences.** The declaration now matches the register it is governed by, so
 a Stylelint or ESLint gate needs no exception for the stacks. R1 records the
-stylesheet's version under Constitution Mandated Values when it performs the
-`1.0.2` change ADR-016 reserved.
+stylesheet's version under Constitution Mandated Values when it performs its
+shell change; the number is not `1.0.2` (consumed by ADR-038) and is open, as
+the annotation above states.
 
 ---
 
@@ -1174,8 +1193,12 @@ because Product Scope gained a page.
 **Consequences.** ADR-029 closes roadmap defect #6 and marks open question #5
 resolved in `ROADMAP.md` and `docs/domain-model.md`. The constitution's version
 stamps in `docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`,
-`AGENTS.md`, `README.md`, and the template-override binding blocks move to
-2.12.0 in the same change. `Core-Project.txt` mirrors the new admin page row.
+`Project-Technologies.txt`, and the template-override binding blocks move to
+2.12.0 in the same change. `AGENTS.md` and `README.md` do not carry a
+constitution version stamp (the Governance amendment procedure names only the
+constitution footer, the template overrides, the constitution-template
+scaffold, `docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`, and
+`Project-Technologies.txt`). `Core-Project.txt` mirrors the new admin page row.
 
 ---
 
@@ -1259,6 +1282,12 @@ channel to secure, for no product gain.
    a searchable fixed dropdown of all Libyan cities, governorates, and areas;
    the fixed list's source is decided by R1 and recorded in its plan, because
    the constitution fixes the control's shape, not its data source.
+
+**Annotation (2026-10-05, audit follow-up).** Points 3 and 5 above are
+superseded in part by ADR-041: registration is Libya-only, the dial-code
+selector is removed, and a number outside +218 is rejected. The rest of
+ADR-030 (phone-only authentication, OTP at sign-up, no OTP at sign-in, no
+email anywhere) remains in force.
 6. **User register fields.** The Product Register's `User` identity fields are
    the mobile number (E.164, unique), the country code, the city, and the
    optional shop name. `docs/domain-model.md` is updated in the same change. A
@@ -1294,8 +1323,13 @@ plan-template override). The Glossary gains "Mobile number"; no email-based
 definition existed to remove. The version footer, the binding-block version
 strings in the `spec-template.md` and `plan-template.md` overrides, the footer
 of the `constitution-template.md` override, and the stamps in
-`docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`, `AGENTS.md`, and
-`README.md` move to 2.13.0 / ADR-030 in the same change. `Core-Project.txt`
+`docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`, and
+`Project-Technologies.txt` move to 2.13.0 / ADR-030 in the same change.
+`AGENTS.md` and `README.md` carry no constitution version stamp; the Governance
+amendment procedure names only the constitution footer, the template overrides,
+the constitution-template scaffold, `docs/architecture.md`,
+`docs/domain-model.md`, `ROADMAP.md`, and `Project-Technologies.txt`.
+`Core-Project.txt`
 mirrors the three redefined auth pages. The Sync Impact Report produced during
 the amendment is review material and is not committed; this entry is the
 durable record.
@@ -1399,7 +1433,7 @@ durable record.
 2. `Project-Technologies.txt` corrects the BullMQ backend claim (Redis only) and gains a Constitution 2.15.0 additions section.
 3. `docs/domain-model.md` and `ROADMAP.md` no longer attribute the working field identifiers to the product mirror; rows 7–11 are carried by the domain model alone.
 4. ADR-002 and ADR-010 carry annotations marking their precise figures historical (the mirror having been neutralised in ADR-033).
-5. Range strings and version stamps move to ADR-001 … ADR-034 and constitution 2.15.0 across `ROADMAP.md`, `AGENTS.md`, `README.md`, `docs/architecture.md`, `docs/domain-model.md`, `spec-template.md`, `plan-template.md`, `checklist-template.md`, and `constitution-template.md`.
+5. Range strings and version stamps move to ADR-001 … ADR-034 and constitution 2.15.0 across `ROADMAP.md`, `docs/architecture.md`, `docs/domain-model.md`, `spec-template.md`, `plan-template.md`, `checklist-template.md`, and `constitution-template.md`. (`AGENTS.md` and `README.md` carry no constitution version stamp; the Governance amendment procedure does not name them as stamp sites.)
 
 **Alternatives considered.**
 
@@ -1574,3 +1608,496 @@ restore the installed default, which is harmless because the override still
 resolves first. Living ADR range strings move to ADR-001 … ADR-039.
 This entry is the durable record.
 
+---
+
+## ADR-040 — The canonical columns of a part: its price, and the original number
+
+**Status**: Accepted — 2026-10-05
+**Owning directory**: `.specify/memory/`, `docs/`, `Core-Project.txt`, `ROADMAP.md`, `Project-Technologies.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner. R3 is the first slice to implement the extraction rules it states, R5 the first to render the price column.
+
+**Context.** The constitution was written against a description of supplier
+catalogs that named five part fields: part number, name, brand, car model, and
+description. Real supplier files carry more. Reading actual files supplied by
+Libyan suppliers produced seven findings the constitution did not cover:
+
+1. **No price anywhere.** Not in the Glossary's part fields, not in the
+   registers, not in a single line of the constitution. The only mention of
+   price was a prohibition: the cart MUST NOT carry one. A merchant's stated
+   task is to find the same part across several suppliers' files and compare
+   what each charges, and the platform had no column to do it with.
+2. **No original (OEM) number.** This is the identifier that tells the platform
+   two rows are the same part — `565002W300`, `96018975/NP10`,
+   `OK30A-1335ZB`. It was the subject of a deferral, "the treatment of
+   supplier-assigned identifiers", but it was never a named field, an
+   invariant, or an open fact, so no slice could have implemented it.
+3. **One source column carrying three different facts.** "Type/country" holds
+   country of origin (Korean, Chinese, Taiwanese), manufacturing grade
+   (original, commercial), and brand names (DONGEL, MUP, RIK, MJ, B.G.F) in one
+   column. Unsplit, it is neither filterable nor sortable.
+4. **Car model and year range printed inside the name.** "Honda Civic air riyo
+   2018-2020" arrives as one string, while the constitution separates `name`
+   from `car model`.
+5. **The same part from two suppliers has no representation.** A part belongs
+   to exactly one catalog, which is correct and unchanged; but nothing recorded
+   that two parts with equal original numbers are the same part, so nothing
+   could show a merchant both prices.
+6. **No price-parsing rule.** Suppliers print `123.000` for 123 dinar — the
+   period is a decimal separator — while other files print `125`, `123`, `25`
+   bare. Nothing said how to read either form, or a price carrying more than
+   one separator.
+7. **No rule for a value whose column is unclear.** Some files print two
+   columns merged, with their contents interleaved. Column Normalisation
+   existed as a feature name with no rule behind it.
+
+**Decision.** The constitution is amended to 2.18.0 (MINOR: one deferred area
+discharged, two new facts binding across entities, one new open fact, and rules
+in Product Scope, Product Register, File Processing Rules, and Principle VI):
+
+- **Canonical columns fixed: six.** A part carries part number, name, car
+  model, original number, type, and price. The Glossary is their single source.
+  The car model is separated out of the name when a supplier prints it there.
+  `type` is one free-text column holding what suppliers print as a single
+  type/country column — brand, country of origin, and manufacturing grade
+  together — which is why it is not sortable. There is no description column: it
+  is neither extracted nor stored. The parts table adds the supplier's name,
+  which is read through the `suppliers` module and is not a part column.
+- **Every column is always shown, and every one is sortable except `type`.**
+  Part number and original number are searched through the search field by
+  partial match rather than chosen from a list, because a list of every part
+  number in the platform is the size of the table itself; car model, type,
+  catalog file, and supplier are multi-select filters in which no selection
+  means every supplier; the price takes a minimum and a maximum.
+- **The price renders as a decimal point with exactly three decimal places and
+  no thousands separator** — ten dinar reads `10.000` — with the denomination
+  named once in the column header rather than in every cell. A part whose
+  catalog prints no price reads «بدون سعر», never a blank and never a zero. A
+  price printed in another currency is neither converted nor stored: the part
+  reads «بدون سعر» for it.
+- **The price is a catalog attribute, not an offer.** It carries no quantity,
+  no discount, no currency conversion, and no checkout state; the cart renders
+  none of it; only the administrator edits it; it is sortable and filterable
+  like any column.
+- **Registered merchants see the price, guests do not.** A guest's read path
+  projects the part without it, through its own allowlist, so redaction belongs
+  to the projection rather than to a presentation layer hiding a column.
+- **The original number is indexed, searchable, and identifies without
+  merging.** Two parts with equal original numbers are the same part offered by
+  different suppliers; the platform shows them side by side and introduces no
+  equivalence entity, withdraws no row, and joins no two catalogs.
+- **The supplier filter becomes multi-select**, where no selection means every
+  supplier, and the original number is searched through the search field by
+  partial match rather than chosen from a list. The filter set stays car model,
+  type, catalog file, and supplier, plus the price range; country of origin is
+  part of the `type` column and is not a filter of its own (Product Scope →
+  Parts; Product Fact Clarifications).
+- **Assignment is the pipeline's own work.** Every extracted value goes to its
+  canonical column automatically; no manual mapping step sits between upload and
+  processing, and a merchant is never asked to map columns. There is no "unassigned" class of value
+  and no counter for one. A value that belongs to no canonical column is part of
+  no stored column and is not stored. A merged or overlapping source column is a
+  case of this rule, not an exception to it.
+- **Price denomination fixed, one ambiguity recorded.** Libyan Dinar; the
+  period and the comma are decimal separators, so `123.000` is 123 dinar. A
+  printed price carrying more than one separator, or a file that separates
+  thousands, is a recorded unresolved product fact owned by R3.
+
+**Alternatives considered.**
+- *Keep the price out and leave comparison to the merchant.* Rejected: it is the
+  problem the product exists to solve, and it was decided by leaving it
+  unstated rather than by choosing against it.
+- *Add a price to the cart.* Rejected outright: Principle VI forbids it, and a
+  cart that carries a price is a purchase metaphor the scope does not permit.
+- *Introduce a `PartEquivalence` entity and merge duplicates.* Rejected: it adds
+  an eleventh entity, changes the invariant that a part belongs to exactly one
+  catalog, and builds a merge the administrator would have to undo. Identifying
+  and showing side by side answers the merchant's question without any of that.
+- *A manual column-mapping screen where the merchant or the administrator maps
+  each supplier's columns.* Rejected as the default: it puts a per-file chore in
+  front of every upload, which is the friction the product removes. It stays
+  available as a later remedy if R3's accuracy proves insufficient.
+- *Split "type/country" into country of origin and brand only, discarding the
+  grade.* Rejected: original-versus-commercial is exactly the manufacturing-
+  quality difference a merchant compares, and discarding it loses the second
+  half of the comparison. The grade is stored as free text, which costs one
+  nullable column and no enumeration to maintain.
+- *Enumerate the grade against a fixed list.* Rejected: suppliers invent grades,
+  and a fixed list would reject real values or need a constant extension path.
+- *A maximum page, row, or column count per file.* Rejected: the merchant's real
+  files reach 120 pages of tables, and a new cap would reject revenue-bearing
+  uploads. The existing 100 MB ceiling and the five-minute processing budget
+  already bound the work, and a file that exceeds the budget is visible as
+  `failed` with a retry rather than silently truncated.
+- *A running counter of values the extraction could not place.* Rejected: the
+  canonical columns are complete for a parts table and `type` absorbs the
+  variable cells, so the counter would always read zero and read as a defect
+  rather than as an answer. A value that belongs to no canonical column is
+  simply not stored.
+- *Let the pipeline guess a column and record its confidence.* Rejected: a
+  wrongly filled column is not recoverable by a later run, while storing nothing
+  is.
+- *A column-review screen, per file, that a merchant or an administrator
+  corrects.* Rejected: showing every column in the table is what lets a merchant
+  spot a wrong value without a second surface, and a correction path on the
+  merchant side would be a write capability the roles register does not grant.
+- *Three stored columns for brand, country of origin, and grade, shown in one
+  cell.* Rejected: it buys per-attribute filtering at the cost of a rule for
+  packing three values into one cell, and suppliers print them together anyway.
+- *A checkbox list of every part number.* Rejected: it is the size of the table
+  it filters, and it duplicates the search field the platform already has.
+- *A price as a range filter with two sliders.* Not chosen; a minimum and a
+  maximum is the form registered, and the control itself is the design system's.
+- *A thousands separator, or the currency repeated in every cell.* Rejected: the
+  separator would read as a decimal point in a market that writes `123.000` for
+  123 dinar, and repeating the unit in every cell crowds a table that already
+  carries eight columns.
+
+**What deliberately did not change.** The Principle VI prohibition on price in
+the cart is untouched and restated; the status enum stays at four values; no
+entity is added, renamed, or removed, so the ten-entity register and the
+ten-module map are unchanged; no page is added and the page count stays at
+twenty-six; no Usage Limit changes; the deferred area "Retrieval interface" is
+untouched, so ranking beyond the sortable columns is still R5's.
+
+**Consequences.** The Glossary's `Part` entry, the `Price` / `Original number` /
+`Canonical column` entries, Principle VI, the Product Scope Parts row and the
+Sign-Up-adjacent scope, the Roles table, the Data entities register, File
+Processing Rules, the icon-set register gap's neighbour rows, and Product Fact
+Clarifications all move in this change, together with the four stamps and the
+`docs/domain-model.md` Part invariants. The "Catalog data shape" deferral is
+discharged at the product level and narrowed to what remains below it — column
+types, constraints, indexes, and a part's page and row of origin — so R3's plan
+records a smaller gap than it did. `Core-Project.txt` gains the
+supplier-column-to-canonical-column table and the price and comparison
+acceptance criteria; `Project-Technologies.txt` gains a 2.18.0 additions section
+that binds the still-open extraction-library gap without naming a library. This
+entry is the durable amendment record.
+
+---
+
+## ADR-041 — Registration is Libya only, and the dial-code selector is removed
+
+**Status**: Accepted — 2026-10-05
+**Owning directory**: `.specify/memory/`, `docs/`, `Core-Project.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner. R1 implements the change.
+
+**Context.** The constitution described Wafar as "an Arabic-language platform
+for Libyan merchants" and gave the Libyan city list, the Libyan default, and
+Libyan content throughout — but Sign Up carried an **Arab-country dial-code
+selector** showing flag, country name, and code, default Libya +218, introduced
+by ADR-030. The product statement is "a project in Libya only". A selector
+invites a Tunisian, Egyptian, or Sudanese trader to register against a city
+dropdown that lists Libyan cities only, which produces an account whose city is
+not in its own country and whose platform is not built for its market.
+
+**Decision.** The constitution is amended to 2.18.0: registration is Libya-only.
+Every account is a Libyan mobile number on +218; Sign Up carries no dial-code
+selector; a number outside +218 is rejected. The number is still stored in
+E.164 form, and the account's city still comes from the Libyan city list. This
+supersedes the dial-code selector part of ADR-030 and leaves the rest of it —
+phone-only authentication, no email anywhere, OTP at sign-up, no OTP at
+sign-in — in force.
+
+**Alternatives considered.**
+- *Leave the selector and rely on the Libya default.* Rejected: a default is a
+  starting value, not a constraint, and nothing rejected the other values.
+- *Keep the selector and restrict the data.* Rejected: it leaves the same
+  contradiction visible on the sign-up form, and adds a rule that a Libyan city
+  must belong to a Libyan account.
+- *Block non-Libyan numbers at the city dropdown.* Rejected: validation at the
+  wrong end. The number is the identifier, so the identifier is where the rule
+  belongs.
+
+**What deliberately did not change.** No page is added or removed; the Libyan
+city list is untouched and stays R1's reference data; the mobile number remains
+the sole account identifier in E.164 form; no feature number or slice order
+changes.
+
+**Consequences.** The Product Scope Sign Up row drops the selector, the Data
+entities `User` row fixes the country code at +218, a scope note states the rule
+beside the OTP requirement, and Product Fact Clarifications carries
+"Libya-only registration" with the amendment route for opening another country.
+`docs/domain-model.md`'s `User` row and `Core-Project.txt`'s sign-up row move in
+the same change. Opening registration elsewhere is an amendment to the
+constitution, not a configuration change.
+
+---
+
+## ADR-042 — No emoji in user-facing text, and an open-source SVG icon set
+
+**Status**: Accepted — 2026-10-05
+**Owning directory**: `.specify/memory/`, `Project-Technologies.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner. R1 selects and installs the set.
+
+**Context.** The constitution prohibited Arabic-Indic numerals, positive
+letter-spacing on Arabic, physical direction properties, raw Tailwind colours,
+non-token design values, and typefaces outside the registered three — and said
+nothing about emoji. An emoji in a button label or an empty state is a glyph
+from an operating-system font: it renders differently per device, cannot be
+recoloured by the design system's tokens, does not honour RTL mirroring, and
+cannot be checked by the committed Stylelint and ESLint configuration the way
+every other design value is. Separately, the icon set is a registered gap owned
+by R1 with no constraint on its source, while Dependency Governance already
+forbids GPL-family licences in anything shipped to a merchant.
+
+**Decision.** The constitution is amended to 2.18.0: emoji MUST NOT appear in
+any text a person reads inside the platform — every screen of the public site,
+the merchant area, and the administrator application, and the body of every SMS
+the platform sends — and an icon MUST be an SVG from the approved icon source; an
+emoji glyph is not an icon and must not stand in for one. The ban covers every
+surface a user or an administrator reads and nothing else: governance documents,
+code identifiers, and code comments are outside it. The icon-set register gap gains
+its constraints: an open-source set under a permissive licence (MIT, Apache-2.0,
+ISC, or BSD), self-hosted as SVG. No library is named, because naming an
+unvetted one is exactly what the register-gap rule prohibits.
+
+**Alternatives considered.**
+- *Ban emoji everywhere, including governance documents and code comments.*
+  Rejected: the two Arabic mirrors already use emoji in their section headings,
+  and the ban's purpose is what a person reads. Widening it would rewrite
+  documents for no user-visible gain and would put the rule outside the
+  Principle V framing that gives it force.
+- *Cover the merchant surfaces only.* Rejected: an administrator reads the same
+  platform, an OTP arrives by SMS, and a rule with a list of six surfaces is a
+  rule a reviewer applies inconsistently. Naming the boundary as "anything a
+  person reads inside the platform" states one test instead of six cases.
+- *Name an icon library now.* Rejected: the register-gap rule prohibits naming
+  an unvetted library, and the licence check and vulnerability scan are R1's to
+  run. Naming one here would pre-empt both.
+- *Allow emoji as a fallback when an icon is missing.* Rejected: a fallback that
+  is permitted becomes the path of least resistance, and it reintroduces the
+  un-tokened colour and the per-device rendering.
+- *A static check for emoji in user-facing strings.* Deferred, not rejected: the
+  committed Stylelint and ESLint configuration already enforces the physical-
+  direction and non-token rules, and an emoji check is a reasonable extension
+  to it. R1 records it if it adds one.
+
+**What deliberately did not change.** `wafar.single.css` is not touched: it
+carries no emoji and no icon glyphs, and the design system's values are
+unchanged. The typefaces, colours, spacing, and motion scales are unchanged. No
+page, feature, or dependency is added.
+
+**Consequences.** Principle V gains the emoji rule; the icon-set register gap
+gains the licence, self-hosting, and no-emoji constraints; Product Fact
+Clarifications carries "No emoji in user-facing text" with its scope stated so a
+reviewer does not read it wider than it is; `Project-Technologies.txt` records
+the constraints on the still-open gap in its 2.18.0 additions section and notes
+that no static check is registered for them yet.
+
+---
+
+## ADR-043 — Supplier names are normalised, and never merged by normalisation
+
+**Status**: Accepted — 2026-10-05
+**Owning directory**: `.specify/memory/`, `docs/`, `Core-Project.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner. R3 implements the normalisation.
+
+**Context.** A supplier's name is read from a catalog's first page, and the
+real names are long and unstable: "شركة مسار اول الجديد لبيع قطع السيارات",
+"شركة المتميز لبيع قطع الغيار كوري يباني". Two files from one company differ by
+a legal-form word, a purpose word, and whitespace. The supplier is a filter on
+the parts table and a column in the catalog page, so one company appearing under
+three spellings splits its parts across three filter entries — which is the
+defect a merchant searching "who has this part" actually feels. Nothing in the
+constitution, the domain model, or the roadmap addressed it.
+
+**Decision.** The constitution is amended to 2.18.0: a supplier name read from
+a first page is normalised before it is stored or compared — whitespace
+collapsed, leading and trailing punctuation dropped, and a legal-form word such
+as `شركة` or `مؤسسة`, or a trailing purpose word such as `للبيع`, removed.
+Normalisation makes two spellings of one name compare equal. It MUST NOT merge
+two suppliers, and only the administrator can merge them. The name is not
+case-folded and not transliterated: Arabic orthography is not normalised, so a
+name differing only in hamza form stays two names rather than becoming one
+wrong name.
+
+**Alternatives considered.**
+- *Merge suppliers automatically when normalised names match.* Rejected:
+  collapsing two genuinely different companies into one is invisible and
+  unrecoverable, and it would merge a supplier's catalogs across merchants. The
+  safe half of the idea — making spellings compare equal — is what was taken.
+- *Fuzzy matching on the name.* Rejected as an extraction rule: it belongs to
+  the Extraction algorithm deferral owned by R3, and it must not silently decide
+  that two companies are one.
+- *Ask the merchant to confirm the supplier on upload.* Rejected as a default:
+  it adds a per-file step to the flow the product exists to remove. It remains
+  available to the administrator on the Suppliers page, which R13 already owns.
+- *Full Arabic orthographic normalisation (hamza, taa marbuta, alef forms).*
+  Rejected: it changes the name a merchant recognises on their own supplier's
+  letterhead, and a wrong "equal" name is worse than two filter entries.
+
+**What deliberately did not change.** No entity is added; `Supplier` keeps its
+cardinality (one supplier in many catalogs) and its owning module; no filter
+changes on the parts table; no page is added, so the Suppliers page remains R13's.
+
+**Consequences.** File Processing Rules carries the normalisation rule and its
+prohibition on merging; the Glossary's `Supplier` entry states the normalised
+form and that only the administrator merges; `docs/architecture.md`'s `suppliers`
+module row and `Core-Project.txt`'s supplier-column row move in the same change.
+The administrator's merge operation itself is R13's, and this record names it as
+the only path to one supplier holding two spellings' catalogs.
+
+---
+
+## ADR-044 — Constitution 2.18.1: part-name year ranges stay in the name
+
+**Status**: Accepted — 2026-10-05
+**Owning directory**: `.specify/memory/constitution.md`
+**Owning feature**: none — governance decision; ratified by the repository owner.
+
+**Context.** `Core-Project.txt` carried two conflicting statements: L245 implied
+a printed year range is separated out of the part name, while L251 said years
+stay inside the name. The constitution was silent, so the mirror was its own
+contradiction.
+
+**Decision.** The constitution's `Glossary → Part` entry now states that a
+printed year range (for example `2018-2020`) that rides inside the name is NOT
+extracted into its own column and stays part of the part name, while the car
+model itself is still separated out. PATCH 2.18.1.
+
+**Consequences.** `Core-Project.txt` L245 is a later repair; the constitution
+wins and now states the rule.
+
+---
+
+## ADR-045 — Constitution 2.18.2: cart label, diacritics, unused-token note, price shape
+
+**Status**: Accepted — 2026-10-05
+**Owning directory**: `.specify/memory/constitution.md`
+**Owning feature**: none — governance decision; ratified by the repository owner.
+
+**Context.** Four clarifications were needed: the cart's user-facing Arabic
+label; how the trade-name diacritics apply between the Arabic form and the
+Latin word; which design tokens are declared-but-unused; and the price example
+shape.
+
+**Decision.** The constitution is amended to 2.18.2 (PATCH):
+- The cart's user-facing Arabic name is «سلة المشتريات» in Principle VI, the
+  Glossary «Cart» entry, and Product Fact Clarifications. It remains a
+  personal bookmark list with no price, quantity, or checkout state. This
+  supersedes ADR-038's «المحفوظات» clause for the cart label; dependent
+  documents still naming «المحفوظات» are repaired in the follow-up pass.
+- «Wafar» (وَفَّر): the mandatory diacritics bind the Arabic form «وَفَّر»;
+  the Latin «Wafar» carries none.
+- The Breakpoints note now also names `--sidebar-width`, `--navbar-height`,
+  and `--touch-floor` as declared-but-unused until a slice consumes them.
+- The price shape gains the example `15.000` next to `10.000` wherever the
+  three-decimal LA-dinar form is defined.
+
+**Consequences.** Version stamps and cart-label mirrors are repaired in the
+same change; dependent documents keep their old label only until the repair
+lands.
+
+---
+
+## ADR-046 — Constitution 2.18.3: notification admin-reply, unused shadow ladder note
+
+**Status**: Accepted — 2026-10-05
+**Owning directory**: `.specify/memory/constitution.md`
+**Owning feature**: none — governance decision; ratified by the repository owner.
+
+**Context.** The Glossary «Notification» definition did not list an
+administrator's reply to a user's message even though `Core-Project.txt` and
+the R10 path require such a notification. Separately, the Breakpoints note
+counted only the clearly-unused `--screen-*` ladder and one token, while the
+stylesheet also declares but never consumes the navbar/sidebar/touch-floor
+tokens and the entire shadow ladder.
+
+**Decision.** The constitution is amended to 2.18.3 (PATCH):
+- «Notification» now explicitly covers a processing outcome, an administrative
+  message, or an administrator's reply to the user's message.
+- The Breakpoints note now records `--sidebar-width`, `--navbar-height`,
+  `--touch-floor` (and its siblings), and the full shadow ladder plus its
+  named shadows as declared-but-unused until a slice consumes them.
+
+**Consequences.** PATCH only; no product fact, slice, or register changes.
+
+---
+
+## ADR-047 — Audit fix set: commit state, manifest hashes, cart label, filter set, stamp sites
+
+**Status**: Accepted — 2026-10-05
+**Owning directory**: `.specify/memory/`, `.specify/integrations/`, `.specify/templates/`, `docs/`, `ROADMAP.md`, `Core-Project.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A full repository audit compared the working tree against `HEAD`
+(audit fix sets ADR-031 through ADR-039 committed at `07a5839`, constitution
+v2.17.0) and found six defects, one of them structural.
+
+1. **The whole v2.18.x amendment set was uncommitted.** The working tree carried
+   constitution v2.18.3 and ADR-040 through ADR-046 (2026-10-05) while `HEAD`
+   still read v2.17.0, so Principle I's traceability chain (requirement → task →
+   commit) had no commit at the governance level and ADR-033's own operating
+   rule — an audit fix set is committed before the next amendment's edits —
+   was broken for every record since 2026-10-03.
+2. **Integration manifest hashes were not re-recorded.** The five binding
+   template overrides under `.specify/templates/overrides/` were edited to the
+   v2.18.3 binding block, and `.clinerules/project-context.md` gained the
+   emoji/Libya rules, but the hashes in
+   `.specify/integrations/speckit.manifest.json` and
+   `.specify/integrations/cline.manifest.json` still recorded the pre-v2.18
+   files (verified: override hashes MISMATCH; `project-context.md` recorded
+   `ec5cb5c3…` against actual `4bb01e55…`). ADR-022/024/027/033/034 require the
+   hashes to move in the same change.
+3. **A superseded cart label survived in the product mirror.**
+   `Core-Project.txt` line 57 read «يضيف للمحفوظات» while ADR-045 fixes the
+   cart's user-facing name as «سلة المشتريات» and every other occurrence in the
+   mirror already used it.
+4. **ADR-040 promised a filter the register does not carry.** Its Decision said
+   the filter set gains "the original number and the country of origin", while
+   the constitution's Parts scope registers the search field, multi-select over
+   car model/type/catalog file/supplier, and a price range, and fixes country of
+   origin as part of the free-text `type` column.
+5. **ADR-028, ADR-030, and ADR-034 named stamp sites the Governance procedure
+   does not.** Their consequence lists said version stamps move in `AGENTS.md`
+   and `README.md`; the amendment procedure names only the constitution footer,
+   the template overrides, the constitution-template scaffold,
+   `docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`, and
+   `Project-Technologies.txt`. `AGENTS.md` and `README.md` carry no stamp.
+6. **Smaller drift.** ADR-025's Consequences still described R1 performing "the
+   `1.0.2` change" its own annotation had superseded; ADR-019's Context still
+   attributed seven field identifiers to the Arabic mirror that ADR-034 showed
+   appeared only in earlier drafts; ROADMAP R9 omitted the administrator-reply
+   notification source the Glossary now carries (ADR-046); Product Scope and
+   Product Register stated the page-addition route in two different forms; and
+   `Core-Project.txt` read "50 ملف/شهر" where the register reads "per calendar
+   month".
+
+**Decision.**
+
+1. The v2.18.x working-tree set (ADR-040 through ADR-047) is committed; `HEAD`
+   moves to the amended constitution. This record is the durable amendment
+   record for the set and for the repairs below.
+2. The hashes in `speckit.manifest.json` and `cline.manifest.json` are
+   re-recorded for every file edited by the v2.18.x set, per the ADR-022
+   practice.
+3. `Core-Project.txt` line 57 reads «يضيف إلى سلة المشتريات».
+4. ADR-040's filter bullet is corrected in place, before ADR-040 is committed,
+   per the "corrections before ratification" practice its own record states: the
+   original number is searched through the search field, the filter set stays
+   car model, type, catalog file, supplier, and the price range, and country of
+   origin remains part of `type`.
+5. ADR-028, ADR-030, and ADR-034 name `Project-Technologies.txt` (and drop
+   `AGENTS.md`/`README.md`) as stamp sites, and state that the latter two carry
+   no constitution version stamp.
+6. The clarification to Product Scope in item 1 is PATCH semantics only (the
+   page-addition route is clarified; no rule, register, limit, or scope
+   changes), so the constitution version moves to **2.18.4** and every stamp
+   site named by the Governance amendment procedure moves with it. The living
+   ADR range strings move to ADR-001 … ADR-047.
+7. ADR-025's Consequences is aligned with its annotation; ADR-019 gains an
+   annotation pointing at ADR-034's correction; ROADMAP R9 names the
+   administrator-reply source; the page-addition route is stated identically in
+   Product Scope and Product Register; and `Core-Project.txt` reads "50 ملف لكل
+   شهر ميلادي".
+
+**What deliberately did not change.** No principle, module map, entity, page
+count, Usage Limit, or slice order changes. The page-addition route is made
+consistent by naming both gates, not by removing either. The cart label's
+authority stays ADR-045. No dependency is added, so no licence record or
+vulnerability scan accompanies this record.
+
+**Consequences.** The governance tree is committed and its traceability chain is
+whole again; the integration manifests agree with the templates they describe;
+and the product mirror and the governing registers state the same cart label,
+filter set, and quota window. This entry is the durable record.

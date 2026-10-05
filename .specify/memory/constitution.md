@@ -172,6 +172,14 @@ surface.
 - Numerals rendered to the user MUST be Latin (1234567890), not
   Arabic-Indic (٠١٢٣٤٥٦٧٨٩), applied through the designated numeric utility
   with `direction: ltr; unicode-bidi: isolate`.
+- Emoji MUST NOT appear in any text a person reads inside the platform: a page
+  title, a button label, a table cell, an empty-state description, a
+  notification body, a message body, a screen in the administrator application,
+  and the body of an SMS the platform sends. An icon MUST be an SVG from the
+  approved icon source (Technology Standards -> Register gaps); an emoji glyph
+  is not an icon and MUST NOT stand in for one. The ban covers every surface a
+  user or an administrator reads and nothing else: governance documents, code
+  identifiers, and code comments are outside it.
 - Arabic text MUST NOT carry positive `letter-spacing`. Negative tracking is
   permitted only on large headings and only within the design system's scale.
 - Search MUST resolve Arabic word roots (طرمبة → طرمبات) through the
@@ -199,13 +207,30 @@ not process payment, and does not host direct user-to-user chat.
 - The "cart" is a personal bookmark list. It MUST NOT carry price,
   quantity, or checkout state. It MUST NOT be described in user-facing text
   as a purchase.
+- **Displayed price.** A part carries the price printed in its own source
+  catalog, so a merchant can see what each supplier charges. It is a catalog
+  attribute, not an offer: it carries no quantity, no discount, no currency
+  conversion, and no checkout state, and the cart renders none of it. A
+  merchant never edits a price; only the administrator does. The price is
+  visible to a registered merchant and MUST NOT reach a guest through any
+  surface, response, index projection, or export: a guest's read path projects
+  the part through its own allowlist without the price column, which is a
+  different projection and not a hidden column (Query Safety and Secrets). A
+  price is sortable and filterable like any other column, for a registered
+  merchant only. It is rendered with a decimal point and exactly three decimal
+  places, the dinar's own subdivision, and with no thousands separator, so ten
+  dinar reads `10.000` (and fifteen dinar reads `15.000`); the denomination is
+  named once in the column header
+  rather than repeated in every cell. A part whose catalog prints no price reads
+  «بدون سعر» rather than a blank or a zero, and the price filter accepts a
+  minimum and a maximum.
 - Messaging is limited to a single conversation thread between a user and
   the administrator. Direct user-to-user messaging is prohibited.
 - Sale and purchase are deferred. Enabling them requires an amendment to
   this constitution, as a MAJOR change.
-- **Cart page name.** The cart's user-facing Arabic name is «المحفوظات».
-  Naming it «سلة المشتريات» pairs a purchase metaphor with a scope that
-  forbids purchase; the scope forbids the purchase metaphor.
+- **Cart page name.** The cart's user-facing Arabic name is «سلة المشتريات».
+  Despite the purchase-sounding label it is a personal bookmark list only: it
+  carries no price, no quantity, and no checkout state (Principle VI).
 - **Reports scope.** "Reports" are limited to the statistics and summaries
   the administrator Dashboard shows over entities already in this scope.
   Advanced reporting is out of scope and MUST NOT be built without a
@@ -348,19 +373,20 @@ extraction into microservices a mechanical refactor rather than a rewrite.
 Wafar is a single product served by three surfaces: the public site, the
 merchant's authenticated area, and the administrator's separate application.
 The pages below are the complete set required by the current scope. Adding a
-page outside this list requires a specification that records the addition
-under the plan's Complexity Tracking table.
+page outside this list requires both an amendment to the Product Register
+(below) and a specification that records the addition under the plan's
+Complexity Tracking table.
 
 ### Public Site (Guest Accessible)
 
 | Page | Content |
 |---|---|
 | Home | Platform name, quick search field, four statistical cards (accounts, files, parts, searches). |
-| Parts | Search field, filters (part number, brand, car model, catalog file, supplier), a table of parts, pagination (20/50/100), column sorting. Accepts `?file=<id>` to filter by a catalog. |
+| Parts | A search field covering part number and original number (partial match), multi-select filters (car model, type, catalog file, supplier, in which no selection means every supplier), a price filter taking a minimum and a maximum, a parts table showing every column at all times — part number, name, car model, original number, type, price, the supplier's name, and the cart control — pagination (20/50/100), and column sorting on every column except type. Accepts `?file=<id>` to filter by a catalog. The price column, and any filter or sort over it, are rendered for a registered merchant only; a guest receives the same table and the same filters without them. |
 | Catalog | Table of every uploaded catalog file. |
 | Contact | Contact information and a form (name, phone, body) that reaches the administrator. |
 | Log In | Mobile number and password. |
-| Sign Up | Full name, mobile number (with an Arab-country dial-code selector showing flag, country name, and code; default Libya +218), password, city (a searchable fixed dropdown of all Libyan cities, governorates, and areas), and an optional shop name. |
+| Sign Up | Full name, Libyan mobile number (entered without a dial-code selector, always +218), password, city (a searchable fixed dropdown of all Libyan cities, governorates, and areas), and an optional shop name. |
 | Forgot Password | Password reset via an OTP sent by SMS to the registered mobile number; a uniform response that does not reveal account existence. |
 | 404 | Error page. |
 | Privacy Policy | Static content. |
@@ -370,12 +396,18 @@ under the plan's Complexity Tracking table.
 OTP verification is REQUIRED at sign-up; sign-in of a verified account
 requires no OTP.
 
+The platform is Libyan. Every account is a Libyan mobile number on +218:
+sign-up offers no dial-code selector, and a number outside +218 MUST be
+rejected. The number is still stored in E.164 form. Opening registration to
+another country is an amendment to this section, not a configuration change
+(Product Fact Clarifications -> Libya-only registration; ADR-041).
+
 ### Merchant's Authenticated Area
 
 | Page | Content |
 |---|---|
 | My Files | The merchant's uploaded files, upload action, processing status. |
-| Cart | Bookmarked parts, remove action. |
+| Cart | Bookmarked parts, remove action. No price, no quantity, no checkout: the price lives on the part and the cart shows none of it. |
 | Notifications | Full list, mark as read. |
 | Messages | Single conversation thread with the administrator. |
 | Profile | Edit account details, change password. |
@@ -415,13 +447,13 @@ implemented through a specification that references this list.
 | 1 | File Upload | Excel, PDF, or Word up to 100 MB. |
 | 2 | Automated Extraction | From file tables. |
 | 3 | Supplier and Date Extraction | From the first page of the file. |
-| 4 | Column Normalisation | Across sources. |
+| 4 | Column Normalisation | Across sources, including the merged and overlapping source columns some suppliers print. Every extracted value is assigned to the canonical column the Glossary fixes for a part, and the six canonical columns are the whole of a part: no description is extracted or stored. |
 | 5 | Deduplication | By file, by page, by row. |
 | 6 | Arabic Search | Root-aware (طرمبة → طرمبات). |
-| 7 | Multi-Filter Search | Part number, brand, car model, catalog file, supplier. |
+| 7 | Multi-Filter Search | Part number and original number through the search field, plus multi-select filters over car model, type, catalog file, and supplier, in which no selection means every supplier, and a price range. |
 | 8 | Tables | Every data view. |
 | 9 | Pagination | 20 / 50 / 100. |
-| 10 | Column Sorting | By clicking the header. |
+| 10 | Column Sorting | By clicking the header, on every column of the parts table except `type`, which is free text whose alphabetical order carries no meaning. |
 | 11 | Cart | Personal bookmark list. |
 | 12 | Notifications | Processing results and administrative messages. |
 | 13 | Messaging | Single thread with the administrator. |
@@ -440,8 +472,8 @@ absent from this register MUST NOT be built without amending it.
 
 | Role | Can | Cannot |
 |---|---|---|
-| Guest | Search, browse, filter, and view the catalog and every extracted part. | Use a cart, upload, or message. |
-| Merchant (registered) | Upload files, delete the files they uploaded, use the cart, message the administrator, edit their own account. | Edit or delete a part; delete the account; reach the administrator application. |
+| Guest | Search, browse, filter, and view the catalog and every extracted part except its price. | Use a cart, upload, message, or see a price. |
+| Merchant (registered) | Upload files, delete the files they uploaded, use the cart, see the price of every part, message the administrator, edit their own account. | Edit or delete a part, edit a price; delete the account; reach the administrator application. |
 | Administrator | Operate the separate application with its own login and full platform privileges. | Be created through the public registration flow. |
 
 Every administrator operation MUST be recorded in the audit log.
@@ -468,12 +500,12 @@ field list held here would be a second source that drifts from the one.
 
 | Entity | Owning module | One-line meaning |
 |---|---|---|
-| `User` | `users` | A registered merchant: full name, mobile number (E.164, unique), country code, city, optional shop name, role. |
+| `User` | `users` | A registered merchant: full name, Libyan mobile number (E.164, unique, always +218), city, optional shop name, role. |
 | `Supplier` | `suppliers` | The company named on a catalog's first page. |
 | `Catalog` | `catalogs` | An uploaded supplier file, its metadata, its status, and its stored bytes. |
 | `Part` | `parts` | One row extracted from a catalog, representing one car part. |
 | `Bookmark` | `bookmarks` | One entry in a merchant's cart. |
-| `Notification` | `notifications` | A processing outcome or administrative message delivered to a user. |
+| `Notification` | `notifications` | A processing outcome, an administrative message, or an administrator's reply delivered to a user. |
 | `Conversation` | `messages` | The single thread between a merchant and the administrator. |
 | `Message` | `messages` | One message inside a conversation. |
 | `ContactMessage` | `support` | A message from the public contact form; its phone is for contact only, never an account identifier. |
@@ -483,8 +515,8 @@ An entity absent from this table MUST NOT be introduced without amending this
 register, and an entity's shape is changed only through
 `docs/domain-model.md` and an ADR.
 
-Two facts bind across entities and are stated here because the feature map
-depends on them:
+The facts below bind across entities and are stated here because the feature
+map depends on them:
 
 - **`first_page_metadata_incomplete`** is a boolean on `Catalog`, set when the
   file's first page yields neither the supplier's name nor the issue date
@@ -499,6 +531,18 @@ depends on them:
 - **An `AuditLog` target is namespaced** in a `type:id` form, so one target
   column is unambiguous across every module an administrator can act on. The
   `type` is the entity the action was performed on.
+- **A part's price is the price of its own catalog.** A part belongs to exactly
+  one catalog, so the same part offered by five suppliers is five parts in five
+  catalogs, each carrying the price its own file printed. Two parts whose
+  original numbers are equal are the same part offered by different suppliers.
+  The platform identifies that sameness and shows the parts side by side in one
+  table, which is what a merchant comparing suppliers needs. It does not merge
+  them: no equivalence entity is introduced, no row is withdrawn, and no two
+  catalogs are joined by it (ADR-040).
+- **The price is a registered-merchant-only projection.** Every read path a
+  guest can reach projects the part without its price, through an allowlist of
+  its own (Query Safety and Secrets). Redaction is a property of the
+  projection, not a rule the presentation layer applies after the fact.
 
 The entity shape beyond what `docs/domain-model.md` states is a deferred area
 (Catalog data shape). Column types, constraints, and the physical schema are not
@@ -508,10 +552,10 @@ Schema and Migration Control governs how any shape changes.
 
 ### Unresolved product facts (binding)
 
-The conflicts below were found between the sources. They are recorded rather
-than silently resolved. The slice named in the last column MUST resolve each one
-and record the answer in `docs/DECISIONS.md`; until then a slice MUST NOT decide
-one on its own:
+The conflicts and ambiguities below were found between the sources, or inside
+the sources' own data. They are recorded rather than silently resolved. The
+slice named in the last column MUST resolve each one and record the answer in
+`docs/DECISIONS.md`; until then a slice MUST NOT decide one on its own:
 
 | Conflict | Sources | Resolve in |
 |---|---|---|
@@ -520,6 +564,7 @@ one on its own:
 | A message's sender is either a merchant or an administrator, and the register names one sender | Product Register (`Message` carries a single sender); Authorization and Access Control (the administrator is a separate principal with a separate login) | R10 |
 | `Conversation` carries an administrator reference, yet every administrator account sees the same single thread | Product Register (`Conversation` carries an administrator); `Core-Project.txt` (one administrator account type, all administrators see the same conversations) | R10 |
 | An administrator is a role on `User` in one place and a separate party that `Conversation` and `AuditLog` refer to in another | Product Register (roles); Authorization and Access Control (a separate application with a separate login) | R13 |
+| How a printed price that carries more than one separator is read (for example `1.250.000`), and how a file that separates thousands rather than decimals is read | File Processing Rules (price denomination); the price examples in `Core-Project.txt`; the source files themselves | R3 |
 
 **Resolved conflict (2026-10-03).** The sidebar conflict is resolved: the
 sidebar is required on desktop and must not hide or slide (Principle IX);
@@ -579,6 +624,34 @@ implemented as a single sequence; a shortcut that skips a step is a defect.
   zip-bomb archives (Office documents are ZIP containers); and macro stripping
   before extraction. A file failing any step MUST be rejected and MUST NOT be
   stored or processed.
+- **Canonical column assignment.** Every value the pipeline extracts MUST be
+  assigned to the canonical column it belongs to, and the canonical set is the
+  one the Glossary fixes for a part. The assignment is made by the extraction
+  pipeline itself: no manual column-mapping step sits between the upload and
+  the processing, and a merchant is never asked to map columns. The canonical
+  set is complete for a parts table: every value in a supplier's parts table
+  has its column, and a value that belongs to no canonical column is part of no
+  stored column, so it is simply not stored rather than counted or flagged.
+  There is no "unassigned" class of value and no counter for one. The free
+  text of the `type` column is what absorbs the variety a table prints in a
+  type/country cell rather than a gap waiting for a review. A merged or
+  overlapping source column is a case of this rule, not an exception to it:
+  its values are separated into the columns they belong to.
+- **Supplier name normalisation.** A supplier name read from a first page is
+  normalised before it is stored or before it is compared with another name:
+  whitespace is collapsed, leading and trailing punctuation is dropped, and a
+  legal-form word such as `شركة` or `مؤسسة`, or a trailing purpose word such as
+  `للبيع`, is removed. Normalisation makes two spellings of one name compare
+  equal. It MUST NOT merge two suppliers, and only the administrator can merge
+  them.
+- **Price denomination.** A part's price is the amount printed in its own
+  catalog, denominated in the Libyan Dinar. The period and the comma in a
+  printed price are decimal separators, not thousands separators, so `123.000`
+  denotes 123 dinar. A printed price carrying more than one separator, or a file
+  that separates thousands instead, is a recorded unresolved product fact owned
+  by R3; no feature may settle it on its own. A price printed in another currency
+  is not converted and not stored: the part reads «بدون سعر» for it, because a
+  converted figure the platform cannot stand behind is worse than an honest gap.
 - **Retry vs reprocess.** A retry re-enqueues a failed file's processing job
   over its stored bytes, without re-uploading anything. A reprocess is the
   administrator's re-run of the same pipeline over a catalog's stored bytes,
@@ -1154,7 +1227,7 @@ fail Dependency Governance:
 | TLS certificate management | Identity, Authentication, and Session Policy | R12 (the first deploying slice) |
 | Backup and restore tooling | Deployment and Observability | R1 (the slice that introduces persistent storage) |
 | Log pipeline | Deployment and Observability | R12 (the first deploying slice) |
-| Icon set used by the interface | Product Scope; Design System Standards | R1 |
+| Icon set used by the interface: an open-source set under a permissive licence (MIT, Apache-2.0, ISC, or BSD), self-hosted as SVG, with no emoji standing in for an icon | Product Scope; Design System Standards; Principle V | R1 |
 | Redis client library | Files register row (BullMQ, Redis); Deployment's worker-durability rules | R3 |
 | OpenSearch client library | Search register row; `packages/search` | R5 |
 | Automated accessibility checker | Principle IV's verification MUST | R1 |
@@ -1249,7 +1322,12 @@ band. The token ladder names them, and the mapping below is binding:
 
 The stylesheet contains no `var(--screen-*)` reference: every token in the ladder
 is declared-but-unused, so none of them MAY be relied on until the module that
-owns it wires it to a media query. A responsive change MUST name the breakpoint it
+owns it wires it to a media query. The same holds for `--sidebar-width`,
+`--navbar-height`, `--touch-floor` (and its `-sm`/`-lg`/`-xs` siblings), and the
+full shadow ladder and its named shadows (`--shadow-xs…--shadow-2xl` and
+`card`, `card-raised`, `cinematic*`, `control`, `focus`, `glass`, `inner`,
+`none`, `overlay`, `panel`, `brand-sm/-md/-lg`): declared, but unused until a
+slice consumes them. A responsive change MUST name the breakpoint it
 changes at, and the first surface that wires a token MUST delete the tokens it
 leaves unused (Project Structure and Debt Control).
 
@@ -1394,11 +1472,14 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | Term | Definition |
 |---|---|
 | **Catalog** | An uploaded supplier file, together with its extracted parts, its processing status, and its metadata (supplier name, issue date, upload date, expiry date). A catalog is owned by the merchant who uploaded it. |
-| **Part** | A single row extracted from a catalog, representing one car part. Fields: part number, name, brand, car model, description. A part belongs to exactly one catalog. |
-| **Supplier** | The company named on the first page of an uploaded catalog, from which the parts originate. A supplier may appear in many catalogs. |
-| **Cart** | A merchant's personal bookmark list of parts. It is not a purchase order. It carries no price and no quantity. See Principle VI. Its user-facing Arabic name is «المحفوظات». |
+| **Part** | A single row extracted from a catalog, representing one car part. Its six canonical columns are the whole of it: part number, name, car model, original number, type, price. The car model is separated out of the name when a supplier prints it inside the name; a printed year range (for example `2018-2020`) that rides inside the name is NOT extracted into its own column and stays part of the part name, while the car model itself is still separated out; `type` is one free-text column carrying what suppliers print as a single type/country column — brand, country of origin, and manufacturing grade together — and is therefore not sortable; the price is the amount printed in the part's own catalog. A part has no description column: it is neither extracted nor stored. A part belongs to exactly one catalog. |
+| **Original number** | The supplier-independent identifier a manufacturer prints for a part, which is what tells the platform that the same part appears in two suppliers' files. It is a canonical column, is indexed, and is searched by partial match; it carries no uniqueness constraint, because suppliers repeat a number within their own file and rival suppliers print the same one. It identifies a part across catalogs and merges nothing. |
+| **Canonical column** | One of the fixed columns a part is made of (see **Part**). Extraction assigns each value to a canonical column and never invents one. |
+| **Price** | The amount a supplier's own file prints for a part, in Libyan Dinar, shown so a merchant can compare suppliers. It belongs to the part and its catalog; it is not an offer, and the cart carries none. It renders with a decimal point and three decimal places and no thousands separator, so ten dinar reads `10.000` and fifteen dinar reads `15.000`; a part with no price reads «بدون سعر». |
+| **Supplier** | The company named on the first page of an uploaded catalog, from which the parts originate, stored in its normalised form. A supplier may appear in many catalogs. Normalisation makes two spellings of one name compare equal; it does not merge two suppliers, and only the administrator merges. |
+| **Cart** | A merchant's personal bookmark list of parts. It is not a purchase order. It carries no price and no quantity: the price lives on the part, and the cart shows none of it. See Principle VI. Its user-facing Arabic name is «سلة المشتريات». |
 | **Bookmark** | A single entry in the cart, linking a user to a part. |
-| **Notification** | A message delivered to a user in the notification list, either because a processing job completed or failed, or because the administrator sent an administrative message. |
+| **Notification** | A message delivered to a user in the notification list, either because a processing job completed or failed, an administrator sent an administrative message, or an administrator replied to the user's message. |
 | **Conversation** | The single thread between a merchant and the administrator. A user has at most one conversation. |
 | **Audit Log** | The append-only record of every administrator operation. |
 | **Processing** | The automated pipeline that turns an uploaded file into extracted, indexed parts. See File Processing Overview. |
@@ -1419,7 +1500,7 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | **DLQ** | Dead-letter queue for jobs that exhaust retries. |
 | **Reprocess** | The administrator's re-run of the file-processing pipeline over a catalog's stored bytes, from the admin Files page (for example after an extraction fix). Distinct from a retry, which the merchant triggers for a failed job. |
 | **Retry** | The merchant's re-enqueue of a failed file's processing job, without re-uploading the bytes. |
-| **Wafar** | The platform's trade name, written «Wafar» (وَفَّر); the diacritics are mandatory in every appearance. |
+| **Wafar** | The platform's trade name, written «Wafar» (وَفَّر). The mandatory diacritics bind the Arabic form «وَفَّر»; the Latin «Wafar» carries no diacritics. |
 | **SBOM** | Software Bill of Materials produced per build. |
 | **Presigned multipart upload** | Direct-to-object-storage upload in parts, avoiding buffering through the API. |
 | **Tenant isolation** | A merchant-reachable query path MUST NOT return another tenant's rows. |
@@ -1478,13 +1559,36 @@ the same force as the principles above.
 ## Product Fact Clarifications
 
 - Contact form fields are exactly `name`, `phone`, and `body`.
-- The platform's trade name is «Wafar» (وَفَّر); the diacritics are mandatory
-  in every appearance of the name.
+- The platform's trade name is «Wafar» (وَفَّر); the mandatory diacritics
+  bind the Arabic form «وَفَّر», and the Latin «Wafar» carries none.
 - "Reports" means the statistics and summaries the administrator Dashboard
   shows over entities already in scope. Advanced reports
   (تقارير متقدمة) are out of scope until specified.
-- The cart page's Arabic name is «المحفوظات»; «سلة المشتريات» is a purchase
-  metaphor the scope forbids.
+- The cart page's Arabic name is «سلة المشتريات». It is a personal bookmark
+  list only: it carries no price, no quantity, and no checkout state, even
+  though the label is a purchase metaphor the product scope does not honour.
+- **No emoji in anything a person reads.** See Principle V. Every screen of the
+  public site, the merchant area, and the administrator application, and the
+  body of every SMS the platform sends. Governance documents, code identifiers,
+  and code comments are not covered.
+- **Libya-only registration.** Every account is a Libyan mobile number on +218.
+  Sign-up carries no dial-code selector, and a number outside +218 is rejected.
+  The number is stored in E.164 form, and the account's city comes from the
+  Libyan city list.
+- **The price is in Libyan Dinar, and its separator is decimal.** `123.000` is
+  123 dinar, not 123,000. The price is the amount printed in the part's own
+  catalog, shown for comparison; it is not an offer, and it never enters the
+  cart.
+- **Registered merchants see the price; guests do not.** The price column and
+  any filter or sort over it are rendered for a registered merchant only, and a
+  guest's read path projects the part without them. A part with no price reads
+  «بدون سعر»; a price in another currency is never converted and never stored.
+- **The parts table shows every column, and hides none.** Part number, name, car
+  model, original number, type, price, the supplier's name, and the cart
+  control. Every column is sortable except `type`. Part number and original
+  number are searched through the search field rather than chosen from a list,
+  because a list of every part number in the platform is the size of the table
+  itself; every other filter is a multi-select over its distinct values.
 - No email address exists anywhere in the platform: no sign-up email, no
   login email, no transactional email. The mobile number in E.164 form is
   the sole account identifier.
@@ -1615,10 +1719,18 @@ the deferred decision, in particular by Query Safety and Secrets and by
 Schema and Migration Control:
 
 - **Extraction algorithm**: how parts are identified within supplier document
-  tables, how columns are matched across sources, and how extraction
-  correctness is verified.
-- **Catalog data shape**: the fields a part carries beyond those listed in
-  the Glossary, and the treatment of supplier-assigned identifiers.
+  tables, how a source column is recognised as one canonical column, and how
+  extraction correctness is verified. The canonical columns themselves are fixed
+  by the Glossary, so the algorithm chooses among fixed targets rather than
+  inventing them, and File Processing Rules binds what it may do with a value it
+  cannot place.
+- **Catalog data shape**: discharged in 2.18.0. The Glossary now fixes a part's
+  canonical columns and the role of the original number, and `docs/domain-model.md`
+  states the invariants over them. What remains is not deferred product scope but
+  the shape below the product: column types, lengths, nullability, defaults, and
+  indexes, which are the owning module's schema file and the owning feature's
+  `data-model.md`, plus whether a part persists the page and row it came from,
+  which is a recorded unresolved fact owned by R3.
 - **File ingestion internals**: the exact rules for content-type validation,
   the object-storage layout, and the isolation between one merchant's files
   and another's.
@@ -1638,4 +1750,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.17.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-04
+**Version**: 2.18.4 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-05

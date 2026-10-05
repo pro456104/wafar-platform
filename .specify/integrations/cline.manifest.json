@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "installed_at": "2026-10-03T05:00:25.313824+00:00",
   "files": {
-    ".clinerules\\project-context.md": "ec5cb5c3baff3de624c080d12754cee6bae8476f4e9d25c14f75763cf3a10667",
+    ".clinerules\\project-context.md": "4bb01e5547cdd1e2db763cfcdfc6a3e9b7894f2ab49b0669f6d4a60c32bd1bd9",
     ".clinerules\\workflows\\speckit-analyze.md": "347f83fd9c2c2e67ebefbe583b24e8de1528acb9fe0aa5e0e12a68cc644d4a1b",
     ".clinerules\\workflows\\speckit-assess-decide.md": "cb770f81f042048cbbac7f90d60acf974127465caca3555635ee2a69cf0e0d90",
     ".clinerules\\workflows\\speckit-assess-define.md": "13ed0b6351b3ef547f206da678533ab67c40098132caffc78947dd6bbe60e7ba",

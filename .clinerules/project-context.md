@@ -39,7 +39,11 @@ ones:
    templates, and keep them in step with the constitution's version.
 
 4. **Language and layout** — Arabic UI with `<html dir="rtl" lang="ar">`, Latin
-   numerals only, logical CSS properties only, English code and governance text.
+   numerals only, logical CSS properties only, English code and governance text,
+   no emoji in anything a person reads inside the platform — every screen
+   including the administrator application, and the body of every SMS — with an
+   icon an SVG from the registered open-source icon set, and registration is
+   Libya only (+218, no dial-code selector; ADR-041).
    Exceptions that mirror the constitution: `wafar.single.css` comments, the
    two Arabic mirrors (`Core-Project.txt`, `Project-Technologies.txt`), and
    Arabic strings quoted as the subject of a rule.
