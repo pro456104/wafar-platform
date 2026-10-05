@@ -433,6 +433,14 @@ and the page-addition route is stated identically in Product Scope and Product
 Register. This mirror states none of those rules; they live in the constitution
 and `docs/DECISIONS.md`.
 
+### Cline removal (ADR-048)
+
+ADR-048 retires the Cline integration. No live reference to `.clinerules/`, a
+`cline.manifest.json`, or a `cline` entry in `integration.json`/`.registry`/
+`workflow.yml` remains in this repository. The cart label, BOM repair, and
+Core-Project line 157 repair follow in the same record. This mirror states none
+of those rules; they live in the constitution and `docs/DECISIONS.md`.
+
 ### Cart label
 
 The cart's user-facing Arabic name is now «سلة المشتريات» (ADR-045). Every
