@@ -5,7 +5,7 @@ entities the product reasons about, the relationships between them, their
 cardinality, their invariants, and the module that owns each one. It is the
 source the constitution's Product Register maps.
 
-Its authority is `.specify/memory/constitution.md` (v2.18.8); where this
+Its authority is `.specify/memory/constitution.md` (v2.18.9); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
 change to a registered product fact and MUST be recorded as an ADR in
@@ -126,12 +126,17 @@ service layer re-checks the ones a constraint cannot express.
 - **A tenant is a merchant account.** There is no `Tenant` entity. The scoping
   column is `user_id`, referencing `User`, and it appears on every
   merchant-owned table: `Catalog`, `Bookmark`, `Notification`, `Conversation`,
-  `Message`, and `ContactMessage`. The constitution's Schema and Migration
-  Control names this scoping; ADR-051 is its record.
-- **`Supplier` and `AuditLog` carry no `user_id`.** `Supplier` is platform-wide
-  — one company can appear in many merchants' catalogs — and `AuditLog` records
-  administrator operations, which have no merchant owner. Neither is
-  merchant-scoped, and no isolation test covers them.
+  and `Message`. The constitution's Schema and Migration
+  Control names this scoping; ADR-051 is its record, and ADR-053 corrects the one
+  entry in it that this document contradicted.
+- **`Supplier`, `AuditLog`, and `ContactMessage` carry no `user_id`.**
+  `Supplier` is platform-wide — one company can appear in many merchants'
+  catalogs — and `AuditLog` records administrator operations, which have no
+  merchant owner. `ContactMessage` is a public intake: the submitter may be a
+  guest who holds no row, the fields the product fixes for it are the name and
+  phone it carries *instead of* a foreign key, and its only read path is the
+  administrator's "Contact messages" page. None of the three is
+  merchant-scoped, and no isolation test covers any of them.
 - **Every index serving a merchant-scoped query leads with `user_id`.** An
   index that does not lead with the scoping column cannot serve the scoped read
   without a filter the planner has to apply after the fact.
@@ -316,7 +321,8 @@ answer in `docs/DECISIONS.md`. A slice MUST NOT decide one on its own.
 **Read this table before planning.** Rows 1–4 and 6 are also carried in the
 constitution's Unresolved product facts table, so a slice reading either document
 sees the same questions with the same owners. Row 12 joined them there on
-2026-10-05 with the price column. The remaining rows exist only in this table and
+2026-10-05 with the price column, and row 13 joined them there on 2026-10-05
+with the Settings page's storage. The remaining rows exist only in this table and
 in `ROADMAP.md` → Open data-model questions; they are open field-level facts that
 were never registered anywhere else. Row 5 was resolved 2026-10-03 by ADR-028 (a
 dedicated administrator "Contact messages" page, owned by R13) and is kept
@@ -324,9 +330,12 @@ struck-through for traceability.
 
 None of rows 7–11 names a field that `Core-Project.txt` or the constitution
 currently registers. Row 12 names no field at all: it is a reading rule for a
-value the pipeline reads. The identifiers that appeared in earlier drafts of this
-table (`User.status`, `Catalog.size`, `Catalog.mime_type`, `Part.page`,
-`Part.row`, `ContactMessage.status`, `ContactMessage.admin_note`) were never
+value the pipeline reads. Row 13 names no field either: it is a register
+question — whether a stored setting is a new entity or a column on an existing
+one — that the Data entities register reserves to R13. The identifiers that
+appeared in earlier drafts of this table (`User.status`, `Catalog.size`,
+`Catalog.mime_type`, `Part.page`, `Part.row`, `ContactMessage.status`,
+`ContactMessage.admin_note`) were never
 added to the product mirror; any use of them is a reference to this table, not
 to the mirror.
 
@@ -344,12 +353,14 @@ to the mirror.
 | 10 | Whether a part stores the page and the row it came from. No such fields are registered today. | Beyond the Glossary's list of a part's fields, so **Catalog data shape**. Deduplication compares file, page, and row whatever a part stores, so nothing in the pipeline forces the answer either way. | R3 |
 | 11 | The state a contact message moves through, and whether the administrator's response to one is recorded on it. No such fields are registered today. | The contact form is the only way a visitor reaches the administrator, and nothing registers what happens to the message afterwards. | R11 |
 | 12 | How a printed price carrying more than one separator is read (for example `1.250.000`), and how a file that separates thousands rather than decimals is read. | The product fixes the currency and the single-separator rule (Libyan Dinar, decimal separator, so `123.000` is 123 dinar), but real supplier files are not uniform, and only R3 can settle the multi-separator form from samples. No feature may settle it on its own. | R3 |
+| 13 | Where the administrator's platform settings live. The Settings page is registered in Product Scope and no registered entity owns stored settings. | The Data entities register holds ten entities and forbids introducing an eleventh without amending it, so the choice between a new entity and storage on an existing one is a register decision rather than a field-level one. | R13 |
 
 Rows 7 through 11 are field-level questions, not conceptual ones: the entity and
 its owner are not in doubt, only what the entity carries. Row 12 is a reading
-rule rather than a field, and binds the extraction pipeline the same way. Each is
-decided by the slice named, recorded as an ADR, and added to this document and
-the constitution's register in the same change.
+rule rather than a field, and binds the extraction pipeline the same way. Row 13
+is a register question rather than a field, and binds the administrator
+application. Each is decided by the slice named, recorded as an ADR, and added to
+this document and the constitution's register in the same change.
 
 ## What this document deliberately does not contain
 

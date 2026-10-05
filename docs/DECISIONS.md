@@ -78,6 +78,7 @@ is not done; ADR-015 states that rule and this file follows it.
 | [ADR-050](#adr-050--constitution-2188-audit-fix-set--the-stamp-set-committed-and-the-registry-claims-that-failed-verification) | Constitution 2.18.8: audit fix set — the stamp set committed, and the registry claims that failed verification | 2026-10-05 | 2.18.8 |
 | [ADR-051](#adr-051--a-tenant-is-a-merchant-account) | A tenant is a merchant account | 2026-10-05 | 2.18.8 |
 | [ADR-052](#adr-052--the-two-granted-dependency-exceptions-are-recorded-in-the-exception-register) | The two granted dependency exceptions are recorded in the exception register | 2026-10-05 | 2.18.8 |
+| [ADR-053](#adr-053--constitution-2189-the-design-system-enforcement-scope-the-motion-scale-the-scoping-contradiction-and-the-register-counts-that-failed-verification) | Constitution 2.18.9: enforcement scope, motion scale, scoping contradiction, register counts | 2026-10-05 | 2.18.9 |
 
 ---
 
@@ -1669,9 +1670,13 @@ layer; the banner is a comment, so the template's own structure, including the
 tasks template's frontmatter, is unchanged and no override content changes.
 
 **Alternatives considered.** *(added 2026-10-05, audit follow-up)*
-- **Add `*.md text eol=lf` for every file type explicitly.** Rejected: `.gitattributes`
-  already carries a pattern that covers Markdown, so a second one would add a line
-  a reader must reconcile without changing a single stored byte.
+- **Add `*.md text eol=lf` for every file type explicitly.** Rejected: the file
+  already carries an explicit per-type ladder (`*.md`, `*.txt`, `*.json`,
+  `*.yml`, `*.yaml`, `*.css`, `*.sh` on LF, `*.ps1` on CRLF) beneath the
+  catch-all `* text=auto`, and a second overlapping pattern would add a line a
+  reader must reconcile without changing a single stored byte. (Corrected
+  2026-10-05 by ADR-053: this paragraph originally claimed a broader Markdown
+  pattern already covered the case, which was not what the file contained.)
 - **Normalise the encoding of the two mirror files in the same change.** Rejected:
   ADR-035 established that the mirrors decode correctly and that the earlier
   console garbling was a display artifact. Rewriting them would change stored
@@ -2467,10 +2472,20 @@ none of them visible by reading a single file, since each is a disagreement
 4. Two edits inside that set — the `workflow.yml` hook-slot note and the
    `AGENTS.md` §5 rewrite — were recorded by no decision item.
 5. The Design System Standards' unused-token note claimed the whole shadow
-   ladder was "declared, but unused". Nine of the twenty named shadows are
+   ladder was "declared, but unused". Nine of the named shadows are
    consumed by `wafar.single.css`, including `--shadow-md` and `--shadow-focus`.
    Single-Reference Sufficiency requires a register row to name a value its
    source actually defines, so the note described a state that does not exist.
+
+   **Correction (2026-10-05, ADR-053).** The count "nine of the twenty named
+   shadows" was wrong: `wafar.single.css` declares **fifteen** named shadows
+   (`card`, `card-raised`, `cinematic`, `cinematic-hover`, `cinematic-panel`,
+   `control`, `focus`, `glass`, `inner`, `none`, `overlay`, `panel`, and the
+   `brand-sm`/`brand-md`/`brand-lg` triple), of which nine were consumed at the
+   time and twelve were not. ADR-053 completed the enumeration, which had
+   omitted `cinematic-hover` and `cinematic-panel`, and the register now reads
+   sixteen named shadows after this change added the hairline, navbar, and glow
+   steps.
 6. `ROADMAP.md` assigned three slices to write values into Constitution Mandated
    Values that the CMV list does not contain, and the list is closed; the
    Register-gaps rule puts a gap's choice in the plan's Complexity Tracking
@@ -2557,9 +2572,10 @@ none of them visible by reading a single file, since each is a disagreement
 **What deliberately did not change.** No principle, register row count, entity,
 page count, Usage Limit, slice order, or dependency. The shadow ladder's values
 and the stylesheet are untouched; only the register's description of them
-changed. `wafar.single.css` was not modified. The nine `--screen-*` tokens and
+changed. `wafar.single.css` was not modified. The eight `--screen-*` tokens and
 their unused status are unchanged, and no slice is given a new obligation by this
-record. The Bootstrap-era ADR-001 through ADR-006 keep their original
+record. (Corrected 2026-10-05 by ADR-053: the count was nine; the stylesheet
+declares eight, which ADR-009, ADR-016, and ADR-039 all stated.) The Bootstrap-era ADR-001 through ADR-006 keep their original
 `none yet - repository bootstrap` stamps including their ASCII hyphens: this
 record did not retro-format ratified history.
 
@@ -2646,6 +2662,18 @@ the invariant as a merchant-ownership section, so a slice reading the domain
 model finds the scoping column and the two unscoped tables without reading the
 constitution. This entry is the durable record.
 
+**Annotation (2026-10-05, ADR-053).** Decision item 2 named six tables carrying
+`user_id`, `ContactMessage` among them. That entry was wrong against the source
+this record amends: `docs/domain-model.md` stated twice, before and after this
+record was ratified, that a `ContactMessage` is independent of any account and
+carries the submitter's name and phone *instead of* a foreign key, and its
+relationship diagram marks it "no user; the submitter may be a guest". The public
+contact form is an intake whose only read path is the administrator's, so a
+scoping column on it could never be used as a scoping key. The record is
+annotated rather than rewritten, because a decision record is a history; ADR-053
+carries the correction and the constitution's Schema and Migration Control now
+names `ContactMessage` among the tables that carry no tenant identifier.
+
 ---
 
 ## ADR-052 — The two granted dependency exceptions are recorded in the exception register
@@ -2708,3 +2736,157 @@ and Performance Budgets and Verification respectively.
 be, each with a review date a later audit can act on. A reader checking whether a
 dependency is permitted finds the answer in the exception register rather than
 inferring it from the Approved register's prose. This entry is the durable record.
+
+---
+
+## ADR-053 — Constitution 2.18.9: the design-system enforcement scope, the motion scale, the scoping contradiction, and the register counts that failed verification
+
+**Status**: Accepted - 2026-10-05 | **Constitution version**: 2.18.9
+
+**Owning directory**: `.specify/memory/`, `wafar.single.css`, `docs/domain-model.md`,
+`docs/architecture.md`, `docs/DECISIONS.md`, `Project-Technologies.txt`,
+`.specify/templates/`
+**Owning feature**: none - governance decision; ratified by the repository owner.
+R1 performs the design-system work this record registers.
+
+**Context.** A verification pass over the governance tree - every document, plus a
+byte-level check of the stylesheet and both integration manifests - found seven
+defects. Five are the class ADR-047 and ADR-050 were raised to close: a register
+claiming a state its source does not have. Two are contradictions a single
+sentence each would have prevented.
+
+1. **`docs/domain-model.md` contradicted itself about `ContactMessage`.** Line 127
+   said the scoping column `user_id` "appears on every merchant-owned table:
+   `Catalog`, `Bookmark`, `Notification`, `Conversation`, `Message`, and
+   `ContactMessage`"; lines 82, 92, and 112 said a `ContactMessage` is
+   "independent of any account", that its diagram row reads "no user; the
+   submitter may be a guest", and that it carries the submitter's name and phone
+   *instead of* a foreign key. ADR-051 decision item 2 repeated the inclusive list.
+   The domain model is the single authority for the logical model (ADR-019), so
+   its contradiction was authoritative in two directions at once.
+2. **The static-enforcement rule could not be satisfied by any file.** Design
+   System Standards required Stylelint and ESLint to "fail the build on ... any
+   colour, radius, shadow, duration, or z-index value that does not reference a
+   declared token", with no scope. Principle IX's prohibited list permits a
+   literal *inside* `wafar.single.css`. Read together, the design system's own
+   source failed the gate that governs it: 55 rules in that file carried a raw
+   `rgb()`, `#hex`, or millisecond value, and `wafar.single.css` is the only place
+   a token is allowed to be defined.
+3. **The motion scale in Principle IX did not match the source.** The rule read
+   "durations are limited to the defined scale (200 / 300 / 400 / 600 ms)". The
+   file declared and *consumed* `--duration-deliberate: 700ms` (in
+   `--transition-cinematic` and `ds-enter-up`) and `--duration-instant: 0ms`,
+   neither of which the Token families bullet named. Three further literals were
+   outside any scale: `transition-duration: 150ms` in `.ds-press:active` - the
+   same defect class ADR-027 item 6 had fixed for the `body` transition -
+   `0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)` in `.ds-lift`, and `600ms` in
+   `--transition-bounce`.
+4. **The unused-shadow enumeration was incomplete.** The Breakpoints note listed
+   ten declared-but-unused named shadows; the Token families bullet named twelve.
+   `--shadow-cinematic-hover` and `--shadow-cinematic-panel` were in neither list
+   of the unused group, so a reader could not tell whether they were in force.
+5. **Two counts inside ADR-050 were wrong.** "Nine of the **twenty** named
+   shadows are consumed" - the file declared fifteen named shadows at the time.
+   "The **nine** `--screen-*` tokens" - the file declares eight, which ADR-009,
+   ADR-016, and ADR-039 each state correctly.
+6. **`Project-Technologies.txt` broke the rule its own header states.** The file
+   says at line 421 that the mirror header tracks the constitution through
+   ADR-052; its header at line 4 stopped at ADR-049. It also still said
+   "tenant" in two places after ADR-051 renamed the term, and its table headed
+   "the complete list" omitted ClamAV and Lighthouse CI - both rows of the
+   Approved register.
+7. **Two registered pages had no owning surface.** The administrator's Settings
+   page is in Product Scope while no registered entity owns stored settings and
+   no open fact covered it, so R13 would have had to invent an entity the register
+   forbids. Privacy Policy, Terms of Use, and FAQ are in scope with a bare layout,
+   are not sidebar items, and the shell has no footer component, so nothing named
+   a way to reach them.
+
+**Decision.** The constitution is amended to **2.18.9** (MINOR: three rules changed
+in scope, one register gap closed, one restatement corrected; no principle
+added, removed, or redefined).
+
+1. **`ContactMessage` carries no tenant identifier.** Schema and Migration
+   Control's tenant bullet now names it beside `Supplier` and `AuditLog`, with
+   the reason: a public intake whose submitter may hold no account, whose only
+   read path is the administrator's, so a scoping column on it could never be
+   used as a scoping key. `docs/domain-model.md` is corrected to match, and
+   ADR-051 gains an annotation rather than a rewrite.
+2. **The enforcement rule is scoped, and the file is brought under it.** The gate
+   applies to values outside `wafar.single.css`, because a rule forbidding a
+   literal in the token source forbids the source from defining anything. A
+   second rule governs the file itself: every value in it is a token definition or
+   a token reference, including the literal half of a composed `box-shadow`, with
+   three named exemptions - a `mask` image, a print rule, and a
+   `prefers-color-scheme` rule whose values must not read the mode class.
+   `wafar.single.css` moves to **1.0.3**: the glass family, the table head and
+   stripe surfaces, the focus and validation halos, the on-solid text and control
+   fills, the scrim, the shadow hairline/navbar/glow steps, the reduced-motion
+   duration, the loop periods, the stagger ladder, and three loop easings all
+   become tokens. No value was removed and no rendered output changed.
+3. **The motion scale is corrected to the source, not the reverse.** Principle IX,
+   the Token families bullet, and Decision values now state the six-step scale
+   plus `--duration-reduced`, and name the two families that are periods rather
+   than transition durations - `--motion-loop-*` and `--motion-stagger-*` - so
+   the file's own Arabic header comment, the rules, and the tokens agree.
+4. **The unused-shadow enumeration is complete**: twelve declared-but-unused
+   named shadows against the sixteen the register names, with the four newly
+   consumed steps counted.
+5. **Two gaps are recorded rather than decided.** The Settings page's storage is
+   unresolved product fact #13 owned by R13, because a register amendment is R13's
+   call and not a governance one. The four bare-layout static pages are bound to
+   be reachable by a direct link or by an action on a page that carries one, the
+   same rule Contact already had, with the link surface left to the slice that
+   first builds a shell page and recorded as an ADR.
+6. **The mirrors and the records are repaired**: the mirror header through
+   ADR-053, "tenant" removed from the two surviving places, ClamAV and Lighthouse
+   CI added to the mirror's complete-list table, ADR-050's two counts corrected in
+   place, ADR-039's `.gitattributes` alternative corrected, and the fallback
+   specification template's email/SSO/OAuth examples replaced with
+   registration-neutral ones.
+
+**Alternatives considered.**
+- *Leave the `ContactMessage` contradiction open and let R2 discover it.* Rejected:
+  R2 is the first merchant-scoped query surface, and it would have implemented a
+  scoping column the domain model forbids, or dropped one its own text requires.
+- *Scope the enforcement rule and stop there.* Rejected: scoping alone leaves the
+  design system's source carrying 55 literals that a reviewer cannot check, which
+  is the drift class the rule exists to stop. The file was brought under the rule
+  in the same change.
+- *Delete `--duration-deliberate` and `--duration-instant` to match the four-value
+  scale.* Rejected: both are consumed by real transitions, and deleting them
+  changes rendered behaviour. The register's restatement was the thing that was
+  wrong - Single-Reference Sufficiency says a restatement of a value a rule
+  depends on must move with its file.
+- *Add `--duration-press: 150ms` for `.ds-press:active` instead of using the
+  ladder.* Rejected: the ladder already has a step for micro-interactions, and
+  200ms against 150ms on a press scale is not a difference a user can name. Fewer
+  tokens beat a faithful-but-pointless one.
+- *Introduce a `Setting` entity now.* Rejected: the Data entities register holds
+  ten and forbids an eleventh without amending itself; that amendment is R13's to
+  propose, and a governance record should not make it by implication.
+- *Register a footer component so the three static pages have a named home.*
+  Rejected as an invention: no rule or decision asks for a footer, and the shell
+  is R1's. Binding the reachability requirement and naming the slice that decides
+  the surface closes the gap without designing a component.
+- *Rewrite ADR-050's counts as a silent edit.* Rejected: the file's own preamble
+  says a record is corrected when its claim was wrong, and ADR-047's rejected
+  alternative explains why the trail matters - the false claim is the evidence
+  that the verification failed.
+
+**What deliberately did not change.** No principle was added, removed, or
+redefined; no principle's NON-NEGOTIABLE status changed; no entity, page count,
+feature count, Usage Limit, slice order, module map, or dependency changed; no
+technology was added to or removed from the Approved register. The eight
+`--screen-*` tokens, `--sidebar-width`, `--navbar-height`, and `--touch-floor*`
+keep their declared-but-unused status. No design value was deleted, and no
+rendered output changed: every CSS edit replaced a literal with a token holding
+the same value.
+
+**Consequences.** The design system's source is now checkable against its own
+rule, the motion rules and the file's header comment agree, the logical model's
+single authority no longer contradicts itself, and the two gaps a slice would have
+had to invent an answer for are now named questions with owners. The stamp set
+moves to 2.18.9 across every site the Governance amendment procedure names, and
+the manifest hashes are regenerated as the last step. This entry is the durable
+record.

@@ -12,13 +12,13 @@
     ".specify/templates/checklist-template.md": "ec3010a95715da39d6e783783e299812a6f3a078937b25dcd34ce23211b1c658",
     ".specify/templates/constitution-template.md": "3f4b810af6079c98ecf5764ba56d7ad19e647c5908e55939a98d2869d10e5f77",
     ".specify/templates/plan-template.md": "2a6e9d5ae4b537d4f6f5068641453aa6b553982711c05e917f078e23838a1635",
-    ".specify/templates/spec-template.md": "58142f1f61a4926fb7e36f408d7c7b33e9e418afa9c0f83853f0e730d6c51405",
+    ".specify/templates/spec-template.md": "8f068f5670391b5c18b603382e7dd13291ecb03e38926c0103288dd430488812",
     ".specify/templates/tasks-template.md": "85df2ca609e62ae6b0727f92af73da4d15d2c6010cc24d4b12a95e559eb4a47c",
-    ".specify/templates/overrides/constitution-template.md": "3e5c43af16ff76d48abfe05402fdfc5e00095c854664e81e5605c7295bfd5e6a",
-    ".specify/templates/overrides/plan-template.md": "5778fb82df016dced5a3153eb9b56c6b35481837645d5c3fbbabc724448d0de0",
-    ".specify/templates/overrides/spec-template.md": "44a59bb3d31b480cf6b4e61db11d1979758f43b8091b17e0d40c1b16fb8c7ee3",
-    ".specify/templates/overrides/tasks-template.md": "a3d9bfbf7e16319c1437eb7e0ac04ad676f49ab909c38a3c90621006c5b0edd0",
-    ".specify/templates/overrides/checklist-template.md": "0eb22cb8c5073463748b17745623c3a632d9d67042ce3f7cc75a5e38188f58b3",
+    ".specify/templates/overrides/constitution-template.md": "a2b12e553a4c78889e35ba666010d9a3eba56cc428ddd4c6dc38f296b2a1b2d9",
+    ".specify/templates/overrides/plan-template.md": "6bf550d30bbba0dafb19b634fbb2eca47414cacef10c434cabc7f1b3eb7cf51a",
+    ".specify/templates/overrides/spec-template.md": "3ecc1a42cc0ea7e4bdcf77019f7adfaa29ab5be5ca767cbe62373fdeb0490e7a",
+    ".specify/templates/overrides/tasks-template.md": "b8a22ea640411f9ed1f3243410b65f83078036c91058d4b415cb330a110a6c72",
+    ".specify/templates/overrides/checklist-template.md": "2b8df1ab9eecd8b81840eb17182307fb1100448028c4d621f14bf6279761b161",
     ".specify/.gitignore": "8c908410d177a1ef3d0dee16d7ad55f2ac3333df3104c4d4adee1c9b82f1dbc1"
   }
 }

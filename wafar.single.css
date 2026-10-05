@@ -8,10 +8,11 @@
      <link rel="stylesheet" href="wafar.single.css" />
      أو:  @import "wafar.single.css";
 
-    الإصدار:  1.0.2
-    ملاحظة: R1 يختار رقم إصدار القشرة الفعلي في CMV (ADR-016/025)؛ هذا الرقم يعكس آخر إصلاح
-    (راجع ADR-016/025/038 عند الحاجة).
-    الدستور:          .specify/memory/constitution.md → Design System Standards · docs/DECISIONS.md → ADR-009, ADR-012, ADR-025, ADR-038
+الإصدار:  1.0.3
+   ملاحظة: R1 يختار رقم إصدار القشرة الفعلي في CMV (ADR-016/025)؛ هذا الرقم يعكس آخر إصلاح
+   (راجع ADR-016/025/038/053 عند الحاجة). 1.0.3: توحيد قيم الزجاج والجدول على
+   توكنات (Base Values)، ومدة الضغط على steps المدة المسجَّلة.
+   الدستور:          .specify/memory/constitution.md → Design System Standards · docs/DECISIONS.md → ADR-009, ADR-012, ADR-025, ADR-038, ADR-053
    إعادة التوليد:    هذا الملف هو المصدر الوحيد للقيم؛ والدستور يحمل السجل فقط
    ============================================================ */
 
@@ -119,7 +120,7 @@ textarea {
 }
 .dark ::selection {
   background-color: var(--brand-800);
-  color: #fff;
+  color: var(--text-on-solid);
 }
 
 /* المحتوى المرئي للقارئات الصوتية فقط */
@@ -421,6 +422,25 @@ svg {
   --surface-900: #262626;
   --surface-950: #171717;
 
+  /* دلالات الجدول: رأس الصفحات والصفوف المخططة (Base Values). */
+  --surface-head: var(--surface-200);
+  --surface-stripe: rgb(250 250 250 / 0.6);
+  --surface-canvas: var(--surface-200);
+
+  /* نص على سطح مصمت، حلقات التركيز، وأسرار الحالات القوية. */
+  --text-on-solid: #ffffff;
+  --control-solid: #ffffff;
+  --ring-brand: rgb(30 58 138 / 0.3);
+  --ring-brand-strong: rgb(30 58 138 / 0.4);
+  --ring-error: rgb(239 68 68 / 0.2);
+  --ring-error-strong: rgb(153 27 27 / 0.5);
+  --ring-success: rgb(34 197 94 / 0.2);
+  --surface-brand-strong: rgb(30 58 138 / 0.4);
+  --surface-success-strong: rgb(20 83 45 / 0.4);
+  --surface-warning-strong: rgb(120 53 15 / 0.4);
+  --surface-error-strong: rgb(127 29 29 / 0.4);
+  --scrim: rgb(0 0 0 / 0.5);
+
   /* ---------------------------------------------------------
      BACKGROUND — خلفيات الصفحة
      --------------------------------------------------------- */
@@ -488,6 +508,10 @@ svg {
   --surface-800: #d4d4d4;
   --surface-900: #e5e5e5;
   --surface-950: #fafafa;
+
+  --surface-head: rgb(23 23 23 / 0.6);
+  --surface-stripe: rgb(38 38 38 / 0.5);
+  --surface-canvas: #090909;
 
   --background-light: #0a0a0a;
   --background-default: #0a0a0a;
@@ -1206,6 +1230,14 @@ svg {
   --shadow-glass: 0 12px 40px 0 rgb(0 0 0 / 0.08);
 
   /* ---------------------------------------------------------
+     خطّ الشعر الداخلي وظلّ الترويسة وتوهّج العلامة.
+     ------------------------------------------------------------- */
+  --shadow-hairline: inset 0 1px 0 rgb(255 255 255 / 0.95);
+  --shadow-hairline-soft: inset 0 1px 0 rgb(255 255 255 / 0.92);
+  --shadow-navbar: 0 1px 2px rgb(0 0 0 / 0.02);
+  --shadow-glow-brand: 0 0 28px rgb(59 130 246 / 0.35);
+
+  /* ---------------------------------------------------------
      مسميات دلالية
      ------------------------------------------------------------- */
   --shadow-control: var(--shadow-xs); /* الحقول */
@@ -1235,6 +1267,10 @@ svg {
   --shadow-brand-lg: 0 16px 40px 0 rgb(59 130 246 / 0.14);
 
   --shadow-glass: 0 16px 48px 0 rgb(0 0 0 / 0.35);
+
+  --shadow-hairline: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  --shadow-hairline-soft: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  --shadow-navbar: var(--shadow-md);
 }
 
 /* ============================================================
@@ -1255,13 +1291,13 @@ svg {
 .ds-surface-card {
   background-color: var(--surface-50);
   border: 1px solid var(--border-slate-subtle);
-  box-shadow: var(--shadow-sm), inset 0 1px 0 rgb(255 255 255 / 0.95);
+  box-shadow: var(--shadow-sm), var(--shadow-hairline);
 }
 
 .ds-surface-navbar {
   background-color: var(--surface-50);
   border-bottom: 1px solid var(--border-slate-subtle);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.02);
+  box-shadow: var(--shadow-navbar);
 }
 
 .ds-surface-sidebar {
@@ -1277,7 +1313,7 @@ svg {
     var(--surface-200) 100%
   );
   border: 1px solid var(--border-slate-muted);
-  box-shadow: var(--shadow-sm), inset 0 1px 0 rgb(255 255 255 / 0.95);
+  box-shadow: var(--shadow-sm), var(--shadow-hairline);
 }
 
 .ds-surface-table {
@@ -1298,7 +1334,7 @@ svg {
     var(--surface-200) 100%
   );
   border: 1px solid var(--border-slate-muted);
-  box-shadow: var(--shadow-sm), inset 0 1px 0 rgb(255 255 255 / 0.92);
+  box-shadow: var(--shadow-sm), var(--shadow-hairline-soft);
 }
 
 .dark .ds-surface-card,
@@ -1310,7 +1346,7 @@ svg {
 
 .dark .ds-surface-stats,
 .dark .ds-surface-form {
-  box-shadow: var(--shadow-md), inset 0 1px 0 rgb(255 255 255 / 0.06);
+  box-shadow: var(--shadow-md), var(--shadow-hairline-soft);
 }
 
 /* حد متدرّج — للتلميح البصري على البطاقات المهمة */
@@ -1332,12 +1368,12 @@ svg {
 /* رفع عند المرور — تفاعل موحّد لكل البطاقات */
 .ds-lift {
   transition:
-    transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    box-shadow 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
 }
 .ds-lift:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg), inset 0 1px 0 rgb(255 255 255 / 0.95);
+  box-shadow: var(--shadow-lg), var(--shadow-hairline);
 }
 .dark .ds-lift:hover {
   box-shadow: var(--shadow-lg);
@@ -1345,7 +1381,7 @@ svg {
 
 /* توهج بلون العلامة — للتركيز على عنصر واحد */
 .ds-glow:hover {
-  box-shadow: 0 0 28px rgb(59 130 246 / 0.35);
+  box-shadow: var(--shadow-glow-brand);
 }
 
 /* ============================================================
@@ -1356,8 +1392,12 @@ svg {
    نظام وَفَّر — الحركة | Motion
    ------------------------------------------------------------
    مبدأ النظام: الحركة تخدم الاتجاه، لا تُزيّن.
-   - مدد قصيرة موحّدة (200/300/400/600) بدل قيم عشوائية.
-   - منحنيان فقط: ease (قياسي) و spring (للارتداد).
+   - سلّم مدد موحّد: 0 / 200 / 300 / 400 / 600 / 700 (--duration-instant…
+     --duration-deliberate) بدل قيم عشوائية؛ ومدة تقليل الحركة 120ms منفردة.
+   - مدد دورات الحلقات اللانهائية (pulse/spin/float/shimmer) فترة تكرار لا
+     مدة انتقال، ولذلك تُكتب بالثواني داخل قاعدة الصنف.
+   - المنحنيات المسجَّلة في الدستور هي وحدها: --ease-standard / smooth /
+     bounce / cinematic / linear / default / loop / pulse.
    - كل الحركة تخضع لمفتاح prefers-reduced-motion موحّد.
    - انتقالات الصفحات مدركة للاتجاه (forward / back).
    ============================================================ */
@@ -1372,6 +1412,9 @@ svg {
   --duration-slow: 400ms;
   --duration-slower: 600ms;
   --duration-deliberate: 700ms; /* للدخول السينمائي */
+  /* تقليل الحركة: مدة واحدة صغيرة بقصد. هي المدة الوحيدة في النظام
+     التي ليست خطوة من سلّم الحركة. */
+  --duration-reduced: 120ms;
 
   /* ---------------------------------------------------------
      المنحنيات
@@ -1381,6 +1424,27 @@ svg {
   --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55); /* ارتداد */
   --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1); /* دخول الأثاث */
   --ease-linear: linear; /* لأشرطة التقدّم فقط */
+  --ease-default: ease;
+  --ease-loop: ease-in-out;
+  --ease-pulse: cubic-bezier(0.4, 0, 0.6, 1); /* نبض الهياكل العظمية */
+
+  /* ---------------------------------------------------------
+     مدد دورات الحلقات اللانهائية: فترة تكرار، لا مدة انتقال.
+     ------------------------------------------------------------- */
+  --motion-loop-pulse: 2s;
+  --motion-loop-spin: 1s;
+  --motion-loop-slow: 3s;
+  --motion-loop-float: 3s;
+  --motion-loop-badge: 2.5s;
+  --motion-loop-gradient: 15s;
+  --motion-loop-shimmer: 2s;
+
+  /* سلّم التأخير المتدرّج: تأخير بداية، لا مدة انتقال. */
+  --motion-stagger-1: 100ms;
+  --motion-stagger-2: 200ms;
+  --motion-stagger-3: 300ms;
+  --motion-stagger-4: 400ms;
+  --motion-stagger-5: 500ms;
 
   /* ---------------------------------------------------------
      مسميات مركّبة
@@ -1390,7 +1454,7 @@ svg {
   --transition-slow: var(--duration-slow) var(--ease-standard);
   --transition-slower: var(--duration-slower) var(--ease-standard);
   --transition-smooth: var(--duration-slow) var(--ease-smooth);
-  --transition-bounce: 600ms var(--ease-bounce);
+  --transition-bounce: var(--duration-slower) var(--ease-bounce);
   --transition-cinematic: var(--duration-deliberate) var(--ease-cinematic);
 
   /* ---------------------------------------------------------
@@ -1666,7 +1730,7 @@ svg {
   animation: ds-scale-in-center var(--duration-base) var(--ease-standard) forwards;
 }
 .ds-anim-bounce-in {
-  animation: ds-bounce-in 600ms var(--ease-bounce) forwards;
+  animation: ds-bounce-in var(--duration-slower) var(--ease-bounce) forwards;
 }
 .ds-anim-slide-in-right {
   animation: ds-slide-in-right var(--duration-slow) var(--ease-standard) forwards;
@@ -1675,23 +1739,23 @@ svg {
   animation: ds-slide-in-left var(--duration-slow) var(--ease-standard) forwards;
 }
 .ds-anim-pulse {
-  animation: ds-pulse 2s infinite;
+  animation: ds-pulse var(--motion-loop-pulse) infinite;
 }
 .ds-anim-spin {
-  animation: ds-spin 1s linear infinite;
+  animation: ds-spin var(--motion-loop-spin) var(--ease-linear) infinite;
 }
 .ds-anim-spin-slow {
-  animation: ds-spin 3s linear infinite;
+  animation: ds-spin var(--motion-loop-slow) var(--ease-linear) infinite;
 }
 .ds-anim-float {
-  animation: ds-float 3s ease-in-out infinite;
+  animation: ds-float var(--motion-loop-float) var(--ease-loop) infinite;
 }
 .ds-anim-badge-pulse {
-  animation: ds-badge-pulse 2.5s ease-in-out infinite;
+  animation: ds-badge-pulse var(--motion-loop-badge) var(--ease-loop) infinite;
 }
 .ds-anim-gradient {
   background-size: 400% 400%;
-  animation: ds-gradient-shift 15s ease infinite;
+  animation: ds-gradient-shift var(--motion-loop-gradient) var(--ease-default) infinite;
 }
 .ds-anim-enter-up {
   animation: ds-enter-up var(--duration-deliberate) var(--ease-cinematic)
@@ -1700,19 +1764,19 @@ svg {
 
 /* تأخير متدرّج — للعناصر المتتابعة */
 .ds-delay-1 {
-  animation-delay: 100ms;
+  animation-delay: var(--motion-stagger-1);
 }
 .ds-delay-2 {
-  animation-delay: 200ms;
+  animation-delay: var(--motion-stagger-2);
 }
 .ds-delay-3 {
-  animation-delay: 300ms;
+  animation-delay: var(--motion-stagger-3);
 }
 .ds-delay-4 {
-  animation-delay: 400ms;
+  animation-delay: var(--motion-stagger-4);
 }
 .ds-delay-5 {
-  animation-delay: 500ms;
+  animation-delay: var(--motion-stagger-5);
 }
 
 /* ============================================================
@@ -1723,7 +1787,7 @@ svg {
 }
 .ds-press:active {
   transform: scale(var(--motion-press-scale));
-  transition-duration: 150ms;
+  transition-duration: var(--duration-fast);
 }
 
 .ds-shimmer {
@@ -1734,13 +1798,13 @@ svg {
     rgb(255 255 255 / 0) 100%
   );
   background-size: 200% 100%;
-  animation: ds-shimmer 2s linear infinite;
+  animation: ds-shimmer var(--motion-loop-shimmer) var(--ease-linear) infinite;
 }
 
 .ds-skeleton {
   background-color: var(--neutral-200);
   border-radius: var(--radius-sm);
-  animation: ds-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: ds-pulse var(--motion-loop-pulse) var(--ease-pulse) infinite;
 }
 .dark .ds-skeleton {
   background-color: var(--neutral-700);
@@ -1749,16 +1813,16 @@ svg {
 /* ============================================================
    مفتاح احترام تقليل الحركة
    ------------------------------------------------------------
-   قاعدة واحدة لكل النظام: لا شيء يتحرك أكثر من 120ms
-    ولا يُزيح spatially، لكن يبقى perubahan مرئياً (opacity/لون).
+   قاعدة واحدة لكل النظام: لا شيء يتحرك أكثر من --duration-reduced
+     ولا يُزيح spatially، لكن يبقى التغيير مرئياً (opacity/لون).
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 120ms !important;
+    animation-duration: var(--duration-reduced) !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 120ms !important;
+    transition-duration: var(--duration-reduced) !important;
     scroll-behavior: auto !important;
   }
 
@@ -1852,7 +1916,7 @@ svg {
 .ds-backdrop {
   position: absolute;
   inset: 0;
-  background-color: rgb(0 0 0 / 0.5);
+  background-color: var(--scrim);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   transition: opacity var(--duration-base) var(--ease-standard);
@@ -1952,6 +2016,32 @@ svg {
    ============================================================ */
 :root {
   --backdrop-glass: blur(20px) saturate(200%);
+
+  /* قيم الزجاج: كل لون وظل هنا معرَّف كتوكن، وكل صنف يشير إليه.
+     إطلاق قيمة خام داخل قاعدة صنف ممنوع ما لم تكن قناعاً أو
+     قاعدة طباعة (Base Values -> Static enforcement في الدستور). */
+  --glass-surface: rgb(255 255 255 / 0.35);
+  --glass-border: rgb(255 255 255 / 0.25);
+  --glass-shadow: 0 4px 16px rgb(0 0 0 / 0.04);
+  --glass-dark-surface: rgb(0 0 0 / 0.15);
+  --glass-dark-border: rgb(255 255 255 / 0.12);
+  --glass-dark-shadow: 0 4px 16px rgb(0 0 0 / 0.06);
+  --glass-brand-surface: rgb(37 99 235 / 0.08);
+  --glass-brand-shadow: 0 4px 16px rgb(37 99 235 / 0.08);
+  --card-glass-surface: rgb(255 255 255 / 0.8);
+  --card-glass-border: rgb(255 255 255 / 0.2);
+}
+
+.dark {
+  --glass-surface: rgb(255 255 255 / 0.05);
+  --glass-border: rgb(255 255 255 / 0.08);
+  --glass-shadow: 0 4px 16px rgb(0 0 0 / 0.15);
+  --glass-dark-surface: rgb(0 0 0 / 0.5);
+  --glass-dark-border: rgb(255 255 255 / 0.06);
+  --glass-dark-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+  --glass-brand-surface: rgb(59 130 246 / 0.06);
+  --glass-brand-shadow: 0 4px 16px rgb(59 130 246 / 0.12);
+  --card-glass-surface: rgb(10 10 10 / 0.8);
 }
 
 .ds-backdrop-glass {
@@ -1971,57 +2061,57 @@ svg {
    الزجاج
    ------------------------------------------------------------- */
 .ds-glass {
-  background: rgb(255 255 255 / 0.35);
+  background: var(--glass-surface);
   backdrop-filter: var(--backdrop-glass);
   -webkit-backdrop-filter: var(--backdrop-glass);
-  border: 1px solid rgb(255 255 255 / 0.25);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.04);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 .dark .ds-glass {
-  background: rgb(255 255 255 / 0.05);
-  border-color: rgb(255 255 255 / 0.08);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.15);
+  background: var(--glass-surface);
+  border-color: var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 
 .ds-glass-dark {
-  background: rgb(0 0 0 / 0.15);
+  background: var(--glass-dark-surface);
   backdrop-filter: var(--backdrop-glass);
   -webkit-backdrop-filter: var(--backdrop-glass);
-  border: 1px solid rgb(255 255 255 / 0.12);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.06);
+  border: 1px solid var(--glass-dark-border);
+  box-shadow: var(--glass-dark-shadow);
 }
 .dark .ds-glass-dark {
-  background: rgb(0 0 0 / 0.5);
-  border-color: rgb(255 255 255 / 0.06);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+  background: var(--glass-dark-surface);
+  border-color: var(--glass-dark-border);
+  box-shadow: var(--glass-dark-shadow);
 }
 
 .ds-glass-brand {
-  background: rgb(37 99 235 / 0.08);
-  backdrop-filter: blur(20px) saturate(200%);
-  -webkit-backdrop-filter: blur(20px) saturate(200%);
+  background: var(--glass-brand-surface);
+  backdrop-filter: var(--backdrop-glass);
+  -webkit-backdrop-filter: var(--backdrop-glass);
   border: 1px solid var(--border-brand-subtle);
-  box-shadow: 0 4px 16px rgb(37 99 235 / 0.08);
+  box-shadow: var(--glass-brand-shadow);
 }
 .dark .ds-glass-brand {
-  background: rgb(59 130 246 / 0.06);
+  background: var(--glass-brand-surface);
   border-color: var(--border-brand-subtle);
-  box-shadow: 0 4px 16px rgb(59 130 246 / 0.12);
+  box-shadow: var(--glass-brand-shadow);
 }
 
 /* ---------------------------------------------------------
    بطاقة زجاجية على سطح (للاستخدام داخل .ds-surface-card)
    ------------------------------------------------------------- */
 .ds-card-glass {
-  background: rgb(255 255 255 / 0.8);
+  background: var(--card-glass-surface);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgb(255 255 255 / 0.2);
+  border: 1px solid var(--card-glass-border);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-lg);
 }
 .dark .ds-card-glass {
-  background: rgb(10 10 10 / 0.8);
+  background: var(--card-glass-surface);
   border-color: var(--border-slate-subtle);
 }
 
@@ -2075,7 +2165,7 @@ svg {
     var(--brand-800)
   );
   background-size: 400% 400%;
-  animation: ds-gradient-shift 15s ease infinite;
+  animation: ds-gradient-shift var(--motion-loop-gradient) var(--ease-default) infinite;
 }
 
 /* ---------------------------------------------------------
@@ -2323,7 +2413,7 @@ svg {
 /* --- الأنواع --- */
 .ds-btn-primary {
   background-color: var(--brand-600);
-  color: #fff;
+  color: var(--text-on-solid);
 }
 .ds-btn-primary:hover:not(:disabled) {
   background-color: var(--brand-700);
@@ -2366,7 +2456,7 @@ svg {
   color: var(--brand-400);
 }
 .dark .ds-btn-outline:hover:not(:disabled) {
-  background-color: rgb(30 58 138 / 0.3);
+  background-color: var(--ring-brand);
 }
 
 .ds-btn-ghost {
@@ -2400,7 +2490,7 @@ svg {
 
 .ds-btn-danger {
   background-color: var(--error-600);
-  color: #fff;
+  color: var(--text-on-solid);
 }
 .ds-btn-danger:hover:not(:disabled) {
   background-color: var(--error-700);
@@ -2414,7 +2504,7 @@ svg {
 
 .ds-btn-success {
   background-color: var(--success-600);
-  color: #fff;
+  color: var(--text-on-solid);
 }
 .ds-btn-success:hover:not(:disabled) {
   background-color: var(--success-700);
@@ -2428,7 +2518,7 @@ svg {
 
 .ds-btn-warning {
   background-color: var(--warning-500);
-  color: #fff;
+  color: var(--text-on-solid);
 }
 .ds-btn-warning:hover:not(:disabled) {
   background-color: var(--warning-600);
@@ -2528,10 +2618,10 @@ svg {
 }
 .ds-field-error:focus {
   border-color: var(--error-500);
-  box-shadow: 0 0 0 3px rgb(239 68 68 / 0.2);
+  box-shadow: 0 0 0 3px var(--ring-error);
 }
 .dark .ds-field-error:focus {
-  box-shadow: 0 0 0 3px rgb(153 27 27 / 0.5);
+  box-shadow: 0 0 0 3px var(--ring-error-strong);
 }
 
 /* حقل ناجح */
@@ -2540,7 +2630,7 @@ svg {
 }
 .ds-field-success:focus {
   border-color: var(--success-500);
-  box-shadow: 0 0 0 3px rgb(34 197 94 / 0.2);
+  box-shadow: 0 0 0 3px var(--ring-success);
 }
 
 /* --- التسمية والنص المساعد --- */
@@ -2646,7 +2736,7 @@ svg {
   inset-inline-start: 2px;
   width: 1.25rem;
   height: 1.25rem;
-  background-color: #fff;
+  background-color: var(--control-solid);
   border: 1px solid var(--neutral-300);
   border-radius: var(--radius-full);
   transition: transform var(--duration-base) var(--ease-standard);
@@ -2701,7 +2791,7 @@ svg {
   color: var(--brand-700);
 }
 .dark .ds-badge-brand {
-  background-color: rgb(30 58 138 / 0.4);
+  background-color: var(--surface-brand-strong);
   color: var(--brand-300);
 }
 .ds-badge-success {
@@ -2709,7 +2799,7 @@ svg {
   color: var(--success-700);
 }
 .dark .ds-badge-success {
-  background-color: rgb(20 83 45 / 0.4);
+  background-color: var(--surface-success-strong);
   color: var(--success-300);
 }
 .ds-badge-warning {
@@ -2717,7 +2807,7 @@ svg {
   color: var(--warning-700);
 }
 .dark .ds-badge-warning {
-  background-color: rgb(120 53 15 / 0.4);
+  background-color: var(--surface-warning-strong);
   color: var(--warning-300);
 }
 .ds-badge-error {
@@ -2725,7 +2815,7 @@ svg {
   color: var(--error-700);
 }
 .dark .ds-badge-error {
-  background-color: rgb(127 29 29 / 0.4);
+  background-color: var(--surface-error-strong);
   color: var(--error-300);
 }
 .ds-badge-neutral {
@@ -2774,7 +2864,7 @@ svg {
   flex-shrink: 0;
 }
 .ds-badge-dot-pulse {
-  animation: ds-pulse 2s infinite;
+  animation: ds-pulse var(--motion-loop-pulse) infinite;
 }
 
 /* ============================================================
@@ -2806,7 +2896,7 @@ svg {
   color: var(--brand-600);
 }
 .dark .ds-avatar-fallback-brand {
-  background-color: rgb(30 58 138 / 0.4);
+  background-color: var(--surface-brand-strong);
   color: var(--brand-300);
 }
 
@@ -2934,10 +3024,7 @@ svg {
 
 .ds-page-dashboard {
   min-height: 100vh;
-  background-color: var(--surface-200);
-}
-.dark .ds-page-dashboard {
-  background-color: #090909;
+  background-color: var(--surface-canvas);
 }
 
 .ds-shell {
@@ -3150,10 +3237,10 @@ svg {
 }
 
 .ds-table thead {
-  background-color: var(--surface-200);
+  background-color: var(--surface-head);
 }
 .dark .ds-table thead {
-  background-color: rgb(23 23 23 / 0.6);
+  background-color: var(--surface-head);
 }
 
 .ds-table th {
@@ -3183,10 +3270,10 @@ svg {
   background-color: transparent;
 }
 .ds-table tbody tr:nth-child(even) {
-  background-color: rgb(250 250 250 / 0.6);
+  background-color: var(--surface-stripe);
 }
 .dark .ds-table tbody tr:nth-child(even) {
-  background-color: rgb(38 38 38 / 0.5);
+  background-color: var(--surface-stripe);
 }
 .ds-table tbody tr:hover {
   background-color: var(--brand-50);
@@ -3296,6 +3383,7 @@ svg {
   --loader-soft: rgb(37 99 235 / 0.12);
   --loader-track: rgb(37 99 235 / 0.14);
   --loader-on-solid: #ffffff;
+  --loader-glow: 0 0 12px rgb(37 99 235 / 0.35);
   --loader-on-solid-soft: rgb(255 255 255 / 0.7);
 
   /* ---------------------------------------------------------
@@ -3592,7 +3680,7 @@ svg {
   height: 10px;
   border-radius: var(--radius-full);
   background: linear-gradient(135deg, var(--loader-main), var(--loader-strong));
-  box-shadow: 0 0 12px rgb(37 99 235 / 0.35);
+  box-shadow: var(--loader-glow);
 }
 
 .ds-loader-orbit-lg {

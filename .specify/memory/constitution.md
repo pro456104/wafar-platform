@@ -327,9 +327,11 @@ prohibited.
   left-to-right ordering.
 - **Z-index layers**: every layer takes a value from the defined scale.
   Direct use of `z-10`, `z-20`, or `z-50` is prohibited.
-- **Motion**: durations are limited to the defined scale (200 / 300 / 400 /
-  600 ms). `prefers-reduced-motion` MUST be honoured; the reduction is
-  mandatory, not optional.
+- **Motion**: durations are limited to the defined scale (`--duration-instant` /
+  `0ms`, `--duration-fast` / `200ms`, `--duration-base` / `300ms`, `--duration-slow`
+  / `400ms`, `--duration-slower` / `600ms`, `--duration-deliberate` / `700ms`, the
+  last reserved for cinematic transitions). `prefers-reduced-motion` MUST be
+  honoured; the reduction is mandatory, not optional.
 - **Prohibited without exception**:
   - Raw Tailwind colours (`bg-blue-500`, `text-gray-700`) in application code.
   - Any `#hex` or `rgb()` outside `wafar.single.css`.
@@ -566,6 +568,7 @@ slice named in the last column MUST resolve each one and record the answer in
 | `Conversation` carries an administrator reference, yet every administrator account sees the same single thread | Product Register (`Conversation` carries an administrator); `Core-Project.txt` (one administrator account type, all administrators see the same conversations) | R10 |
 | An administrator is a role on `User` in one place and a separate party that `Conversation` and `AuditLog` refer to in another | Product Register (roles); Authorization and Access Control (a separate application with a separate login) | R13 |
 | How a printed price that carries more than one separator is read (for example `1.250.000`), and how a file that separates thousands rather than decimals is read | File Processing Rules (price denomination); the price examples in `Core-Project.txt`; the source files themselves | R3 |
+| Where the administrator's platform settings are stored, given that no registered entity owns them | Product Scope (Administrator's Application → Settings); the Data entities register (ten entities, none of them settings, and an unregistered entity MUST NOT be introduced) | R13 |
 
 **Resolved conflict (2026-10-03).** The sidebar conflict is resolved: the
 sidebar is required on desktop and must not hide or slide (Principle IX);
@@ -761,7 +764,11 @@ schema should contain; see Deferred areas.
   MUST carry `user_id` as a foreign key to `User`, and that column MUST be part of
   every index serving a merchant-scoped query. Tables holding platform-wide data
   that belongs to no single merchant — `Supplier`, `AuditLog` — carry no tenant
-  identifier, and a query against them is not tenant-scoped.
+  identifier, and a query against them is not tenant-scoped. `ContactMessage` is
+  in the same category and for the same reason: it is a public intake whose
+  submitter may hold no account at all, its only read path is the
+  administrator's, and no query reaches it from a merchant session, so a scoping
+  column on it could never be used as a scoping key (ADR-053).
 - Every read and write of merchant-owned data MUST be merchant-scoped, and the
   scoping MUST be applied at a single shared entry point rather than repeated
   at each call site. A query path reachable from a merchant session MUST NOT
@@ -1280,7 +1287,10 @@ change.
 
 - Colour families, each 50-950: `brand`, `accent`, `primary`, `neutral`, `gray`,
   `zinc`, `surface`, `success`, `warning`, `error`, `info`, plus the semantic
-  aliases (`--background-*`, `--text-*`, `--border-*`, `--surface-*`).
+  aliases (`--background-*`, `--text-*`, `--border-*`, `--surface-*`,
+  `--ring-*`, `--scrim`, `--control-solid`). `--ring-*` holds the focus and
+  validation halos, `--scrim` the backdrop dimmer, and `--control-solid` the
+  fill of a control that stays the same colour in both modes.
   `gray` and `zinc` are re-pointed at the neutral ladder, and `info` is a synonym
   of `brand`; both are deliberate decisions, recorded in `docs/DECISIONS.md`.
 - Typography: `--text-4xs` … `--text-6xl`, the matching `--leading-*`, the
@@ -1295,12 +1305,25 @@ change.
 - Shadows: the size ladder (`--shadow-xs`, `--shadow-sm`, `--shadow-md`,
   `--shadow-lg`, `--shadow-xl`, `--shadow-2xl`) plus the named shadows `card`,
   `card-raised`, `cinematic`, `cinematic-hover`, `cinematic-panel`, `control`,
-  `focus`, `glass`, `inner`, `none`, `overlay`, and `panel`, plus the brand
-  tints `brand-sm`, `brand-md`, and `brand-lg`. The brand tints are a
+  `focus`, `glass`, `hairline`, `hairline-soft`, `inner`, `navbar`, `none`,
+  `overlay`, `panel`, and `glow-brand`, plus the brand tints `brand-sm`,
+  `brand-md`, and `brand-lg`. The brand tints are a
   three-step sub-ladder and not a single `brand` shadow; a `brand` shadow does
   not exist and MUST NOT be used.
-- Motion: the duration steps, the easing curves, the transition shorthands, and
-  the motion steps for hover lift, press scale, stagger, and slide.
+- Motion: the duration steps — `--duration-instant` (0ms), `--duration-fast`
+  (200ms), `--duration-base` (300ms), `--duration-slow` (400ms), `--duration-slower`
+  (600ms), `--duration-deliberate` (700ms, reserved for cinematic transitions) —
+  plus one duration outside that scale, `--duration-reduced` (120ms), which the
+  `prefers-reduced-motion` block uses and nothing else. `instant` and
+  `deliberate` are the two ends of the ladder and are named here because
+  Principle IX's motion rule states the scale; every other transition duration a
+  rule names is one of these six. The file carries two further duration families
+  that are periods rather than transition durations and are therefore not on the
+  scale: the infinite-loop periods `--motion-loop-{pulse,spin,slow,float,badge,gradient,shimmer}`,
+  and the stagger ladder `--motion-stagger-1` … `--motion-stagger-5`
+  (100–500 ms) behind `.ds-delay-1` … `.ds-delay-5`. Easings are
+  `--ease-standard`, `--ease-smooth`, `--ease-bounce`, `--ease-cinematic`,
+  `--ease-linear`, `--ease-default`, `--ease-loop`, and `--ease-pulse`.
 - Z-index: the defined layer scale. Every layer takes a value from it.
 - Glass and gradients: the glass surfaces, the gradient utilities, the tints, and
   the glow utilities.
@@ -1331,14 +1354,19 @@ owns it wires it to a media query. The same holds for `--sidebar-width`,
 
 The shadow ladder is **not** in that state, and this paragraph does not claim it
 is. The size ladder `--shadow-xs` through `--shadow-2xl` and the named shadows
-`--shadow-card`, `--shadow-card-raised`, and `--shadow-focus` are declared **and
-already consumed** by `wafar.single.css`; they are in force. The named shadows
-`--shadow-cinematic`, `--shadow-control`, `--shadow-glass`, `--shadow-inner`,
-`--shadow-none`, `--shadow-overlay`, `--shadow-panel`, and the `brand-sm`,
-`brand-md`, `brand-lg` triple are declared-but-unused, and no slice MAY rely on
-one until the surface that needs it consumes it. A register row naming a value
-MUST match what the source actually does (Single-Reference Sufficiency); this
-paragraph distinguishes the two states because the two groups are not uniform.
+`--shadow-card`, `--shadow-card-raised`, `--shadow-focus`, `--shadow-hairline`,
+`--shadow-hairline-soft`, `--shadow-navbar`, and `--shadow-glow-brand` are
+declared **and already consumed** by `wafar.single.css`; they are in force. The
+remaining nine named shadows — `--shadow-cinematic`, `--shadow-cinematic-hover`,
+`--shadow-cinematic-panel`, `--shadow-control`, `--shadow-glass`,
+`--shadow-inner`, `--shadow-none`, `--shadow-overlay`, and `--shadow-panel` —
+and the `brand-sm`, `brand-md`, `brand-lg` triple are declared-but-unused, and
+no slice MAY rely on one until the surface that needs it consumes it. The two
+groups account for the whole file: twenty-five shadow tokens, being the six-step
+size ladder, sixteen named shadows (seven consumed, nine not), and the brand
+triple. A register row naming a value MUST match what the source actually does
+(Single-Reference Sufficiency); this paragraph distinguishes the two states
+because the two groups are not uniform.
 
 A responsive change MUST name the breakpoint it changes at, and the first
 surface that wires a token MUST delete the tokens it leaves unused (Project
@@ -1369,7 +1397,9 @@ rule depends on each one.
   system does not yet provide it (see the missing-components list below).
 - **Motion**: `--duration-fast` (200ms) for micro-interactions,
   `--duration-base` (300ms) for transitions, `--duration-slow` (400ms) for
-  the theme toggle, and `--duration-slower` (600ms) for long transitions.
+  the theme toggle, `--duration-slower` (600ms) for long transitions,
+  `--duration-deliberate` (700ms) for cinematic transitions, and
+  `--duration-instant` (0ms) where a transition must not animate.
 - **Sidebar**: `--sidebar-width` (19rem / 304px), full width or icon rail on
   desktop, drawer on mobile. The rail's width is not fixed here; it is a token
   the slice that first needs it MUST add to `wafar.single.css`.
@@ -1447,9 +1477,25 @@ ad hoc inside a feature, and it MUST NOT be defined in this constitution.
   stylesheet, not in a Vue SFC colour, not in an inline style value, and not as a
   Tailwind colour utility.
 - **Static enforcement.** Stylelint and ESLint MUST fail the build on physical
-  direction properties and on any colour, radius, shadow, duration, or
-  z-index value that does not reference a declared token. Enforcement MUST be
-  a committed configuration, not a review comment.
+  direction properties, and on any colour, radius, shadow, duration, or z-index
+  value **outside `wafar.single.css`** that does not reference a declared token.
+  Enforcement MUST be a committed configuration, not a review comment. The scope
+  is named because it is the only reading under which the rule is satisfiable:
+  `wafar.single.css` is the source of the tokens, so a rule that forbade a
+  literal there would forbid the file from defining anything.
+- **Inside the design system file.** A colour, radius, shadow, duration, or
+  z-index in `wafar.single.css` MUST be either a token definition or a reference
+  to one, and the same rule applies to a shadow's own parts — a `box-shadow` that
+  combines a token with a literal offset or alpha is a token reference and a
+  literal, and it is the literal half that is the defect. Three cases are exempt
+  because the value is not a rendered design value: a `mask` or `-webkit-mask`
+  image, whose luminance mask must be literal to mask at all; the print rules,
+  whose job is to override user-agent styling that the tokens do not control; and
+  a `prefers-color-scheme` rule, whose values must deliberately differ from the
+  mode class because it exists only to serve elements that do not read the class
+  (Invariants below: the mode is class-based). A raw value anywhere else in the
+  file is a defect, and a slice that edits the rule containing it converts it in
+  the same change rather than reading around it.
 
 ### Fonts and the framework bridge
 
@@ -1621,9 +1667,14 @@ the same force as the principles above.
   of those controls. The platform logo
   sits in the sidebar header, and the quick search field lives on the Home
   page (see Product Scope). Pages without the shell — authentication, 404,
-  static, and administrator pages — carry no header. The contact page is one of
-  those pages: it is reached by a direct link or by a contact action on a page
-  that carries one, and it MUST NOT be listed as a sidebar item.
+  static, and administrator pages — carry no header. The four bare-layout static
+  pages — Contact, Privacy Policy, Terms of Use, and FAQ — are reached the same
+  way: by a direct link or by an action on a page that carries one, and none of
+  them is a sidebar item. The shell has no footer component today, so the surface
+  that carries those links is a decision of the slice that first builds a shell
+  page, recorded as an ADR; the reachability requirement is binding whichever
+  surface that slice chooses, and an in-scope static page that no in-scope page
+  links to is a defect.
 - Every data table's default order is newest first, taken from the record's
   immutable creation timestamp (Schema and Migration Control). Any other order
   beyond the table's own sortable columns is a deferred area (Retrieval
@@ -1762,4 +1813,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.18.8 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-05
+**Version**: 2.18.9 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-05

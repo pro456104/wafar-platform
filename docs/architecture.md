@@ -1,7 +1,7 @@
 # Architecture — Wafar
 
 This document records the repository layout, the API module map, and the data
-flow. Its sources of authority are `.specify/memory/constitution.md` (v2.18.8),
+flow. Its sources of authority are `.specify/memory/constitution.md` (v2.18.9),
 whose Technology Standards and Design System Standards are the registers, and
 `Project-Technologies.txt`; where this document and the constitution disagree,
 the constitution wins. The data model's entities and their owning modules are
@@ -209,10 +209,10 @@ Read/write notes:
 
 ## 6. Governance pointers
 
-- Constitution: `.specify/memory/constitution.md` (v2.18.8) — principles I–X and
+- Constitution: `.specify/memory/constitution.md` (v2.18.9) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-052; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-053; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
@@ -226,12 +226,13 @@ Read/write notes:
   and what remains is the shape below the product, which is the schema file and
   the feature's `data-model.md`. The first feature that implements a deferred
   area MUST record, in its plan's Constitution Check, which rules are still
-  missing and when they will be ratified. The open product facts that touch this
-  architecture — the message sender's representation, the conversation's
-  administrator reference, whether an administrator is a distinct entity,
-  `expires_at`, notification retention, and how a multi-separator printed price is
-  read — are listed in
-  `docs/domain-model.md` → Unresolved facts, each with
-  the slice that must decide it. The contact-message path was resolved
-  2026-10-03 by ADR-028 (a dedicated "Contact messages" administrator page).
+   missing and when they will be ratified. The open product facts that touch this
+   architecture — the message sender's representation, the conversation's
+   administrator reference, whether an administrator is a distinct entity,
+   `expires_at`, notification retention, where platform settings are stored, and
+   how a multi-separator printed price is read — are listed in
+   `docs/domain-model.md` → Unresolved facts, each with
+   the slice that must decide it. The contact-message path was resolved
+   2026-10-03 by ADR-028 (a dedicated "Contact messages" administrator page), and
+   ADR-053 settled which tables are merchant-scoped.
 

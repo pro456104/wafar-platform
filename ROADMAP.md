@@ -7,7 +7,7 @@ into independently specifiable slices. It names and orders them; it does **not**
 design them — the design happens when each slice runs through its own
 `/speckit.specify`.
 
-**Constitution**: `.specify/memory/constitution.md` (v2.18.8, last amended
+**Constitution**: `.specify/memory/constitution.md` (v2.18.9, last amended
 2026-10-05). On any conflict with this file, the constitution wins.
 
 Convention: the Spec Kit "spec of specs" procedure. A sub-spec opens with
@@ -34,7 +34,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-052) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-053) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -59,7 +59,7 @@ rules drift. It MUST NOT be created. See `docs/DECISIONS.md` → ADR-007.
 | R10 | Messaging | One conversation thread between a merchant and the administrator; the merchant sees a reply after refresh; a notification is delivered on reply. The reply itself is authored through the administrator's surface (R13); before R13 lands, acceptance of this slice verifies the reply path via the admin API directly. | Merchant to administrator only. User-to-user chat is prohibited (Principle VI). `Conversation`'s administrator reference and the message sender's representation are decided here (open facts #1 and #2). | R1, R9 | planned | — |
 | R11 | Support surfaces | Contact form (name, phone, body) that reaches the administrator through the "Contact messages" admin page (ADR-028), plus the FAQ, privacy policy, terms of use, and 404 pages. This slice also creates the `support` module, with the contact form protected by a honeypot field, a minimum time-to-submit, and a per-client rate limit. | Static content and the contact form only. The administrator read surface is R13. A contact message's status and administrator note are decided here (open fact #11). | R1 | planned | — |
 | R12 | Delivery and operations | Three environments with staging parity, health checks that verify the dependencies each service uses, the error tracker, secret management with pre-commit and CI scanning, TLS certificate management, the log pipeline, the dependency update process, and the pre-release load test, plus staging data anonymisation and the monitoring and alerting set. | Running the platform, not building product behaviour. | R1, R2, R3, R5 | planned | — |
-| R13 | Admin application | The administrator's separate application with its own login: dashboard, users, files, suppliers, parts, messages, notifications, settings, contact messages. Every administrator operation is recorded as it happens. | The administrator's surface. The audit log's read surface is R14; authorization granularity is a deferred area. The admin file-delete reuses the catalog-delete cascade owned by R4. Whether the administrator is a distinct entity or a role on `User` is decided here (open fact #6). | R1, R2, R3, R4, R5, R9, R10, R11 | planned | — |
+| R13 | Admin application | The administrator's separate application with its own login: dashboard, users, files, suppliers, parts, messages, notifications, settings, contact messages. Every administrator operation is recorded as it happens. | The administrator's surface. The audit log's read surface is R14; authorization granularity is a deferred area. The admin file-delete reuses the catalog-delete cascade owned by R4. Whether the administrator is a distinct entity or a role on `User` is decided here (open fact #6), and so is where the Settings page's values are stored (open fact #13, recorded by ADR-053). | R1, R2, R3, R4, R5, R9, R10, R11 | planned | — |
 | R14 | Audit log | The administrator-facing page over the append-only record every administrator operation writes. | Reading only. The recording is part of R13. | R13 | planned | — |
 | R15 | Retention | Automatic deletion of a catalog 90 days after upload, with the search index lifecycle aligned to the same window. The retention job reuses the catalog-delete cascade owned by R4 rather than duplicating it. | The deletion job and the index lifecycle only; the delete cascades to the catalog's parts, bookmarks, and index entries. `expires_at` semantics are decided here (open fact #3). | R3, R4, R8 | planned | — |
 
@@ -79,6 +79,7 @@ an owner.
 | Backup and restore tooling, and the RTO/RPO numbers | R1 | Deployment and Observability (R1 introduces persistent storage) |
 | The application shell — header, sidebar (full width or an icon rail on desktop, drawer on mobile), drawer, theme toggle, icon set (an open-source set under a permissive licence, self-hosted SVG, no emoji, per ADR-042), fonts, and the framework bridge — scoped to public pages and the merchant area, never on auth/404/static pages; resolved sidebar logo/header placement per ADR-017; icon set and theme toggle per ADR-016 | R1 | Principle IX; Design System Standards; ADR-016, ADR-017 |
 | The sidebar icon rail's width token, added to `wafar.single.css` and consumed by the shell's desktop collapsed state; the width itself is R1's to choose | R1 | Design System Standards → Decision values (Sidebar): the rail token is reserved for the first slice that needs it (ADR-039) |
+| The link surface that reaches the four bare-layout static pages (Contact, Privacy Policy, Terms of Use, FAQ), chosen and recorded as an ADR; the reachability requirement itself is binding whichever surface R1 picks | R1 | Product Fact Clarifications (the shell's per-page reachability; ADR-053) |
 | The sticky table header the design system does not yet provide, added to `wafar.single.css` and used by the first table that requires it | R5 | Design System Standards → Decision values (Table) and the missing-components list; Principle IX; ADR-039 |
 | CSRF, output-encoding, and security-header tests | R1 | Identity, Authentication, and Session Policy (first browser-facing feature) |
 | The automated accessibility scan and the manual keyboard-only pass | R1 | Principle IV (interface verification) |
@@ -157,7 +158,7 @@ carried. Each names the slice that closes it.
   yields a working account on a working shell, R2 alone yields an accepted and
   stored file, R5 alone yields a searchable parts table.
 - **Structure registers.** R1 creates the workspace; it MUST follow the fixed
-  locations in the constitution (v2.18.8) and `docs/architecture.md`, including
+  locations in the constitution (v2.18.9) and `docs/architecture.md`, including
   `apps/web/layouts` and `apps/admin`, and records the documentation-drift
   check for collection in R2 (R1's public surface is covered by OpenAPI
   generation from the Hono routes; ADR-002).
@@ -188,11 +189,12 @@ carried. Each names the slice that closes it.
   10. A part's page and row of origin (R3)
   11. A contact message's status and administrator note (R11)
   12. How a printed price carrying more than one separator is read, and how a file that separates thousands is read (R3)
+  13. Where the administrator's platform settings are stored: a new entity or a column on an existing one (R13)
 
   Each owning slice MUST decide its question, record the decision in
   `docs/DECISIONS.md`, and amend `docs/domain-model.md` in the same change —
   never silently choose it. Row 12 was added 2026-10-05 with the price column
-  (ADR-040); the rest of the list is unchanged.
+  and row 13 with the Settings page (ADR-053); the rest of the list is unchanged.
 - **Release gate.** Several rules (load test, Dependabot/Renovate, SBOM and
   scan gate, TLS/secret management, staging anonymisation, monitoring) name "the
   first public release" without a slice. The release gate is R12's acceptance:

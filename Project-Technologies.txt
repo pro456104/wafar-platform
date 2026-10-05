@@ -1,7 +1,7 @@
 # Project-Technologies.txt — the detail of the technology register
 
-**Constitution**: `.specify/memory/constitution.md` v2.18.8 (last amended
-2026-10-05, ADR-040/041/042/043/044/045/046/047/048/049). On any conflict with this file, the constitution
+**Constitution**: `.specify/memory/constitution.md` v2.18.9 (last amended
+2026-10-05, ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -239,8 +239,9 @@ apps/worker/src/
 | **الملفات** | SeaweedFS، BullMQ، Redis |
 | **المصادقة** | better-auth |
 | **الاختبارات** | Vitest، Playwright |
-| **الجودة** | ESLint، Prettier، Stylelint |
-| **النشر** | VPS، Nginx/HAProxy، Docker (اختياري) |
+| **الجودة** | ESLint، Prettier، Stylelint، Lighthouse CI |
+| **الأمان** | ClamAV |
+| **النشر** | VPS، Nginx/HAProxy، Docker (اختياري)، Prometheus + Grafana، Semgrep OSS، osv-scanner، pg_anonymize |
 
 ---
 
@@ -261,7 +262,7 @@ the rules stay in `.specify/memory/constitution.md`.
 - **API versioning** — the deployment version prefix is `/api/v1`; the removal-notice rule is the constitution's (Deployment and Observability).
 - **Session revocation** — server-side revocation of every authenticated session, including "sign out everywhere" and browser-stored tokens on password change; the mandate is the constitution's (Identity, Authentication, and Session Policy).
 - Account-protection controls — the tools that enforce uniform responses, an attempt/window lockout, honeypot fields, a minimum time-to-submit, per-client rate limits, the CAPTCHA prohibition, and the seeded administrator CLI with its forced first-sign-in password change. The numeric values are the constitution's (Identity, Authentication, and Session Policy); this mirror restates none of them.
-- **Tenant isolation verification** — the query-path test that fails the build when a merchant-reachable path returns another tenant's rows; the mandate is the constitution's (Deployment and Observability).
+- **Merchant isolation verification** — the query-path test that fails the build when a merchant-reachable path returns another merchant's rows; the mandate is the constitution's (Deployment and Observability).
 - **Browser coverage** — where the plan states its supported browsers (constitution → Design System Standards → Supported browsers, recorded under Constitution Mandated Values); this mirror names no browser set of its own.
 - Design-system tokens — `ds-table-density-compact|normal|comfortable`, `--duration-fast|base|slow|slower`, the honoured media/capability states (`ds-touch-optimized`, small-screen handling); a sticky table header is a required missing component tracked in the constitution's missing-components list.
 
@@ -319,7 +320,7 @@ or licence obligation.
 - **Catalog-delete cascade** — implemented once in the `catalogs` module service
   and reused downstream; which slice owns it is ROADMAP.md's record (R4), not
   this mirror's.
-- **Single shared entry point** — the one channel through which tenant scoping
+- **Single shared entry point** — the one channel through which merchant scoping
   is applied; the owning slice and the permission model's ratification are
   ROADMAP.md's (R2, then R13).
 - **Dependency budget** — the numeric cap on direct runtime dependencies is
@@ -413,14 +414,14 @@ This section records what 2.18.0 added. The rules are in
   registered for them, unlike the physical-direction and non-token design-value
   checks Stylelint and ESLint already enforce.
 
-## Constitution 2.18.1–2.18.8 additions (2026-10-05, ADR-044/045/046/047/048/049/050/051/052)
+## Constitution 2.18.1–2.18.9 additions (2026-10-05, ADR-044/045/046/047/048/049/050/051/052/053)
 
 ### Party/header sync markers
 
 The mirror headers now track the constitution footer:
-`Constitution: .specify/memory/constitution.md v2.18.8 (last amended 2026-10-05,
-ADR-040/041/042/043/044/045/046/047/048/049/050/051/052)`. Every later header here is the same value:
-v2.18.8 / 2026-10-05 / that ADR list. If the constitution is amended, move these
+`Constitution: .specify/memory/constitution.md v2.18.9 (last amended 2026-10-05,
+ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053)`. Every later header here is the same value:
+v2.18.9 / 2026-10-05 / that ADR list. If the constitution is amended, move these
 markers in the same change.
 
 ### Audit fix set (ADR-047)
@@ -462,15 +463,32 @@ wherever it is defined (ADR-045).
 «Notification» now explicitly includes an administrator's reply to the user's
 message (ADR-046).
 
-### Merchant scoping (ADR-051)
+### Merchant scoping (ADR-051, corrected by ADR-053)
 
 A tenant is a merchant account. The scoping column is `user_id` referencing
-`User`; there is no `Tenant` entity, and `Supplier` and `AuditLog` carry no
-scoping column. "Tenant isolation" is renamed "merchant isolation" where it
+`User`; there is no `Tenant` entity, and `Supplier`, `AuditLog`, **and**
+`ContactMessage` carry no scoping column — ADR-053 corrects ADR-051's list,
+which had named `ContactMessage` against the domain model's own two statements
+that a contact message carries the submitter's name and phone instead of a
+foreign key. "Tenant isolation" is renamed "merchant isolation" where it
 named a rule. The Redis client, OpenSearch client, and Arabic analyzer rows in
 `ROADMAP.md` now name the plan's Complexity Tracking table, which is where the
 Register-gaps rule puts a gap's choice, rather than Constitution Mandated Values,
 whose list is closed and does not contain those three.
+
+### Design-system base values (ADR-053)
+
+`wafar.single.css` moves to 1.0.3. Every value inside the file is now a token
+definition or a token reference, with three named exemptions: a `mask` image, a
+print rule, and a `prefers-color-scheme` rule whose values must not read the mode
+class. The gate the constitution mandates (Static enforcement) is scoped to
+values outside the file, because a rule that forbade a literal in the token
+source would forbid the source from defining anything. New tokens added by this
+change: the glass family, `--surface-head`/`--surface-stripe`/`--surface-canvas`,
+`--text-on-solid`, `--control-solid`, `--scrim`, the `--ring-*` halos, the
+shadow hairline/navbar/glow steps, `--duration-reduced`, the `--motion-loop-*`
+periods, the `--motion-stagger-*` ladder, and three loop easings. No value was
+removed and no rendered output was changed.
 
 ### Granted exceptions (ADR-052)
 
