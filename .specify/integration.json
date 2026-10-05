@@ -2,17 +2,12 @@
   "version": "1.1.0",
   "integration_state_schema": 1,
   "installed_integrations": [
-    "opencode",
-    "cline"
+    "opencode"
   ],
   "integration_settings": {
     "opencode": {
       "script": "ps",
       "invoke_separator": "."
-    },
-    "cline": {
-      "script": "ps",
-      "invoke_separator": "-"
     }
   },
   "integration": "opencode",

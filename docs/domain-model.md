@@ -5,7 +5,7 @@ entities the product reasons about, the relationships between them, their
 cardinality, their invariants, and the module that owns each one. It is the
 source the constitution's Product Register maps.
 
-Its authority is `.specify/memory/constitution.md` (v2.18.4); where this
+Its authority is `.specify/memory/constitution.md` (v2.18.5); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
 change to a registered product fact and MUST be recorded as an ADR in

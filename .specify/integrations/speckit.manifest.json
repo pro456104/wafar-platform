@@ -14,11 +14,11 @@
     ".specify/templates/plan-template.md": "2a6e9d5ae4b537d4f6f5068641453aa6b553982711c05e917f078e23838a1635",
     ".specify/templates/spec-template.md": "58142f1f61a4926fb7e36f408d7c7b33e9e418afa9c0f83853f0e730d6c51405",
     ".specify/templates/tasks-template.md": "85df2ca609e62ae6b0727f92af73da4d15d2c6010cc24d4b12a95e559eb4a47c",
-    ".specify/templates/overrides/constitution-template.md": "8c1a443a9be8f291234810f43f38ccd05b12d8adb66940a363506326c494c0bb",
-    ".specify/templates/overrides/plan-template.md": "05507a9512b7f81fe31d2677873db48bddff1402c8ea034cad6e85308615be97",
-    ".specify/templates/overrides/spec-template.md": "f5fb1794794f742d075b7b351e8914dc70924f1d7fd449e23c3631fdce98a6a1",
-    ".specify/templates/overrides/tasks-template.md": "2d63841927614fe56ad4ad0346eaf02309496aa7d3c73e190c6268bf1ea8928e",
-    ".specify/templates/overrides/checklist-template.md": "1670fd9ed23d553a14ee2afb9ccb123feca8c9c2c34d4bd22df657a1e439f90d",
+    ".specify/templates/overrides/constitution-template.md": "37d4d97a922eff6e85bad9797bb12890a88704fb8600267bcb8b73fbe54aef59",
+    ".specify/templates/overrides/plan-template.md": "a65aa9f1fe6ebb9d6c5c9046a91017f66998d5badf3d0b5f9b432dc714422417",
+    ".specify/templates/overrides/spec-template.md": "066a84c3d4ac47e2cdc21b083be05c4ae60612f12421722cd8352d45ba5a4544",
+    ".specify/templates/overrides/tasks-template.md": "fd0aa13fb93024f385b194f50c95456bf773bda5336cefd69a1f8538808a23ed",
+    ".specify/templates/overrides/checklist-template.md": "6e743f3d5a9c4afdccee50da95c12d1d2e8fbe6c1df5272f53a4e2ad633b5133",
     ".specify/.gitignore": "8c908410d177a1ef3d0dee16d7ad55f2ac3333df3104c4d4adee1c9b82f1dbc1"
   }
 }

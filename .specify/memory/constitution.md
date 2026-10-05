@@ -1,4 +1,4 @@
-﻿# Wafar Platform Constitution
+# Wafar Platform Constitution
 
 This project turns parts catalogs supplied as PDF, Excel, or Word files into a
 structured, searchable catalog for Libyan merchants who currently catalog them
@@ -1522,7 +1522,6 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | `AGENTS.md` | Operating instructions for agent assistants. | Repository root. |
 | `.specify/extensions.yml` | The installed extensions and the hook registry every Spec Kit command reads before and after it runs. | `.specify/`. |
 | `.specify/workflows/speckit/workflow.yml` | The bundled workflow that runs the binding cycle in order, with its human review gates. | `.specify/workflows/speckit/`. |
-| `.clinerules/project-context.md` | The same operating duty expressed to the Cline agent. | `.clinerules/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
 
 ## Artifact Workflow and Traceability
@@ -1750,4 +1749,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.18.4 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-05
+**Version**: 2.18.5 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-05

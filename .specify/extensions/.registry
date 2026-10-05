@@ -12,11 +12,6 @@
           "speckit.bug.assess",
           "speckit.bug.fix",
           "speckit.bug.test"
-        ],
-        "cline": [
-          "speckit.bug.assess",
-          "speckit.bug.fix",
-          "speckit.bug.test"
         ]
       },
       "registered_skills": [],
@@ -35,13 +30,6 @@
           "speckit.assess.define",
           "speckit.assess.shape",
           "speckit.assess.decide"
-        ],
-        "cline": [
-          "speckit.assess.intake",
-          "speckit.assess.research",
-          "speckit.assess.define",
-          "speckit.assess.shape",
-          "speckit.assess.decide"
         ]
       },
       "registered_skills": [],
@@ -55,13 +43,6 @@
       "priority": 10,
       "registered_commands": {
         "opencode": [
-          "speckit.git.feature",
-          "speckit.git.validate",
-          "speckit.git.remote",
-          "speckit.git.initialize",
-          "speckit.git.commit"
-        ],
-        "cline": [
           "speckit.git.feature",
           "speckit.git.validate",
           "speckit.git.remote",

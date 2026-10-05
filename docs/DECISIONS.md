@@ -66,6 +66,7 @@ Constitution Check; from then on the record has a feature owner.
 | [ADR-045](#adr-045--constitution-2182-cart-label-diacritics-unused-tokens-price-shape) | Constitution 2.18.2: cart label, diacritics, unused-token note, price shape | 2026-10-05 | 2.18.2 |
 | [ADR-046](#adr-046--constitution-2183-notification-admin-reply-shadow-ladder-note) | Constitution 2.18.3: notification admin-reply, unused shadow ladder note | 2026-10-05 | 2.18.3 |
 | [ADR-047](#adr-047--audit-fix-set-commit-state-manifest-hashes-cart-label-filter-set-stamp-sites) | Audit fix set: commit state, manifest hashes, cart label, filter set, stamp sites | 2026-10-05 | 2.18.4 |
+| [ADR-048](#adr-048--cline-integration-retired-constitution-2185-bom-repair-mirror-label-completion) | Cline integration retired; Constitution 2.18.5; BOM repair; mirror label completion | 2026-10-05 | 2.18.5 |
 
 ---
 
@@ -2101,3 +2102,91 @@ vulnerability scan accompanies this record.
 whole again; the integration manifests agree with the templates they describe;
 and the product mirror and the governing registers state the same cart label,
 filter set, and quota window. This entry is the durable record.
+
+---
+
+## ADR-048 — Cline integration retired; constitution 2.18.5; BOM repair; mirror label completion
+
+**Status**: Accepted — 2026-10-05
+**Owning directory**: `.specify/`, `.opencode/`, `docs/`, `Core-Project.txt`, `ROADMAP.md`, `AGENTS.md`, `README.md`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A deep review of the governance tree (after ADR-047 committed
+`v2.18.x`) found the Cline integration was left half-removed, and uncovered a
+handful of defect-classes that had survived the earlier audit because PowerShell
+console encoding (Windows-1252 default) masked the Arabic label search and
+because `.clinerules/` was still treated as a live tree.
+
+1. **The Cline integration is retired, not merely broken.** The working tree's
+   `.clinerules/` directory (24 tracked files) had been deleted, but live
+   references to it still existed: `.specify/integration.json` still listed
+   `claude`'s sibling `cline` as installed, `.specify/extensions/.registry`
+   still registered `cline` under three commands, `.specify/workflows/speckit/
+   workflow.yml` still listed `cline` in the compatible integrations hint, the
+   constitution's References table pointed at `.clinerules/project-context.md`,
+   and `.specify/integrations/cline.manifest.json` still held 24 stale hashes of
+   the now-deleted files. The repository now operates on `opencode` only.
+2. **`Core-Project.txt` line 157** still wrote the superseded cart label
+   «المحفوظات» in the parenthesised add-to-cart column, so the mirror was not
+   fully repaired. An escaped-Unicode scan shows every «سلة المشتريات» elsewhere
+   and this one remaining «المحفوظات».
+3. **`.specify/memory/constitution.md` carried a UTF-8 BOM** (`EF BB BF`),
+   present since commit `7070e28` (Constitution 2.13.0). `.gitattributes` and
+   ADR-039 fix "UTF-8, no BOM" as the encoding policy, so the constitution
+   contradicted its own rule. It was also the only tracked text file with a BOM.
+4. **ADR-033 item 9, ADR-037's Consequences, and ADR-038's Consequences still
+   named `AGENTS.md` and `README.md` as version-stamp sites** — the same
+   over-claim repaired in ADR-028/030/034 by ADR-047. They were left untouched,
+   so live statements disagreed with the Governance stamp list.
+5. **`.specify/memory/.constitution-template.json` was stale.** It cached a
+   hash of the core constitution template from the bootstrap commit that no
+   longer matched the template the resolution stack produces.
+
+**Decision.**
+
+1. **Cline is removed from the live surface.** `.clinerules/` is deleted from
+   the repository and its deletion is committed; `.specify/integration.json`
+   lists `opencode` only (settings without `cline`); the three `cline` blocks
+   are removed from `.specify/extensions/.registry`; the `cline` hint is
+   removed from `workflow.yml`; `.specify/integrations/cline.manifest.json` is
+   deleted; and the constitution's References table drops the
+   `.clinerules/project-context.md` row. Cline's command files under
+   `.clinerules/workflows/` are likewise deleted.
+2. **The constitution moves to 2.18.5** (PATCH: the References row is removed,
+   a non-normative correction; no rule, register, limit, page, entity, or slice
+   changes). Every stamp site the Governance amendment procedure names moves
+   with it: the constitution footer, the binding blocks of the spec/plan/tasks/
+   checklist template overrides, the scaffold footer of the
+   constitution-template override, and the stamps in `docs/architecture.md`,
+   `docs/domain-model.md`, `ROADMAP.md`, and `Project-Technologies.txt`. The
+   living ADR range strings move to ADR-001 … ADR-048.
+3. **ADR-033/037/038 stamp-site phrasing is corrected by this record**, not by
+   rewriting the accepted records: `AGENTS.md` and `README.md` carry no
+   constitution version stamp, and any future amendment's stamp set is exactly
+   the Governance list recorded above. The earlier ADR-047 correction of
+   ADR-028/030/034 stands, and this extends it.
+4. **`Core-Project.txt` line 157** now reads «…زر + … (إضافة إلى سلة المشتريات)»,
+   completing the ADR-045 mirror repair.
+5. **The BOM is removed from `.specify/memory/constitution.md`**, restoring the
+   ADR-039 encoding ("UTF-8, no BOM, legible Arabic") for the constitution.
+6. **`.specify/memory/.constitution-template.json` is re-recorded** against the
+   current core `constitution-template.md` (`ce754954…` → the current
+   `3f4b810a…`), so the cache matches what the resolution stack now produces.
+7. **`Project-Technologies.txt` gains a Constitution 2.18.5 additions note**
+   and its party/header sync marker is advanced (ADR-047 remains listed).
+
+**What deliberately did not change.** No principle, module, entity, page,
+feature, or Usage Limit changes. Earlier ADR records in `docs/DECISIONS.md`
+that mention Cline (ADR-007, ADR-026, ADR-027, ADR-037, ADR-038, and the
+ADR-047 context paragraph) are kept as history; their cline statements are not
+rewritten, because a decision record is a history. The cart's identity stays a
+personal bookmark list (Principle VI) under its ADR-045 label. The
+greyed-out cline integration on **any** Spec Kit installation is unaffected;
+only this repository's registration and manifest entries are removed.
+
+**Consequences.** The repository declares `opencode` as the single installed
+integration; no live file references a path that no longer exists; the
+constitution agrees with `.gitattributes` on encoding; and the mirror's cart
+label is consistent. This entry is the durable record.
+
+---

@@ -1,7 +1,7 @@
 # Project-Technologies.txt — the detail of the technology register
 
-**Constitution**: `.specify/memory/constitution.md` v2.18.4 (last amended
-2026-10-05, ADR-040/041/042/043/044/045/046/047). On any conflict with this file, the constitution
+**Constitution**: `.specify/memory/constitution.md` v2.18.5 (last amended
+2026-10-05, ADR-040/041/042/043/044/045/046/047/048). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -413,14 +413,14 @@ This section records what 2.18.0 added. The rules are in
   registered for them, unlike the physical-direction and non-token design-value
   checks Stylelint and ESLint already enforce.
 
-## Constitution 2.18.1–2.18.4 additions (2026-10-05, ADR-044/045/046/047)
+## Constitution 2.18.1–2.18.5 additions (2026-10-05, ADR-044/045/046/047/048)
 
 ### Party/header sync markers
 
 The mirror headers now track the constitution footer:
-`Constitution: .specify/memory/constitution.md v2.18.4 (last amended 2026-10-05,
-ADR-040/041/042/043/044/045/046/047)`. Every later header here is the same value:
-v2.18.4 / 2026-10-05 / that ADR list. If the constitution is amended, move these
+`Constitution: .specify/memory/constitution.md v2.18.5 (last amended 2026-10-05,
+ADR-040/041/042/043/044/045/046/047/048)`. Every later header here is the same value:
+v2.18.5 / 2026-10-05 / that ADR list. If the constitution is amended, move these
 markers in the same change.
 
 ### Audit fix set (ADR-047)
