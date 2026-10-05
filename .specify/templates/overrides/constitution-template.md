@@ -17,12 +17,12 @@
   Product Register, or `### Register gaps a slice MUST close` under Technology
   Standards) are not listed below and are not tracked here; the `##` order is.
 
-  On every amendment (normative): the constitution's version footer, the
-  binding-block `constitution vX.Y.Z` strings in the spec/plan template
-  overrides, this scaffold's own version footer, and the version stamps in
-  `docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`, and
-  `Project-Technologies.txt` MUST move in the same change. An amendment that
-  changes only the constitution is an incomplete amendment.
+  On every amendment (normative): this scaffold's version footer MUST move in
+  the same change. The full list of stamp sites is NOT restated here — the
+  constitution's Governance -> Amendment procedure is the single authority for
+  it, and this block points at that paragraph. An amendment that changes only
+  the constitution is an incomplete amendment, because that list has ten sites
+  outside this file.
 -->
 
 # Wafar Platform Constitution
@@ -112,4 +112,4 @@
 
 ## Governance
 
-**Version**: 2.18.9 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-05
+**Version**: 2.19.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-05

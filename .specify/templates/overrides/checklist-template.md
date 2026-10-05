@@ -9,7 +9,7 @@
 **Marker Semantics**: `[x]` means the criterion has been reviewed and satisfied for requirements quality. It does not mean implementation work is complete.
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.18.9) - NORMATIVE:
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.19.0) - NORMATIVE:
   1. This checklist reviews requirements quality, never implementation.
      Checklist items evaluate whether a requirement is clear, complete,
      consistent, and measurable — they MUST NOT be executed as work.

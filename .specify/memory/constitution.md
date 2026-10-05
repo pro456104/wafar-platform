@@ -1205,6 +1205,20 @@ fixed above.
 | Delivery | VPS (Hetzner or equivalent), Nginx or HAProxy, Docker (optional) | Docker is used only for staging parity |
 | Security | ClamAV | File-upload antivirus scan (File Processing Rules); a scanner, not a runtime dependency — exception `EX-001` in `.specify/templates/exception-register.md` |
 | Quality | Lighthouse CI | LCP/INP/CLS budget assertion (Performance Budgets and Verification); a CI gate, not a runtime dependency — exception `EX-002` in `.specify/templates/exception-register.md` |
+| Observability | Prometheus + Grafana | The metrics collection stack named by Deployment and Observability's monitoring rule; an operations service, not a runtime dependency — exception `EX-003` in `.specify/templates/exception-register.md` |
+| Quality | Semgrep OSS | SAST scan whose failures block release (Deployment and Observability's supply-chain rule); a CI gate, not a runtime dependency — exception `EX-004` in `.specify/templates/exception-register.md` |
+| Quality | osv-scanner | Dependency vulnerability scan whose failures block release (Deployment and Observability's supply-chain rule); a CI gate, not a runtime dependency — exception `EX-005` in `.specify/templates/exception-register.md` |
+| Quality | pg_anonymize | Staging data anonymisation (Deployment and Observability); a staging tool, not a runtime dependency — exception `EX-006` in `.specify/templates/exception-register.md` |
+
+These four rows are the named implementations of rules that
+Deployment and Observability already required, and they close a register gap
+rather than open one: the rules said "or an equivalent", the register named no
+implementation, and the technology mirror named these four anyway. Each is a
+scanner, a metrics service, or a staging tool — never imported into an
+application image and never shipped to a merchant's browser — so the treatment
+is the one ClamAV and Lighthouse CI already carry. The clause "or an equivalent"
+in the rule body survives: substituting a different tool for one of these rows is
+an amendment to this register, not a local choice.
 
 The frontend row's libraries split their roles and MUST NOT overlap: Nuxt UI
 v4 provides the UI components; Pinia holds client-side stores; TanStack Query
@@ -1221,12 +1235,30 @@ when the automated update process performs it.
 ### Register gaps a slice MUST close
 
 No technology is approved yet for the following, and each is required by a rule
-or by Product Scope. The named slice MUST record its choice in the plan's
-Complexity Tracking table, together with an ADR, a licence-obligation record,
-and a vulnerability scan, and this register MUST be amended to add it no later
-than that slice's acceptance. Until then the choice is open, and naming a
-specific library in this register is prohibited, because an unvetted name would
-fail Dependency Governance:
+or by Product Scope. Where a gap's choice is one of the values Module Discipline
+and Development Workflow lists in its closed Constitution Mandated Values set,
+the plan MUST record it in that table; every other gap's choice belongs in the
+plan's Complexity Tracking table. Either way the plan MUST record the choice
+together with an ADR, a licence-obligation record, and a vulnerability scan, and
+this register MUST be amended to add it no later than that slice's acceptance.
+Until then the choice is open, and naming a specific library in this register is
+prohibited, because an unvetted name would fail Dependency Governance.
+
+Where both tables apply, the Constitution Mandated Values table is where the
+value is stated, and the Complexity Tracking row is where the ADR, the licence
+obligation, and the vulnerability scan are recorded; neither row is a substitute
+for the other:
+
+| Gap | Recorded in | Also in Complexity Tracking |
+|---|---|---|
+| Excel, PDF, and Word extraction; content-type validation | Constitution Mandated Values (extraction libraries) | Yes |
+| Transactional SMS provider for OTP and password reset | Constitution Mandated Values (transactional SMS transport) | Yes |
+| Continuous-integration provider | Constitution Mandated Values (continuous-integration provider) | Yes |
+| Icon set used by the interface | Constitution Mandated Values (icon set) | Yes |
+| Redis client library | Complexity Tracking | — |
+| OpenSearch client library | Complexity Tracking | — |
+| Arabic analyzer configuration and verification | Complexity Tracking | — |
+| Automated accessibility checker | Complexity Tracking | — |
 
 | Gap | Required by | Owning slice |
 |---|---|---|
@@ -1279,7 +1311,7 @@ change.
 | 02 | colors | eleven colour families and the semantic aliases | 09 | zindex | the z-index layer scale |
 | 03 | typography | families, sizes, leading, tracking, weights | 10 | glass | glass, gradients, tints, glow |
 | 04 | opacity | opacity and alpha steps | 11 | forms | buttons, fields, badges, dots, progress |
-| 05 | spacing | space scale, gutters, containers, screens, touch floors, navbar and sidebar | 12 | components | semantic layers: shell, page, card, table, empty |
+| 05 | spacing | space scale, gutters, containers, screens (except `--screen-tiny`, which module 14 owns), touch floors, navbar and sidebar | 12 | components | semantic layers: shell, page, card, table, empty |
 | 06 | radii | the radius ladder and the named radii | 13 | loaders | the six loader designs and their tokens |
 | 07 | shadows | the shadow ladder and the named shadows | 14 | modes | media queries and responsive utilities |
 
@@ -1288,8 +1320,11 @@ change.
 - Colour families, each 50-950: `brand`, `accent`, `primary`, `neutral`, `gray`,
   `zinc`, `surface`, `success`, `warning`, `error`, `info`, plus the semantic
   aliases (`--background-*`, `--text-*`, `--border-*`, `--surface-*`,
-  `--ring-*`, `--scrim`, `--control-solid`). `--ring-*` holds the focus and
-  validation halos, `--scrim` the backdrop dimmer, and `--control-solid` the
+  `--ring-*`, `--scrim`, `--control-solid`). `--ring-*` holds the validation
+  halos only (`--ring-brand`, `--ring-brand-strong`, `--ring-error`,
+  `--ring-error-strong`, `--ring-success`); the focus halo is not among them and
+  is carried by `--border-focus-ring` and applied through `--shadow-focus`.
+  `--scrim` is the backdrop dimmer, and `--control-solid` the
   fill of a control that stays the same colour in both modes.
   `gray` and `zinc` are re-pointed at the neutral ladder, and `info` is a synonym
   of `brand`; both are deliberate decisions, recorded in `docs/DECISIONS.md`.
@@ -1298,8 +1333,11 @@ change.
   `--font-display`, `--font-mono`.
 - Opacity and alpha: the opacity steps and the named alpha and tint values.
 - Spacing: `--space-0` … `--space-32`, the gutters, the container widths, the
-  screen widths, the touch floors, `--navbar-height`, `--sidebar-width`, the
-  bottom-navigation tokens, and the safe-area tokens.
+  screen widths `--screen-xs` … `--screen-3xl`, the touch floors,
+  `--navbar-height`, `--sidebar-width`, the bottom-navigation tokens, and the
+  safe-area tokens. `--screen-tiny` is the one exception to this row's
+  ownership: it sits in module 14, beside the `max-width: 359px` case it
+  exists to express.
 - Radii: the radius ladder plus the named radii `shell`, `canvas`, `sheet`,
   `overlay`, `media`, `control`, `pill`, and `card`.
 - Shadows: the size ladder (`--shadow-xs`, `--shadow-sm`, `--shadow-md`,
@@ -1321,7 +1359,11 @@ change.
   that are periods rather than transition durations and are therefore not on the
   scale: the infinite-loop periods `--motion-loop-{pulse,spin,slow,float,badge,gradient,shimmer}`,
   and the stagger ladder `--motion-stagger-1` … `--motion-stagger-5`
-  (100–500 ms) behind `.ds-delay-1` … `.ds-delay-5`. Easings are
+  (100–500 ms) behind `.ds-delay-1` … `.ds-delay-5`. One further duration sits
+  outside both families and is named here so the file's inventory is complete:
+  `--motion-stagger-step` (50 ms), a declared-but-unused gap between sequential
+  items, which no rule names and no slice may rely on until a surface consumes
+  it. Easings are
   `--ease-standard`, `--ease-smooth`, `--ease-bounce`, `--ease-cinematic`,
   `--ease-linear`, `--ease-default`, `--ease-loop`, and `--ease-pulse`.
 - Z-index: the defined layer scale. Every layer takes a value from it.
@@ -1741,14 +1783,44 @@ constitution command produces is review material for the person ratifying the
 amendment: it MUST NOT be committed, because it describes the document rather
 than governing it, and it restates MUSTs the document already states. The
 durable record of an amendment is an entry in `docs/DECISIONS.md` naming the
-version, what changed, and what deliberately did not. On every amendment,
-the version stamps MUST move in the same change: the constitution's version
-footer; the binding-block `constitution vX.Y.Z` strings in the spec, plan,
-and checklist template overrides; the constitution-template scaffold's own
-version footer; and the version stamps in `docs/architecture.md`,
-`docs/domain-model.md`, `ROADMAP.md`, and `Project-Technologies.txt`. A MAJOR amendment MUST
-additionally include a migration or backfill plan for artifacts produced
-under the previous version.
+version, what changed, and what deliberately did not.
+
+On every amendment the version stamps MUST move in the same change. This
+paragraph is the single authority for that list; no other document may restate
+it, and a document that carries a copy is corrected from here rather than
+edited in its own words. The stamp sites are:
+
+1. `.specify/memory/constitution.md` — the version footer.
+2. `.specify/templates/overrides/spec-template.md` — the binding-block
+   `constitution vX.Y.Z` string.
+3. `.specify/templates/overrides/plan-template.md` — the binding-block
+   `constitution vX.Y.Z` string.
+4. `.specify/templates/overrides/checklist-template.md` — the binding-block
+   `constitution vX.Y.Z` string.
+5. `.specify/templates/overrides/tasks-template.md` — the binding-block
+   `constitution vX.Y.Z` string.
+6. `.specify/templates/overrides/constitution-template.md` — the scaffold's own
+   version footer, and its stamp list, which points at this paragraph rather
+   than enumerating sites.
+7. `docs/architecture.md` — the version stamps.
+8. `docs/domain-model.md` — the version stamp.
+9. `ROADMAP.md` — the version stamps.
+10. `Project-Technologies.txt` — every version stamp in the file, which today
+    means the header at the top and the sync-marker block that reproduces it
+    further down. A file that restates its own header carries two sites, not one.
+11. `docs/DECISIONS.md` — the ADR index row and the ADR the amendment records.
+
+A stamp site that does not exist yet is not a gap; when one is added it enters
+this list in the same change that creates it.
+
+The constitution command edits only this document, so the remaining ten sites
+are moved by the amendment's own change rather than by that command, and an
+amendment that leaves them behind is incomplete. Precedence decides the overlap:
+where a command's scope guard and this paragraph conflict, this paragraph wins,
+because Governance opens by superseding any other written project instruction.
+
+A MAJOR amendment MUST additionally include a migration or backfill plan for
+artifacts produced under the previous version.
 
 **Versioning policy.** MAJOR for a backward-incompatible governance change or
 the removal or redefinition of a principle. MINOR for a new principle or
@@ -1813,4 +1885,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.18.9 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-05
+**Version**: 2.19.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-05

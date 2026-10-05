@@ -79,6 +79,7 @@ is not done; ADR-015 states that rule and this file follows it.
 | [ADR-051](#adr-051--a-tenant-is-a-merchant-account) | A tenant is a merchant account | 2026-10-05 | 2.18.8 |
 | [ADR-052](#adr-052--the-two-granted-dependency-exceptions-are-recorded-in-the-exception-register) | The two granted dependency exceptions are recorded in the exception register | 2026-10-05 | 2.18.8 |
 | [ADR-053](#adr-053--constitution-2189-the-design-system-enforcement-scope-the-motion-scale-the-scoping-contradiction-and-the-register-counts-that-failed-verification) | Constitution 2.18.9: enforcement scope, motion scale, scoping contradiction, register counts | 2026-10-05 | 2.18.9 |
+| [ADR-054](#adr-054--constitution-2190-the-register-names-its-four-gates-and-the-amendment-procedure-names-its-own-stamp-sites) | Constitution 2.19.0: the register names its four gates, and the amendment procedure names its own stamp sites | 2026-10-05 | 2.19.0 |
 
 ---
 
@@ -2890,3 +2891,131 @@ had to invent an answer for are now named questions with owners. The stamp set
 moves to 2.18.9 across every site the Governance amendment procedure names, and
 the manifest hashes are regenerated as the last step. This entry is the durable
 record.
+
+---
+
+## ADR-054 — Constitution 2.19.0: the register names its four gates, and the amendment procedure names its own stamp sites
+
+**Status**: Accepted — 2026-10-05
+**Owning directory**: `docs/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A deep audit of every governing document found six contradictions of a
+kind the registers exist to prevent.
+
+1. **The technology mirror named four technologies the register did not.**
+   `Project-Technologies.txt` carries a table headed "summary of the complete list"
+   that names Prometheus + Grafana, Semgrep OSS, osv-scanner, and pg_anonymize. The
+   Approved register had no row for any of them; each appeared only in a rule body as
+   "X or an equivalent". The constitution forbids the mirror from introducing a
+   technology the register does not name, so the mirror's own summary violated the
+   mirror's charter. The mirror already recorded the distinction for ClamAV and
+   Lighthouse CI, which carry register rows and exceptions; these four had neither.
+
+2. **The mirror restated binding rules.** Roughly fifteen places in the mirror
+   restate a constitutional MUST — static enforcement, worker durability, upload
+   transport, the CAPTCHA prohibition, merchant isolation — while its own charter
+   says any rule exists only in the register.
+
+3. **Three different stamp lists existed.** The amendment procedure named three
+   template overrides; the constitution scaffold named two; four templates actually
+   carried a stamp. `tasks-template.md` would have gone stale at the next amendment.
+   `docs/DECISIONS.md` was not a site at all.
+
+4. **The amendment procedure and the constitution command contradicted each other.**
+   The procedure requires eleven stamps to move in the same change; the command's
+   scope guard said to write only the constitution and not modify template sources
+   or unrelated artifacts. Ten sites were unreachable, and the scaffold itself called
+   a constitution-only amendment incomplete. Every prior audit fix set in this file
+   (ADR-047, ADR-049, ADR-050, ADR-053) had to be applied outside the command to
+   work around this.
+
+5. **Four register gaps were told to record their choice in two tables.** The register
+   gaps rule said Complexity Tracking; the closed Constitution Mandated Values list
+   said Constitution Mandated Values for four of the thirteen. ADR-053 had already
+   resolved exactly this conflict for three other gaps, which is what proved it was a
+   defect rather than a reading.
+
+6. **Three design-system descriptions contradicted `wafar.single.css`.** `--ring-*`
+   was described as holding the focus halo and holds only validation halos;
+   `--screen-tiny` sits in module 14 while the module map gives screens to module 05;
+   and `--motion-stagger-step` exists in the file, is referenced nowhere, and was
+   named nowhere.
+
+**Decision.** Constitution 2.19.0 (MINOR — a register grew and two binding
+instructions changed):
+
+1. The Approved register gains four rows — Prometheus + Grafana (Observability),
+   Semgrep OSS, osv-scanner, pg_anonymize — each described as a CI, operations, or
+   staging gate and not a runtime dependency, each carrying an exception
+   (`EX-003` … `EX-006`) in the same shape as `EX-001` and `EX-002`. Register data
+   rows: 14 → 18. The "or an equivalent" clause in each rule body survives, so
+   substituting a different tool remains an amendment rather than a local choice.
+2. The amendment procedure's prose stamp list is replaced by a numbered list of
+   eleven sites, declared the single authority, with the `tasks-template.md` and
+   `docs/DECISIONS.md` omissions corrected, a rule added for a site that does not
+   exist yet, and an explicit statement that the remaining ten sites are moved by
+   the amendment's change rather than by the command — with precedence resolving the
+   conflict.
+3. The constitution command's scope guard gains the matching exception, names the
+   eleven-site list as its authority, and restates the final instruction so it no
+   longer contradicts the procedure.
+4. The constitution scaffold's duplicate stamp list is replaced by a pointer to the
+   procedure, so the list exists once.
+5. The register gaps rule now decides the destination by test — Constitution
+   Mandated Values when the value is in the closed list, Complexity Tracking
+   otherwise — and a table states which of the thirteen gaps fall on each side.
+6. The design-system register is corrected on all three points.
+
+**Alternatives considered.**
+- *Strike the four names from the mirror instead of registering them.* Rejected:
+  the rules require a metrics stack, a SAST scan, a dependency scan, and staging
+  anonymisation, so deleting the names leaves the register describing a platform
+  whose release gate names no approved tool — the same class of drift this record
+  exists to close, in the opposite direction.
+- *Register the four without exceptions, as descriptive rows only.* Rejected: it
+  makes them indistinguishable from a runtime library at review, which is the
+  ambiguity `EX-001` and `EX-002` were created to remove.
+- *Split this into a PATCH and a MINOR.* Rejected: item 4 changes the amendment
+  procedure itself, and the procedure requires the stamps to move in one change.
+  Splitting moves the stamp set twice and leaves the repository unamendable between
+  the two.
+- *Leave the constitution command untouched and rely on precedence at every run.*
+  Rejected: it leaves the contradiction documented in a file every operator reads,
+  and depends on the agent noticing a two-document conflict on each amendment.
+- *Rewrite the ratified ADRs that lack an alternatives record.* Deliberately
+  deferred, not rejected: the 23 ADRs without an alternatives section are mostly
+  amendment records, for which that field is not the right shape. The six genuine
+  technical choices among them are listed as deferred items below.
+
+**What deliberately did not change.**
+- No principle. All ten (I–X) are unchanged in wording and in force.
+- No entity, page, feature, role, usage limit, or product fact. The Product Register
+  is untouched.
+- `wafar.single.css`. No design value was added, removed, or renumbered; this
+  amendment corrects only the constitution's description of the file. The file's own
+  version stays 1.0.3.
+- `docs/domain-model.md` beyond its version stamp: no entity, relationship, or
+  invariant changed.
+- The "or an equivalent" clause in the four rule bodies that named these tools.
+- The licence prohibition's list, and Dependency Governance's substance.
+- ADR-001 through ADR-053, including ADR-002's rationale, whose stale benchmark
+  citation is already annotated at its own record and is corrected there rather
+  than by rewriting a ratified decision.
+- The exception register's existence and field set; only rows and dates were added.
+
+**Deferred, named and owned.**
+- The mirror's fifteen rule restatements, its incomplete gap coverage, its missing
+  Node.js row, its dropped lockfile note, and its twelve unattributed figures.
+- `docs/architecture.md`'s omission of the nine fixed internal locations.
+- `Core-Project.txt`'s `created_at` column identifier, which no registered source
+  defines — a regression of ADR-019's fix.
+- The twenty-three ADR fields, the manifest coverage of the exception register, and
+  the `.ps1` line endings, all collected into one follow-up amendment.
+
+**Consequences.** The register names every technology the platform is required to
+run, so the mirror's summary is now a summary and not an assertion. The amendment
+procedure's stamp list exists once and is authoritative, and the command that
+performs amendments no longer contradicts it. The register gaps rule has one
+destination per gap. The design-system register describes the file that exists.
+This entry is the durable record.

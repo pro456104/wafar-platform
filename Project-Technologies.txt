@@ -1,7 +1,7 @@
 # Project-Technologies.txt — the detail of the technology register
 
-**Constitution**: `.specify/memory/constitution.md` v2.18.9 (last amended
-2026-10-05, ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053). On any conflict with this file, the constitution
+**Constitution**: `.specify/memory/constitution.md` v2.19.0 (last amended
+2026-10-05, ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -419,9 +419,9 @@ This section records what 2.18.0 added. The rules are in
 ### Party/header sync markers
 
 The mirror headers now track the constitution footer:
-`Constitution: .specify/memory/constitution.md v2.18.9 (last amended 2026-10-05,
-ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053)`. Every later header here is the same value:
-v2.18.9 / 2026-10-05 / that ADR list. If the constitution is amended, move these
+`Constitution: .specify/memory/constitution.md v2.19.0 (last amended 2026-10-05,
+ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054)`. Every later header here is the same value:
+v2.19.0 / 2026-10-05 / that ADR list. If the constitution is amended, move these
 markers in the same change.
 
 ### Audit fix set (ADR-047)
