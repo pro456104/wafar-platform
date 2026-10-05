@@ -26,7 +26,8 @@ violation, and it MUST be resolved before the change is accepted.
 
 | ID | Principle / Section | Exact Scope | Rationale | Approver | Review Date | Status |
 |----|--------------------|-------------|-----------|----------|-------------|--------|
-| — | — | — | — | — | — | No exceptions recorded |
+| EX-001 | Dependency Governance | ClamAV, a file-upload antivirus scanner, as a **build-time and CI dependency of the intake path only** — never a runtime library import, never a bundled binary in the API or worker image. Scope ends if a streaming scan replaces the upload-time scan. | The rule prohibits a dependency absent from the Approved register. ClamAV is required by File Processing Rules but is not an application library: it runs as a separate process against the uploaded bytes, so importing it would add an unvetted library to the runtime image rather than satisfy the rule. | Repository owner (ADR-052) | 2026-10-05 | Active |
+| EX-002 | Dependency Governance | Lighthouse CI as a **CI-only quality gate**, invoked by the pipeline against the deployed staging URL; never a runtime dependency and never installed into the application image. Scope ends when the pipeline is replaced. | The rule prohibits a dependency absent from the Approved register. Lighthouse CI asserts the Performance Budgets (LCP/INP/CLS) against rendered pages, which cannot run inside the application process; treating it as a runtime dependency would misdescribe what it does and would pull it into every image. | Repository owner (ADR-052) | 2026-10-05 | Active |
 
 ## Closed
 

@@ -7,7 +7,7 @@ into independently specifiable slices. It names and orders them; it does **not**
 design them — the design happens when each slice runs through its own
 `/speckit.specify`.
 
-**Constitution**: `.specify/memory/constitution.md` (v2.18.5, last amended
+**Constitution**: `.specify/memory/constitution.md` (v2.18.8, last amended
 2026-10-05). On any conflict with this file, the constitution wins.
 
 Convention: the Spec Kit "spec of specs" procedure. A sub-spec opens with
@@ -34,7 +34,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-048) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-052) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -90,8 +90,8 @@ an owner.
 | The seeded CLI command that creates the administrator account, the forced password change, and the anti-enumeration/lockout responses | R1 | Identity, Authentication, and Session Policy |
 | Automated detection of weak password hashing, and the "sign out everywhere" / browser-token revocation on password change | R1 | Identity, Authentication, and Session Policy |
 | Honeypot field, minimum time-to-submit, and rate-limit protection on registration and contact forms, with automated tests | R1 (registration) and R11 (contact form) | Identity, Authentication, and Session Policy (anti-spam enforcement) |
-| The tenant-isolation query-path test that fails the build when a merchant-reachable path returns another tenant's rows | R2 | Deployment and Observability (first tenant-scoped query surface) |
-| The single shared entry point through which tenant scoping and (later) permission resolution are applied | R2 | Schema and Migration Control; Authorization and Access Control (R13 ratifies the permission model on the same entry point) |
+| The merchant-isolation query-path test that fails the build when a merchant-reachable path returns another merchant's rows | R2 | Deployment and Observability (first merchant-scoped query surface) |
+| The single shared entry point through which merchant scoping and (later) permission resolution are applied | R2 | Schema and Migration Control; Authorization and Access Control (R13 ratifies the permission model on the same entry point) |
 | The dependency budget — the numeric cap on direct runtime dependencies, recorded under Constitution Mandated Values | R1 | Project Structure and Debt Control (the CMV list mandates the value but no slice owned it before ADR-033) |
 | The content-safety pipeline: magic-byte validation, ClamAV scan, decoded-size cap, and macro stripping before extraction | R2 (validation), R3 (processing) | File Processing Rules; File Processing Overview |
 | Presigned multipart upload transport for large files | R2 | Deployment and Observability (Upload transport) |
@@ -103,9 +103,9 @@ an owner.
 | Public API versioning (`/api/v1`) and the deprecation rule (one release of notice, recorded as an ADR) | R1 | Deployment and Observability |
 | Per-build SBOM and the vulnerability/SAST scan (Semgrep OSS or equivalent) that blocks release | R1 | Dependency Governance; Deployment and Observability |
 | Extraction libraries named in Constitution Mandated Values | R3 | Technology Standards → Register gaps |
-| Redis client library named in Constitution Mandated Values | R3 | Technology Standards → Register gaps |
-| OpenSearch client library named in Constitution Mandated Values | R5 | Technology Standards → Register gaps |
-| Arabic analyzer configuration and verification named in Constitution Mandated Values | R5 | Technology Standards → Register gaps |
+| Redis client library: choice recorded in the plan's Complexity Tracking table with an ADR | R3 | Technology Standards → Register gaps |
+| OpenSearch client library: choice recorded in the plan's Complexity Tracking table with an ADR | R5 | Technology Standards → Register gaps |
+| Arabic analyzer configuration and verification: choice recorded in the plan's Complexity Tracking table with an ADR | R5 | Technology Standards → Register gaps |
 
 ## Defects in the slice order, and the slice that closes each
 
@@ -127,8 +127,8 @@ carried. Each names the slice that closes it.
 | 11 | The product mirror listed five catalog status values, and pre-empted two facts the constitution assigns to R9 and R15 | Fixed 2026-10-03 in `Core-Project.txt` |
 | 12 | The product mirror carried an unreferenced TODO for a budget the constitution had already fixed | Fixed 2026-10-03 in `Core-Project.txt` |
 | 13 | The binding specification template did not carry the sub-spec `Input` line the constitution requires | Fixed 2026-10-03 |
-| 14 | The per-user upload quotas (50 files/month, 100 files total) were binding limits that no slice's scope named, so nothing would have implemented them | Fixed 2026-10-03: R2 |
-| 15 | The data model existed in three copies that had already diverged, and seven facts existed only in the product mirror — so they were unbuildable under the Product Register's own rule | Fixed 2026-10-03 by ADR-019: `docs/domain-model.md` is the single authority |
+| 14 | The per-user upload quotas (50 files per calendar month, 100 files in total) were binding limits that no slice's scope named, so nothing would have implemented them | Fixed 2026-10-03: R2 |
+| 15 | The data model existed in three copies that had already diverged, and seven facts were carried by field identifiers that no registered source defined — so they were unbuildable under the Product Register's own rule. The identifiers did not come from the product mirror; they were present in earlier drafts of the unresolved-facts table, as ADR-019's annotation records | Fixed 2026-10-03 by ADR-019: `docs/domain-model.md` is the single authority |
 | 16 | Three product conflicts were invisible because nobody compared the copies: how a message's sender is represented, whether a conversation carries an administrator reference, and whether an administrator is a distinct entity | Recorded as unresolved product facts; R10 (twice), R13 |
 
 ## Notes
@@ -138,7 +138,7 @@ carried. Each names the slice that closes it.
   (`constitution.md` → Product Register; row 6 of Unresolved facts). R13 decides the distinct-entity
   question; if ratified, that decision amends the model and R1's seed in the
   same change.
-- **Authorization model.** R4, R7, and R8 enforce ownership and tenant scope in
+- **Authorization model.** R4, R7, and R8 enforce ownership and merchant scope in
   their own scopes; the ratified permission granularity remains deferred to
   R13 (the deferred "authorization model" area; see `docs/domain-model.md`).
 - **My Files → Parts transition (ADR-031).** R4 renders each file row's open
@@ -157,7 +157,7 @@ carried. Each names the slice that closes it.
   yields a working account on a working shell, R2 alone yields an accepted and
   stored file, R5 alone yields a searchable parts table.
 - **Structure registers.** R1 creates the workspace; it MUST follow the fixed
-  locations in the constitution (v2.18.5) and `docs/architecture.md`, including
+  locations in the constitution (v2.18.8) and `docs/architecture.md`, including
   `apps/web/layouts` and `apps/admin`, and records the documentation-drift
   check for collection in R2 (R1's public surface is covered by OpenAPI
   generation from the Hono routes; ADR-002).

@@ -146,4 +146,6 @@ steps:
   # reports Converged; a feature is Converged only when converge says so.
 
   # git extension hooks (auto-executed; auto_commit default=false)
-  # after_converge: speckit.git.commit (optional, disabled by default)
+  # Note: speckit has no `after_converge` hook slot, so the optional
+  # speckit.git.commit hook has no entry after the converge step. The nearest
+  # slots are `after_implement` and `after_taskstoissues`.

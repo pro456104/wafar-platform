@@ -1,7 +1,7 @@
 # Project-Technologies.txt — the detail of the technology register
 
-**Constitution**: `.specify/memory/constitution.md` v2.18.5 (last amended
-2026-10-05, ADR-040/041/042/043/044/045/046/047/048). On any conflict with this file, the constitution
+**Constitution**: `.specify/memory/constitution.md` v2.18.8 (last amended
+2026-10-05, ADR-040/041/042/043/044/045/046/047/048/049). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -354,7 +354,7 @@ named in the sources.
 ## Constitution 2.16.0 + 2.17.0 additions (2026-10-04, ADR-037/ADR-038)
 
 - **Cart label** - the cart page's user-facing Arabic label is a product fact
-  fixed by the constitution (Product Scope; ADR-038). Where this mirror shows
+  fixed by the constitution (Product Scope; ADR-045, which supersedes ADR-038). Where this mirror shows
   the cart's path or its table row, it shows that constitution label and states
   no label of its own.
 - **Trade name** - the product name and its mandatory diacritics are registered
@@ -413,14 +413,14 @@ This section records what 2.18.0 added. The rules are in
   registered for them, unlike the physical-direction and non-token design-value
   checks Stylelint and ESLint already enforce.
 
-## Constitution 2.18.1–2.18.5 additions (2026-10-05, ADR-044/045/046/047/048)
+## Constitution 2.18.1–2.18.8 additions (2026-10-05, ADR-044/045/046/047/048/049/050/051/052)
 
 ### Party/header sync markers
 
 The mirror headers now track the constitution footer:
-`Constitution: .specify/memory/constitution.md v2.18.5 (last amended 2026-10-05,
-ADR-040/041/042/043/044/045/046/047/048)`. Every later header here is the same value:
-v2.18.5 / 2026-10-05 / that ADR list. If the constitution is amended, move these
+`Constitution: .specify/memory/constitution.md v2.18.8 (last amended 2026-10-05,
+ADR-040/041/042/043/044/045/046/047/048/049/050/051/052)`. Every later header here is the same value:
+v2.18.8 / 2026-10-05 / that ADR list. If the constitution is amended, move these
 markers in the same change.
 
 ### Audit fix set (ADR-047)
@@ -429,7 +429,7 @@ ADR-047 records the repairs that follow the 2.18.1–2.18.3 set: the v2.18.x set
 is committed, integration manifest hashes are re-recorded, the cart label in
 `Core-Project.txt` is repaired, ADR-040's filter bullet is corrected, the
 stamp-site claims in ADR-028/030/034 are aligned with the Governance procedure,
-and the page-addition route is stated identically in Product Scope and Product
+and the page-addition route in Product Scope is aligned with the Product
 Register. This mirror states none of those rules; they live in the constitution
 and `docs/DECISIONS.md`.
 
@@ -461,3 +461,20 @@ wherever it is defined (ADR-045).
 
 «Notification» now explicitly includes an administrator's reply to the user's
 message (ADR-046).
+
+### Merchant scoping (ADR-051)
+
+A tenant is a merchant account. The scoping column is `user_id` referencing
+`User`; there is no `Tenant` entity, and `Supplier` and `AuditLog` carry no
+scoping column. "Tenant isolation" is renamed "merchant isolation" where it
+named a rule. The Redis client, OpenSearch client, and Arabic analyzer rows in
+`ROADMAP.md` now name the plan's Complexity Tracking table, which is where the
+Register-gaps rule puts a gap's choice, rather than Constitution Mandated Values,
+whose list is closed and does not contain those three.
+
+### Granted exceptions (ADR-052)
+
+ClamAV and Lighthouse CI are dependencies named with an explicit exception in the
+Approved register. Both are now recorded in `.specify/templates/exception-register.md`
+as `EX-001` and `EX-002`, each with an approver and a review date. This mirror
+states neither rule; they live in the constitution and in that register.

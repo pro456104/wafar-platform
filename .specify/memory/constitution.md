@@ -295,7 +295,7 @@ prohibited.
   technical numerals and part codes. Noto Sans Arabic is permitted only as the
   fallback in the font stack declared by `wafar.single.css`.
 - **Tables only** for data display. The exceptions are the statistical cards
-  on the home page and the quick-actions grid.
+  on the home page.
 - **Shell scope**: the application shell (header plus sidebar) renders on the
   public pages and the authenticated merchant area. The authentication pages
   (sign-in, sign-up, forgot-password), the 404 page, and the static
@@ -482,7 +482,8 @@ Every administrator operation MUST be recorded in the audit log.
 
 Twenty-six pages are in scope, and they are listed in Product Scope. The
 transitions in Product Scope are the required navigation. A screen that is not
-one of the twenty-six MUST NOT be added without amending this register.
+one of the twenty-six MUST NOT be added without amending this register; Product
+Scope names the rest of that route, and both halves are read together.
 
 ### Features
 
@@ -755,13 +756,16 @@ schema should contain; see Deferred areas.
   because a constraint is enforced identically in every environment and
   reported through one code path. Business rules MUST NOT be implemented as
   database triggers, generated columns, or stored procedures.
-- Every table that holds tenant-owned data MUST carry a tenant identifier as
-  a foreign key, and that identifier MUST be part of every index serving a
-  tenant-scoped query.
-- Every read and write of tenant-owned data MUST be tenant-scoped, and the
+- **A tenant is a merchant account.** A tenant identifier IS the `User` identifier;
+  there is no separate tenant entity, and a table that holds merchant-owned data
+  MUST carry `user_id` as a foreign key to `User`, and that column MUST be part of
+  every index serving a merchant-scoped query. Tables holding platform-wide data
+  that belongs to no single merchant — `Supplier`, `AuditLog` — carry no tenant
+  identifier, and a query against them is not tenant-scoped.
+- Every read and write of merchant-owned data MUST be merchant-scoped, and the
   scoping MUST be applied at a single shared entry point rather than repeated
   at each call site. A query path reachable from a merchant session MUST NOT
-  be able to return rows belonging to another tenant, and that invariant MUST
+  be able to return rows belonging to another merchant, and that invariant MUST
   be covered by a test that fails when it is broken.
 
 **Rationale:** A tenant scope that is missing is not a defect, it is a breach,
@@ -838,7 +842,7 @@ same as no control.
 - Every administrator operation MUST be recorded in the audit log.
 - Once the authorization model is ratified, every request path MUST resolve
   the caller's permissions from that model at a single shared entry point,
-  the same one Schema and Migration Control names for tenant scoping. Until
+  the same one Schema and Migration Control names for merchant scoping. Until
 then, the first feature that implements a deferred area MUST record, per
 Deferred areas, which rules in this section are still missing and when they
 will be ratified.
@@ -1107,8 +1111,8 @@ Each rule ties the document to something that fails when it goes stale.
 - **Anti-spam enforcement.** The honeypot, time-to-submit, and rate-limit
   controls named in Identity, Authentication, and Session Policy MUST be
   verified by automated tests. CAPTCHA MUST NOT be introduced.
-- **Tenant isolation verification.** A query-path test MUST fail the build if
-  any merchant-reachable path can return another tenant's rows.
+- **Merchant isolation verification.** A query-path test MUST fail the build if
+  any merchant-reachable path can return another merchant's rows.
 - **Staging data anonymisation.** Staging MUST NOT contain production personal
   data; seeded or anonymised datasets only (pg_anonymize or an equivalent tool).
 - **Monitoring and alerting.** Metrics MUST be collected for p95 request
@@ -1192,8 +1196,8 @@ fixed above.
 | Testing | Vitest, Playwright | unit and integration in Vitest, end-to-end in Playwright |
 | Quality | ESLint, Prettier, Stylelint | `any` and double assertions are rejected |
 | Delivery | VPS (Hetzner or equivalent), Nginx or HAProxy, Docker (optional) | Docker is used only for staging parity |
-| Security | ClamAV | File-upload antivirus scan (File Processing Rules); registered with an explicit exception — a scanner, not a runtime dependency |
-| Quality | Lighthouse CI | LCP/INP/CLS budget assertion (Performance Budgets and Verification); registered with an explicit exception — a CI gate, not a runtime dependency |
+| Security | ClamAV | File-upload antivirus scan (File Processing Rules); a scanner, not a runtime dependency — exception `EX-001` in `.specify/templates/exception-register.md` |
+| Quality | Lighthouse CI | LCP/INP/CLS budget assertion (Performance Budgets and Verification); a CI gate, not a runtime dependency — exception `EX-002` in `.specify/templates/exception-register.md` |
 
 The frontend row's libraries split their roles and MUST NOT overlap: Nuxt UI
 v4 provides the UI components; Pinia holds client-side stores; TanStack Query
@@ -1323,13 +1327,22 @@ band. The token ladder names them, and the mapping below is binding:
 The stylesheet contains no `var(--screen-*)` reference: every token in the ladder
 is declared-but-unused, so none of them MAY be relied on until the module that
 owns it wires it to a media query. The same holds for `--sidebar-width`,
-`--navbar-height`, `--touch-floor` (and its `-sm`/`-lg`/`-xs` siblings), and the
-full shadow ladder and its named shadows (`--shadow-xs…--shadow-2xl` and
-`card`, `card-raised`, `cinematic*`, `control`, `focus`, `glass`, `inner`,
-`none`, `overlay`, `panel`, `brand-sm/-md/-lg`): declared, but unused until a
-slice consumes them. A responsive change MUST name the breakpoint it
-changes at, and the first surface that wires a token MUST delete the tokens it
-leaves unused (Project Structure and Debt Control).
+`--navbar-height`, and `--touch-floor` (and its `-sm`/`-lg`/`-xs` siblings).
+
+The shadow ladder is **not** in that state, and this paragraph does not claim it
+is. The size ladder `--shadow-xs` through `--shadow-2xl` and the named shadows
+`--shadow-card`, `--shadow-card-raised`, and `--shadow-focus` are declared **and
+already consumed** by `wafar.single.css`; they are in force. The named shadows
+`--shadow-cinematic`, `--shadow-control`, `--shadow-glass`, `--shadow-inner`,
+`--shadow-none`, `--shadow-overlay`, `--shadow-panel`, and the `brand-sm`,
+`brand-md`, `brand-lg` triple are declared-but-unused, and no slice MAY rely on
+one until the surface that needs it consumes it. A register row naming a value
+MUST match what the source actually does (Single-Reference Sufficiency); this
+paragraph distinguishes the two states because the two groups are not uniform.
+
+A responsive change MUST name the breakpoint it changes at, and the first
+surface that wires a token MUST delete the tokens it leaves unused (Project
+Structure and Debt Control).
 
 ### Component inventory
 
@@ -1417,7 +1430,7 @@ ad hoc inside a feature, and it MUST NOT be defined in this constitution.
   it serves only elements that do not read the class. The chosen mode MUST be
   applied before first paint, and the toggle sits in the header.
 - Tables are the only data-display form. The exceptions are the home page's
-  statistical cards and the quick-actions grid.
+  statistical cards.
 - RTL by construction: `<html dir="rtl" lang="ar">` on every page, logical CSS
   properties only, and Latin numerals only (`ds-numeric`, `ds-tabular`).
 - Prohibited: raw Tailwind colours; any `#hex` or `rgb()` outside
@@ -1503,7 +1516,7 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | **Wafar** | The platform's trade name, written «Wafar» (وَفَّر). The mandatory diacritics bind the Arabic form «وَفَّر»; the Latin «Wafar» carries no diacritics. |
 | **SBOM** | Software Bill of Materials produced per build. |
 | **Presigned multipart upload** | Direct-to-object-storage upload in parts, avoiding buffering through the API. |
-| **Tenant isolation** | A merchant-reachable query path MUST NOT return another tenant's rows. |
+| **Merchant isolation** | A tenant is a merchant account. A merchant-reachable query path MUST NOT return another merchant's rows. |
 
 ## References
 
@@ -1749,4 +1762,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.18.5 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-05
+**Version**: 2.18.8 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-05

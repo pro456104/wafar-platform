@@ -14,11 +14,11 @@
     ".specify/templates/plan-template.md": "2a6e9d5ae4b537d4f6f5068641453aa6b553982711c05e917f078e23838a1635",
     ".specify/templates/spec-template.md": "58142f1f61a4926fb7e36f408d7c7b33e9e418afa9c0f83853f0e730d6c51405",
     ".specify/templates/tasks-template.md": "85df2ca609e62ae6b0727f92af73da4d15d2c6010cc24d4b12a95e559eb4a47c",
-    ".specify/templates/overrides/constitution-template.md": "37d4d97a922eff6e85bad9797bb12890a88704fb8600267bcb8b73fbe54aef59",
-    ".specify/templates/overrides/plan-template.md": "a65aa9f1fe6ebb9d6c5c9046a91017f66998d5badf3d0b5f9b432dc714422417",
-    ".specify/templates/overrides/spec-template.md": "066a84c3d4ac47e2cdc21b083be05c4ae60612f12421722cd8352d45ba5a4544",
-    ".specify/templates/overrides/tasks-template.md": "fd0aa13fb93024f385b194f50c95456bf773bda5336cefd69a1f8538808a23ed",
-    ".specify/templates/overrides/checklist-template.md": "6e743f3d5a9c4afdccee50da95c12d1d2e8fbe6c1df5272f53a4e2ad633b5133",
+    ".specify/templates/overrides/constitution-template.md": "3e5c43af16ff76d48abfe05402fdfc5e00095c854664e81e5605c7295bfd5e6a",
+    ".specify/templates/overrides/plan-template.md": "5778fb82df016dced5a3153eb9b56c6b35481837645d5c3fbbabc724448d0de0",
+    ".specify/templates/overrides/spec-template.md": "44a59bb3d31b480cf6b4e61db11d1979758f43b8091b17e0d40c1b16fb8c7ee3",
+    ".specify/templates/overrides/tasks-template.md": "a3d9bfbf7e16319c1437eb7e0ac04ad676f49ab909c38a3c90621006c5b0edd0",
+    ".specify/templates/overrides/checklist-template.md": "0eb22cb8c5073463748b17745623c3a632d9d67042ce3f7cc75a5e38188f58b3",
     ".specify/.gitignore": "8c908410d177a1ef3d0dee16d7ad55f2ac3333df3104c4d4adee1c9b82f1dbc1"
   }
 }

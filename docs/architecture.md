@@ -1,7 +1,7 @@
 # Architecture — Wafar
 
 This document records the repository layout, the API module map, and the data
-flow. Its sources of authority are `.specify/memory/constitution.md` (v2.18.5),
+flow. Its sources of authority are `.specify/memory/constitution.md` (v2.18.8),
 whose Technology Standards and Design System Standards are the registers, and
 `Project-Technologies.txt`; where this document and the constitution disagree,
 the constitution wins. The data model's entities and their owning modules are
@@ -71,12 +71,14 @@ Cross-cutting rules for every module:
   across modules or layers, and circular imports are prohibited.
 - Every table is owned by exactly one module; no module outside the owner may
   read or write that table directly.
-- Every read and write of tenant-owned data is tenant-scoped at a single
-  shared entry point — the same entry point the authorization model will use
+- Every read and write of merchant-owned data is merchant-scoped at a single
+  shared entry point - the same entry point the authorization model will use
   to resolve permissions once ratified (Schema and Migration Control;
-  Authorization and Access Control). The authorization model is a deferred
-  area: the first feature that implements it records the missing rules and
-  their ratification in its plan.
+  Authorization and Access Control). A tenant is a merchant account: the
+  scoping column is `user_id`, there is no separate tenant entity, and
+  platform-wide tables carry no such column. The authorization model is a
+  deferred area: the first feature that implements it records the missing
+  rules and their ratification in its plan.
 - A production source file SHOULD NOT exceed 500 non-empty lines; a module
   has one responsibility, and the count does not replace that rule.
 
@@ -120,7 +122,7 @@ The canonical chain is **web → api → PostgreSQL for the system of record; la
    with a schema-validated contract; the public site and the admin application
    use the same modules.
 2. **api → db.** PostgreSQL is the system of record. All writes and every
-   authoritative read go through the owning module's repository, tenant-scoped
+   authoritative read go through the owning module's repository, merchant-scoped
    at the single shared entry point.
 3. **db → search.** The parts listing is served from the search index, which
    mirrors catalog data derived from the system of record. PostgreSQL remains
@@ -192,8 +194,8 @@ Read/write notes:
   least once per quarter.
 - Staging holds no production personal data: seeded or anonymised datasets
   only (pg_anonymize or equivalent).
-- Tenant isolation is verified by a query-path test that fails the build if
-  any merchant-reachable path can return another tenant's rows.
+- Merchant isolation is verified by a query-path test that fails the build if
+  any merchant-reachable path can return another merchant's rows.
 - Metrics are collected for p95 request latency, search p95, processing
   success rate, and queue depth, with alerts when a budget is breached; the
   correlation identifier runs end to end.
@@ -207,10 +209,10 @@ Read/write notes:
 
 ## 6. Governance pointers
 
-- Constitution: `.specify/memory/constitution.md` (v2.18.5) — principles I–X and
+- Constitution: `.specify/memory/constitution.md` (v2.18.8) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-048; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-052; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;

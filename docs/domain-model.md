@@ -5,7 +5,7 @@ entities the product reasons about, the relationships between them, their
 cardinality, their invariants, and the module that owns each one. It is the
 source the constitution's Product Register maps.
 
-Its authority is `.specify/memory/constitution.md` (v2.18.5); where this
+Its authority is `.specify/memory/constitution.md` (v2.18.8); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
 change to a registered product fact and MUST be recorded as an ADR in
@@ -76,7 +76,7 @@ every other module reaches it through that module's service.
 | `Catalog` | `catalogs` | An uploaded supplier file with its metadata, its processing status, and a pointer to its stored bytes. | One catalog belongs to one uploading user and to at most one supplier, and contains many parts. |
 | `Part` | `parts` | A single row extracted from a catalog, representing one car part, carrying the price its own catalog printed. | One part belongs to exactly one catalog. |
 | `Bookmark` | `bookmarks` | One entry in a merchant's cart: a link from a user to a part. | One user has at most 99 bookmarks; a bookmark links exactly one user and one part. |
-| `Notification` | `notifications` | A message delivered to a user in the notification list, from a processing outcome or from the administrator. | Many per user; no upper bound is fixed. |
+| `Notification` | `notifications` | A message delivered to a user in the notification list, from a processing outcome, from the administrator, or from an administrator reply. | Many per user; no upper bound is fixed. |
 | `Conversation` | `messages` | The single thread between a merchant and the administrator. | A user has at most one conversation. |
 | `Message` | `messages` | One message inside a conversation. | Many per conversation. |
 | `ContactMessage` | `support` | A message from the public contact form: name, phone, body. | Independent of any account; it reaches the administrator without a conversation. The phone is for contact only, never an account identifier. |
@@ -120,6 +120,24 @@ the tests must all enforce. The constitution's Schema and Migration Control
 requires uniqueness, referential integrity, and permitted value ranges to be
 expressed as schema constraints rather than only in application code; the
 service layer re-checks the ones a constraint cannot express.
+
+### Merchant ownership (the scoping invariant)
+
+- **A tenant is a merchant account.** There is no `Tenant` entity. The scoping
+  column is `user_id`, referencing `User`, and it appears on every
+  merchant-owned table: `Catalog`, `Bookmark`, `Notification`, `Conversation`,
+  `Message`, and `ContactMessage`. The constitution's Schema and Migration
+  Control names this scoping; ADR-051 is its record.
+- **`Supplier` and `AuditLog` carry no `user_id`.** `Supplier` is platform-wide
+  — one company can appear in many merchants' catalogs — and `AuditLog` records
+  administrator operations, which have no merchant owner. Neither is
+  merchant-scoped, and no isolation test covers them.
+- **Every index serving a merchant-scoped query leads with `user_id`.** An
+  index that does not lead with the scoping column cannot serve the scoped read
+  without a filter the planner has to apply after the fact.
+- **A query path reachable from a merchant session MUST NOT return another
+  merchant's rows**, and the test that proves it fails the build. R2 owns that
+  test, as the first slice with a merchant-scoped query surface.
 
 ### Catalog
 

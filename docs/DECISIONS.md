@@ -5,15 +5,22 @@ behind them. The constitution names it in References and in Design System
 Standards, and Documentation requires every non-trivial decision to record
 what was considered and why the chosen option won.
 
-**Record duties (Documentation rule).** Each record below is committed under
-the directory that owns it (`docs/`, per the References table) and names its
-owning feature. The records predate every feature — ADR-001 to ADR-007 were made
-during repository bootstrap on 2026-10-01, and every record since was made by a
-constitutional amendment. Each names "none yet — repository bootstrap" or
-"none — governance decision" as the owning feature, and states the
-reaffirmation duty of the first feature whose plan depends on it. When that
-feature is planned, it MUST name the ADR (e.g., `ADR-003`) in its plan's
-Constitution Check; from then on the record has a feature owner.
+**Record duties (Documentation rule).** Every record below names the directory
+that owns the decision and the feature that owns the work, per the Documentation
+rule. Most were made by a constitutional amendment, but not all: ADR-001 to
+ADR-007 were made during repository bootstrap on 2026-10-01, ADR-012 to ADR-013
+were design-system and workflow decisions, and ADR-015 onward are governance
+decisions ratified by the repository owner. The owning feature is one of
+"none yet — repository bootstrap (pre-feature record)", "none — governance
+decision; ratified by the repository owner", or the identifier of the slice that
+first implements the decision. The bootstrap-era records state the reaffirmation
+duty explicitly: the first feature whose plan depends on the record MUST name it
+in that plan's Constitution Check, and from then on the record has a feature
+owner.
+
+A record is annotated when a later decision changes what it says, and corrected
+when the record's own claim was wrong. Rewriting a ratified decision's substance
+is not done; ADR-015 states that rule and this file follows it.
 
 ## Index
 
@@ -63,10 +70,14 @@ Constitution Check; from then on the record has a feature owner.
 | [ADR-042](#adr-042--no-emoji-in-user-facing-text-and-an-open-source-svg-icon-set) | No emoji in user-facing text, and an open-source SVG icon set | 2026-10-05 | 2.18.0 |
 | [ADR-043](#adr-043--supplier-names-are-normalised-and-never-merged-by-normalisation) | Supplier names are normalised, and never merged by normalisation | 2026-10-05 | 2.18.0 |
 | [ADR-044](#adr-044--constitution-2181-part-name-year-ranges-stay-in-the-name) | Constitution 2.18.1: part-name year ranges stay in the name | 2026-10-05 | 2.18.1 |
-| [ADR-045](#adr-045--constitution-2182-cart-label-diacritics-unused-tokens-price-shape) | Constitution 2.18.2: cart label, diacritics, unused-token note, price shape | 2026-10-05 | 2.18.2 |
-| [ADR-046](#adr-046--constitution-2183-notification-admin-reply-shadow-ladder-note) | Constitution 2.18.3: notification admin-reply, unused shadow ladder note | 2026-10-05 | 2.18.3 |
+| [ADR-045](#adr-045--constitution-2182-cart-label-diacritics-unused-token-note-price-shape) | Constitution 2.18.2: cart label, diacritics, unused-token note, price shape | 2026-10-05 | 2.18.2 |
+| [ADR-046](#adr-046--constitution-2183-notification-admin-reply-unused-shadow-ladder-note) | Constitution 2.18.3: notification admin-reply, unused shadow ladder note | 2026-10-05 | 2.18.3 |
 | [ADR-047](#adr-047--audit-fix-set-commit-state-manifest-hashes-cart-label-filter-set-stamp-sites) | Audit fix set: commit state, manifest hashes, cart label, filter set, stamp sites | 2026-10-05 | 2.18.4 |
 | [ADR-048](#adr-048--cline-integration-retired-constitution-2185-bom-repair-mirror-label-completion) | Cline integration retired; Constitution 2.18.5; BOM repair; mirror label completion | 2026-10-05 | 2.18.5 |
+| [ADR-049](#adr-049--constitution-2187-consolidate-the-unrecorded-2186-and-2187-amendments-and-repair-the-registry-drift-they-exposed) | Constitution 2.18.7: consolidate the unrecorded 2.18.6 and 2.18.7 amendments, and repair the registry drift they exposed | 2026-10-05 | 2.18.7 |
+| [ADR-050](#adr-050--constitution-2188-audit-fix-set--the-stamp-set-committed-and-the-registry-claims-that-failed-verification) | Constitution 2.18.8: audit fix set — the stamp set committed, and the registry claims that failed verification | 2026-10-05 | 2.18.8 |
+| [ADR-051](#adr-051--a-tenant-is-a-merchant-account) | A tenant is a merchant account | 2026-10-05 | 2.18.8 |
+| [ADR-052](#adr-052--the-two-granted-dependency-exceptions-are-recorded-in-the-exception-register) | The two granted dependency exceptions are recorded in the exception register | 2026-10-05 | 2.18.8 |
 
 ---
 
@@ -337,8 +348,13 @@ Spec Kit actually guarantees, without amending the constitution:
    materialize them into every feature (`create-new-feature.ps1`,
    `setup-plan.ps1`, `setup-tasks.ps1`), so each specification, plan, and task
    list is written against them.
-3. `AGENTS.md` and `.clinerules/project-context.md` state the same duty to the
-   agent outside the feature cycle.
+3. `AGENTS.md` states the same duty to the agent outside the feature cycle.
+
+   **Annotation (2026-10-05, ADR-048).** This item originally named
+   `.clinerules/project-context.md` alongside `AGENTS.md`. That directory was
+   retired with the Cline integration in ADR-048 and no longer exists; the duty
+   is carried by `AGENTS.md` alone. The item is annotated rather than rewritten,
+   because a decision record is a history.
 
 **Alternatives considered.**
 - *Amend the constitution to add a "read these files" MUST.* Rejected: the
@@ -606,13 +622,24 @@ as a separate, append-only step run after `/speckit.implement`, repeated until i
 reports Converged. An audit asked whether converge should be added to
 `.specify/workflows/speckit/workflow.yml`.
 
-**Decision.** The project workflow keeps converge outside the workflow file,
-matching upstream v1.0.13 exactly. `/speckit.implement` and `/speckit.converge`
-are repeated as a loop (implement → converge → implement → …) until convergence.
-Deviating from the upstream workflow file would make future `specify` upgrades
-or merges conflict, and converge is inherently conditional (it needs the
-current tasks.md state, not a fixed input), so it does not fit a static step
-list.
+**Decision.** Converge is a separate command in the binding cycle, never a step
+in the engine's fixed list. `/speckit.implement` and `/speckit.converge`
+are repeated as a loop (implement ↻ converge ↻ implement ↻ .) until convergence.
+Converge is inherently conditional — it needs the current `tasks.md` state, not a
+fixed input — so it does not fit a static step list, and encoding a conditional
+step as a fixed one would make the workflow file claim to converge when it
+cannot.
+
+   **Annotation (2026-10-05, audit follow-up).** This Decision originally read
+   "keeps converge outside the workflow file, matching upstream v1.0.13
+   exactly". Both halves were inaccurate. The pin moved to v1.1.0 in ADR-021,
+   and the workflow file *does* carry converge: `.specify/workflows/speckit/workflow.yml:139-140`
+   declares `converge` as a step, annotated at line 145 as repeating with
+   `implement`. The separation that was decided still holds — `converge` remains a
+   distinct command and a distinct step, not a phase merged into `implement` — but
+   "outside the workflow file" was never true of the file this record names as its
+   Owning directory. The sentence is corrected rather than annotated, because the
+   claim was the defect.
 
 **Annotation (2026-10-03).** The pinned Spec Kit install has since moved to v1.1.0 (ADR-021); "matching upstream v1.0.13 exactly" is historical. The shape this record fixed -- converge as a separate CLI command outside the workflow engine's step list -- is unchanged: `/speckit.converge` remains a separate command, and `.specify/workflows/speckit/workflow.yml` (v1.1.0) lists it in the cycle only so the binding order reads as one sequence.
 
@@ -779,7 +806,15 @@ slice that first needs it, and the module map is updated in the same change.
 
 **Context.** Principle IX and the design-system tokens required a sidebar that is fixed and always visible on desktop, and a header that was described differently in Core-Project.txt; Core-Project.txt had no sidebar at all. The product image for the desired shell shows auth-free chrome: the logo in the sidebar header, account/notifications/theme/collapse in the header. Sidebar items outside the product scope (compare, search history, subscriptions, payments) appeared in that image.
 
-**Decision.** The application shell (header plus sidebar) renders on the public pages and the authenticated merchant area only. Auth pages (sign-in, sign-up, forgot-password), 404, static policy/FAQ/contact pages use a bare layout with no header and no sidebar; the administrator application has its own independent shell. The sidebar is 19rem fixed on desktop, does not hide or slide, becomes a drawer on mobile. The sidebar header carries the platform logo; the header carries account, notifications, theme toggle, and the sidebar collapse control. Sidebar navigation is limited to the in-scope pages per role; out-of-scope items are removed from the specification. R1 is the visual reference implementation for the shell.
+**Decision.** The application shell (header plus sidebar) renders on the public pages and the authenticated merchant area only. Auth pages (sign-in, sign-up, forgot-password), 404, static policy/FAQ/contact pages use a bare layout with no header and no sidebar; the administrator application has its own independent shell. The sidebar is 19rem wide on desktop and never hides or slides off-screen; the header's collapse control narrows it to an icon rail on desktop, and on mobile it becomes a drawer that the same control opens and closes. The sidebar header carries the platform logo; the header carries account, notifications, theme toggle, and the sidebar collapse control.
+
+   **Annotation (2026-10-05, audit follow-up).** The Decision originally read "the
+   sidebar is 19rem fixed on desktop". ADR-037 later narrowed "fixed" to mean
+   "always on screen, never slid away", because Principle IX now requires the
+   collapse control to narrow it to an icon rail; the constitution states this at
+   its Sidebar decision values. The scoping decision this record made is unchanged:
+   which surfaces carry the shell, and that the sidebar is always present on
+   desktop rather than collapsible away. Sidebar navigation is limited to the in-scope pages per role; out-of-scope items are removed from the specification. R1 is the visual reference implementation for the shell.
 
 **Consequences.** Every browser-facing slice composes this shell; none rebuilds it, and none places it on auth or admin screens. R1 implements the shell and the auth pages without it.
 
@@ -851,6 +886,9 @@ No exception was granted; the exception register stays empty.
 
 **Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.10.1.
 
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `docs/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
 **Provenance (2026-10-03).** This record was reconstructed from review material
 after the uncommitted working-tree copy of this file was reverted by mistake. The
 decision, its date, and its constitution version are unchanged; the wording is a
@@ -884,6 +922,9 @@ and `ROADMAP.md` moved to 2.10.1.
 **Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.10.1
 (unchanged; this is a tooling pin, not a governance amendment).
 
+**Owning directory**: `.specify/`, `docs/`, `Project-Technologies.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
 **Provenance (2026-10-03).** Reconstructed from review material after the
 uncommitted working-tree copy of this file was reverted by mistake; the decision
 and its version are unchanged, the wording is a faithful summary. A reviewer
@@ -901,11 +942,23 @@ Integration manifests and the mirror were regenerated, not hand-edited.
 
 **Consequences.** None for governance content; the register is unchanged.
 
+**Annotation (2026-10-05, ADR-049).** The Decision's statement about
+`/speckit.analyze` was true when the record was made and is superseded on one
+point only. ADR-033 item 6 amended the constitution's Artifact Workflow wording
+to "by the engine workflow or by hand", and the bundled workflow at
+`.specify/workflows/speckit/workflow.yml` runs `speckit.analyze` as a numbered
+step, as `AGENTS.md` and `README.md` state. `/speckit.analyze` is therefore
+binding in both invocation paths. The Spec Kit and Node pins in the same
+Decision are unaffected and stand.
+
 ---
 
 ## ADR-022 — Constitution 2.10.2 (audit fixes)
 
 **Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.10.2.
+
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `docs/`
+**Owning feature**: none — governance decision; ratified by the repository owner
 
 **Provenance (2026-10-03).** Reconstructed from review material after the
 uncommitted working-tree copy of this file was reverted by mistake; the decision
@@ -934,6 +987,9 @@ in `.specify/integrations/speckit.manifest.json`.
 ## ADR-023 — Constitution 2.11.0 (security hardening, anti-spam, static design enforcement, ops controls)
 
 **Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.11.0.
+
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `docs/`
+**Owning feature**: none — governance decision; ratified by the repository owner
 
 **Context.** A deep review of the constitution found gaps in file-intake
 security (uploads are ZIP-based Word/Excel/PDF, un-scanned), account
@@ -995,6 +1051,9 @@ slice may implement it.
 
 **Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.11.1.
 
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `docs/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
 **Context.** An audit found that Design System Standards (Static enforcement)
 and ADR-023 already mandated Stylelint as a build gate, but Technology
 Standards' Repository topology row for `packages/config` and the Approved
@@ -1029,6 +1088,9 @@ ADR-022 established for the previous template edits.
 
 **Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.11.1
 (unchanged; this is a design-value correction, not a governance amendment).
+
+**Owning directory**: `wafar.single.css`, `.specify/memory/`, `docs/`
+**Owning feature**: none — governance decision; ratified by the repository owner
 
 **Context.** `wafar.single.css` carried `"Segoe UI"` in `--font-sans` and
 `--font-display`. Principle IX and Design System Standards' Invariants permit
@@ -1078,6 +1140,9 @@ the annotation above states.
 **Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.11.1
 (unchanged; this records an extension adoption, not a governance amendment).
 
+**Owning directory**: `.specify/`, `docs/`, `.specify/extensions/git/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
 **Context.** The bundled Spec Kit extension `git` (v1.0.1, MIT) was installed.
 Its `before_specify` hook (`speckit.git.feature`, optional: false) makes
 feature branch creation **mandatory and automatic** before every `/speckit.specify`.
@@ -1107,7 +1172,7 @@ module map, ownership decision, or usage limit is altered.
 **Consequences.** The binding cycle now effectively begins with an automatic
 feature branch creation before specification. The following documents are
 updated in this change to reflect the new cycle: `AGENTS.md` §5, `README.md`
-Development workflow, `.clinerules/project-context.md`, and
+Development workflow, and
 `.specify/workflows/speckit/workflow.yml`. The constitution version remains
 2.11.1. The extension is recorded in `.specify/extensions.yml` and
 `.specify/extensions/.registry`; its manifest hashes are recorded in the
@@ -1120,6 +1185,9 @@ three integration manifests per ADR-022 practice.
 **Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.11.1
 (unchanged; this is a documentation/config consistency fix set, not a
 governance amendment).
+
+**Owning directory**: `.specify/`, `.specify/memory/`, `.specify/templates/overrides/`, `docs/`, `wafar.single.css`
+**Owning feature**: none — governance decision; ratified by the repository owner
 
 **Context.** A deep audit (2026-10-03) found register drift that the
 constitution's own Single-Reference Sufficiency rule treats as a defect:
@@ -1146,6 +1214,10 @@ and `wafar.single.css` hardcoded a duration on the `body` transition.
    the opencode copies), the `cline.manifest.json` is rebuilt to cover all
    registered workflow files, and `.registry` now lists `cline` under the
    `git` extension's `registered_commands`.
+
+   **Annotation (2026-10-05, ADR-048).** The `cline` integration and the
+   `.clinerules/` tree were retired by ADR-048. This item records what the
+   extension registered at the time; neither path exists today.
 5. `ROADMAP.md`'s upload-quota note is aligned to the constitution: the
    limits are `50 files per calendar month, 100 files in total`, with no
    deleted-files exception. Any such exception requires a constitution
@@ -1168,6 +1240,9 @@ should find no stamp drift.
 ## ADR-028 — Constitution 2.12.0: quota window and contact-message path
 
 **Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.12.0.
+
+**Owning directory**: `.specify/memory/`, `docs/`, `Core-Project.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner
 
 **Context.** A deep audit of `ROADMAP.md` against the constitution found two
 facts the constitution underdetermined: the window semantics of the monthly
@@ -1208,6 +1283,9 @@ scaffold, `docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`, and
 **Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.12.0
 (unchanged; governance documents only).
 
+**Owning directory**: `ROADMAP.md`, `docs/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
 **Context.** The same audit found roadmap defects: the `suppliers` module had
 no owning slice; R10's "notification on reply" required the notifications
 module that R9 introduces; R15's deletion path must withdraw bookmarks (R8);
@@ -1245,6 +1323,9 @@ cross-reading data-model notes.
 ## ADR-030 — Constitution 2.13.0: phone-only authentication
 
 **Status**: Accepted. **Date**: 2026-10-03. **Constitution version**: 2.13.0.
+
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `docs/`, `Project-Technologies.txt`, `Core-Project.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner
 
 **Context.** The platform's identity model carried an email address it never
 needed: the Log In page read "Email and password", a register gap reserved a
@@ -1453,7 +1534,7 @@ durable record.
 
 **Context.** A final audit found that .specify/memory/constitution.md itself
 carried double-encoded UTF-8 (UTF-8 bytes interpreted as Windows-1252 and
-re-saved as UTF-8): corrupted em-dashes (â€"), corrupted arrows (â†'), and
+re-saved as UTF-8): corrupted em-dashes (U+00E2 U+20AC U+201D, where U+2014, the em dash, was intended), corrupted arrows (U+00E2 U+2020 U+2019, where U+2192 the arrow was intended), and
 every Arabic example unreadable (the Principle V root example and the
 Arabic-Indic numeral examples among them). The mirror files and the ADRs were
 correctly UTF-8; ADR-011's byte-level check verified decodability, not the
@@ -1586,6 +1667,24 @@ file; wording and dates are unchanged. (6) Each core template carries a header
 banner naming the override that replaces it and stating that it is the fallback
 layer; the banner is a comment, so the template's own structure, including the
 tasks template's frontmatter, is unchanged and no override content changes.
+
+**Alternatives considered.** *(added 2026-10-05, audit follow-up)*
+- **Add `*.md text eol=lf` for every file type explicitly.** Rejected: `.gitattributes`
+  already carries a pattern that covers Markdown, so a second one would add a line
+  a reader must reconcile without changing a single stored byte.
+- **Normalise the encoding of the two mirror files in the same change.** Rejected:
+  ADR-035 established that the mirrors decode correctly and that the earlier
+  console garbling was a display artifact. Rewriting them would change stored
+  bytes to fix a problem that does not exist in the files.
+- **Delete the core fallback templates instead of labelling them.** Rejected: they
+  are the last layer of the resolution stack. Removing them leaves a failed
+  resolution with nothing to fall back to, which is a worse failure than an
+  unlabeled fallback that says what it is.
+- **Assign the two missing design-system duties to "the slice that first needs
+  them",** as the constitution phrases it. Rejected: that is the defect this
+  record's fourth decision item exists to close. A duty with no named owner is
+  unowned by definition, and `ROADMAP.md`'s First obligations table exists so that
+  no duty is left that way.
 
 **What deliberately did not change.** The constitution is not amended and no
 version stamp moves: no rule, register, value, limit, slice, or dependency
@@ -2036,6 +2135,10 @@ v2.17.0) and found six defects, one of them structural.
    v2.18.3 binding block, and `.clinerules/project-context.md` gained the
    emoji/Libya rules, but the hashes in
    `.specify/integrations/speckit.manifest.json` and
+
+   **Annotation (2026-10-05, ADR-048).** `.clinerules/project-context.md` was
+   deleted by ADR-048; the five overrides are what the hash defect concerned, and
+   ADR-048 and ADR-050 re-recorded them.
    `.specify/integrations/cline.manifest.json` still recorded the pre-v2.18
    files (verified: override hashes MISMATCH; `project-context.md` recorded
    `ec5cb5c3…` against actual `4bb01e55…`). ADR-022/024/027/033/034 require the
@@ -2091,6 +2194,23 @@ v2.17.0) and found six defects, one of them structural.
    administrator-reply source; the page-addition route is stated identically in
    Product Scope and Product Register; and `Core-Project.txt` reads "50 ملف لكل
    شهر ميلادي".
+
+**Alternatives considered.** *(added 2026-10-05, audit follow-up)*
+- **Commit the amendment set first, then apply the fixes.** Rejected: that
+  produces two commits where the working tree was already a single uncommitted
+  set, and the second commit would then be the one a reviewer has to reconstruct
+  history for. One fix set, one record, one commit.
+- **Commit the tree as-is and record the defects as known debt.** Rejected: the
+  defects are stamp drift and stale hashes, the two classes a reader cannot
+  detect from the files themselves. Deferring them means the next amendment
+  starts from a tree whose stamps are wrong, which is how this defect recurred.
+- **Rewrite ADR-040's filter bullet without recording that it was rewritten.**
+  Rejected: the record's own Context states the "corrections before ratification"
+  practice, which exists so a reader can see that a record's text moved before it
+  was committed. Dropping the trail defeats the practice.
+- **Re-record the five stale manifest hashes but leave the history alone.**
+  Rejected: the hashes describe the pre-fix files, so not re-recording them leaves
+  the manifest asserting something untrue about the repository.
 
 **What deliberately did not change.** No principle, module map, entity, page
 count, Usage Limit, or slice order changes. The page-addition route is made
@@ -2175,6 +2295,24 @@ because `.clinerules/` was still treated as a live tree.
 7. **`Project-Technologies.txt` gains a Constitution 2.18.5 additions note**
    and its party/header sync marker is advanced (ADR-047 remains listed).
 
+**Alternatives considered.** *(added 2026-10-05, audit follow-up)*
+- **Keep Cline installed but unused.** Rejected: the integration registry,
+  `integration.json`, and the manifest are the machine-readable surface a future
+  `speckit.integrate` reads. Leaving a retired integration registered leaves a
+  command a reader can run that the repository no longer supports.
+- **Delete the Cline extension from `.specify/extensions/` but keep the command
+  files.** Rejected: the command files are the extension's only reason to exist,
+  and a command with no extension behind it is the harder state to detect.
+- **Re-point the Cline commands at opencode and keep one set of files.**
+  Rejected: the two integrations disagree in frontmatter and workflow naming, so
+  one file set cannot serve both. ADR-026 already made the git extension
+  integration-agnostic; the speckit commands were not.
+- **Rewrite the historical Cline statements in ADR-007, ADR-026, and ADR-027.**
+  Rejected, and this record extends ADR-049's answer: a decision record is a
+  history. The forward reference to a deleted directory is annotated instead, so
+  a reader of the old record learns the path is gone rather than silently
+  following it.
+
 **What deliberately did not change.** No principle, module, entity, page,
 feature, or Usage Limit changes. Earlier ADR records in `docs/DECISIONS.md`
 that mention Cline (ADR-007, ADR-026, ADR-027, ADR-037, ADR-038, and the
@@ -2190,3 +2328,383 @@ constitution agrees with `.gitattributes` on encoding; and the mirror's cart
 label is consistent. This entry is the durable record.
 
 ---
+
+## ADR-049 — Constitution 2.18.7: consolidate the unrecorded 2.18.6 and 2.18.7 amendments, and repair the registry drift they exposed
+
+**Status**: Accepted — 2026-10-05 | **Constitution version**: 2.18.7
+
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`,
+`.specify/workflows/`, `docs/`, `ROADMAP.md`, `Project-Technologies.txt`,
+`Core-Project.txt`, `AGENTS.md`, `README.md`, `docs/architecture.md`,
+`docs/domain-model.md`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A full audit of the repository's registries (constitution, mirror,
+`Project-Technologies.txt`, `Core-Project.txt`, `docs/architecture.md`,
+`docs/domain-model.md`, `ROADMAP.md`, `wafar.single.css`, and the template
+overrides) found one defect class repeated across files. The constitution's
+working tree carried version 2.18.7 while every dependent stamp still read
+2.18.5, and no ADR recorded the 2.18.6 or 2.18.7 amendment. This is the exact
+failure ADR-047 recorded in its Context and closed for 2.18.4; it recurred.
+Three further findings travelled with it: a review-only comment block labelled
+"MUST NOT be committed" was committed inside the constitution (against ADR-010
+and the Governance amendment procedure); two index anchors in this file did not
+resolve to their headings; and the design register named a display exception
+("the quick-actions grid") that the Product Register never scheduled.
+
+**Decision.**
+1. **The 2.18.6 and 2.18.7 amendments are consolidated here and the constitution
+   footer stands at 2.18.7.** 2.18.6 and 2.18.7 were both PATCH: non-semantic
+   wording, de-duplication, and registry alignment. No principle, register,
+   limit, page, entity, or slice changed across the pair. Every stamp site the
+   Governance amendment procedure names moves with it: the constitution footer,
+   the binding blocks of the spec/plan/tasks/checklist template overrides, the
+   scaffold footer of the constitution-template override, and the stamps in
+   `docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`, and
+   `Project-Technologies.txt`. The living ADR range strings move to
+   ADR-001 … ADR-049.
+2. **The committed review block is removed from the constitution.** The sync
+   impact report produced during an amendment is review material; ADR-010 and
+   the Governance section require that it not be committed. Its findings are
+   carried by this record instead. The constitution is re-saved as UTF-8 without
+   a BOM, and the mojibake inside the removed block goes with it.
+3. **The unregistered "quick-actions grid" display exception is struck from the
+   design register.** The tables-only rule keeps one exception: the home page's
+   statistical cards. The constitution's own Home page row and `Core-Project.txt`
+   name that single exception and never schedule a quick-actions grid, so the
+   second exception named a component with no page, no owner, and no slice. The
+   rule is narrowed to what the Product Register schedules; a future
+   quick-actions surface is a feature decision, not a register exception.
+4. **Two broken index anchors in this file are repaired** (ADR-045, ADR-046) so
+   every index row resolves to its heading.
+5. **ADR-021 gains an annotation** on the single point ADR-033 superseded:
+   `/speckit.analyze` is binding in the engine workflow as well as by hand.
+6. **The cart label's mirror citation is corrected.** `Project-Technologies.txt`
+   attributed the cart label to ADR-038 in one place and ADR-045 in another;
+   ADR-045 supersedes ADR-038's label clause, so the citation is unified on
+   ADR-045. The record is not rewritten.
+7. **Two mirror-repair items are completed in `Core-Project.txt`**: the retired
+   label «محفوظات» in the guest capability list becomes «سلة المشتريات», and the
+   required page-flow transition `Parts → ?file=<id> → Parts`, which the
+   constitution lists among the five required transitions and which
+   `Core-Project.txt` omitted, is added beside the other four.
+8. **`docs/domain-model.md`'s `Notification` row names the administrator-reply
+   source** added by ADR-046 and carried by ROADMAP R9, so the domain model no
+   longer reads narrower than the register.
+9. **Two edits that were part of this change set are recorded here.** Neither
+   changes a rule; both correct a note that read as if it governed a hook slot
+   that does not exist. `.specify/workflows/speckit/workflow.yml` replaces the
+   `after_converge: speckit.git.commit` hook comment with an accurate statement
+   that the Spec Kit engine declares no `after_converge` slot, naming
+   `after_implement` and `after_taskstoissues` as the nearest ones.
+   `AGENTS.md` §5 records `speckit.git.initialize` as a mandatory
+   `before_constitution` hook, records `feature_numbering: sequential` as the
+   numbering mode, and states that hook states are read from
+   `.specify/extensions.yml` rather than assumed. Both were verified against
+   `.specify/extensions.yml` before being recorded.
+
+**Alternatives considered.** *(added 2026-10-05, audit follow-up)*
+- **Leave the two edits unrecorded** and let them ride as part of the stamp-set
+  commit. Rejected: the Governance amendment procedure names an entry in this
+  file as the durable record of a change, and an unrecorded change is exactly
+  what this record was raised to stop.
+- **Record them as a separate amendment.** Rejected: neither edits a principle,
+  register, limit, page, entity, or slice, so neither is an amendment; a PATCH
+  bump with nothing behind it would be noise in the version history.
+- **Correct the two files again to remove the notes entirely.** Rejected: the
+  notes are accurate and useful. `after_converge` does not exist, so the old
+  comment named a hook slot the engine never had; removing the comment leaves the
+  next reader to rediscover that fact from the extension registry.
+
+**What deliberately did not change.** No principle text, module map, ownership
+decision, entity, page count, Usage Limit, or slice order. The accepted records
+ADR-033, ADR-037, and ADR-038 keep their stamp-site phrasing, which ADR-048
+already answered by record rather than by rewriting; this record extends that
+answer. The historical `2.18.5` mentions inside ADR-047 and ADR-048 are left as
+history. `wafar.single.css` is untouched: the fourteen modules, the Decision
+colour values, and the logical-properties rule all verified against it.
+
+**Consequences.** This record established the 2.18.7 stamp set and moved the
+living ADR ranges. Its stamp sites hold: ADR-050, which carried the set to
+2.18.8, states the current values. The constitution no longer carries review
+material, and the registers that mirror it name the same components, the same
+cart label, and the same required transitions. This entry is the durable record.
+
+**Annotation (2026-10-05, audit follow-up).** This record originally claimed that
+"every version stamp in the repository reads 2.18.7 ... no outstanding debt".
+That was not true of the tree this record shipped in: the constitution's own
+footer still read 2.18.5, five `speckit.manifest.json` hashes still described the
+pre-edit overrides, and the whole 2.18.6/2.18.7 set was uncommitted. Those three
+defects are closed by ADR-050, which is why this record's Decision is read
+together with it. The sentence above is corrected rather than deleted, because
+the claim was the finding, not the intent.
+
+---
+
+## ADR-050 — Constitution 2.18.8: audit fix set — the stamp set committed, and the registry claims that failed verification
+
+**Status**: Accepted - 2026-10-05 | **Constitution version**: 2.18.8
+
+**Owning directory**: `.specify/memory/`, `.specify/integrations/`,
+`.specify/templates/`, `docs/`, `ROADMAP.md`, `Project-Technologies.txt`
+**Owning feature**: none - governance decision; ratified by the repository owner
+
+**Context.** ADR-049 was raised to close a repeated defect: the 2.18.x amendment
+set went uncommitted, and its stamp sites drifted. A verification pass over the
+tree ADR-049 produced found that ADR-049 committed none of that. Six findings,
+none of them visible by reading a single file, since each is a disagreement
+*between* a register and the artefact it describes:
+
+1. The constitution's own version footer read 2.18.5 while the nine dependent
+   stamp sites read 2.18.7. ADR-049's Decision stated the footer stood at 2.18.7
+   and its Consequences stated that every stamp in the repository read 2.18.7.
+   Both sentences were false of the tree they shipped in.
+2. All five override hashes in `.specify/integrations/speckit.manifest.json`
+   described the pre-edit override files. ADR-047 had re-recorded hashes for the
+   same reason; the practice was not carried forward.
+3. The 2.18.6/2.18.7 change set was still uncommitted, which is the exact
+   condition ADR-047 recorded and ADR-049 recorded as having recurred.
+4. Two edits inside that set — the `workflow.yml` hook-slot note and the
+   `AGENTS.md` §5 rewrite — were recorded by no decision item.
+5. The Design System Standards' unused-token note claimed the whole shadow
+   ladder was "declared, but unused". Nine of the twenty named shadows are
+   consumed by `wafar.single.css`, including `--shadow-md` and `--shadow-focus`.
+   Single-Reference Sufficiency requires a register row to name a value its
+   source actually defines, so the note described a state that does not exist.
+6. `ROADMAP.md` assigned three slices to write values into Constitution Mandated
+   Values that the CMV list does not contain, and the list is closed; the
+   Register-gaps rule puts a gap's choice in the plan's Complexity Tracking
+   table instead.
+
+**Decision.**
+1. **The version footer moves to 2.18.8** and every stamp site the Governance
+   amendment procedure names moves with it: `docs/architecture.md`,
+   `docs/domain-model.md`, `ROADMAP.md`, `Project-Technologies.txt`, the binding
+   blocks of the spec, plan, tasks, and checklist overrides, and the scaffold
+   footer of the constitution-template override. The 2.18.5/2.18.6/2.18.7 stamp
+   drift is closed in the same change that commits it, which is what ADR-047 and
+   ADR-049 each intended and neither achieved.
+2. **The five override hashes in `speckit.manifest.json` are re-recorded** from
+   the files as committed, per ADR-022, ADR-024, ADR-027, ADR-033, and ADR-034.
+   The hash set is regenerated as the last step of the change, after every file
+   the manifest describes is final, so no hash describes a pre-edit file.
+3. **ADR-049 gains a decision item and an Owning directory that match what it
+   shipped.** Item 9 records the two undocumented edits, and the Owning
+   directory names all eleven paths the change touched. ADR-049's Consequences
+   is annotated rather than deleted, because its false claim is the evidence for
+   this record.
+4. **The unused-token note is rewritten to the state the stylesheet is in.** The
+   size ladder through `--shadow-2xl`, plus `--shadow-card`,
+   `--shadow-card-raised`, and `--shadow-focus`, are declared and consumed. The
+   remaining named shadows and the `brand` triple are declared-but-unused, and
+   `--sidebar-width`, `--navbar-height`, `--touch-floor*`, and every `--screen-*`
+   token keep the unused status they actually have.
+5. **`ROADMAP.md`'s three register-gap obligations name the right artefact.**
+   The Redis client, OpenSearch client, and Arabic analyzer rows now say the
+   choice is recorded in the plan's Complexity Tracking table with an ADR, which
+   is what the Register-gaps rule requires. The extraction-libraries row is
+   unchanged: the CMV list does contain that value.
+6. **Eleven records gain the ownership stamp they were missing.** ADR-020
+   through ADR-030 carried a Status/Date/version header and nothing else, which
+   the Documentation rule forbids: it requires the owning directory and the
+   owning feature to be named. Each now names both, using the directory that owns
+   its decision.
+7. **Four records that recorded no alternatives gain an Alternatives section.**
+   ADR-039, ADR-047, ADR-048, and ADR-049 were non-trivial decisions written
+   without the alternatives the Documentation rule requires. Each section records
+   options that were genuinely weighed, and each is marked as added in this
+   change. The records' Decisions are not rewritten.
+8. **Three records are annotated and two are corrected where the text was
+   wrong.** ADR-007 and ADR-026 pointed at `.clinerules/project-context.md`, a
+   directory ADR-048 retired; they are annotated, per the rule that a decision
+   record is a history. ADR-013's Decision claimed converge was kept "outside the
+   workflow file" while the file it names as its Owning directory declares
+   `converge` as a step, and its "matching upstream v1.0.13 exactly" claim was
+   overtaken by ADR-021; its Decision text is corrected. ADR-017's "19rem fixed on
+   desktop" is annotated, because ADR-037 narrowed "fixed" to mean always-present
+   with a collapse-to-icon-rail. ADR-035's Context quoted its own subject — the
+   mojibake it repaired — with two characters of each sequence instead of three;
+   it now names the codepoints.
+9. **This file's preamble is corrected.** It claimed every record is owned by
+   `docs/` and that every record since ADR-007 was a constitutional amendment.
+   Neither is true, and the Documentation rule's two requirements were restated
+   from the rule rather than asserted about the records.
+
+**Alternatives considered.**
+- *Commit the 2.18.6/2.18.7 set first, then raise this record separately.*
+  Rejected: the stamp defect is that the set was committed without its stamps
+  moving. Two commits reproduces the condition this record closes — the second
+  would land with its own stamps already stale.
+- *Treat the wrong footer and the stale hashes as a tooling problem and let a
+  script own the stamps.* Rejected: a script that maintains the stamps would be a
+  second authority over the constitution's version, and the Governance amendment
+  procedure already names the stamps as a duty of the amendment.
+- *Rewrite ADR-039, ADR-047, ADR-048, and ADR-049 with Alternatives sections
+  integrated rather than marked as added.* Rejected: none of the four is
+  committed-and-final history in the sense that forbids it, but none of them was
+  written with its reasoning captured, so the sections are reconstruction. Marking
+  them as reconstruction is more honest than presenting them as contemporaneous.
+- *Close the exception-register gap inside this record rather than raising ADR-052.*
+  Rejected: a granted exception is an instrument the constitution keeps separate
+  from the decision log, and its two rows name review dates that a later audit
+  must be able to find by looking in one place.
+- *Delete the two ADR rows for the granted exceptions and drop the word
+  "exception" from the register instead.* Rejected: the register genuinely grants
+  something — ClamAV and Lighthouse CI are named dependencies that the
+  Dependency Governance rule would otherwise prohibit. Deleting the word would
+  leave an unrecorded exception, which the rule calls a violation.
+
+**What deliberately did not change.** No principle, register row count, entity,
+page count, Usage Limit, slice order, or dependency. The shadow ladder's values
+and the stylesheet are untouched; only the register's description of them
+changed. `wafar.single.css` was not modified. The nine `--screen-*` tokens and
+their unused status are unchanged, and no slice is given a new obligation by this
+record. The Bootstrap-era ADR-001 through ADR-006 keep their original
+`none yet - repository bootstrap` stamps including their ASCII hyphens: this
+record did not retro-format ratified history.
+
+**Consequences.** Every stamp site the Governance amendment procedure names
+reads 2.18.8, every override hash describes the committed file, and the
+2.18.6/2.18.7/2.18.8 set is committed as one change, so the stamp drift class
+ADR-047 and ADR-049 each recorded is closed in the same change that raised the
+third attempt. Every record in this file names an owning directory and an owning
+feature. Four records record their alternatives. The unused-token note now
+matches the stylesheet. This entry is the durable record.
+
+---
+
+## ADR-051 — A tenant is a merchant account
+
+**Status**: Accepted - 2026-10-05 | **Constitution version**: 2.18.8
+
+**Owning directory**: `.specify/memory/`, `docs/domain-model.md`, `docs/architecture.md`
+**Owning feature**: none - governance decision; ratified by the repository owner. R2 is the first slice to implement merchant scoping.
+
+**Context.** Schema and Migration Control requires that every table holding
+tenant-owned data carry a tenant identifier as a foreign key, that every
+tenant-scoped index carry it, and that every read and write be tenant-scoped at a
+single shared entry point with a test that fails when the invariant breaks. The
+same scoping appears in Authorization and Access Control, in Deployment and
+Observability's tenant-isolation verification, and in `ROADMAP.md`, which assigns
+the query-path test and the shared entry point to R2.
+
+The word "tenant" appeared twelve times and was defined in none of them. No
+`Tenant` entity exists in the Product Register's Data entities, and that register
+forbids adding one without an amendment. No entity in `docs/domain-model.md`
+carries a tenant column. The requirement was therefore an invariant with no
+subject: R2 was ordered to implement and test a scope that nothing declared.
+
+**Decision.**
+1. **A tenant is a merchant account.** The tenant identifier IS the `User`
+   identifier. No `Tenant` entity is introduced, so the Data entities register is
+   unchanged and no amendment to it is required.
+2. **The scoping column is `user_id`, referencing `User`.** It appears on every
+   merchant-owned table — `Catalog`, `Bookmark`, `Notification`, `Conversation`,
+   `Message`, `ContactMessage` — and leads every index serving a merchant-scoped
+   query.
+3. **`Supplier` and `AuditLog` carry no scoping column.** `Supplier` is
+   platform-wide, since one company appears in many merchants' catalogs, and
+   `AuditLog` records administrator operations, which have no merchant owner.
+   Neither is merchant-scoped and the isolation test covers neither.
+4. **"Tenant isolation" is renamed "merchant isolation"** wherever it named a
+   rule. The obligation is unchanged; only the term that had no referent is
+   replaced by the one that does.
+5. **R2 implements this.** It adds `user_id` to its schemas, applies scoping at
+   the single shared entry point it already owns, and adds the query-path test.
+   The test is the proof that the invariant is not merely stated.
+
+**Alternatives considered.**
+- *Introduce a `Tenant` entity and treat the marketplace as multi-tenant, with
+  each merchant account as a tenant.* Rejected: the platform is one Libyan
+  marketplace, and the isolation boundary the rules protect is one merchant's rows
+  against another's, which `User.id` already expresses. A `Tenant` row per
+  merchant duplicates `User` and adds an entity the Product Register would have to
+  carry for no distinction a reader could observe.
+- *Declare the platform single-tenant and remove the four MUSTs as inapplicable.*
+  Rejected: it would forfeit a real protection. The isolation test is what stops
+  one merchant's catalog query from returning another's, and that breach is
+  possible in a single-tenant platform. Removing the rule removes the test with it.
+- *Leave "tenant" undefined and let R2's plan define it.* Rejected: R2 is the
+  first merchant-scoped query surface, so the definition would arrive at the same
+  moment as the code that depends on it, with no record to reconcile against. A
+  register that mandates a MUST over an undefined term is the defect this record
+  closes.
+- *Scope the tables by `Catalog` rather than by `User`.* Rejected: `Part`,
+  `Bookmark`, and `Notification` are read and written without joining a catalog
+  on the request path, so a catalog-scoped column would have to be denormalised
+  onto every table and would not be a foreign key to anything.
+
+**What deliberately did not change.** No entity, no page, no Usage Limit, no
+slice order, and no row count in the Data entities register. `Supplier` and
+`AuditLog` keep their existing shape. The authorization model remains a deferred
+area owned by R13, and this record does not anticipate it; it fixes only the
+scope those rules already required.
+
+**Consequences.** Four rules that mandated an undefined invariant now name a
+defined one, and R2's test has a subject to test. `docs/domain-model.md` carries
+the invariant as a merchant-ownership section, so a slice reading the domain
+model finds the scoping column and the two unscoped tables without reading the
+constitution. This entry is the durable record.
+
+---
+
+## ADR-052 — The two granted dependency exceptions are recorded in the exception register
+
+**Status**: Accepted - 2026-10-05 | **Constitution version**: 2.18.8
+
+**Owning directory**: `.specify/templates/exception-register.md`, `.specify/memory/`
+**Owning feature**: none - governance decision; ratified by the repository owner
+
+**Context.** The Approved Technology Standards register names ClamAV and
+Lighthouse CI, and describes each as "registered with an explicit exception — a
+scanner, not a runtime dependency" and "a CI gate, not a runtime dependency".
+Both are genuine exceptions: Dependency Governance prohibits a dependency absent
+from the register, and the register's own rationale for each is that the tool is
+not a library the application imports.
+
+The Governance section states that every exception MUST be recorded with the
+principle, the exact scope, the rationale, the approver, and a review date, and
+that the register MUST NOT be satisfied by a comment in code. The register at
+`.specify/templates/exception-register.md` read "No exceptions recorded". Two
+exceptions were therefore granted in the Approved register and recorded nowhere
+else, which is the condition the rule calls an undocumented violation.
+
+**Decision.**
+1. **Two rows are added to the exception register**, `EX-001` for ClamAV and
+   `EX-002` for Lighthouse CI. Each names the Dependency Governance principle,
+   the exact scope, the rationale, the repository owner as approver, and a review
+   date, as the register's own rules require.
+2. **The Approved register cites the rows** rather than repeating the word
+   "exception" on its own authority. A register row that grants an exception must
+   point at the register that records it, or the exception exists in two places
+   and neither is authoritative.
+3. **Each scope states the condition under which it ends**, which the register's
+   usage rules require and which the Approved register's wording did not.
+
+**Alternatives considered.**
+- *Delete the word "exception" from both Approved-register rows and treat them as
+  ordinary dependencies.* Rejected: it would leave the Dependency Governance rule
+  breached without any record of the breach, which is what the exception register
+  exists to prevent. ClamAV is not imported by the application and Lighthouse CI
+  does not run in the application; recording them as ordinary dependencies would
+  misdescribe both.
+- *Amend Dependency Governance to carve out non-library tools instead of granting
+  per-tool exceptions.* Rejected: the carve-out would be permanent and unfalsifiable.
+  A per-tool row with a review date can be closed when the tool changes role, and
+  the register's own rules require that a row name an approver and a date for
+  exactly that reason.
+- *Record the exceptions inside ADR-050 rather than in the register.* Rejected: the
+  constitution keeps the exception register and the decision log as separate
+  instruments, and a later audit looks for a granted exception in the register. A
+  row that exists only in a decision record satisfies the word "exception" and not
+  the rule.
+
+**What deliberately did not change.** The Approved register keeps both rows and
+their dependencies; no dependency is added or removed, and Dependency Governance
+is unchanged. ClamAV and Lighthouse CI remain required by File Processing Rules
+and Performance Budgets and Verification respectively.
+
+**Consequences.** Two exceptions are now recorded where the rule says they must
+be, each with a review date a later audit can act on. A reader checking whether a
+dependency is permitted finds the answer in the exception register rather than
+inferring it from the Approved register's prose. This entry is the durable record.
