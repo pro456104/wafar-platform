@@ -484,7 +484,7 @@ implemented through a specification that references this list.
 | 13 | Messaging | Single thread with the administrator. |
 | 14 | Admin Application | Full platform management. |
 | 15 | Audit Log | Every administrator operation. |
-| 16 | Automatic Deletion | After 90 days. The period is fixed; the point the 90 days are counted from is not fixed here and is reserved to R15 (Product Fact Clarifications → Unresolved product facts). |
+| 16 | Automatic Deletion | After 90 days. The period is fixed; the point the 90 days are counted from is not fixed here and is reserved to R15 (Product Register → Unresolved product facts). |
 
 ## Product Register
 
@@ -611,7 +611,7 @@ bounds the answer; that is not an assertion of the answer.
 | `Conversation` carries an administrator reference, yet every administrator account sees the same single thread | Product Register (`Conversation` carries an administrator); `Core-Project.txt` (one administrator account type, all administrators see the same conversations) | R10 |
 | An administrator is a role on `User` in one place and a separate party that `Conversation` and `AuditLog` refer to in another | Product Register (roles); Authorization and Access Control (a separate application with a separate login) | R13 |
 | How a printed price that carries more than one separator is read (for example `1.250.000`), and how a file that separates thousands rather than decimals is read | File Processing Rules (price denomination); the price examples in `Core-Project.txt`; the source files themselves | R3 |
-| Where the administrator's platform settings are stored, given that no registered entity owns them | Product Scope (Administrator's Application → Settings); the Data entities table (ten entities, none of them settings, and an unregistered entity MUST NOT be introduced) | R13 |
+| Where the administrator's platform settings are stored, given that no registered entity owns them | Product Scope (Administrator's Application (Separate Login) → Settings); the Data entities table (ten entities, none of them settings, and an unregistered entity MUST NOT be introduced) | R13 |
 
 **Resolved conflict (2026-10-03).** The sidebar conflict is resolved: the
 sidebar is required on desktop and must not hide or slide (Principle IX);
@@ -2014,4 +2014,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.22.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-06
+**Version**: 2.22.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-06

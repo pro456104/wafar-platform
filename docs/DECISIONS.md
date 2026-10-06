@@ -87,6 +87,7 @@ is not done; ADR-015 states that rule and this file follows it.
 | [ADR-059](#adr-059--constitution-2210-two-tools-the-rules-already-required-and-the-mirror-claims-that-contradicted-the-register) | Constitution 2.21.0: two tools the rules already required, and the mirror claims that contradicted the register | 2026-10-06 | 2.21.0 |
 | [ADR-060](#adr-060--constitution-2220-the-design-systems-register-against-its-own-file-the-files-binding-rules-and-the-citations-that-named-the-wrong-section) | Constitution 2.22.0: the design system's register against its own file, the file's binding rules, and the citations that named the wrong section | 2026-10-06 | 2.22.0 |
 | [ADR-061](#adr-061--the-in-flight-clarifications-recorded-and-the-reserved-decision-the-one-phrasing-pre-empted) | The in-flight clarifications recorded, and the reserved decision the one phrasing pre-empted | 2026-10-06 | 2.22.0 (unchanged) |
+| [ADR-062](#adr-062--constitution-2221-wording-only-reference-precision-and-stamp-sync) | Constitution 2.22.1: wording-only reference precision and stamp sync | 2026-10-06 | 2.22.1 |
 
 ---
 
@@ -3839,3 +3840,52 @@ that three manual passes had to find by eye.
 - *Revert all five edits.* Rejected: four of them are correct, one of them matches ADR-053, and two others state reservations the constitution requires to be stated with their owners. Reverting would discard accurate work to avoid recording it.
 - *Record the clarifications inside ADR-060.* Rejected: that record's subject is the design system's register and the citations that named the wrong section; mixing a data-model clarification into it would make both harder to read and would misstate what the amendment covered.
 - *Leave the drift check unrecorded and rely on review.* Rejected: Documentation's rule exists because documentation drifts after the author moves on. An uncommitted check is the same as no check.
+
+---
+
+## ADR-062 — Constitution 2.22.1: wording-only reference precision and stamp sync
+
+**Status**: Accepted — 2026-10-06
+**Owning directory**: `.specify/memory/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** The 2.22.1 amendment corrected two reference citations and nothing
+else, but it was left incomplete: the review scratch stayed at the top of the
+constitution file, and every version stamp outside that file still read 2.22.0.
+Governance names eleven stamp sites that MUST move in the same change and says
+the review report MUST NOT be committed, so a constitution ahead of its stamps
+with its scratch still attached is an amendment that never closed.
+
+**Decision.** The constitution is amended to 2.22.1 (PATCH: wording-only
+reference precision, no rule change):
+
+1. **Product Scope → Product Features #16** now reserves the 90-day trigger
+   point to R15 under Product Register → Unresolved product facts, where the
+   binding table lives, instead of the Product Fact Clarifications section,
+   which carries no such table.
+2. **Product Register → Unresolved product facts, Settings row** now cites the
+   subsection by its exact heading, "Administrator's Application (Separate
+   Login)".
+3. **The review scratch is removed before commit**, per Governance and ADR-010.
+4. **All eleven stamp sites move to 2.22.1 in the same change**, and the live
+   `ADR-001 … ADR-0NN` range strings name ADR-062.
+
+**What deliberately did not change.** No principle was added, removed, renamed,
+or redefined. No section was added or removed. No entity, module, slice, Usage
+Limit, register gap, or deferred area moved. The design system file is
+untouched, and neither mirror restates a rule.
+
+**Consequences.** The amendment is complete: the stamps agree with the footer,
+no committed file carries review scratch, and a reviewer can verify the whole
+set by reading the footer against the eleven sites Governance names.
+
+**Alternatives considered.**
+
+- *Leave the stamps at 2.22.0 until the next content amendment carries them.*
+  Rejected: Governance requires the stamps to move in the same change, and an
+  amendment that leaves them behind is incomplete by definition.
+- *Raise this to MINOR.* Rejected: nothing was added and no guidance was
+  expanded; a version bump must earn its level under the versioning policy.
+- *Fold this record into ADR-060.* Rejected: that record's subject is the
+  2.22.0 design-system register; mixing a stamp-sync closure into it would
+  misstate what that amendment covered.
