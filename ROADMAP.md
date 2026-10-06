@@ -34,7 +34,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-056) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-057) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -74,7 +74,8 @@ an owner.
 | The workspace, `packages/config`, and the shared tooling | R1 | Technology Standards → repository topology; `docs/architecture.md` |
 | The test runner and the continuous-integration provider that enforces the 80% coverage gate | R1 | Principle III; Register gaps |
 | The transactional SMS provider for OTP sign-up verification and password reset (replaces the previous transactional-email gap) | R1 | Technology Standards → Register gaps (ADR-030) |
-| Provisioning of PostgreSQL, Redis, SeaweedFS, and OpenSearch for development, plus the PgDog fallback and its review date | R1 | Technology Standards (PgDog is pre-1.0 and MUST name a fallback and a review date) |
+| Provisioning of PostgreSQL, Redis, SeaweedFS, and OpenSearch for development | R1 | Technology Standards |
+| PgDog deployment with named fallback (PgBouncer) and review date (2027-04-06) | R1 | Technology Standards (PgDog is pre-1.0 and MUST name a fallback and a review date) |
 | Enabling Dependabot/Renovate so the update process exists from the first merge; the full dependency-update policy is R12's | R1 (enablement), R12 (policy) | Dependency Governance (before the first public release) |
 | Backup and restore tooling, and the RTO/RPO numbers | R1 | Deployment and Observability (R1 introduces persistent storage) |
 | The application shell — header, sidebar (full width or an icon rail on desktop, drawer on mobile), drawer, theme toggle, icon set (an open-source set under a permissive licence, self-hosted SVG, no emoji, per ADR-042), fonts, and the framework bridge — scoped to public pages and the merchant area, never on auth/404/static pages; resolved sidebar logo/header placement per ADR-017; icon set and theme toggle per ADR-016 | R1 | Principle IX; Design System Standards; ADR-016, ADR-017 |
