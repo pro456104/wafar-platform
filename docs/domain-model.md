@@ -5,7 +5,7 @@ entities the product reasons about, the relationships between them, their
 cardinality, their invariants, and the module that owns each one. It is the
 source the constitution's Product Register maps.
 
-Its authority is `.specify/memory/constitution.md` (v2.20.0); where this
+Its authority is `.specify/memory/constitution.md` (v2.22.0); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
 change to a registered product fact and MUST be recorded as an ADR in
@@ -69,7 +69,8 @@ through R15 all read this document before planning.
 
 Ten entities, each owned by exactly one module. Ownership is binding: the
 owning module is the only one that may read or write the entity's storage, and
-every other module reaches it through that module's service.
+every other module reaches it through that module's service, which is
+exposed via the shared package — never through a direct import.
 
 | Entity | Owning module | What it represents | Cardinality |
 |---|---|---|---|
@@ -79,7 +80,7 @@ every other module reaches it through that module's service.
 | `Part` | `parts` | A single row extracted from a catalog, representing one car part, carrying the price its own catalog printed. | One part belongs to exactly one catalog. |
 | `Bookmark` | `bookmarks` | One entry in a merchant's cart: a link from a user to a part. | One user has at most 99 bookmarks; a bookmark links exactly one user and one part. |
 | `Notification` | `notifications` | A message delivered to a user in the notification list, from a processing outcome, from the administrator, or from an administrator reply. | Many per user; no upper bound is fixed. |
-| `Conversation` | `messages` | The single thread between a merchant and the administrator. | A user has at most one conversation. |
+| `Conversation` | `messages` | The single thread between a merchant and the administrator. Whether it carries an administrator reference, and whether every administrator account reads the same thread, is unresolved fact #2 below, owned by R10. | A user has at most one conversation. |
 | `Message` | `messages` | One message inside a conversation. | Many per conversation. |
 | `ContactMessage` | `support` | A message from the public contact form: name, phone, body. | Independent of any account; it reaches the administrator without a conversation. The phone is for contact only, never an account identifier. |
 | `AuditLog` | `admin` | The append-only record of every administrator operation. | Append-only: never updated, never deleted. The administrator is a party the record names, but *how* it names one is undecided — see Unresolved facts. |
@@ -271,7 +272,10 @@ service layer re-checks the ones a constraint cannot express.
   operation happens, naming the administrator, the action, the target, and the
   details.
 - **The target is namespaced** in the `type:id` form the Product Register fixes,
-  so one target is unambiguous across the ten modules.
+  so one target is unambiguous across the modules. Only a module that owns a
+  registered entity can appear as a target type; an `auth:` target type
+  becomes meaningful only once open fact #8 (`auth`'s stored entity) is
+  decided in R1.
 
 ### User
 

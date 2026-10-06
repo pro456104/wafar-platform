@@ -84,6 +84,9 @@ is not done; ADR-015 states that rule and this file follows it.
 | [ADR-056](#adr-056--constitution-2191-section-name-references-glossary-terms-and-the-register-gap-classification) | Constitution 2.19.1: section-name references, glossary terms, and the register-gap classification | 2026-10-06 | 2.19.1 |
 | [ADR-057](#adr-057--constitution-2192-the-audit-findings-re-verified-and-the-design-systems-token-rule-enforced) | Constitution 2.19.2: the audit findings re-verified, and the design system's token rule enforced | 2026-10-06 | 2.19.2 |
 | [ADR-058](#adr-058--constitution-2200-the-writing-direction-rules-value-form-two-register-levels-and-the-decision-records-that-failed-verification) | Constitution 2.20.0: the writing-direction rule's value form, two register levels, and the decision records that failed verification | 2026-10-06 | 2.20.0 |
+| [ADR-059](#adr-059--constitution-2210-two-tools-the-rules-already-required-and-the-mirror-claims-that-contradicted-the-register) | Constitution 2.21.0: two tools the rules already required, and the mirror claims that contradicted the register | 2026-10-06 | 2.21.0 |
+| [ADR-060](#adr-060--constitution-2220-the-design-systems-register-against-its-own-file-the-files-binding-rules-and-the-citations-that-named-the-wrong-section) | Constitution 2.22.0: the design system's register against its own file, the file's binding rules, and the citations that named the wrong section | 2026-10-06 | 2.22.0 |
+| [ADR-061](#adr-061--the-in-flight-clarifications-recorded-and-the-reserved-decision-the-one-phrasing-pre-empted) | The in-flight clarifications recorded, and the reserved decision the one phrasing pre-empted | 2026-10-06 | 2.22.0 (unchanged) |
 
 ---
 
@@ -1184,6 +1187,14 @@ Development workflow, and
 `.specify/extensions/.registry`; its manifest hashes are recorded in the
 three integration manifests per ADR-022 practice.
 
+**Annotation (2026-10-06, ADR-060).** This record names `git-config.yml` as
+where the `auto_commit` default and the commit-hook states live. No such file
+exists in this repository: `.specify/extensions.yml` is the hook-state source,
+and every `speckit.git.commit` hook is `enabled: false` there, which is the
+state this record describes. The claim about the default was right and the
+claim about the file was wrong; the text above is left as it was written,
+because a decision record is a history.
+
 ---
 
 ## ADR-027 — Audit fix set: ADR stamps, workflow version, hook state, cline registration, CSS token
@@ -1215,6 +1226,13 @@ and `wafar.single.css` hardcoded a duration on the `body` transition.
    `enabled: false`, making the registered state match ADR-026 and
    `git-config.yml` (`auto_commit.default: false`). Re-enabling requires
    editing both files, by design.
+
+    **Annotation (2026-10-06, ADR-060).** No `git-config.yml` exists in this
+    repository; `.specify/extensions.yml` is the hook-state source, and this
+    item's outcome is exactly as recorded there. The file named in the text
+    above never existed here, and "editing both files" therefore reduces to
+    editing the one. The text is left unrewritten for the reason ADR-058 set
+    out.
 4. The `cline` integration gains the git command files under
    `.clinerules/workflows/` (frontmatter `name: speckit-git-*`, mirroring
    the opencode copies), the `cline.manifest.json` is rebuilt to cover all
@@ -3430,3 +3448,394 @@ durable record.
 - *Annotate ADR-050 rather than correct its text.* Considered and rejected for this one item: the others are annotations because a later decision changed what they say, while item 8 is a claim about what was already done, and it is false. The correction states the truth and names what it missed.
 - *Treat `to left` as harmless because the platform is permanently RTL.* Rejected: the rule exists so a surface reads correctly by construction rather than by coincidence, and an RTL-only platform is exactly the assumption that would let a physical direction survive into a reused component.
 - *Extend the value-form rule to transform functions such as `translateX`.* Rejected as out of scope: `wafar.single.css` animates slide-in with `translateX`, which is a physical axis rather than a direction keyword, and the rule as written reaches direction keywords and gradient directions only. It is recorded here as a known uncovered case rather than silently widened, because widening it in this amendment would have changed motion behaviour without a design decision behind it.
+
+---
+
+## ADR-059 — Constitution 2.21.0: two tools the rules already required, and the mirror claims that contradicted the register
+
+**Status**: Accepted — 2026-10-06
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `docs/`, `ROADMAP.md`, `Project-Technologies.txt`, `AGENTS.md`, `README.md`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A cross-read of the architecture documents against the technology
+register and the mirror, asked to name what is missing, found eight defects and
+withdrew two candidates. Two are requirements the constitution imposes and no
+register row implements; the rest are mirror claims, one unresolvable file
+reference, and one duplicated title.
+
+1. **Two MUSTs had no technology behind them and no gap row either.** The
+   supply-chain controls require each build to produce an SBOM. The Approved
+   register names the two scans — Semgrep OSS and osv-scanner — and names no
+   generator, so the requirement had no implementation to point at. The
+   performance rule requires a load test before the first public release and
+   names no tool. Neither appeared in `### Register gaps a slice MUST close`,
+   whose table is the mechanism that gives an unnamed implementation an owning
+   slice. The consequence is not that a tool is missing from a table: it is that
+   the slice which must choose one has no instruction to choose it and no ADR to
+   file, and the gap-table clause's own promise — that a choice lands before the
+   slice's acceptance — has no row to apply to.
+2. **`Project-Technologies.txt` attributed a Zod version to the constitution.**
+   Its Zod row read "من سلسلة v4 (الدستور يثبّت v4 بلا رقم منفرد)". The
+   constitution's Validation row is `Zod` with no version at all, so the mirror
+   asserted a decision the register never made, and a reader checking the source
+   would find nothing. The same file's Hono row had already been corrected on
+   this exact point during the ADR-045 audit, which is why one row was right and
+   its neighbour was not.
+3. **`Project-Technologies.txt` named two Pinia versions and adopted neither.**
+   The row read "الإصدار v3.0.4 (يناير 2026)، وv4.0 (يوليو 2026)". The register
+   names Pinia with no version; the mirror's own job is to carry an exact one, and
+   a row that offers two without saying which one the workspace installs does not
+   discharge that job.
+4. **`Project-Technologies.txt` named PgBouncer as the approved PgDog fallback.**
+   Checked and withdrawn: the register requires the plan to name a fallback and a
+   review date, `ROADMAP.md` records R1 as naming PgBouncer with 2027-04-06, and the
+   mirror repeats what the roadmap already decided. Not a defect.
+5. **The constitution opened with its H1 twice**, on consecutive lines, at HEAD.
+   A duplicate title is not a governance question, but it is a signal that the
+   document's opening is unverified, and the previous pass had traced a long list
+   of substantive findings without reading the first two lines.
+6. **The mirror's summary table filed four registered tools under the wrong
+   layer.** Its delivery row listed Prometheus + Grafana, Semgrep OSS,
+   osv-scanner, and pg_anonymize beside VPS and Nginx or HAProxy, while the
+   register files Prometheus + Grafana under Observability and the other three
+   under Quality (`constitution.md:1250-1253`). The mirror therefore contradicted
+   both the register and its own deployment note thirty lines above, which states
+   that the deployment layer names VPS, Nginx or HAProxy, and optional Docker only.
+   The misfiling survived because a summary table reads as a list rather than as a
+   register, and nothing checks a mirror against a layer column.
+7. **The mirror claimed to reproduce a footer that carries no ADR list.** Its
+   sync-marker block reads "The mirror headers now track the constitution footer"
+   and then reproduces a header carrying an ADR list. The footer's three fields are
+   version, ratified date, and last-amended date; the constitution cites ADR numbers
+   in no stamp, and its stamp list defines that site as "the version footer" alone.
+   The values were right and the provenance claim was false, which is the harder
+   kind of error to notice later, because a reader checking it finds a correct
+   version number.
+8. **`AGENTS.md` and `README.md` cited `init-options.json` without its directory.**
+   The file is `.specify/init-options.json`; both documents gave the bare filename
+   in the sentence that describes the feature-numbering rule, so the reference could
+   not be resolved by a reader without already knowing where the file lives.
+
+**Decision.** The constitution is amended to 2.21.0 (MINOR: two gap rows added,
+no rule expanded).
+
+1. **The two gaps are registered, unchosen.** `SBOM generator` and `Load-test
+   tool` are added to both gap tables: each is recorded in the plan's Complexity
+   Tracking table with its ADR, licence-obligation record, and vulnerability scan,
+   and each is owned by a slice — R1, which establishes the release build, and
+   R12, which owns delivery and operations. No tool is named, because the
+   register-gaps clause prohibits naming one before the choice is recorded.
+2. **The mirror's two version claims are corrected to state what the register
+   says.** Zod is worded like the Hono row beside it: the v4 series is a mirror
+   reference and the exact number is pinned by the package's plan. Pinia names
+   v4.0 as adopted and v3.0.4 as its predecessor, so the row answers "what does
+   the workspace install" instead of presenting two options.
+3. **The duplicated H1 is removed.** One title, one document.
+4. **The summary table is re-layered to the register's own layers.** Quality now
+   carries ESLint, Prettier, Stylelint, Lighthouse CI, Semgrep OSS, osv-scanner,
+   and pg_anonymize; Observability carries Prometheus + Grafana as its own row;
+   Delivery returns to VPS, Nginx or HAProxy, and optional Docker. The mirror's
+   row labels are now the register's layer names.
+5. **The sync marker states what each part of the header is.** The block names the
+   version and last-amended date as the footer's and the ADR list as the mirror's
+   own record of the amendments it mirrored, so a future pass is not asked to
+   reconcile a list the constitution never carried.
+6. **Both bare file references are qualified** with the `.specify/` directory that
+   holds them.
+
+**What deliberately did not change.** No technology was added to or removed from
+the Approved register; the two rows are gap rows, which by construction name no
+technology, and the summary table's re-layering moves four names between rows of
+the same mirror without changing what the mirror names. No exception was created
+or closed, so the register stays at `EX-001` … `EX-006`. No principle, Product
+Scope item, entity, page, feature, Usage Limit value, module map, slice, or slice
+dependency changed. No design value changed: `wafar.single.css` stays at 1.1.0,
+and this amendment asks nothing of it. The load test's own rule is untouched —
+only the absence of a named implementation is corrected, and the rule still permits
+an internal release that states its expected load instead. The dependency-update
+automation is not added: the constitution already names Dependabot or Renovate
+inside the update rule, so it is a named implementation rather than an unnamed
+one, and inventing a gap for it would have misreported the register. The mirror's
+own header values are unchanged: the version, the date, and the ADR list are the
+same three things it carried before, and only the claim about where they come from
+is corrected.
+
+**Consequences.** The two requirements now have owners, a recording duty, and a
+deadline, so R1 and R12 are instructed rather than merely permitted. The mirror
+can no longer be caught claiming a register decision that does not exist, filed
+under a layer the register does not use, or credited with a footer field the
+constitution never carried, and its Pinia row is installable. A reader following
+either `init-options.json` reference now lands on the file. The stamp sites read
+2.21.0 and the index table carries ADR-059, so every live `ADR-001 … ADR-0NN` range
+string in the repository is corrected in this one change. The two rejected findings
+are recorded so a later pass does not re-raise them.
+
+**Alternatives considered.**
+
+- *Name the SBOM generator and the load-test tool in the register now.* Rejected: the register-gaps clause prohibits naming a specific library before the choice is recorded with its ADR and licence obligation, and an unvetted name fails Dependency Governance. The gap row is the mechanism; filling it early would defeat it.
+- *Treat the SBOM generator as covered by osv-scanner.* Rejected: a dependency vulnerability scanner is not the component that emits an SBOM, and the register admits no technology it does not name. If a later slice shows one tool does both, that slice records it and the row closes.
+- *Add the dependency-update automation as a third gap.* Rejected: the update rule already names Dependabot or Renovate, so the requirement has implementations to choose from and the gap clause does not apply.
+- *Leave the mirror's summary table as one row per broad concern.* Rejected: that row is where a reader looks first, and it contradicted the mirror's own note. A summary is not exempt from the register's layer column because it is shorter.
+- *Delete the ADR list from the mirror's header instead of explaining it.* Rejected: the list is this mirror's record of which amendments it mirrored, and dropping it would remove real provenance to fix a wording problem.
+- *Fix the two mirror rows without amending anything.* Rejected: the version-stamp discipline exists so a correction cannot land in one file and leave the others reading the old number, and this change moves eleven stamp sites for that reason. A mirror-only fix would also have left the two unnamed requirements unnamed, which is the finding that actually blocks work.
+- *Leave the duplicated H1 and fix it in a later pass.* Rejected: it is one line, and an amendment that leaves a known defect in the document it amends is not finished.
+- *Delete the SBOM requirement as out of scope for a pre-release platform.* Rejected: it is an existing MUST in Deployment and Observability; whether the platform needs it is not a mirror question, and removing it would be a governance decision with its own consequences, not a documentation fix.
+
+---
+
+## ADR-060 — Constitution 2.22.0: the design system's register against its own file, the file's binding rules, and the citations that named the wrong section
+
+**Status**: Accepted — 2026-10-06
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `.specify/templates/exception-register.md`, `.specify/workflows/speckit/workflow.yml`, `docs/`, `ROADMAP.md`, `Project-Technologies.txt`, `Core-Project.txt`, `AGENTS.md`, `README.md`, `wafar.single.css`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A full audit of every governance file against every other one — the design
+system's register against `wafar.single.css`, `Core-Project.txt` against the Product
+Register, `ROADMAP.md` and `docs/domain-model.md` against the constitution and the
+decisions, and the four override templates against `AGENTS.md` and `workflow.yml` — found
+eleven defects and withdrew six candidates. Three are violations of the design system's
+own binding rules, measured rather than assumed; two are the register failing to map the
+file it registers; five are citations or instructions that named the wrong section, the
+wrong file, or a source that cannot be checked.
+
+1. **The field placeholder violated the binding contrast value.** Decision values
+   require "contrast at least AA", and the Interface State Matrix requires WCAG 2.2 AA.
+   `.ds-field::placeholder` set `color: var(--text-tertiary)` with `opacity: 0.7`. The
+   opacity composites rather than replaces: the effective colour measured about
+   2.42:1 against `--surface-50` (`#ffffff`) in light mode and about 3.4:1 against
+   `--surface-200` (`#171717`) in dark, where AA needs 4.5:1 for body text. The token
+   alone measures 4.74:1 and 7.11:1 on the same two backgrounds, so the defect was the
+   opacity and nothing else.
+2. **Scroll locking was breakpoint-scoped while the register states it unqualified.**
+   "Honoured media and capability states" requires scroll locking, naming
+   `ds-scroll-locked`, as a MUST. The file defined it only inside
+   `@media (max-width: 1023px)`, where its comment scopes it to the drawer. A
+   confirmation overlay on a desktop viewport — which Principle IX names "Modal" and the
+   missing-components list requires — therefore had no scroll lock at all, and the
+   register made no distinction a reader could find.
+3. **The file repeated the motion query it forbids repeating.** The closing note states
+   "the rule: everything about motion in one file", and the motion module holds the
+   single `prefers-reduced-motion` block. The loaders module held a second one. The
+   second carried rules the first did not, which is why duplication survived: it looked
+   like a module-specific addition rather than a repeat.
+4. **Twenty-two tokens were declared and used while absent from the register.** The
+   register opens with "a value, family, class, or component absent from this register is
+   not part of the design system and MUST NOT be used", and its motion row goes out of its
+   way to say the file's inventory is complete. The Typography row omitted the body and
+   heading line-height and letter-spacing aliases and the three line-wrap tokens; Motion
+   omitted the seven transition shorthands and the four transform tokens used as motion
+   values; Spacing omitted the vertical rhythm pair; Form metrics omitted the select
+   chevron's two image tokens. The module map's own "Owns" column had claimed
+   transitions and typography, so the map and the families row disagreed about what was
+   registered.
+5. **The token rule had no exemption the file could satisfy for its only image asset.**
+   The select chevron's stroke is a literal colour inside a `url()`. The rule exempts
+   masks, print rules, and `prefers-color-scheme`, none of which applies: CSS cannot read
+   a variable inside a data URI, so the colour cannot become a reference at all. Either
+   the rule needed a fourth case, or the file needed a chevron drawn some other way —
+   and no drawing of a chevron on a replaced element avoids a data URI.
+6. **The missing-components list was incomplete.** The register requires multi-select
+   filters and a price range on the Parts page, and the file provides a single-select
+   field and a dropdown only. The list named "the filters toolbar" and not the two
+   controls the toolbar needs, so the slice that builds the Parts page would have read
+   the list, found the toolbar, and shipped a toolbar of single selects.
+7. **The component inventory could not be read literally.** Its opening rule makes any
+   class absent from the register unusable, while the file carries roughly forty utility
+   classes — `ds-sr-only`, the truncation helpers, the sticky and fixed helpers, the
+   float scale, the surface helpers — that no row names and that no register may name,
+   because a register is a map and not a copy. The rule and the file could not both hold.
+8. **Six exception rows named a section that does not contain the rule they except.**
+   Every row named `Dependency Governance`, and every rationale began "The rule prohibits
+   a dependency absent from the Approved register". That rule is written in Technology
+   Standards. Dependency Governance states the pinning, licence, vulnerability, and update
+   rules, and the register's own use rule says an exception MUST name its section exactly
+   as written.
+9. **`AGENTS.md` did not match the templates it summarises.** It omitted
+   `docs/domain-model.md` from the specify list, `Project-Technologies.txt` and
+   `Core-Project.txt` from the plan list, the constitution from the tasks list, and had no
+   `/speckit.checklist` entry at all — while stating that the templates carry this duty
+   as binding text. A reader following `AGENTS.md` would not have loaded the sources the
+   template it is about to use binds.
+10. **`Core-Project.txt` promised a notification the register does not register.** Its
+    upload acceptance criterion fired a notification carrying "uploaded, processing being
+    handled". The Glossary's Notification definition closes the causes to a processing job
+    that completed or failed, an administrative message, and an administrator's reply, and
+    the pipeline's notification is step eight, after the status update.
+11. **Two smaller defects of the same kind.** The `expires_at` conflict row cited
+    `Core-Project.txt` as a source asserting the printed expiry date; that file contains no
+    expiry date, so the citation named a source that cannot be checked. The spec
+    template's entity placeholder asked for "key attributes in business terms" two lines
+    below a comment forbidding columns and field names, and `workflow.yml` pointed at a
+    `git-config.yml` that does not exist for the hook states that live in
+    `.specify/extensions.yml`.
+
+**Withdrawn after checking.** Six candidates were investigated and are not defects, and
+they are recorded so a later pass does not re-raise them. Font delivery is the
+application's duty, and the register says so — the CSS is not required to record it.
+The safe-area tokens use `env()` names that are physical in spelling only, and the gutter
+that consumes them is symmetric. The absence of `@layer` is an ordering choice no rule
+requires. Dark mode is class-based by rule, the file carries a full `.dark` palette, and
+the mode is the page shell's duty. The font stack's fallback to Noto Sans Arabic is
+registered. `PgBouncer` as the PgDog fallback is recorded by `ROADMAP.md` for R1 with a
+review date, which is what the register asks a plan to do.
+
+**Decision.** The constitution is amended to 2.22.0 (MINOR: the design-system register is
+completed, one value-form rule gains a case, one inventory is scoped, two components join
+the missing list, and one false citation is corrected).
+
+1. **The placeholder's opacity is removed.** `wafar.single.css` moves to 1.2.0. One design
+   value changed, and it changed toward the binding contrast the register already
+   required; nothing was added to the rendered surface.
+2. **Scroll locking applies at every width.** The class leaves the tablet-and-below block
+   and stands on its own, because the state belongs to an open layer rather than to a
+   viewport width. It still has no effect until a surface adds it.
+3. **The loaders' motion rules join the single motion query.** The duplicated block is
+   deleted and its rules appended to the block the closing note points at, so the file has
+   one `prefers-reduced-motion` query and the note is true again.
+4. **The register names the twenty-two tokens, and names the six one-offs in
+   full.** Typography gains the four size-role aliases and the line-wrap set;
+   Motion gains the transition shorthands and the four transform tokens, with the
+   sentence that a slice may not add to the row without the amendment that names
+   it; Spacing gains the vertical rhythm pair; Form metrics gains the chevron image
+   tokens. Six of the twenty-two follow no step pattern, so a row that described
+   them in prose would have left a checker nothing to resolve — the rows write
+   them out, and the Typography row now says that a one-off token MUST be written
+   in full. No value is copied into the constitution — only family membership and
+   the names themselves, which is what a map does.
+5. **The embedded data URI is the token rule's fourth exempt case,** conditional on the
+   declaring rule naming the token its colour matches. The select chevron's declaration
+   now names it, in the file's own Arabic comment style.
+6. **The component inventory is scoped to components and component parts,** and says why
+   utility classes stay out of it: a register is a map, and the module map owns their
+   assignment.
+7. **The multi-select control and the price-range control join the missing list,** phrased
+   as the requirements they satisfy so a slice can recognise them.
+8. **The `expires_at` row's false citation is removed,** leaving the conflict it actually
+   has: Usage Limits and Product Features #16 against the Glossary.
+9. **The exception register's six rows name `Technology Standards`,** the section that
+   writes the rule, in the register's own exact-wording form.
+10. **`AGENTS.md`'s four reading lists match the templates,** and the checklist command
+    has its entry.
+11. **`Core-Project.txt`'s upload criterion states the registered behaviour,** the
+    notification following the outcome rather than preceding it.
+12. **The two smaller defects are corrected:** the spec template's entity placeholder asks
+    for what its comment permits, and the workflow comment names the file that exists.
+13. **ADR-026 and ADR-027 are annotated, not rewritten.** Both name `git-config.yml` as the
+    place the commit-hook states live, and no such file exists here;
+    `.specify/extensions.yml` holds them, `enabled: false`, which is the state both records
+    describe. The annotation follows the precedent ADR-058 set: a decision record is a
+    history, so the reader is corrected where the claim is read, and the text stands.
+
+**What deliberately did not change.** No technology was added to, removed from, or
+substituted in the Approved register, and no exception was created or closed. No
+requirement, entity, page, feature, Usage Limit value, module, slice, or gap owner
+changed. No rendered value was added or removed from the design system, and no component
+class was renamed: the only value change is the placeholder's opacity, and it moved toward
+AA rather than away. No Principle was added, removed, or redefined. The FAQ page did not
+join the missing list: the register requires FAQ content but names no disclosure or
+accordion, and adding one would have been a product decision this amendment is not.
+`wafar.single.css` keeps its fourteen modules in order, so the module map needed no change.
+The dependency-update automation did not join the gap table again, and the scan tools keep
+their exception rows; what changed there is only the section each row names.
+
+**Consequences.** The file now satisfies the three binding rules it was breaking, and the
+register maps the file it registers instead of describing a smaller one. A slice building
+the Parts page reads two controls in the missing list instead of one toolbar and
+discovers the gap at acceptance time. A reviewer comparing the exception register with the
+constitution finds the rule where the register says it is. `AGENTS.md` and the templates
+now send an agent to the same sources. The stamp sites read 2.22.0, `wafar.single.css`
+reads 1.2.0, and the index table carries ADR-060, so every live `ADR-001 … ADR-0NN` range
+string in the repository is corrected in this one change. The withdrawn findings are
+recorded so they are not re-raised.
+
+**Alternatives considered.**
+
+- *Raise the placeholder's colour token instead of removing the opacity.* Rejected: it would have moved a semantic token to serve one rule and left `--text-tertiary` too dark everywhere else. The token already passes on both field backgrounds.
+- *Keep scroll locking inside the breakpoint and qualify the register row instead.* Rejected: the state belongs to an open layer, and the register's list of honoured states is a promise about behaviour rather than about viewports. Qualifying the row would have made the promise true by narrowing it.
+- *Leave the loaders' motion block and treat the closing note as an aspiration.* Rejected: the note is a rule the file states about itself, and the block's rules had to live somewhere. Merging them keeps one query and loses nothing.
+- *Delete the select chevron tokens and draw the chevron as a rotated border.* Rejected: a rotated border on a replaced element's background is not a supported technique, and a mask cannot colour a select's own background without cutting the field's. The exemption, conditional on naming the token, keeps the checkable requirement instead of weakening the component.
+- *Copy the twenty-two token names into the constitution as values.* Rejected: Single-Reference Sufficiency forbids a design value in the constitution, and the register's job is membership, not values.
+- *Name the utility classes in the inventory to make the opening rule literally true.* Rejected for the same reason, and because the module map already assigns ownership. The scoping sentence fixes the contradiction without a copy.
+- *Treat the FAQ page as requiring a disclosure, and add it to the missing list.* Rejected: the register names static FAQ content and no control for it. Adding a requirement here would have been scope creep disguised as an audit finding.
+- *Amend the register to register `PgBouncer` and the font stack's fallbacks.* Rejected: the roadmap already records the fallback choice for R1, and the constitution already names Noto Sans Arabic as a permitted face.
+- *Fix the templates and `AGENTS.md` without an amendment.* Rejected: they are part of the same governance set the amendment corrects, and leaving them for a later pass would have left the source lists disagreeing after the version moved.
+
+---
+
+## ADR-061 — The in-flight clarifications recorded, and the reserved decision the one phrasing pre-empted
+
+**Status**: Accepted — 2026-10-06
+**Owning directory**: `docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`, `docs/DECISIONS.md`
+**Owning feature**: none — documentation clarification; the constitution version stays 2.22.0
+
+**Context.** Five edits were sitting in the working tree, uncommitted and unrecorded, in the
+two documents that describe the modules and the data model. Four of them are consistent with
+the constitution and worth keeping; one contradicts a decision the constitution has reserved
+to R10, and the whole set needed the record `docs/domain-model.md`'s own header demands.
+
+1. **The merchant-scope list is settled and correctly stated.** `docs/architecture.md` now
+   names the merchant-scoped tables exactly: `Catalog`, `Bookmark`, `Notification`,
+   `Conversation`, and `Message` carry `user_id`; `Supplier`, `AuditLog`, and
+   `ContactMessage` do not. ADR-053 settled that list, and the architecture document
+   says so rather than re-deriving it.
+2. **Soft deletion is a registered rule, and the new bullet points at the right place.**
+   The constitution registers it for `User` and `Catalog`, with the cascade and the
+   blocking rule attached. The bullet cites `docs/domain-model.md` — Soft deletion
+   rather than restating the rule, which is the form Single-Reference Sufficiency asks for.
+3. **The `auth` and settings notes state the questions and name their owners.** The `auth`
+   row now says which stored entity, if any, `auth` owns is open fact #8, decided in R1; the
+   `admin` row says the Settings page's storage is open fact #13, decided in R13 per ADR-053.
+   Each states a reservation rather than answering it, which is what the reserved-decision
+   clause permits.
+4. **The audit-target note is a consequence of #3, not a new decision.** It records that only
+   a module owning a registered entity can be a target type, so an `auth:` type becomes
+   meaningful only once fact #8 is decided.
+5. **One phrasing pre-empted a reserved decision.** `Conversation` was rewritten in both
+   documents from the register's "The single thread between a merchant and the
+   administrator" to "At most one thread ... never a single platform-wide thread". The
+   reserved-facts table records the open conflict in these words: "`Conversation` carries an
+   administrator reference, yet every administrator account sees the same single thread" —
+   owned by R10. Negating the shared thread is one half of that conflict answered in a
+   document that is not R10, and the clause that governs it says plainly that a source which
+   states an answer the table has not given is itself the defect. It also left
+   `docs/domain-model.md` contradicting itself: its own unresolved fact #2 rests on "the
+   thread is single and shared", which the sentence above it had just denied.
+
+**Decision.** No constitution amendment; the version stays 2.22.0. This record exists for
+the four clarifications that were kept and for the one phrasing that was corrected.
+
+1. **Four edits are kept as they stand:** the merchant-scope list (ADR-053), the soft
+   deletion pointer, the `auth` and settings reservations with their owning slices, and the
+   audit-target consequence of fact #8.
+2. **`Conversation` returns to the register's wording in both documents,** with the register's
+   cardinality restated (a user has at most one conversation) and the open half named: both
+   documents now point at unresolved fact #2 and its owner, R10. Neither document decides
+   whether the thread carries an administrator reference or whether every administrator reads
+   the same one.
+3. **`ROADMAP.md` gains one obligation** (R1): a committed read-only check that verifies the
+   eleven version stamps, every live `ADR-001 ... ADR-0NN` range string, the integration
+   manifest hashes, and the design system's token register against `wafar.single.css`. It is
+   recorded because three audit passes in a row found the same class of defect by hand, and
+   because a check that is not committed is a comment. The row names no external tool; a
+   choice of one is the owning plan's, with its ADR.
+
+**What deliberately did not change.** No registered product fact changed: `Conversation`'s
+description is now the register's own text, and its cardinality was already registered. No
+reserved decision was answered. No constitution section, principle, entity, module, slice, or
+Usage Limit moved, and the version stamps stay at 2.22.0 because nothing this record fixes is
+a governance rule — it is a documentation correction plus an obligation. The design system
+is untouched.
+
+**Consequences.** `docs/domain-model.md` no longer contradicts its own unresolved fact, and
+R10 receives the question instead of a document that had answered half of it. The four kept
+edits become reviewable, because the record now names them and a reviewer can check each
+against the authority it cites. R1 inherits a written obligation to detect the drift class
+that three manual passes had to find by eye.
+
+**Alternatives considered.**
+
+- *Amend the constitution's `Conversation` row to say "at most one thread per merchant".* Rejected: that answers the administrator-side half of the reserved conflict, which is R10's to decide, and a governance document may not pre-empt a slice by amendment any more than a mirror may.
+- *Keep the phrasing and record it as an annotation on the reserved row.* Rejected: an annotation says a source made a claim; it does not remove the claim, and the clause requires the correction to be made in the source.
+- *Revert all five edits.* Rejected: four of them are correct, one of them matches ADR-053, and two others state reservations the constitution requires to be stated with their owners. Reverting would discard accurate work to avoid recording it.
+- *Record the clarifications inside ADR-060.* Rejected: that record's subject is the design system's register and the citations that named the wrong section; mixing a data-model clarification into it would make both harder to read and would misstate what the amendment covered.
+- *Leave the drift check unrecorded and rely on review.* Rejected: Documentation's rule exists because documentation drifts after the author moves on. An uncommitted check is the same as no check.

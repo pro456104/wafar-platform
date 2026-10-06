@@ -1,7 +1,7 @@
 # Project-Technologies.txt — the detail of the technology register
 
-**Constitution**: `.specify/memory/constitution.md` v2.20.0 (last amended
-2026-10-06, ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058). On any conflict with this file, the constitution
+**Constitution**: `.specify/memory/constitution.md` v2.22.0 (last amended
+2026-10-06, ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -56,7 +56,7 @@ wafar/
 | **Modular Monolith** | النمط المعماري للخادم | خادم واحد مقسّم إلى وحدات مستقلة (auth, users, catalogs, parts, suppliers, bookmarks, notifications, messages, support, admin). كل وحدة لها `routes`، `service`، `repository` خاص. لا استدعاء مباشر بين الوحدات — التواصل عبر `packages/shared`. |
 | **Hono** | إطار الخادم | إطار خفيف. الرقم 4.13.5 (2026) مرجع مثبَّت في هذه المرآة فقط، وقراره مُرحَّل عبر ADR-002؛ لا رقم دقيق يثبّته الدستور. يعمل على Node.js، Bun، Deno، Cloudflare Workers. |
 | **OpenAPI** | توثيق الـ API | توليد توثيق تلقائي من نفس كود Hono. يضمن تكاملاً سلساً بين الواجهة والخادم. |
-| **Zod** | التحقق من صحة البيانات | من سلسلة v4 (الدستور يثبّت v4 بلا رقم منفرد). يُستخدم في الواجهة والخادم معاً لمشاركة نفس schemas. |
+| **Zod** | التحقق من صحة البيانات | سلسلة v4 مرجع مثبَّت في هذه المرآة فقط؛ سجل الدستور المعتمد يسمّي Zod بلا رقم، والرقم الدقيق يثبّته plan الحِزمة. يُستخدم في الواجهة والخادم معاً لمشاركة نفس schemas. |
 
 ### 📁 بنية الوحدات (Modular Monolith)
 
@@ -87,7 +87,7 @@ apps/api/src/
 | **TypeScript** | لغة البرمجة | strict mode إلزامي. |
 | **Tailwind CSS** | تنسيق التصميم | الإصدار v4.2 مع خيارات ألوان محايدة جديدة. |
 | **Nuxt UI** | مكتبة مكونات جاهزة | الإصدار **v4.11.2** (سبتمبر 2026). مئات المكونات والقوالب وحزمة Figma. مجاني بالكامل. |
-| **Pinia** | إدارة الحالة المحلية | الإصدار **v3.0.4** (يناير 2026)، و**v4.0** (يوليو 2026). المكتبة الرسمية لـ Vue. |
+| **Pinia** | إدارة الحالة المحلية | الإصدار المعتمد **v4.0** (يوليو 2026)؛ وv3.0.4 (يناير 2026) هو ما قبله لا خيار مفتوح. المكتبة الرسمية لـ Vue. |
 | **TanStack Query** | إدارة بيانات الخادم | الإصدار v5. يُستخدم مُلَفَّق Vue منه. يدعم `useQueries`، `useQuery`، التخزين المؤقت، التحديثات التلقائية، Infinite Scroll، Optimistic Updates. |
 | **Zod** | التحقق من صحة البيانات | (مذكور في الخادم) — يُستخدم أيضاً في الواجهة. |
 
@@ -241,9 +241,10 @@ apps/worker/src/
 | **الملفات** | SeaweedFS، BullMQ، Redis |
 | **المصادقة** | better-auth |
 | **الاختبارات** | Vitest، Playwright |
-| **الجودة** | ESLint، Prettier، Stylelint، Lighthouse CI |
+| **الجودة** | ESLint، Prettier، Stylelint، Lighthouse CI، Semgrep OSS، osv-scanner، pg_anonymize |
 | **الأمان** | ClamAV |
-| **النشر** | VPS، Nginx/HAProxy، Docker (اختياري)، Prometheus + Grafana، Semgrep OSS، osv-scanner، pg_anonymize |
+| **المراقبة** | Prometheus + Grafana |
+| **النشر** | VPS، Nginx/HAProxy، Docker (اختياري) |
 
 ---
 
@@ -388,7 +389,10 @@ named in the sources.
   `packages/shared`.
 - **Open register gaps** (owners in parentheses): Redis client library for
   BullMQ (R3), OpenSearch client library (R5), automated accessibility checker
-  (R1), Arabic analyzer configuration and verification (R5).
+  (R1), Arabic analyzer configuration and verification (R5), SBOM generator (R1),
+  load-test tool (R12). The scans the release gate runs are registered; the
+  SBOM's generator and the load-test tool are not, and naming either here is
+  prohibited until the owning slice records it with an ADR.
 - **Module size** - advisory; the rule and its exception route are the
   constitution's (Module Discipline and Development Workflow).
 - **Shared location** - `packages/shared` is the API's only cross-module
@@ -432,11 +436,14 @@ This section records what 2.18.0 added. The rules are in
 
 ### Party/header sync markers
 
-The mirror headers now track the constitution footer:
-`Constitution: .specify/memory/constitution.md v2.20.0 (last amended 2026-10-06,
-ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058)`. Every later header here is the same value:
-v2.20.0 / 2026-10-06 / that ADR list. If the constitution is amended, move these
-markers in the same change.
+The mirror header carries the constitution's version and last-amended date, and
+then the ADR list of its own:
+`Constitution: .specify/memory/constitution.md v2.22.0 (last amended 2026-10-06,
+ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061)`.
+The version and the date are the constitution footer's; the ADR list is this
+mirror's record of the amendments it mirrored, and the footer does not carry it.
+Every later header here is the same value: v2.22.0 / 2026-10-06 / that ADR list.
+If the constitution is amended, move these markers in the same change.
 
 ### Audit fix set (ADR-047)
 
@@ -559,3 +566,101 @@ been carrying.
   period and names the owning slice rather than the answer.
 - **`TanStack Query`** is named as the register names it; the Vue adapter is
   described in the detail column instead of in the name.
+
+---
+
+## Constitution 2.21.0 additions (2026-10-06, ADR-059)
+
+This amendment registers no new technology and removes none. It names two
+register gaps the rules already required, and it corrects four claims this
+mirror was carrying: two version rows, one summary table filed under the wrong
+layer, and one statement of where the header's own fields come from. No new
+dependency, licence obligation, or vulnerability-scan burden is introduced by the
+gap rows; each names the slice that chooses the tool and the ADR that records the
+choice.
+
+- **SBOM generator** — Deployment and Observability requires an SBOM from every
+  build. The register named the two scans (Semgrep OSS, osv-scanner) and no
+  generator, so the requirement had no implementation to point at. R1 owns the
+  choice; this mirror names no tool.
+- **Load-test tool** — Performance Budgets and Verification requires a load test
+  before the first public release, and the register named neither a tool nor a
+  gap. R12 owns the choice; this mirror names no tool.
+- **Zod's version claim** — this mirror wrote that the constitution fixes the v4
+  series. The constitution's Validation row names Zod and no version, so the
+  claim attributed to it a decision it never made. The mirror now says what the
+  Hono row already said: the version is a mirror reference and the exact number
+  is pinned by the package's plan.
+- **Pinia's version claim** — the row carried two versions and named neither as
+  the adopted one. It now names v4.0 as adopted and v3.0.4 as its predecessor, so
+  a reader of this mirror can install what the project uses.
+- **The summary table is re-layered to the register's layers.** Its delivery row
+  had listed Prometheus + Grafana, Semgrep OSS, osv-scanner, and pg_anonymize
+  beside VPS and Nginx or HAProxy. The register files Prometheus + Grafana under
+  Observability and the other three under Quality, and this mirror's own note
+  thirty lines above already said the deployment layer names VPS, Nginx or
+  HAProxy, and optional Docker only. Quality now carries the three gates,
+  Observability is its own row, and delivery carries only what it claims.
+- **The header sync marker no longer claims a footer that carries no ADR list.**
+  The version and the last-amended date are the constitution footer's; the ADR
+  list is this mirror's record of the amendments it mirrored.
+
+---
+
+## Constitution 2.22.0 additions (2026-10-06, ADR-060)
+
+This amendment names no technology, registers none, and removes none. It closes a
+gap between the design system's register and the file it registers, corrects the
+file against three of its own binding rules, names two components the product
+requires and the file does not provide, and corrects five citation and instruction
+defects outside the design system. One design value changed — the field
+placeholder's colour — and no rendered value was added or removed.
+
+- **`wafar.single.css` moves to 1.2.0.** The field placeholder drops its 0.7
+  opacity: composited, that colour measured about 2.4:1 in light mode and 3.4:1
+  in dark, under the 4.5:1 that "Accessibility" requires, while the token alone
+  reaches 4.74:1 and 7.11:1 on the same backgrounds. Scroll locking moves out of
+  its `max-width: 1023px` block so the state is honoured at every width, the
+  loaders' second `prefers-reduced-motion` block is merged into the single motion
+  query the file's own closing note requires, and two Arabic comments record
+  what the file's rules already implied: that the two uppercase label classes are
+  for Latin strings (positive tracking is prohibited on Arabic text), and which
+  token each chevron image's colour matches.
+- **The design-system register now names the families the file already carried**:
+  the body and heading line-height and letter-spacing aliases and the line-wrap
+  set in Typography; the transition shorthands and the four transform tokens in
+  Motion; the vertical rhythm pair in Spacing; the select chevron's two image
+  tokens in Form metrics. Twenty-two tokens were declared and used while absent
+  from the register, and the register's own rule says an unregistered value is not
+  part of the design system and must not be used.
+- **The component inventory is scoped to components.** Utility classes stay named
+  only in the file, because a register is a map and not a copy; the module map
+  assigns their ownership.
+- **The embedded data URI joins the token rule's exemptions**, on the condition
+  that the rule declaring it names the token its colour matches — the select
+  chevron is the file's only such asset, and CSS cannot read a variable inside a
+  `url()`.
+- **Two components join the missing list**: the multi-select control and the
+  price-range control. Both are registered requirements of the Parts page and
+  neither exists in the file, which provides a single-select field and a
+  dropdown only.
+- **The `expires_at` conflict row no longer cites `Core-Project.txt`.** That
+  mirror states no expiry date at all, so the citation named a source that
+  cannot be checked. The row's real conflict is between Usage Limits, Product
+  Features #16, and the Glossary.
+- **`Core-Project.txt` no longer promises a notification at upload.** Its upload
+  acceptance criterion fired a notification carrying "uploaded / processing",
+  while the register's Notification definition closes the causes to a completed or
+  failed job, an administrative message, and an administrator's reply.
+- **The exception register's six rows now name the rule they except**:
+  `Technology Standards`, which is where "a technology absent from this register
+  MUST NOT be used" is written, rather than `Dependency Governance`, which states
+  the licence, pinning, vulnerability, and update rules and not that one.
+- **`AGENTS.md`'s reading list matches the four templates it summarises.** It
+  omitted `docs/domain-model.md` from specify, `Project-Technologies.txt` and
+  `Core-Project.txt` from plan, the constitution from tasks, and the whole
+  `/speckit.checklist` entry.
+- **The spec template's entity placeholder no longer asks for attributes** it
+  forbids two lines above, and the workflow file's hook comment names
+  `.specify/extensions.yml`, where the hook states actually live, instead of a
+  `git-config.yml` that does not exist.

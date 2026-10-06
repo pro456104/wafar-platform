@@ -1,7 +1,7 @@
 # Architecture — Wafar
 
 This document records the repository layout, the API module map, and the data
-flow. Its sources of authority are `.specify/memory/constitution.md` (v2.20.0),
+flow. Its sources of authority are `.specify/memory/constitution.md` (v2.22.0),
 whose Technology Standards and Design System Standards are the registers, and
 `Project-Technologies.txt`; where this document and the constitution disagree,
 the constitution wins. The data model's entities and their owning modules are
@@ -73,21 +73,21 @@ is fixed above.
 
 `apps/api` is a single deployable server divided into modules (Principle X).
 Each module has its own `routes`, `service`, and `repository`. Communication
-between modules goes through the shared package — never through a direct
-import from one module to another.
+between modules goes through the owning module's service, exposed via the
+shared package — never through a direct import from one module to another.
 
 | Module | Baseline responsibility | Notes |
 |---|---|---|
-| `auth` | Sign-up, sign-in/out, password recovery, sessions. | Implemented with the designated proven library with `scim` and `sso` disabled (Identity, Authentication, and Session Policy). Password hashing, session timeout, and auth rate limits are recorded per plan in Constitution Mandated Values. Sign-in, registration, and password-recovery responses never reveal whether an account exists; after five consecutive failed sign-in attempts the account locks for fifteen minutes. Every session is revocable server-side, including a "sign out everywhere" operation, and browser-stored tokens are revocable on password change. Registration and contact forms are protected by a honeypot field, a minimum time-to-submit, and a per-client rate limit; CAPTCHA is never used. The administrator account is created by a seeded CLI command with a forced password change at first sign-in. |
+| `auth` | Sign-up, sign-in/out, password recovery, sessions. | Implemented with the designated proven library with `scim` and `sso` disabled (Identity, Authentication, and Session Policy). Password hashing, session timeout, and auth rate limits are recorded per plan in Constitution Mandated Values. Sign-in, registration, and password-recovery responses never reveal whether an account exists; after five consecutive failed sign-in attempts the account locks for fifteen minutes. Every session is revocable server-side, including a "sign out everywhere" operation, and browser-stored tokens are revocable on password change. Registration and contact forms are protected by a honeypot field, a minimum time-to-submit, and a per-client rate limit; CAPTCHA is never used. The administrator account is created by a seeded CLI command with a forced password change at first sign-in. Which stored entity, if any, `auth` owns is open fact #8, decided in R1; until then the domain model registers no `auth` entity. |
 | `users` | Merchant accounts and profile data; account edits. | Only the account's owner edits it; no user may delete an account (roles: see Product Register in `.specify/memory/constitution.md`). |
 | `catalogs` | Uploaded supplier files: metadata (supplier name, issue date, upload date, expiry date), processing status, the `first_page_metadata_incomplete` flag, retention, and the pointer to the stored bytes. | Status is exactly one of `uploaded`, `processing`, `completed`, `failed`; `first_page_metadata_incomplete` is a boolean flag and never a fifth status; automatic deletion after 90 days; duplicates rejected by content hash (File Processing Overview). |
 | `parts` | Extracted part rows: the six canonical columns the constitution's Glossary fixes for a part (`Glossary` → `Part`), including the price its own catalog printed. The parts table additionally shows the supplier's name, which is read through the `suppliers` module and is not a part column. | A part belongs to exactly one catalog; merchants cannot edit or delete parts, and cannot edit a price — the administrator does (Authorization and Access Control). The price is per catalog, in Libyan Dinar, and every guest-reachable read path projects the part without it. |
 | `suppliers` | The supplier named on a catalog's first page, stored in its normalised form, and its associations to catalogs. | One supplier may appear in many catalogs. Normalisation makes two spellings of one name compare equal; it merges nothing, and only the administrator merges (Glossary, File Processing Rules). |
 | `bookmarks` | The "cart": a merchant's personal bookmark list of parts. | Carries no price, no quantity, and no checkout state; maximum 99 parts; capacity is enforced server-side (Principle VI, Usage Limits). |
 | `notifications` | Processing-completed/failed notices and administrative messages; read state. | Failed processing presents a retry action. |
-| `messages` | The single conversation thread between a merchant and the administrator. | Direct user-to-user messaging is prohibited (Principle VI). |
+| `messages` | The conversation thread between a merchant and the administrator: a user has at most one (Product Register). Whether it carries an administrator reference, and whether every administrator account reads the same thread, is unresolved fact #2 in `docs/domain-model.md`, owned by R10 — never user-to-user. | Direct user-to-user messaging is prohibited (Principle VI). |
 | `support` | Support content and assistance flows: FAQ, privacy policy, terms of use; contact intake that reaches the administrator. | Public pages from Product Scope. |
-| `admin` | Administrator operations: users, files (review/delete/reprocess), suppliers, parts (edit/add), message replies, broadcasts, settings, contact messages. | Every administrator operation is recorded in the append-only audit log (Authorization and Access Control). |
+| `admin` | Administrator operations: users, files (review/delete/reprocess), suppliers, parts (edit/add), message replies, broadcasts, settings, contact messages. | Every administrator operation is recorded in the append-only audit log (Authorization and Access Control). The Settings page's storage is undecided until open fact #13 is decided in R13 (ADR-053); no settings entity is registered before then. |
 
 Cross-cutting rules for every module:
 
@@ -100,9 +100,17 @@ Cross-cutting rules for every module:
   to resolve permissions once ratified (Schema and Migration Control;
   Authorization and Access Control). A tenant is a merchant account: the
   scoping column is `user_id`, there is no separate tenant entity, and
-  platform-wide tables carry no such column. The authorization model is a
-  deferred area: the first feature that implements it records the missing
-  rules and their ratification in its plan.
+  platform-wide tables carry no such column. The merchant-scoped tables are
+  exactly `Catalog`, `Bookmark`, `Notification`, `Conversation`, and
+  `Message`; `Supplier`, `AuditLog`, and `ContactMessage` carry no
+  `user_id`. The authorization model is a deferred area: the first feature
+  that implements it records the missing rules and their ratification in its
+  plan.
+- Soft deletion applies to users and catalogs: soft-deleted rows are retained
+  with their timestamp and every read path filters them out; deleting a
+  catalog also withdraws its parts, bookmarks, and search-index entries,
+  while blocking changes nothing in storage (`docs/domain-model.md` → Soft
+  deletion).
 - A production source file SHOULD NOT exceed 500 non-empty lines; a module
   has one responsibility, and the count does not replace that rule.
 
@@ -233,10 +241,10 @@ Read/write notes:
 
 ## 6. Governance pointers
 
-- Constitution: `.specify/memory/constitution.md` (v2.20.0) — principles I–X and
+- Constitution: `.specify/memory/constitution.md` (v2.22.0) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-058; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-061; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;

@@ -1,5 +1,4 @@
 # Wafar Platform Constitution
-# Wafar Platform Constitution
 
 This project turns parts catalogs supplied as PDF, Excel, or Word files into a
 structured, searchable catalog for Libyan merchants who currently catalog them
@@ -606,7 +605,7 @@ bounds the answer; that is not an assertion of the answer.
 
 | Conflict | Sources | Resolve in |
 |---|---|---|
-| `expires_at` is the retention deadline or the supplier's printed expiry date, and the 90-day deadline's trigger point is undecided | Usage Limits and Product Features #16 (the 90-day period) against `Core-Project.txt` and the Glossary (the supplier's printed expiry date); no source names the point the 90 days are counted from | R15 |
+| `expires_at` is the retention deadline or the supplier's printed expiry date, and the 90-day deadline's trigger point is undecided | Usage Limits and Product Features #16 (the 90-day period) against the Glossary (the supplier's printed expiry date); no source names the point the 90 days are counted from | R15 |
 | Notification retention is undetermined | The product statement defers it ("to be determined later") | R9 |
 | A message's sender is either a merchant or an administrator, and the register names one sender | Product Register (`Message` carries a single sender); Authorization and Access Control (the administrator is a separate principal with a separate login) | R10 |
 | `Conversation` carries an administrator reference, yet every administrator account sees the same single thread | Product Register (`Conversation` carries an administrator); `Core-Project.txt` (one administrator account type, all administrators see the same conversations) | R10 |
@@ -1307,6 +1306,8 @@ for the other:
 | TLS certificate management | Complexity Tracking | — |
 | Backup and restore tooling | Complexity Tracking | — |
 | Log pipeline | Complexity Tracking | — |
+| SBOM generator | Complexity Tracking | — |
+| Load-test tool | Complexity Tracking | — |
 
 | Gap | Required by | Owning slice |
 |---|---|---|
@@ -1323,6 +1324,8 @@ for the other:
 | OpenSearch client library | Search register row; `packages/search` | R5 |
 | Automated accessibility checker | Principle IV's verification MUST | R1 |
 | Arabic analyzer configuration and verification | Principle V's root-aware search; Search register row | R5 |
+| SBOM generator | Deployment and Observability's supply-chain controls; Glossary (SBOM) | R1 (the slice that establishes the release build) |
+| Load-test tool | Performance Budgets and Verification (load testing before the first public release) | R12 |
 
 ### Licence treatment for infrastructure services
 
@@ -1378,12 +1381,21 @@ change.
   of `brand`; both are deliberate decisions, recorded in `docs/DECISIONS.md`.
 - Typography: `--text-4xs` … `--text-6xl`, the matching `--leading-*`, the
   `--tracking-*` set, the `--font-weight-*` set, and `--font-sans`,
-  `--font-display`, `--font-mono`.
+  `--font-display`, `--font-mono`. Four aliases name a size role rather than a
+  step, and each is named here because none of them follows a step pattern:
+  `--text-body-line-height`, `--text-heading-line-height`,
+  `--text-body-letter-spacing`, and `--text-heading-letter-spacing`. The line-wrap
+  set `--wrap-normal`, `--wrap-tight`, and `--wrap-loose`
+  is the `text-wrap` family and belongs to this row rather than to motion, because
+  each value names a wrapping behaviour and not a duration. A one-off token whose
+  name no pattern covers MUST be written out in full in the row that owns it; a
+  family described in prose is not registered, because a checker cannot resolve it.
 - Opacity and alpha: the opacity steps and the named alpha and tint values.
 - Spacing: `--space-0` … `--space-32`, the gutters, the container widths, the
   screen widths `--screen-xs` … `--screen-3xl`, the touch floors,
-  `--navbar-height`, `--sidebar-width`, the bottom-navigation tokens, and the
-  safe-area tokens. `--screen-tiny` is the one exception to this row's
+  `--navbar-height`, `--sidebar-width`, the bottom-navigation tokens, the
+  safe-area tokens, and the vertical rhythm pair `--section-gap` and
+  `--section-gap-desktop`. `--screen-tiny` is the one exception to this row's
   ownership: it sits in module 14, beside the `max-width: 359px` case it
   exists to express.
 - Radii: the radius ladder plus the named radii `shell`, `canvas`, `sheet`,
@@ -1412,14 +1424,29 @@ change.
   `--motion-stagger-step` (50 ms), a declared-but-unused gap between sequential
   items, which no rule names and no slice may rely on until a surface consumes
   it. Easings are
-  `--ease-standard`, `--ease-smooth`, `--ease-bounce`, `--ease-cinematic`,
+`--ease-standard`,
+  `--ease-smooth`, `--ease-bounce`, `--ease-cinematic`,
   `--ease-linear`, `--ease-default`, `--ease-loop`, and `--ease-pulse`.
+  The file also carries the transition shorthands `--transition-fast`,
+  `--transition-base`, `--transition-slow`, `--transition-slower`,
+  `--transition-smooth`, `--transition-bounce`, and `--transition-cinematic`,
+  each a duration paired with the easing its role implies, and four transform
+  tokens used as motion values rather than as durations:
+  `--motion-hover-lift`, `--motion-press-scale`, `--motion-slide-near`, and
+  `--motion-slide-far`. Naming them here completes the motion row's inventory;
+  a token absent from it may not be added to this row by a slice without the
+  amendment that names it.
 - Z-index: the defined layer scale. Every layer takes a value from it.
 - Glass and gradients: the glass surfaces, the gradient utilities, the tints, and
   the glow utilities.
-- Form metrics: the control and field heights, in their desktop variants.
+- Form metrics: the control and field heights, in their desktop variants, and the
+  select chevron's two image tokens, `--select-chevron` and `--select-chevron-dark`,
+  written out for the reason the Typography row gives. An image token's own pixels
+  are outside the token rule by the exemption "Inside the design system file"
+  gives an embedded data URI; naming the pair here, and in the rule that declares
+  them, is what makes the correspondence checkable and so keeps the file's
+  inventory complete.
 - Loaders: the loader size, stroke, gap, speed, and colour tokens.
-
 ### Breakpoints
 
 The media queries use 640, 768, 1024, 1280, 1536, and 1920 px as minimum widths,
@@ -1469,6 +1496,16 @@ classes and column-width scale; badge; avatar; dot; progress; skeleton;
 shimmer; empty; divider; dropdown; popover; tooltip; backdrop; drawer; overlay
 container; the glass, gradient, tint, and glow utilities; shell; page; panel;
 grid; stack; container; the six loaders; and the animation utilities.
+
+This row is an inventory of **components and component parts**, not of every
+class the file defines. The utility classes — the accessibility helpers, the
+layout and typography helpers, the z-index and overflow helpers — are named in
+no row here, and that is deliberate: a register is a map and not a copy
+(Single-Reference Sufficiency), so their names stay in the file, where the module
+map assigns each to an owning module and where the file's own module banners
+record that ownership. A component added to this row is binding; a utility class
+is not, and a slice that needs a component absent from this row MUST amend it
+rather than treat a utility class as the component.
 
 ### Decision values (binding)
 
@@ -1530,7 +1567,11 @@ states to the classes that render them.
 
 The product's pages and features require the following, and `wafar.single.css`
 does not provide them today: pagination (numbered buttons plus the 20/50/100
-page-size selector); a column sort indicator; the filters toolbar; file upload
+page-size selector); a column sort indicator; the filters toolbar; the
+multi-select control the Parts filters require (several distinct values chosen
+at once, with no selection meaning every value — the register's single-select
+field and dropdown do not provide it); the price-range control (a minimum and a
+maximum); file upload
 with progress; a confirmation overlay (the overlay Principle IX names "Modal" —
 the system has `ds-overlay-root`, `ds-backdrop`, and `ds-drawer-panel`, but no
 modal); a toast; the message-thread surface; the cart add/remove toggle; the
@@ -1592,7 +1633,13 @@ ad hoc inside a feature, and it MUST NOT be defined in this constitution.
   whose job is to override user-agent styling that the tokens do not control; and
   a `prefers-color-scheme` rule, whose values must deliberately differ from the
   mode class because it exists only to serve elements that do not read the class
-  (Invariants below: the mode is class-based). A raw value anywhere else in the
+  (Invariants below: the mode is class-based). A fourth case is an image asset
+  embedded as a data URI, whose internal pixels belong to the asset rather than
+  to a rendered property — a CSS variable cannot be read inside a `url()`, so the
+  asset's colour cannot become a reference. Such a token is exempt only when the
+  rule that declares it names the token whose value its colour matches, so the
+  correspondence is checkable and a later palette change has something to update.
+  A raw value anywhere else in the
   file is a defect, and a slice that edits the rule containing it converts it in
   the same change rather than reading around it. A directional value is exempt
   from the token rule only in one of Principle V's two permitted forms: a
@@ -1967,4 +2014,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.20.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-06
+**Version**: 2.22.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-06

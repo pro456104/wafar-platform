@@ -9,7 +9,7 @@
 **Input**: Parent roadmap: ROADMAP.md → R#. User description: "$ARGUMENTS"
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.20.0) - NORMATIVE:
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.22.0) - NORMATIVE:
   1. Technology-agnostic (Principle VII): this file MUST NOT name languages,
      frameworks, libraries, databases, products, or architectural patterns.
      Product behaviour only; every technical detail belongs in plan.md.
@@ -34,7 +34,7 @@
        - `Core-Project.txt` — the product definition: roles and their
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
-       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-058). A
+       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-061). A
          specification that contradicts one is a blocking defect.
        - `docs/domain-model.md` — the entities a Key Entities section may name,
          and the invariants such a specification MUST NOT contradict. A
@@ -139,7 +139,7 @@
   never invented here.
 -->
 
-- **[Entity 1]**: [What it represents; key attributes in business terms; relationships to other entities]
+- **[Entity 1]**: [What it represents; the relationships this feature relies on]
 - **[Entity 2]**: [What it represents; relationships]
 
 ## Acceptance Criteria *(mandatory)*

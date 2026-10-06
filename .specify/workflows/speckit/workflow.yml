@@ -65,7 +65,7 @@ steps:
     input:
       args: "{{ inputs.spec }}"
 
-  # git extension hooks (auto-executed; auto_commit default=false in git-config.yml)
+  # git extension hooks (auto-executed; auto_commit default=false in .specify/extensions.yml)
   # before_clarify: speckit.git.commit (optional, disabled by default)
   # after_specify: speckit.git.commit (optional, disabled by default)
 

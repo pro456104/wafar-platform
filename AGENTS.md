@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-058; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-061; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -38,16 +38,21 @@ re-invent what already exists. See `docs/DECISIONS.md` → ADR-007.
 ## 3. Load these before writing any feature artifact
 
 - `/speckit.specify` → the constitution (Product Scope, Product Register, Usage
-  Limits, Glossary), `Core-Project.txt`, and `docs/DECISIONS.md`. **Not** the
+  Limits, Glossary), `Core-Project.txt`, `docs/domain-model.md`, and
+  `docs/DECISIONS.md`. **Not** the
   technical sources: a specification stays technology-agnostic (Principle VII).
 - `/speckit.plan` → the constitution's registers (Technology Standards, Design
   System Standards, Product Register) plus `docs/architecture.md`,
-  `docs/domain-model.md`, `wafar.single.css`, and `docs/DECISIONS.md`. The plan
-  is the only artifact that carries technical detail, and its Ownership Map must
+  `docs/domain-model.md`, `Project-Technologies.txt`, `Core-Project.txt`,
+  `wafar.single.css`, and `docs/DECISIONS.md`. The plan is the only artifact
+  that carries technical detail, and its Ownership Map must
   match `docs/architecture.md`.
-- `/speckit.tasks` → `plan.md`, plus `docs/architecture.md`, `docs/domain-model.md`,
+- `/speckit.tasks` → `plan.md`, plus `.specify/memory/constitution.md`,
+  `docs/architecture.md`, `docs/domain-model.md`,
   and `docs/DECISIONS.md`. Every path a task touches must appear in the plan's
   ownership map.
+- `/speckit.checklist` → the constitution, `Core-Project.txt`,
+  `docs/domain-model.md`, and `docs/DECISIONS.md`.
 - `/speckit.implement` → `plan.md`, `tasks.md`, and the constitution.
 
 The feature templates in `.specify/templates/overrides/` carry this duty as
@@ -103,7 +108,7 @@ clarify → plan → checklist → tasks → analyze → implement → converge`
 human review gates. The `git` extension's `before_specify` hook (`speckit.git.feature`,
 optional: false) runs automatically before specification, creating a sequentially
 numbered feature branch (`001-feature-name`, matching `feature_numbering: sequential`
-in `init-options.json` and ADR-015). Converge remains a separate command by
+in `.specify/init-options.json` and ADR-015). Converge remains a separate command by
 decision (ADR-013), not a spec-kit engine concern; the workflow file lists it
 so the cycle reads as one sequence. Templates and the registry are what a
 reader checks, not the engine.
