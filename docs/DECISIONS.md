@@ -83,6 +83,7 @@ is not done; ADR-015 states that rule and this file follows it.
 | [ADR-055](#adr-055--audit-fix-set-range-string-drift-a-stale-template-hash-an-assess-hook-conflict-and-the-mirror-sync-that-was-left-unrecorded) | Audit fix set: range-string drift, a stale template hash, an assess hook conflict, and the mirror sync that was left unrecorded | 2026-10-06 | 2.19.0 |
 | [ADR-056](#adr-056--constitution-2191-section-name-references-glossary-terms-and-the-register-gap-classification) | Constitution 2.19.1: section-name references, glossary terms, and the register-gap classification | 2026-10-06 | 2.19.1 |
 | [ADR-057](#adr-057--constitution-2192-the-audit-findings-re-verified-and-the-design-systems-token-rule-enforced) | Constitution 2.19.2: the audit findings re-verified, and the design system's token rule enforced | 2026-10-06 | 2.19.2 |
+| [ADR-058](#adr-058--constitution-2200-the-writing-direction-rules-value-form-two-register-levels-and-the-decision-records-that-failed-verification) | Constitution 2.20.0: the writing-direction rule's value form, two register levels, and the decision records that failed verification | 2026-10-06 | 2.20.0 |
 
 ---
 
@@ -1587,6 +1588,12 @@ durable record of this amendment is this entry.
 **Owning directory**: `.specify/memory/`, `docs/`, `ROADMAP.md`, `Project-Technologies.txt`, `.specify/templates/overrides/`, `Core-Project.txt`, `AGENTS.md`, `README.md`, `.clinerules/project-context.md`
 **Owning feature**: none — governance decision; ratified by the repository owner
 
+**Annotation (2026-10-06, ADR-058).** The Owning directory above names
+`.clinerules/project-context.md`, which ADR-048 deleted with the Cline
+integration and which does not exist today. The field records where the decision
+was applied, so it is annotated rather than rewritten. ADR-050 stated that this
+record was annotated for the same reason; it was not, and it is annotated now.
+
 **Context.** A deep audit of the governance set found: (1) the constitution's own rule "a design value MUST NOT appear in this constitution" contradicted the Decision-values subsection and Principle IX, which carry values by design; (2) two values the constitution assigns to Constitution Mandated Values (the decoded-size cap, the supported-browser statement) were missing from the enumerated list; (3) the header's sidebar-collapse control was named while Principle IX said the sidebar never hides or slides — the control's behaviour was undefined; (4) latency MUSTs were stated without the percentile that Usage Limits fixes; (5) `Core-Project.txt`'s sidebar item list named the contact page while Principle IX gives contact a bare shell-less layout; (6) the default table order and the Libyan city list were facts the constitution did not register; (7) `Core-Project.txt` listed the contact page in the sidebar.
 
 **Decision.** The constitution is amended to 2.16.0 (MINOR: two register additions, one permitted behaviour, two rule-scope carve-outs): the design-value carve-out is stated; Performance Budgets and the Usage Limits rows are stated at p95; the sidebar collapse control is defined (desktop: icon rail, never hidden or off-screen; mobile: drawer toggle); the CMV list gains the decoded-size cap and the supported-browser statement; Product Fact Clarifications name the default newest-first order and the city-list record. Contact-page shell scope and the sidebar item list are corrected in the mirror.
@@ -1603,6 +1610,12 @@ durable record of this amendment is this entry.
 **Owning directory**: `.specify/memory/`, `docs/`, `ROADMAP.md`, `Project-Technologies.txt`, `.specify/templates/overrides/`, `AGENTS.md`, `.clinerules/project-context.md`
 **Owning feature**: none — governance decision; ratified by the repository owner
 
+**Annotation (2026-10-06, ADR-058).** The Owning directory above names
+`.clinerules/project-context.md`, which ADR-048 deleted with the Cline
+integration and which does not exist today. The field records where the decision
+was applied, so it is annotated rather than rewritten. ADR-050 stated that this
+record was annotated for the same reason; it was not, and it is annotated now.
+
 **Context.** The audit also found: ClamAV and Lighthouse CI were required by MUSTs while absent from the Approved register; the Arabic analyzer, the Redis client library, the OpenSearch client library, and an automated accessibility checker were required by rules with no owning technology; Nitro was named in the Internal layout without a register row; Nuxt UI, Pinia, and TanStack Query were registered together with no split of responsibilities; "reprocess" and "retry" were both used without definitions; the product name was not registered; the cart page's Arabic name was a purchase metaphor the scope forbids; and "reports" had no stated limit.
 
 **Decision.** The constitution is amended to 2.17.0 (MINOR: four register-gap rows and three register corrections plus one exception-scoped definition, PATCH elsewhere): ClamAV and Lighthouse CI are registered with explicit notes that they are not runtime dependencies; four gap rows (Redis client library → R3, OpenSearch client library → R5, automated accessibility checker → R1, Arabic analyzer configuration and verification → R5); Nitro is named as part of Nuxt 4 in Internal layout and deliberately excluded from the Approved register; the UI components / Pinia stores / TanStack Query server-state split is stated; reprocess vs retry, the trade name Wafar with mandatory diacritics, the cart page's Arabic name «المحفوظات», and the reports limit are defined.
@@ -1612,6 +1625,9 @@ durable record of this amendment is this entry.
 **Consequences.** Living ADR range strings move to ADR-001 … ADR-038; version stamps move to constitution 2.17.0 across `ROADMAP.md`, `AGENTS.md`, `README.md`, `docs/architecture.md`, `docs/domain-model.md`, `spec-template.md`, `plan-template.md`, `checklist-template.md`, and `constitution-template.md`. The mirror carries the role-split note and the four gap rows in a Constitution 2.17.0 additions section. This entry is the durable amendment record.
 
 **Annotation (2026-10-04, audit follow-up).** The deep-file audit closed the remaining stamp gaps named by this record: an independent constitution stamp (v2.17.0) now heads `ROADMAP.md` and an explicit v2.17.0 line heads `Project-Technologies.txt`; the `tasks-template.md` override gains the binding-rules block carrying `constitution v2.17.0`; `workflow-registry.json` now names the assess, bug, and git extensions and records the implement ↔ converge repetition (ADR-013), which `workflow.yml` also states; and the cart label «المحفوظات» replaces the stray «السلة» in the PostgreSQL mirror row. Separately, the undeclared `--sidebar-width-collapsed` token was removed from `wafar.single.css` (bumped to 1.0.2), because the constitution reserves the collapsed/rail width for the slice that first needs it.
+
+**Annotation (2026-10-06, ADR-058).** The cart label this record fixes,
+«المحفوظات», no longer stands. ADR-045 superseded this clause with «سلة المشتريات» and ADR-049 unified the mirror citation on ADR-045, but this record was left carrying the superseded label with nothing pointing at the change. The label clause is a history and is not rewritten; the superseding name is ADR-045's, and the record is annotated now so that a reader of this section alone is not left with a label the platform does not use.
 
 ---
 
@@ -2533,10 +2549,15 @@ none of them visible by reading a single file, since each is a disagreement
    without the alternatives the Documentation rule requires. Each section records
    options that were genuinely weighed, and each is marked as added in this
    change. The records' Decisions are not rewritten.
-8. **Three records are annotated and two are corrected where the text was
-   wrong.** ADR-007 and ADR-026 pointed at `.clinerules/project-context.md`, a
-   directory ADR-048 retired; they are annotated, per the rule that a decision
-   record is a history. ADR-013's Decision claimed converge was kept "outside the
+8. **Records are annotated and text is corrected where it was wrong.** ADR-007
+   and ADR-027 pointed at `.clinerules/project-context.md`, a
+   directory ADR-048 retired; each is annotated, per the rule that a decision
+   record is a history. **Corrected 2026-10-06 (ADR-058):** this item originally
+   named ADR-026 rather than ADR-027. ADR-026 never named that path — its Owning
+   directory is `.specify/`, `docs/`, `.specify/extensions/git/` — so it needed
+   no annotation, and the claim that it carried one was false. ADR-037 and
+   ADR-038 name the same retired path and were unannotated; ADR-058 annotates
+   both, which this item did not cover. ADR-013's Decision claimed converge was kept "outside the
    workflow file" while the file it names as its Owning directory declares
    `converge` as a step, and its "matching upstream v1.0.13 exactly" claim was
    overtaken by ADR-021; its Decision text is corrected. ADR-017's "19rem fixed on
@@ -3023,6 +3044,17 @@ performs amendments no longer contradicts it. The register gaps rule has one
 destination per gap. The design-system register describes the file that exists.
 This entry is the durable record.
 
+**Annotation (2026-10-06, ADR-058).** Two of the four deferred items above are
+discharged and one is still open, verified against the working tree rather than
+inferred. `docs/architecture.md`'s omission of the nine fixed internal locations
+is closed: it now carries an Internal layout table of nine rows at
+`docs/architecture.md` §1.1, which ADR-055 recorded. `Core-Project.txt`'s
+`created_at` column identifier is closed: the mirror contains no `created_at`
+token at all, so ADR-019's fix stands again. The twenty-three ADR fields remain
+open, and the mirror's gap coverage remains as ADR-057 left it. This record is
+annotated rather than rewritten, so a reader of it alone sees the debt as it was
+recorded and can read this paragraph for its present state.
+
 ---
 
 ## ADR-055 — Audit fix set: range-string drift, a stale template hash, an assess hook conflict, and the mirror sync that was left unrecorded
@@ -3245,3 +3277,156 @@ closing paragraph counts the six exception rows it closes over; and the amendmen
 command and the Governance procedure tell one story. The stamp sites read
 2.19.2, `wafar.single.css` reads 1.0.4, and the manifest hashes describe the files as
 committed in this one change. This entry is the durable record.
+
+---
+
+## ADR-058 — Constitution 2.20.0: the writing-direction rule's value form, two register levels, and the decision records that failed verification
+
+**Status**: Accepted — 2026-10-06
+**Owning directory**: `.specify/memory/`, `docs/`, `ROADMAP.md`, `docs/architecture.md`, `docs/domain-model.md`, `Project-Technologies.txt`, `Core-Project.txt`, `.specify/templates/overrides/`, `AGENTS.md`, `wafar.single.css`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A verification pass over every governance file, run to confirm a previous
+audit rather than to look for new work, found that three of the defects it reported
+were defects in the constitution itself and that three decision records stated things
+that were false.
+
+1. **Principle V's physical-direction rule named only the property form.** It
+   prohibited `margin-left`, `left`, `right` and their Tailwind utilities, and
+   Static enforcement required Stylelint and ESLint to fail on "physical direction
+   properties". Nothing named the *value* form — a physical direction keyword
+   inside a property that has a logical equivalent — and `wafar.single.css`, the
+   file the constitution owns as the single source of design values, carried six
+   such values: `background-position: left` in `.ds-select`, and `to left` in the
+   text gradient (twice), the divider (twice), and the progress fill. The rule the
+   constitution wrote for its own design system was not one the design system
+   could satisfy and not one its linter could enforce, and nothing noticed.
+2. **The Usage Limits 90-day row fixed a period but not a trigger, and three
+   sources supplied one.** Usage Limits said "after 90 days" and Product Features
+   #16 said the same; the unresolved-facts table reserved only `expires_at`'s
+   meaning to R15. Meanwhile `Core-Project.txt`, `ROADMAP.md`, and
+   `docs/domain-model.md` each stated that the 90 days run from upload. Three
+   documents asserted an answer the owning slice had not given, and the
+   constitution gave them no rule that forbade it.
+3. **Two registers described the same entities at two unstated levels.** The
+   Product Register's Data entities table describes a catalog as "its metadata,
+   its status, and its stored bytes", while the Glossary names its metadata
+   fields (supplier name, issue date, upload date, expiry date) and a part's six
+   canonical columns. Neither section said whether prose or a named field is a
+   registered field, so `docs/domain-model.md`'s open fact #9 ("no fields are
+   registered for them today", for a catalog's byte count and content type) and
+   the Data entities row could not be compared. This is what produced open fact
+   #3: a catalog's printed expiry date is registered metadata, and whether
+   `expires_at` serves that date or the retention deadline was left unstated.
+4. **Three decision records failed verification.** ADR-050 item 8 claimed that
+   "ADR-007 and ADR-026 pointed at `.clinerules/project-context.md` … they are
+   annotated". ADR-026 never named that path — its Owning directory is
+   `.specify/`, `docs/`, `.specify/extensions/git/` — and carries no annotation;
+   the annotation for the retired Cline tree is in ADR-027. ADR-050 therefore
+   named the wrong record and claimed a remedy that does not exist. ADR-037 and
+   ADR-038 both name that retired path in their Owning directory with nothing
+   pointing at its deletion. ADR-038 fixes the cart page's Arabic name as
+   «المحفوظات», ADR-045 supersedes that clause with «سلة المشتريات», and ADR-049
+   unified the mirror citation — but ADR-038 itself was never annotated, so a
+   reader of that section alone is left with a label the platform does not use.
+   ADR-054's deferral list names two items that are already closed and does not
+   say so.
+
+**Decision.** The constitution is amended to 2.20.0 (MINOR: one rule materially
+expanded, two register levels stated, one cross-source rule added).
+
+1. **Principle V states both forms of the physical-direction rule and the test
+   that separates them.** The property form and the value form are named
+   together, and the test is whether a direction is *derived from the writing
+   mode* rather than whether the property has a logical equivalent. A direction
+   that is the writing mode — a caret, a select chevron, a progress or loading
+   fill, an arrow, a text-direction indicator — must be logical. A direction that
+   is not — a sheen, a vignette, a scanline, a surface highlight, a decorative
+   wash — must state an explicit angle in degrees, must not be flipped, and must
+   not be read as an indicator. The rule went into Principle V rather than into a
+   section because Principle V is the authority and is itself NON-NEGOTIABLE: a
+   permitted case introduced only in a section would contradict the principle's
+   absolute phrasing, and Single-Reference Sufficiency forbids the second copy.
+2. **Design System Standards → Invariants points at Principle V instead of
+   restating it**, and adds only what is specific to the design system's file: a
+   directional value there MUST record which kind it is, because the principle's
+   test cannot be applied to a bare declaration whose purpose is not otherwise
+   visible. Static enforcement covers both forms. A physical direction keyword
+   inside `wafar.single.css` is a defect on the same footing as a raw colour.
+3. **A reserved decision is reserved in every source.** Unresolved product facts
+   gains the rule: a source that states an answer the table has not given is
+   itself the defect, and the fix is a correction to that source. `Core-Project.txt`,
+   `ROADMAP.md`, `docs/domain-model.md`, and `Project-Technologies.txt` are named
+   as bound while a row is open. A source may state the question, name the owning
+   slice, and restate the constraint that bounds the answer; that is not an
+   assertion of the answer.
+4. **The 90-day row names what it does not fix.** Usage Limits and Product
+   Features #16 both say the period is fixed and the point it is counted from is
+   not, and the unresolved-facts row is widened from `expires_at`'s meaning alone
+   to that meaning and the trigger. The three sources that asserted a trigger are
+   corrected to state the period and the reservation instead.
+5. **Both registers state their level.** The Data entities table reads at the
+   level it is written — a named field is registered, prose is not a field list —
+   and the Glossary gains a preamble saying the same for its definitions, so the
+   two statements are consistent and a catalog's byte count and content type
+   register nowhere while its named metadata does.
+
+**Corrections to dependent documents, in this same change.**
+
+- `wafar.single.css` moves to 1.1.0 and satisfies the new rule: the select
+  chevron's `background-position` becomes `inset-inline-end`, the text gradient
+  and progress fill become `to inline-end`, and the symmetric divider becomes an
+  explicit `270deg`. Each rule's comment now records which kind its direction is,
+  in Arabic, as the file's comments are. No rendered value changes: the three
+  logical forms reproduce the RTL rendering the physical ones produced, and the
+  divider is symmetric, so `270deg` is exactly what `to left` meant.
+- The mirror drops the `apps/worker` row from its register tables — a repository
+  path from Internal layout, not a registered technology — keeps its
+  responsibilities under the processing-structure section, stops repeating PgDog
+  under deployment, and names TanStack Query as the register names it.
+- `ROADMAP.md` gains the full constitution path where it used a shorthand, and
+  the cart budget keeps its `p95` qualifier, which Usage Limits fixes and which
+  the same table states for the search budget.
+- `AGENTS.md` no longer describes the icon set as registered. It is an open
+  register gap owned by R1 and the file said so nowhere.
+
+**Annotations to records that failed verification.** ADR-050 item 8 is corrected
+in place, because it is a false statement of fact rather than a superseded
+position, and the correction names the record it misattributed to and the two it
+did not cover. ADR-037 and ADR-038 gain an annotation on their Owning directory
+that the Cline tree named there no longer exists, and ADR-038 gains a second one
+recording that ADR-045 superseded its cart-label clause. ADR-054 gains an
+annotation stating which of its deferred items are closed — verified against the
+working tree, not inferred — and which remain open. None of these records' text is
+rewritten; each is annotated, because a decision record is a history.
+
+**What deliberately did not change.** No principle was added, removed, or
+redefined, and no principle title changed; Principle IX's prohibited list is
+untouched and stays consistent, because it names the `left` and `right` tokens,
+which the expanded rule also prohibits, and an explicit degree angle is not among
+them. No section was added or removed, so the scaffold's section order is
+unchanged. No register row, entity, page, feature, Usage Limit value, module
+map, slice, or slice dependency changed. No technology was added or removed from
+the Approved register, and no exception was created or closed. The 90-day period
+itself is unchanged.
+
+**Consequences.** `wafar.single.css` can now satisfy the rule the constitution
+writes for it, and a linter can enforce it. A reserved decision cannot be answered
+by accident in a mirror, which is what let three documents pre-empt R15. The two
+registers no longer need a reader to guess whether prose is a field. Four decision
+records that asserted something untrue about themselves or about each other now
+carry a correction. The stamp sites read 2.20.0, `wafar.single.css` reads 1.1.0,
+and the index table carries ADR-058, so every live `ADR-001 … ADR-0NN` range
+string in the repository is corrected in this one change. This entry is the
+durable record.
+
+**Alternatives considered.**
+
+- *Write the value form into Design System Standards → Invariants instead of Principle V.* Rejected: Principle V is the authority for the rule and is NON-NEGOTIABLE, so a permitted case stated only in a section contradicts the principle's absolute phrasing, and Single-Reference Sufficiency forbids the rule existing in two places. Writing it there first and correcting it was the sequence actually taken, and it is the mistake this record's existence explains.
+- *Ban physical direction values outright, with no permitted angle.* Rejected: it would force a decorative sheen or a scanline to be expressed logically, which mirrors a fixed design and is a defect of its own — the ban would have produced the mistake it was written to prevent. The writing-mode test is what separates the two cases.
+- *Move the writing-mode test into the Glossary and leave Principle V alone.* Rejected: the Glossary is a register of terms and the test binds every surface, not only terms.
+- *Have R15 decide the trigger silently and let the mirrors keep their wording.* Rejected: that is the pre-emption this record exists to stop, and it would make the mirrors a second source for a reserved decision.
+- *Rewrite ADR-038's cart-label clause to the current name.* Rejected: a decision record is a history, and ADR-049 already established that the superseding name lives in ADR-045 with the mirror citation unified on it. An annotation reaches the same reader without erasing what was decided and why.
+- *Annotate ADR-050 rather than correct its text.* Considered and rejected for this one item: the others are annotations because a later decision changed what they say, while item 8 is a claim about what was already done, and it is false. The correction states the truth and names what it missed.
+- *Treat `to left` as harmless because the platform is permanently RTL.* Rejected: the rule exists so a surface reads correctly by construction rather than by coincidence, and an RTL-only platform is exactly the assumption that would let a physical direction survive into a reused component.
+- *Extend the value-form rule to transform functions such as `translateX`.* Rejected as out of scope: `wafar.single.css` animates slide-in with `translateX`, which is a physical axis rather than a direction keyword, and the rule as written reaches direction keywords and gradient directions only. It is recorded here as a known uncovered case rather than silently widened, because widening it in this amendment would have changed motion behaviour without a design decision behind it.

@@ -1,7 +1,7 @@
 # Project-Technologies.txt — the detail of the technology register
 
-**Constitution**: `.specify/memory/constitution.md` v2.19.2 (last amended
-2026-10-06, ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057). On any conflict with this file, the constitution
+**Constitution**: `.specify/memory/constitution.md` v2.20.0 (last amended
+2026-10-06, ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -88,7 +88,7 @@ apps/api/src/
 | **Tailwind CSS** | تنسيق التصميم | الإصدار v4.2 مع خيارات ألوان محايدة جديدة. |
 | **Nuxt UI** | مكتبة مكونات جاهزة | الإصدار **v4.11.2** (سبتمبر 2026). مئات المكونات والقوالب وحزمة Figma. مجاني بالكامل. |
 | **Pinia** | إدارة الحالة المحلية | الإصدار **v3.0.4** (يناير 2026)، و**v4.0** (يوليو 2026). المكتبة الرسمية لـ Vue. |
-| **TanStack Query (Vue)** | إدارة بيانات الخادم | الإصدار v5. يدعم `useQueries`، `useQuery`، التخزين المؤقت، التحديثات التلقائية، Infinite Scroll، Optimistic Updates. |
+| **TanStack Query** | إدارة بيانات الخادم | الإصدار v5. يُستخدم مُلَفَّق Vue منه. يدعم `useQueries`، `useQuery`، التخزين المؤقت، التحديثات التلقائية، Infinite Scroll، Optimistic Updates. |
 | **Zod** | التحقق من صحة البيانات | (مذكور في الخادم) — يُستخدم أيضاً في الواجهة. |
 
 ### 📁 بنية الواجهة
@@ -171,7 +171,8 @@ packages/search/
 | **SeaweedFS** | تخزين الملفات | الإصدار **v4.48** (سبتمبر 2026). مرخّص **Apache 2.0**. البديل المعتمد (ADR-005) بعد استبعاد سلفه. يتعامل مع كميات هائلة من الملفات الصغيرة بكفاءة. |
 | **BullMQ** | طابور المهام | يتطلب **Redis** كخلفية إلزامية (انظر `apps/worker`). مكتبة عميل Redis **فجوة مسجلة يملكها R3**؛ أي مرشّح يسميه هذا Mirror مرشّح فقط، ولا يسجّل في سجل التقنيات إلا ما تختاره R3 وتوثّقه. |
 | **Redis** | خلفية الطابور + التخزين المؤقت | BullMQ يتطلب **Redis >= 5.0.0**. الاعتماد على خدمة بنية تحتية؛ ترخيصها (RSAL/SSPL (7.4+; BSD-3 قبلها)) يخضع لسجل معالجة تراخيص خدمات البنية التحتية في الدستور (Licence treatment). |
-| **Worker** | تطبيق تشغيلي (`apps/worker`) | استخراج القطع، توحيد الأعمدة، إزالة التكرار، الفهرسة في OpenSearch. ليس مكتبة ولا اعتماداً خارجياً. |
+
+> `apps/worker` ليس تقنية مسجَّلة: هو موقع في Internal layout لا تسمّيه سجل التقنيات المعتمد، ولا يجوز لهذا Mirror أن يضيفه الصف كتقنية. مسؤولياته الأربع موثّقة أدناه تحت «بنية المعالجة»، والتطبيق هو مالك طابور المعالجة الذي تصفه BullMQ وRedis.
 
 ### 📁 بنية المعالجة
 
@@ -221,9 +222,10 @@ apps/worker/src/
 | التقنية | الدور | التفاصيل |
 |---|---|---|
 | **VPS** | خوادم افتراضية | خوادم Hetzner أو ما يعادلها. |
-| **PgDog** | مجمّع الاتصالات | يُستخدم في النشر (بديل PgBouncer). |
 | **Nginx / HAProxy** | موازن الحمل | ضروري عند التوسع. |
 | **Docker** (اختياري) | حاويات | للـstaging parity فقط، كما يقيّد الدستور. |
+
+> مجمّع الاتصالات PgDog مسجَّل في طبقة قاعدة البيانات أعلاه ولا يُعاد هنا؛ طبقة النشر تسمّي في سجل الدستور المعتمد خوادم VPS وموازن Nginx أو HAProxy وDocker الاختياري فقط.
 
 ---
 
@@ -431,9 +433,9 @@ This section records what 2.18.0 added. The rules are in
 ### Party/header sync markers
 
 The mirror headers now track the constitution footer:
-`Constitution: .specify/memory/constitution.md v2.19.2 (last amended 2026-10-06,
-ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057)`. Every later header here is the same value:
-v2.19.2 / 2026-10-06 / that ADR list. If the constitution is amended, move these
+`Constitution: .specify/memory/constitution.md v2.20.0 (last amended 2026-10-06,
+ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058)`. Every later header here is the same value:
+v2.20.0 / 2026-10-06 / that ADR list. If the constitution is amended, move these
 markers in the same change.
 
 ### Audit fix set (ADR-047)
@@ -528,3 +530,32 @@ own token rule. It names no new technology and removes none.
   (Principle V). No family, module, or component changed.
 - **The exception register's six rows** (`EX-001` … `EX-006`) are the complete
   set; the Approved register cites each.
+
+---
+
+## Constitution 2.20.0 additions (2026-10-06, ADR-058)
+
+This amendment names no new technology, registers none, and removes none. Its
+Design System Standards change is a rule change that `wafar.single.css` then
+satisfies, and its two register clarifications remove statements this mirror had
+been carrying.
+
+- **`wafar.single.css` moves to 1.1.0** and its physical direction values become
+  logical or explicitly angular, under the value form of Principle V's writing-
+  direction rule: the select chevron's `background-position` becomes
+  `inset-inline-end`, the text gradient and the progress fill become
+  `to inline-end` (all three are derived from the writing mode), and the
+  symmetric divider gradient becomes an explicit `270deg` (it has no direction).
+  No token family, module, component, or rendered value changed.
+- **The `apps/worker` row is removed from this mirror's register tables.** It was
+  a repository path from Internal layout, not a registered technology, and the
+  register admits no technology it does not name. Its four responsibilities
+  remain under "بنية المعالجة" below.
+- **PgDog is not repeated in the deployment table.** The register files it under
+  the database layer; the deployment layer names VPS, Nginx or HAProxy, and
+  optional Docker.
+- **The retention row no longer states a trigger.** The 90-day period is fixed
+  and the point it is counted from is reserved to R15, so this mirror states the
+  period and names the owning slice rather than the answer.
+- **`TanStack Query`** is named as the register names it; the Vue adapter is
+  described in the detail column instead of in the name.

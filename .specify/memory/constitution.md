@@ -1,4 +1,5 @@
 # Wafar Platform Constitution
+# Wafar Platform Constitution
 
 This project turns parts catalogs supplied as PDF, Excel, or Word files into a
 structured, searchable catalog for Libyan merchants who currently catalog them
@@ -185,11 +186,34 @@ surface.
 - Search MUST resolve Arabic word roots (طرمبة → طرمبات) through the
   designated Arabic analyzer. A search that matches only surface forms does
   not satisfy this rule.
-- Physical direction properties (`margin-left`, `margin-right`,
-  `padding-left`, `padding-right`, `left`, `right`) are prohibited in
-  application code. Logical equivalents (`margin-inline-start`,
-  `margin-inline-end`, `padding-inline`, `inset-inline`,
-  `border-inline-end`) are required.
+- Physical direction is prohibited in **both** forms, and the two forms are
+  named together because a surface can be made physical either way and a rule
+  that named only the first left the second unenforced.
+  - The **property form** is a physical direction property or its Tailwind
+    utility: `margin-left`, `padding-right`, `border-left`, `float: right`,
+    `text-align: left`, the `left` and `right` inset properties, and the `ml-`,
+    `mr-`, `pl-`, `pr-`, `left-`, and `right-` utility prefixes. Logical
+    equivalents (`margin-inline-start`, `margin-inline-end`, `padding-inline`,
+    `inset-inline`, `border-inline-end`) are required in its place.
+  - The **value form** is a physical direction keyword or gradient direction
+    inside a property that has a logical or angular equivalent: `left` and
+    `right` in `background-position`, `object-position`, `mask-position`, and
+    `perspective-origin`; and the `to left` and `to right` directions in
+    `linear-gradient(…)`, `radial-gradient(…)`, and `conic-gradient(…)`.
+- **The test that separates a permitted direction from a prohibited one is
+  whether the direction is derived from the writing mode, not whether the
+  property has a logical equivalent.** A direction that *is* the writing mode —
+  a disclosure caret, a select chevron, a progress or loading fill, an arrow, a
+  text-direction indicator, a gradient that stands for a reading direction —
+  MUST be expressed logically: the `start` and `end` keywords, the
+  `inset-inline-start` and `inset-inline-end` functions, or a `to inline-start`
+  or `to inline-end` gradient direction. A direction that is *not* derived from
+  the writing mode — a sheen, a vignette, a scanline, a surface highlight, a
+  decorative wash — MUST state an explicit angle in degrees (`to 90deg`), MUST
+  NOT be flipped to match a logical neighbour, and MUST NOT be read as an
+  indicator. An explicit angle is not a physical direction under this rule,
+  because it fixes the design instead of reading the writing mode, and that is
+  what separates a permitted fixed design from a defect.
 
 **Rationale:** The audience is Libyan merchants. A broken RTL layout or an
 Arabic-Indic numeral in a table is not a cosmetic defect; it is a loss of
@@ -461,7 +485,7 @@ implemented through a specification that references this list.
 | 13 | Messaging | Single thread with the administrator. |
 | 14 | Admin Application | Full platform management. |
 | 15 | Audit Log | Every administrator operation. |
-| 16 | Automatic Deletion | After 90 days. |
+| 16 | Automatic Deletion | After 90 days. The period is fixed; the point the 90 days are counted from is not fixed here and is reserved to R15 (Product Fact Clarifications → Unresolved product facts). |
 
 ## Product Register
 
@@ -500,6 +524,15 @@ Ten entities are in scope, and `docs/domain-model.md` is their source of truth:
 it carries the relationships, the cardinality, the invariants, and the owning
 module for each. This section maps them; it does not restate them, because a
 field list held here would be a second source that drifts from the one.
+
+**The one-line meaning column names a field only where the field's existence is
+itself part of the product decision.** `User` does, and every field it names is
+registered by that row. A phrase that describes a group — `Catalog`'s "its
+metadata, its status, and its stored bytes" — registers no field identifier, so
+`Catalog`'s row registers neither a byte count nor a content type, and whether
+either is stored is a field-level question for `docs/domain-model.md` to carry.
+The column is therefore read at the level it is written: a named field is
+registered, and prose is not a field list.
 
 | Entity | Owning module | One-line meaning |
 |---|---|---|
@@ -560,9 +593,20 @@ the sources' own data. They are recorded rather than silently resolved. The
 slice named in the last column MUST resolve each one and record the answer in
 `docs/DECISIONS.md`; until then a slice MUST NOT decide one on its own:
 
+**A reserved decision is reserved everywhere, not only in the deciding slice.**
+A source that states an answer this table has not given is itself the defect,
+and the fix is a correction to that source — not an annotation of it, and not
+the treating of the answer as decided. `Core-Project.txt`, `ROADMAP.md`,
+`docs/domain-model.md`, and `Project-Technologies.txt` are therefore bound: while
+a row below is open, none of them may assert the answer it reserves, in any
+wording, and a plan that finds such an assertion MUST record it in its
+Constitution Check as a defect to correct in the same change. A source may
+state the question, name the owning slice, and restate the constraint that
+bounds the answer; that is not an assertion of the answer.
+
 | Conflict | Sources | Resolve in |
 |---|---|---|
-| `expires_at` is the retention deadline or the supplier's printed expiry date | Usage Limits and Product Features #16 (the 90-day retention) against `Core-Project.txt` and the Glossary (the supplier's printed expiry date) | R15 |
+| `expires_at` is the retention deadline or the supplier's printed expiry date, and the 90-day deadline's trigger point is undecided | Usage Limits and Product Features #16 (the 90-day period) against `Core-Project.txt` and the Glossary (the supplier's printed expiry date); no source names the point the 90 days are counted from | R15 |
 | Notification retention is undetermined | The product statement defers it ("to be determined later") | R9 |
 | A message's sender is either a merchant or an administrator, and the register names one sender | Product Register (`Message` carries a single sender); Authorization and Access Control (the administrator is a separate principal with a separate login) | R10 |
 | `Conversation` carries an administrator reference, yet every administrator account sees the same single thread | Product Register (`Conversation` carries an administrator); `Core-Project.txt` (one administrator account type, all administrators see the same conversations) | R10 |
@@ -918,7 +962,7 @@ an amendment to this constitution.
 | Monthly upload limit per user | 50 files per calendar month |
 | Total upload limit per user | 100 files |
 | Maximum cart size | 99 parts |
-| Automatic file deletion | after 90 days |
+| Automatic file deletion | after 90 days, counted from a trigger point R15 fixes |
 | Search latency budget | p95 < 1 s |
 | Cart-add latency budget | p95 < 200 ms |
 | File processing budget | p95 < 5 min |
@@ -1507,8 +1551,15 @@ ad hoc inside a feature, and it MUST NOT be defined in this constitution.
   applied before first paint, and the toggle sits in the header.
 - Tables are the only data-display form. The exceptions are the home page's
   statistical cards.
-- RTL by construction: `<html dir="rtl" lang="ar">` on every page, logical CSS
-  properties only, and Latin numerals only (`ds-numeric`, `ds-tabular`).
+- RTL by construction: `<html dir="rtl" lang="ar">` on every page, the physical
+  direction rule as Principle V states it, and Latin numerals only (`ds-numeric`,
+  `ds-tabular`).
+- **A directional value in `wafar.single.css` MUST record which kind it is.**
+  The rule that declares it states whether the direction is derived from the
+  writing mode or is a fixed angle, because Principle V's test cannot be applied
+  to a bare declaration whose purpose is not otherwise visible. A physical
+  direction keyword in this file is a defect on the same footing as a raw
+  colour.
 - Prohibited: raw Tailwind colours; any `#hex` or `rgb()` outside
   `wafar.single.css`; `ml-`, `mr-`, `pl-`, `pr-`, `left`, `right`; direct
   `z-10`, `z-20`, `z-50`; Arabic-Indic numerals; positive `letter-spacing` on
@@ -1522,10 +1573,12 @@ ad hoc inside a feature, and it MUST NOT be defined in this constitution.
 - A design value MUST NOT appear anywhere but `wafar.single.css`: not in a second
   stylesheet, not in a Vue SFC colour, not in an inline style value, and not as a
   Tailwind colour utility.
-- **Static enforcement.** Stylelint and ESLint MUST fail the build on physical
-  direction properties, and on any colour, radius, shadow, duration, or z-index
-  value **outside `wafar.single.css`** that does not reference a declared token.
-  Enforcement MUST be a committed configuration, not a review comment. The scope
+- **Static enforcement.** Stylelint and ESLint MUST fail the build on both
+  forms of the physical-direction rule Principle V states, and on any colour,
+  radius, shadow, duration, or z-index value **outside `wafar.single.css`**
+  that does not reference a declared token. Enforcement MUST be a committed
+  configuration, not a review comment, and it MUST cover the value form and not
+  only the property form. The scope
   is named because it is the only reading under which the rule is satisfiable:
   `wafar.single.css` is the source of the tokens, so a rule that forbade a
   literal there would forbid the file from defining anything.
@@ -1541,7 +1594,11 @@ ad hoc inside a feature, and it MUST NOT be defined in this constitution.
   mode class because it exists only to serve elements that do not read the class
   (Invariants below: the mode is class-based). A raw value anywhere else in the
   file is a defect, and a slice that edits the rule containing it converts it in
-  the same change rather than reading around it.
+  the same change rather than reading around it. A directional value is exempt
+  from the token rule only in one of Principle V's two permitted forms: a
+  logical keyword or function where the direction is derived from the writing
+  mode, and an explicit degree angle where it is not. A physical keyword in
+  either case is a defect in this file on the same footing as a raw colour.
 
 ### Fonts and the framework bridge
 
@@ -1573,6 +1630,20 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 (`ds-scroll-locked`) MUST be honoured. This is a MUST, not an option.
 
 ## Glossary
+
+The terms below are fixed, and a feature MUST use a term as defined rather than
+a synonym for it.
+
+**A definition states what a term is and, only where the term's own composition
+is a product decision, what it is made of — never a column list.** A part's six
+canonical columns and a catalog's named metadata are therefore registered by
+this section, while a definition that says only "identity and shop details", as
+`User` does, registers no field and defers to the Data entities table. Where a
+definition and that table differ in level, neither corrects the other: the table
+maps the entities and their owning modules, this section fixes the terms, and
+`docs/domain-model.md` carries the fields. Naming a term's parts here is what
+makes them registered, so an item absent from these definitions is not a field,
+however obviously the concept belongs to the entity.
 
 | Term | Definition |
 |---|---|
@@ -1896,4 +1967,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.19.2 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-06
+**Version**: 2.20.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-06

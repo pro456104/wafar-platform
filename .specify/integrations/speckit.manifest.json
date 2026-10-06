@@ -14,11 +14,11 @@
     ".specify/templates/plan-template.md": "2a6e9d5ae4b537d4f6f5068641453aa6b553982711c05e917f078e23838a1635",
     ".specify/templates/spec-template.md": "8f068f5670391b5c18b603382e7dd13291ecb03e38926c0103288dd430488812",
     ".specify/templates/tasks-template.md": "85df2ca609e62ae6b0727f92af73da4d15d2c6010cc24d4b12a95e559eb4a47c",
-    ".specify/templates/overrides/constitution-template.md": "02581780ace89acd5d4fff5a5ac514b8d223cc624644ea76d61521c9c1b2945c",
-    ".specify/templates/overrides/plan-template.md": "fdecd0f4496506a503b60ae9981d185d82111cd2dc27f9243eb2e055f7323a54",
-    ".specify/templates/overrides/spec-template.md": "93543246cfc43bc1d9edd75005f48cbacb6b87610d64557f6b8ca64cbd6d415b",
-    ".specify/templates/overrides/tasks-template.md": "258da0aa4f94520bfa80ec1ce0a476a830845013843d7c8e31d03c0ff44b145a",
-    ".specify/templates/overrides/checklist-template.md": "7cab64e611c965249f00c44fdcf2c6b37952e6bd3d2612151317e3556fbce6be",
+    ".specify/templates/overrides/constitution-template.md": "f7e3292309b732f807cd6a450c0ef543cc60bf8e6a00f17f46eaf5c37666ec41",
+    ".specify/templates/overrides/plan-template.md": "0b6412983e8d3b58a2bc04da1b3c20e22a880329d1e9770a7926fb3347e85f68",
+    ".specify/templates/overrides/spec-template.md": "e164d467c16eef7bf0403f7bcd318085b21c636255f8de37d2643755256b1912",
+    ".specify/templates/overrides/tasks-template.md": "6ebc7512679ff636a70d6db8ab03827da952a7874297879fe6a64b579f7d5445",
+    ".specify/templates/overrides/checklist-template.md": "56725cf6ac5b12e8b22945bb363d8f8160263b34a447a0613297df86f8b88de5",
     ".specify/.gitignore": "05c2054a5f5ca103ed62daa73191675013ee1d3d44eafb8e49891898b5368878",
     ".specify/templates/exception-register.md": "3a244cb1bf2b1ec2c665a92b6751642e346cc6cdbb261f10bb8e8ea5bba9a29b"
   }

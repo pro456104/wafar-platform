@@ -5,7 +5,7 @@ entities the product reasons about, the relationships between them, their
 cardinality, their invariants, and the module that owns each one. It is the
 source the constitution's Product Register maps.
 
-Its authority is `.specify/memory/constitution.md` (v2.19.2); where this
+Its authority is `.specify/memory/constitution.md` (v2.20.0); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
 change to a registered product fact and MUST be recorded as an ADR in
@@ -164,8 +164,11 @@ service layer re-checks the ones a constraint cannot express.
   or the supplier's printed expiry date. This is a recorded unresolved product
   fact owned by R15; until R15 decides it, no feature may give the field a
   meaning.
-- **Retention is 90 days from upload**, enforced by R15 and expressed through
-  the same window in the search index's lifecycle.
+- **Retention is 90 days, enforced by R15 and expressed through the same window
+  in the search index's lifecycle.** The period is fixed; the point the 90 days
+  are counted from is not, and it belongs to the same open fact: until R15
+  decides it, no feature may name a trigger, and neither this model nor
+  `ROADMAP.md` states one.
 - **Upload quotas are 50 files per calendar month and 100 files in total per
   user**, enforced server-side by the `catalogs` module service (R2).
 
@@ -345,7 +348,7 @@ to the mirror.
 |---|---|---|---|
 | 1 | How a message's sender is represented when the sender may be either a merchant or an administrator. | The register names one sender on a message, but the two roles are different principals and the representation is a schema decision, not a conceptual one. | R10 |
 | 2 | Whether `Conversation` carries an administrator reference when every administrator account sees the same thread. | The thread is single and shared; whether the administrator side is a reference, a role, or absent is a schema decision. | R10 |
-| 3 | Whether `expires_at` is the retention deadline or the supplier's printed expiry date. | Two product sources disagree; both readings are defensible. | R15 |
+| 3 | Whether `expires_at` is the retention deadline or the supplier's printed expiry date, and the point the 90-day retention is counted from. | Two product sources disagree on the field, and no source names a trigger for the period; both readings of each are defensible. | R15 |
 | 4 | Notification retention. | The product statement defers it. | R9 |
 | 5 | ~~Whether a contact message becomes a conversation or is read in its own inbox.~~ Resolved 2026-10-03 by ADR-028: a dedicated administrator "Contact messages" page. | — | ADR-028 (owning slice: R13) |
 | 6 | Whether an administrator is a distinct entity or a role on `User`. | The register treats administrators as a role on `User`, while the conversation and the audit record refer to an administrator as a party. | R13 |

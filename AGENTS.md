@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-057; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-058; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -66,7 +66,9 @@ replace them with the core templates.
 - No emoji in anything a person reads inside the platform: every screen,
   including the administrator application, and the body of every SMS
   (Principle V). An icon is an SVG from the registered open-source icon set,
-  and an emoji glyph is not an icon.
+  and an emoji glyph is not an icon. That set is **not registered yet**: it is an
+  open register gap owned by R1, so no slice may name an icon set before R1
+  chooses one and records it.
 - Registration is Libya only: every account is a +218 number and sign-up offers
   no dial-code selector (ADR-041).
 

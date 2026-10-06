@@ -8,12 +8,17 @@
      <link rel="stylesheet" href="wafar.single.css" />
      أو:  @import "wafar.single.css";
 
-الإصدار:  1.0.4
+الإصدار:  1.1.0
    ملاحظة: R1 يختار رقم إصدار القشرة الفعلي في CMV (ADR-016/025)؛ هذا الرقم يعكس آخر إصلاح
-   (راجع ADR-016/025/038/053/057 عند الحاجة). 1.0.4: إكمال توحيد قيم التوهج
+   (راجع ADR-016/025/038/053/057/058 عند الحاجة). 1.1.0: تحويل القيم الاتجاهية
+   الفيزيائية إلى منطقية أو إلى زاوية صريحة، تنفيذاً لصيغة القيمة في قاعدة اتجاه
+   الكتابة (Principle V): موضع سهم القائمة المنسدلة إلى `inset-inline-end`،
+   وتدرّج النص وتدرّج تعبئة التقدّم إلى `to inline-end` (كلاهما مشتقّ من اتجاه
+   الكتابة)، وتدرّج الفاصل المتناظر إلى زاوية `270deg` صريحة (لا اتجاه فيه).
+   1.0.4: إكمال توحيد قيم التوهج
    والوميض وخطوط المسح وسهم القائمة وتوكنات شاشة التحميل، ومدة ضغط الزر على
    step المدة المسجَّل، وإزالة التتبع الموجب عن رؤوس الجداول (Principle V).
-   الدستور:          .specify/memory/constitution.md → Design System Standards · docs/DECISIONS.md → ADR-009, ADR-012, ADR-025, ADR-038, ADR-053, ADR-057
+   الدستور:          .specify/memory/constitution.md → Design System Standards · docs/DECISIONS.md → ADR-009, ADR-012, ADR-025, ADR-038, ADR-053, ADR-057, ADR-058
    إعادة التوليد:    هذا الملف هو المصدر الوحيد للقيم؛ والدستور يحمل السجل فقط
    ============================================================ */
 
@@ -2181,12 +2186,13 @@ svg {
 
 /* ---------------------------------------------------------
    النص المتدرّج
-   ملاحظة: الاتجاه من اليمين لليسار (bg-gradient-to-l) هو
-   الصحيح في RTL للعناوين.
+   ملاحظة: الاتجاه مشتقّ من اتجاه الكتابة — فهو منطقي إلزامياً
+   (Principle V): ينتقل التدرّج نحو نهاية السطر فيقرأ مع النص في
+   كل اتجاه كتابة. كان `to left` قبل 2.20.0.
    ------------------------------------------------------------- */
 .ds-text-gradient {
   background: linear-gradient(
-    to left,
+    to inline-end,
     var(--brand-600) 0%,
     var(--brand-700) 100%
   );
@@ -2196,7 +2202,7 @@ svg {
 }
 .dark .ds-text-gradient {
   background: linear-gradient(
-    to left,
+    to inline-end,
     var(--brand-400) 0%,
     var(--brand-500) 100%
   );
@@ -2206,12 +2212,15 @@ svg {
 
 /* ---------------------------------------------------------
    فاصل متدرّج
+   ملاحظة: تلاشٍ متناظر على الحافتين، لا اتجاه فيه؛ ولذلك تذكر
+   زاوية صريحة بالدرجات لا كلمة اتجاه (Principle V). الزاوية
+   270 درجة تطابق ما كان يُكتب `to left` قبل 2.20.0.
    ------------------------------------------------------------- */
 .ds-divider {
   width: 100%;
   height: 1px;
   background: linear-gradient(
-    to left,
+    270deg,
     transparent,
     var(--neutral-200) 15%,
     var(--neutral-200) 85%,
@@ -2221,7 +2230,7 @@ svg {
 }
 .dark .ds-divider {
   background: linear-gradient(
-    to left,
+    270deg,
     transparent,
     var(--neutral-700) 15%,
     var(--neutral-700) 85%,
@@ -2673,7 +2682,10 @@ svg {
   color: var(--error-400);
 }
 
-/* --- القائمة المنسدلة الأصلية --- */
+/* --- القائمة المنسدلة الأصلية ---
+   ملاحظة: موضع السهم مشتقّ من اتجاه الكتابة، فهو منطقي إلزامياً
+   (Principle V): `inset-inline-end` هو الحافة التي يقرأ منها السطر،
+   وهي نهاية السطر لا يساره. كان `left` قبل 2.20.0. */
 :root {
   --select-chevron: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'><path stroke='%23737373' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/></svg>");
   --select-chevron-dark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'><path stroke='%23a3a3a3' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/></svg>");
@@ -2683,7 +2695,7 @@ svg {
   padding-inline-end: var(--space-10);
   background-image: var(--select-chevron);
   background-repeat: no-repeat;
-  background-position: left var(--space-2) center;
+  background-position: inset-inline-end var(--space-2) center;
   background-size: 1.25rem 1.25rem;
 }
 .dark .ds-select {
@@ -3005,9 +3017,11 @@ svg {
 .ds-progress-error {
   background-color: var(--error-500);
 }
+/* ملاحظة: تعبئة التقدّم مشتقّة من اتجاه الكتابة، فهي منطقية
+   إلزامياً (Principle V): تمتلئ نحو نهاية السطر. كان `to left` قبل 2.20.0. */
 .ds-progress-gradient {
   background: linear-gradient(
-    to left,
+    to inline-end,
     var(--brand-500) 0%,
     var(--accent-500) 100%
   );
