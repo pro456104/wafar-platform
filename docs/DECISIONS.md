@@ -82,6 +82,7 @@ is not done; ADR-015 states that rule and this file follows it.
 | [ADR-054](#adr-054--constitution-2190-the-register-names-its-four-gates-and-the-amendment-procedure-names-its-own-stamp-sites) | Constitution 2.19.0: the register names its four gates, and the amendment procedure names its own stamp sites | 2026-10-05 | 2.19.0 |
 | [ADR-055](#adr-055--audit-fix-set-range-string-drift-a-stale-template-hash-an-assess-hook-conflict-and-the-mirror-sync-that-was-left-unrecorded) | Audit fix set: range-string drift, a stale template hash, an assess hook conflict, and the mirror sync that was left unrecorded | 2026-10-06 | 2.19.0 |
 | [ADR-056](#adr-056--constitution-2191-section-name-references-glossary-terms-and-the-register-gap-classification) | Constitution 2.19.1: section-name references, glossary terms, and the register-gap classification | 2026-10-06 | 2.19.1 |
+| [ADR-057](#adr-057--constitution-2192-the-audit-findings-re-verified-and-the-design-systems-token-rule-enforced) | Constitution 2.19.2: the audit findings re-verified, and the design system's token rule enforced | 2026-10-06 | 2.19.2 |
 
 ---
 
@@ -3112,3 +3113,135 @@ same change, or the drift this entry closes returns.
 - MAJOR restatement: rejected — no principle is redefined.
 
 **This entry is the durable record.**
+
+---
+
+## ADR-057 — Constitution 2.19.2: the audit findings re-verified, and the design system's token rule enforced
+
+**Status**: Accepted — 2026-10-06
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `wafar.single.css`, `.opencode/commands/`, `docs/`, `ROADMAP.md`, `Project-Technologies.txt`, `.specify/integrations/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A read-only audit (2026-10-06) reported ten candidate defects across the
+governing layer. Each was re-checked against its source before any edit, because an
+audit finding is itself a claim that can be wrong. Seven repairs were confirmed; two
+candidates were dismissed as false positives; one was accepted history and not
+touched. A second pass on the same day, run while this amendment was still
+uncommitted in the working tree, added one further candidate — the Approved register's
+exception-row count, item 8 below — so eight repairs are confirmed here.
+
+Confirmed and repaired here:
+
+1. **The Glossary's `Test Coverage Request` called itself a per-plan note.** Principle
+   III, Artifact Workflow, and both binding templates read the request from the
+   specification, so task generation would have looked in the wrong artifact.
+2. **A cross-reference named a section under the wrong parent.** Artifact Workflow
+   sent the reader to "Governance → Module Discipline and Development Workflow",
+   while that section is a peer of Governance; ADR-056's own claim was that internal
+   references name their target heading.
+3. **The `expires_at` fact named sources that do not carry it.** The constitution's
+   unresolved-facts row cited Schema and Migration Control, which never names the
+   field or retention; `docs/domain-model.md` said the identifier was named in the
+   File Processing Overview and Glossary, while the identifier appears only in the
+   unresolved-facts table and the Glossary names the catalog's printed expiry date.
+4. **`wafar.single.css` still carried non-token values** outside the three exemptions
+   its own rule names (Design System Standards → Invariants → Inside the design system
+   file): `.ds-shimmer`, `.ds-glow-brand`/`-accent`/`-violet`, `.ds-vignette`,
+   `.ds-scanlines`, `.ds-loader-radar::before`, the `.ds-select` chevron data URIs,
+   and a raw `150ms` in `.ds-btn`. ADR-053 claimed every value was a token definition
+   or reference.
+5. **`.ds-table th` applied `--tracking-caps` (0.08em) to every header cell.** The
+   mandated Arabic table headers therefore carried positive letter-spacing, which
+   Principle V and Principle IX prohibit and which ADR-012 said these tokens never did.
+6. **The constitution command contradicted the amendment procedure.** It instructed
+   writing the ten external stamp sites and forbade editing template source files,
+   while its own scope guard and Governance say the command edits only the
+   constitution and the amendment's change moves the rest. ADR-054 recorded this
+   exact contradiction as closed.
+7. **`Project-Technologies.txt` documented only `EX-001`/`EX-002`** after the exception
+   register had grown to six rows, and carried no 2.19.x additions note.
+8. **The Approved register's closing paragraph counted four exception rows.** It read
+   "These four rows are the named implementations of rules that Deployment and
+   Observability already required" and "the technology mirror named these four
+   anyway", while the table immediately above it carries six rows, `EX-001` through
+   `EX-006`. Both counts now read six, and the taxonomy names the CI gate alongside
+   the scanner, the metrics service, and the staging tool. The 2026-10-06 audit
+   found this one while 2.19.2 was still uncommitted, so it is folded into this
+   amendment rather than issued as a new version; a sweep of the same family across
+   the constitution (principle and binding-section counts, register-gap count,
+   design-system module, family, loader, duration, and shadow counts, page,
+   feature, entity, and canonical-column counts, the three English-text
+   exceptions, the four bare-layout static pages, every ADR citation, the component
+   inventory against `wafar.single.css`, and every path in References) found no
+   second stale count or citation.
+
+Examined and dismissed (no change made):
+
+- **`--z-boot: 9999`** is a declared-but-unused token. The constitution's register does
+  not fix z-index values and the file defines its own scale; ADR-009's "80..170"
+  sentence describes the ladder decision of its date, not a live rule.
+- **`background-position: left`** in `.ds-select` is a keyword value. The prohibition
+  is on physical direction *properties*, and CSS Logical Properties defines no logical
+  `background-position`; the value is forced by the RTL chevron placement.
+
+**Decision.** Constitution 2.19.2 (PATCH — wording, citations, and one scoping
+correction; no rule, register, entity, page, limit, or slice changed):
+
+1. The Glossary's `Test Coverage Request` entry reads per-spec: "The per-spec section
+   declaring which tests the feature requests and the coverage target the coverage
+   gate asserts."
+2. The Artifact Workflow reference reads "see Module Discipline and Development
+   Workflow".
+3. The `expires_at` row's sources read "Usage Limits and Product Features #16 (the
+   90-day retention) against `Core-Project.txt` and the Glossary (the supplier's
+   printed expiry date)"; `docs/domain-model.md` states the same provenance.
+4. `wafar.single.css` moves to **1.0.4**: `--shimmer-edge`/`--shimmer-ink`, the
+   `--glow-*` pairs, `--vignette-ink`, `--scanline-ink`, `--loader-radar-ink`, and
+   `--select-chevron`/`--select-chevron-dark` (a `url()` held by a custom property)
+   are added and consumed; `.ds-btn`'s transform duration uses `--duration-fast`; and
+   `.ds-table th` uses `--tracking-normal`. No token is removed, and the only rendered
+   changes are the two compliance corrections the principles require.
+5. `.opencode/commands/speckit.constitution.md` states that the command writes the
+   constitution and its footer, and that the amendment's change — not the command —
+   moves the ten external stamp sites; the template-layer guard is scoped to the
+   resolved layers (core, presets, extensions).
+6. `Project-Technologies.txt` records the six exception rows and a 2.19.2 additions
+   note, and its stamps move with the amendment.
+7. Every stamp site the Governance amendment procedure names moves to 2.19.2, and the
+   manifest hashes for the edited override templates and the constitution command are
+   re-recorded. The amendment set is committed as one change, so those hashes
+   describe the tree as committed.
+8. The Approved register's closing paragraph counts six exception rows instead of
+   four, names the CI gate in the taxonomy, and leaves every rule, register row, and
+   exception unchanged.
+
+**Alternatives considered.**
+
+- *Exempt data-URI images and glow gradients from the token rule instead of
+  tokenizing them.* Rejected: a custom property may hold a `url()` value, so the
+  chevrons fit the existing rule as token definitions, and the glow gradients are
+  plain colour values that tokenize with no pixel change.
+- *Keep `--tracking-caps` on `.ds-table th` and rely on the comment scoping the token
+  to Latin labels.* Rejected: a comment does not scope a selector; every Arabic header
+  cell would carry the tracking the principle prohibits.
+- *Leave the constitution command as written and rely on the precedence clause.*
+  Rejected: a command that instructs what the procedure forbids reproduces the
+  contradiction on every run, which is what ADR-054 claimed to have ended.
+- *Remove `--z-boot` as dead code.* Rejected: it is unused, not dead in the Project
+  Structure sense — declared tokens may await the surface that consumes them, as the
+  unused screen and shadow tokens do — and no rule requires its removal.
+- *Correct ADR-009's range sentence.* Rejected: a decision record is history; the file
+  is the value source and the register maps it.
+
+**What deliberately did not change.** No principle, register row, entity, page,
+feature, Usage Limit, module map, or slice. No technology was added or removed. The
+motion scale, the colour ladders, the shadow ladder, and the module order are
+unchanged. ADR-054's accepted text and its deferral list stay as history.
+
+**Consequences.** The Glossary and the templates now locate the Test Coverage Request
+in the same artifact; the design system's source obeys the rule the constitution
+states for it; Arabic table headers no longer carry positive tracking; the register's
+closing paragraph counts the six exception rows it closes over; and the amendment
+command and the Governance procedure tell one story. The stamp sites read
+2.19.2, `wafar.single.css` reads 1.0.4, and the manifest hashes describe the files as
+committed in this one change. This entry is the durable record.

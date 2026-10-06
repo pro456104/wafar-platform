@@ -9,7 +9,7 @@
 **Input**: Parent roadmap: ROADMAP.md → R#. User description: "$ARGUMENTS"
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.19.1) - NORMATIVE:
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.19.2) - NORMATIVE:
   1. Technology-agnostic (Principle VII): this file MUST NOT name languages,
      frameworks, libraries, databases, products, or architectural patterns.
      Product behaviour only; every technical detail belongs in plan.md.

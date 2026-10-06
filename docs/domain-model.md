@@ -5,7 +5,7 @@ entities the product reasons about, the relationships between them, their
 cardinality, their invariants, and the module that owns each one. It is the
 source the constitution's Product Register maps.
 
-Its authority is `.specify/memory/constitution.md` (v2.19.1); where this
+Its authority is `.specify/memory/constitution.md` (v2.19.2); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
 change to a registered product fact and MUST be recorded as an ADR in
@@ -33,8 +33,10 @@ A field *name* appears occasionally, and each one is a reference rather than a
 definition — it names a value the constitution or the product already fixes, so
 that the rule below can be stated in business terms:
 
-- `first_page_metadata_incomplete` and `expires_at` are named in the
-  constitution's File Processing Overview and Glossary.
+- `first_page_metadata_incomplete` is named in the constitution's File
+  Processing Overview and Glossary; `expires_at` is named in the constitution's
+  Unresolved product facts table, and the Glossary names the catalog's printed
+  expiry date.
 - `name`, `phone`, and `body` are the contact form's fields, fixed by the
   constitution's Product Fact Clarifications.
 - The four catalog status values are fixed by the constitution's File Processing

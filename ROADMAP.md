@@ -7,7 +7,7 @@ into independently specifiable slices. It names and orders them; it does **not**
 design them — the design happens when each slice runs through its own
 `/speckit.specify`.
 
-**Constitution**: `.specify/memory/constitution.md` (v2.19.1, last amended
+**Constitution**: `.specify/memory/constitution.md` (v2.19.2, last amended
 2026-10-06). On any conflict with this file, the constitution wins.
 
 Convention: the Spec Kit "spec of specs" procedure. A sub-spec opens with
@@ -158,7 +158,7 @@ carried. Each names the slice that closes it.
   yields a working account on a working shell, R2 alone yields an accepted and
   stored file, R5 alone yields a searchable parts table.
 - **Structure registers.** R1 creates the workspace; it MUST follow the fixed
-  locations in the constitution (v2.19.1) and `docs/architecture.md`, including
+  locations in the constitution (v2.19.2) and `docs/architecture.md`, including
   `apps/web/layouts` and `apps/admin`, and records the documentation-drift
   check for collection in R2 (R1's public surface is covered by OpenAPI
   generation from the Hono routes; ADR-002).

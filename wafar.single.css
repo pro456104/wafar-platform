@@ -8,11 +8,12 @@
      <link rel="stylesheet" href="wafar.single.css" />
      أو:  @import "wafar.single.css";
 
-الإصدار:  1.0.3
+الإصدار:  1.0.4
    ملاحظة: R1 يختار رقم إصدار القشرة الفعلي في CMV (ADR-016/025)؛ هذا الرقم يعكس آخر إصلاح
-   (راجع ADR-016/025/038/053 عند الحاجة). 1.0.3: توحيد قيم الزجاج والجدول على
-   توكنات (Base Values)، ومدة الضغط على steps المدة المسجَّلة.
-   الدستور:          .specify/memory/constitution.md → Design System Standards · docs/DECISIONS.md → ADR-009, ADR-012, ADR-025, ADR-038, ADR-053
+   (راجع ADR-016/025/038/053/057 عند الحاجة). 1.0.4: إكمال توحيد قيم التوهج
+   والوميض وخطوط المسح وسهم القائمة وتوكنات شاشة التحميل، ومدة ضغط الزر على
+   step المدة المسجَّل، وإزالة التتبع الموجب عن رؤوس الجداول (Principle V).
+   الدستور:          .specify/memory/constitution.md → Design System Standards · docs/DECISIONS.md → ADR-009, ADR-012, ADR-025, ADR-038, ADR-053, ADR-057
    إعادة التوليد:    هذا الملف هو المصدر الوحيد للقيم؛ والدستور يحمل السجل فقط
    ============================================================ */
 
@@ -1793,9 +1794,9 @@ svg {
 .ds-shimmer {
   background: linear-gradient(
     90deg,
-    rgb(255 255 255 / 0) 0%,
-    rgb(255 255 255 / 0.35) 50%,
-    rgb(255 255 255 / 0) 100%
+    var(--shimmer-edge) 0%,
+    var(--shimmer-ink) 50%,
+    var(--shimmer-edge) 100%
   );
   background-size: 200% 100%;
   animation: ds-shimmer var(--motion-loop-shimmer) var(--ease-linear) infinite;
@@ -2030,6 +2031,16 @@ svg {
   --glass-brand-shadow: 0 4px 16px rgb(37 99 235 / 0.08);
   --card-glass-surface: rgb(255 255 255 / 0.8);
   --card-glass-border: rgb(255 255 255 / 0.2);
+  --shimmer-edge: rgb(255 255 255 / 0);
+  --shimmer-ink: rgb(255 255 255 / 0.35);
+  --glow-brand-strong: rgb(37 99 235 / 0.6);
+  --glow-brand-soft: rgb(14 165 233 / 0.2);
+  --glow-accent-strong: rgb(14 165 233 / 0.4);
+  --glow-accent-soft: rgb(37 99 235 / 0.15);
+  --glow-violet-strong: rgb(139 92 246 / 0.4);
+  --glow-violet-soft: rgb(37 99 235 / 0.15);
+  --vignette-ink: rgb(2 4 10 / 0.6);
+  --scanline-ink: rgb(255 255 255 / 0.6);
 }
 
 .dark {
@@ -2224,24 +2235,24 @@ svg {
 .ds-glow-brand {
   background: radial-gradient(
     ellipse at center,
-    rgb(37 99 235 / 0.6),
-    rgb(14 165 233 / 0.2),
+    var(--glow-brand-strong),
+    var(--glow-brand-soft),
     transparent 70%
   );
 }
 .ds-glow-accent {
   background: radial-gradient(
     ellipse at center,
-    rgb(14 165 233 / 0.4),
-    rgb(37 99 235 / 0.15),
+    var(--glow-accent-strong),
+    var(--glow-accent-soft),
     transparent 70%
   );
 }
 .ds-glow-violet {
   background: radial-gradient(
     ellipse at center,
-    rgb(139 92 246 / 0.4),
-    rgb(37 99 235 / 0.15),
+    var(--glow-violet-strong),
+    var(--glow-violet-soft),
     transparent 70%
   );
 }
@@ -2256,7 +2267,7 @@ svg {
   background: radial-gradient(
     ellipse at center,
     transparent 20%,
-    rgb(2 4 10 / 0.6) 100%
+    var(--vignette-ink) 100%
   );
 }
 
@@ -2282,8 +2293,8 @@ svg {
   opacity: 0.04;
   background: repeating-linear-gradient(
     to bottom,
-    rgb(255 255 255 / 0.6) 0px,
-    rgb(255 255 255 / 0.6) 1px,
+    var(--scanline-ink) 0px,
+    var(--scanline-ink) 1px,
     transparent 1px,
     transparent 3px
   );
@@ -2324,7 +2335,7 @@ svg {
     color var(--duration-fast) var(--ease-standard),
     box-shadow var(--duration-fast) var(--ease-standard),
     opacity var(--duration-fast) var(--ease-standard),
-    transform 150ms var(--ease-standard);
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 .ds-btn:focus-visible {
@@ -2663,16 +2674,20 @@ svg {
 }
 
 /* --- القائمة المنسدلة الأصلية --- */
+:root {
+  --select-chevron: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'><path stroke='%23737373' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/></svg>");
+  --select-chevron-dark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'><path stroke='%23a3a3a3' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/></svg>");
+}
 .ds-select {
   appearance: none;
   padding-inline-end: var(--space-10);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'><path stroke='%23737373' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/></svg>");
+  background-image: var(--select-chevron);
   background-repeat: no-repeat;
   background-position: left var(--space-2) center;
   background-size: 1.25rem 1.25rem;
 }
 .dark .ds-select {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'><path stroke='%23a3a3a3' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/></svg>");
+  background-image: var(--select-chevron-dark);
 }
 
 /* --- مربّع الاختيار --- */
@@ -3248,7 +3263,7 @@ svg {
   font-size: var(--text-xs);
   font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
-  letter-spacing: var(--tracking-caps);
+  letter-spacing: var(--tracking-normal);
   text-align: start;
   white-space: nowrap;
   color: var(--text-tertiary);
@@ -3385,6 +3400,7 @@ svg {
   --loader-on-solid: #ffffff;
   --loader-glow: 0 0 12px rgb(37 99 235 / 0.35);
   --loader-on-solid-soft: rgb(255 255 255 / 0.7);
+  --loader-radar-ink: rgb(96 165 250 / 0.65);
 
   /* ---------------------------------------------------------
      الأحجام
@@ -3717,7 +3733,7 @@ svg {
   background: conic-gradient(
     from 0deg,
     transparent 0 78%,
-    rgb(96 165 250 / 0.65) 90%,
+    var(--loader-radar-ink) 90%,
     transparent 100%
   );
   -webkit-mask: radial-gradient(circle, #000 0 48%, transparent 50%);

@@ -562,7 +562,7 @@ slice named in the last column MUST resolve each one and record the answer in
 
 | Conflict | Sources | Resolve in |
 |---|---|---|
-| `expires_at` is the retention deadline or the supplier's printed expiry date | Schema and Migration Control, the retention discussion, and `Core-Project.txt` (supplier date) | R15 |
+| `expires_at` is the retention deadline or the supplier's printed expiry date | Usage Limits and Product Features #16 (the 90-day retention) against `Core-Project.txt` and the Glossary (the supplier's printed expiry date) | R15 |
 | Notification retention is undetermined | The product statement defers it ("to be determined later") | R9 |
 | A message's sender is either a merchant or an administrator, and the register names one sender | Product Register (`Message` carries a single sender); Authorization and Access Control (the administrator is a separate principal with a separate login) | R10 |
 | `Conversation` carries an administrator reference, yet every administrator account sees the same single thread | Product Register (`Conversation` carries an administrator); `Core-Project.txt` (one administrator account type, all administrators see the same conversations) | R10 |
@@ -1209,11 +1209,11 @@ fixed above.
 | Quality | osv-scanner | Dependency vulnerability scan whose failures block release (Deployment and Observability's supply-chain rule); a CI gate, not a runtime dependency — exception `EX-005` in `.specify/templates/exception-register.md` |
 | Quality | pg_anonymize | Staging data anonymisation (Deployment and Observability); a staging tool, not a runtime dependency — exception `EX-006` in `.specify/templates/exception-register.md` |
 
-These four rows are the named implementations of rules that
+These six rows are the named implementations of rules that
 Deployment and Observability already required, and they close a register gap
 rather than open one: the rules said "or an equivalent", the register named no
-implementation, and the technology mirror named these four anyway. Each is a
-scanner, a metrics service, or a staging tool — never imported into an
+implementation, and the technology mirror named these six anyway. Each is a
+scanner, a CI gate, a metrics service, or a staging tool — never imported into an
 application image and never shipped to a merchant's browser — so the treatment
 is the one ClamAV and Lighthouse CI already carry. The clause "or an equivalent"
 in the rule body survives: substituting a different tool for one of these rows is
@@ -1615,7 +1615,7 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | **Constitution Mandated Values** | The closed list of cross-slice values (tools, libraries, pins, limits) a feature plan MUST record before it is drafted. |
 | **Success Criteria** | The per-spec testable outcomes a feature promises, including its performance budgets. |
 | **Scale/Scope** | The per-feature row stating the target volume, concurrency, and user counts the plan assumes rather than guessing. |
-| **Test Coverage Request** | The per-plan note declaring what coverage the slice adds and how the coverage gate asserts it. |
+| **Test Coverage Request** | The per-spec section declaring which tests the feature requests and the coverage target the coverage gate asserts. |
 
 ## References
 
@@ -1655,7 +1655,7 @@ the same force as the principles above.
 - `plan.md` Constitution Check MUST be evaluated before Phase 0 and
   re-evaluated after Phase 1 design.
 - `/speckit.analyze` runs the consistency gate after `/speckit.tasks` and before implementation begins — by the engine workflow or by hand; its findings MUST be resolved before
-  `/speckit.implement` starts (see Governance → Module Discipline and Development Workflow).
+  `/speckit.implement` starts (see Module Discipline and Development Workflow).
 - `/speckit.implement` and `/speckit.converge` MUST repeat until Converged; a
   feature reports Converged only when converge reports Converged.
 - The binding cycle runs in full order: specify → clarify → plan → checklist
@@ -1896,4 +1896,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.19.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-06
+**Version**: 2.19.2 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-06

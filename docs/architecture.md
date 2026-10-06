@@ -1,7 +1,7 @@
 # Architecture — Wafar
 
 This document records the repository layout, the API module map, and the data
-flow. Its sources of authority are `.specify/memory/constitution.md` (v2.19.1),
+flow. Its sources of authority are `.specify/memory/constitution.md` (v2.19.2),
 whose Technology Standards and Design System Standards are the registers, and
 `Project-Technologies.txt`; where this document and the constitution disagree,
 the constitution wins. The data model's entities and their owning modules are
@@ -233,7 +233,7 @@ Read/write notes:
 
 ## 6. Governance pointers
 
-- Constitution: `.specify/memory/constitution.md` (v2.19.1) — principles I–X and
+- Constitution: `.specify/memory/constitution.md` (v2.19.2) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
 - Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-056; the

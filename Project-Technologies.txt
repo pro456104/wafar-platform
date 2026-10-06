@@ -1,7 +1,7 @@
 # Project-Technologies.txt — the detail of the technology register
 
-**Constitution**: `.specify/memory/constitution.md` v2.19.1 (last amended
-2026-10-06, ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056). On any conflict with this file, the constitution
+**Constitution**: `.specify/memory/constitution.md` v2.19.2 (last amended
+2026-10-06, ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -431,9 +431,9 @@ This section records what 2.18.0 added. The rules are in
 ### Party/header sync markers
 
 The mirror headers now track the constitution footer:
-`Constitution: .specify/memory/constitution.md v2.19.1 (last amended 2026-10-06,
-ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056)`. Every later header here is the same value:
-v2.19.1 / 2026-10-06 / that ADR list. If the constitution is amended, move these
+`Constitution: .specify/memory/constitution.md v2.19.2 (last amended 2026-10-06,
+ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057)`. Every later header here is the same value:
+v2.19.2 / 2026-10-06 / that ADR list. If the constitution is amended, move these
 markers in the same change.
 
 ### Audit fix set (ADR-047)
@@ -508,3 +508,23 @@ ClamAV and Lighthouse CI are dependencies named with an explicit exception in th
 Approved register. Both are now recorded in `.specify/templates/exception-register.md`
 as `EX-001` and `EX-002`, each with an approver and a review date. This mirror
 states neither rule; they live in the constitution and in that register.
+
+The register later gained four rows in the same shape — `EX-003` Prometheus +
+Grafana, `EX-004` Semgrep OSS, `EX-005` osv-scanner, and `EX-006` pg_anonymize
+(2.19.0, ADR-054) — so the register today holds six active exceptions. This
+mirror states none of their rules.
+
+---
+
+## Constitution 2.19.2 additions (2026-10-06, ADR-057)
+
+This amendment repairs references and brings `wafar.single.css` fully under its
+own token rule. It names no new technology and removes none.
+
+- **`wafar.single.css` moves to 1.0.4.** The remaining non-token values became
+  tokens (shimmer, the three glow utilities, vignette, scanlines, the loader
+  radar, and the select chevron images), the button's press duration uses the
+  recorded motion step, and table headers no longer carry positive tracking
+  (Principle V). No family, module, or component changed.
+- **The exception register's six rows** (`EX-001` … `EX-006`) are the complete
+  set; the Approved register cites each.

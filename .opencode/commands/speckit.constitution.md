@@ -93,7 +93,9 @@ Follow this execution flow:
      values and amendments. Preserve information that is still applicable when applying the newly
      resolved scaffold.
    - If it does not exist, use the resolved template as the initial document.
-   - Do not write back to any versioned template layer.
+   - Do not write back to the resolved template layer (core, presets, or extensions);
+     the project's override stamp sites are moved by the amendment's change, per the
+     scope guard above.
    - Identify every placeholder token of the form `[ALL_CAPS_IDENTIFIER]`.
    **IMPORTANT**: The user might require less or more principles than the ones used in the template. If a number is specified, respect that - follow the general template. You will update the doc accordingly.
 
@@ -147,8 +149,11 @@ If the user supplies partial updates (e.g., only one principle revision), still 
 
 If critical info missing (e.g., ratification date truly unknown), insert `TODO(<FIELD_NAME>): explanation` and include in the Sync Impact Report under deferred items.
 
-Write `.specify/memory/constitution.md` and the ten amendment stamp sites outside it; do not create or
-modify template source files, other than the constitution scaffold's own version footer.
+Write `.specify/memory/constitution.md` and its own version footer as this command's
+output. The amendment's change — not this command — MUST then move the ten amendment
+stamp sites outside this document, as Governance → Amendment procedure requires (it is
+the single authority for the list and for the precedence rule); no other template source
+file is created or modified.
 
 ## Post-Execution Checks
 
