@@ -7,7 +7,7 @@
 **Note**: This template is filled in by the `/speckit.plan` command; its definition describes the execution workflow.
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.19.0) - NORMATIVE:
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.19.1) - NORMATIVE:
   - This file carries every technical detail; spec.md stays technology-agnostic.
   - The Technical Context MUST contain the Constitution Mandated Values heading;
     a value named by a rule but written elsewhere does not discharge that rule,
@@ -67,6 +67,15 @@
   the feature adds no persistent storage. Performance budgets MUST be stated
   as percentiles (p50 + p95), not averages, and the same numbers MUST appear
   in the spec's Success Criteria (Query Safety and Secrets).
+
+  Row numbering and the constitution's closed list: the constitution enumerates
+  fifteen values, and this table has seventeen rows because two of its items are
+  split so each half can be answered on its own. Rows 6 and 7 are the two halves
+  of constitution item 6 (the performance budget percentiles AND the maximum
+  query execution time); rows 8 and 9 are the two halves of constitution item 7
+  (the RTO AND the RPO). Rows 1-5 and 10-17 map one-to-one onto constitution
+  items 1-5 and 8-15. The constitution's list is closed: a MUST that names a new
+  value adds it there first, and the matching row is added here in the same change.
 -->
 
 | # | Value | This plan records |

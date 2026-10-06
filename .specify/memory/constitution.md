@@ -176,7 +176,7 @@ surface.
   title, a button label, a table cell, an empty-state description, a
   notification body, a message body, a screen in the administrator application,
   and the body of an SMS the platform sends. An icon MUST be an SVG from the
-  approved icon source (Technology Standards -> Register gaps); an emoji glyph
+  approved icon source (Technology Standards -> Register gaps a slice MUST close); an emoji glyph
   is not an icon and MUST NOT stand in for one. The ban covers every surface a
   user or an administrator reads and nothing else: governance documents, code
   identifiers, and code comments are outside it.
@@ -568,7 +568,7 @@ slice named in the last column MUST resolve each one and record the answer in
 | `Conversation` carries an administrator reference, yet every administrator account sees the same single thread | Product Register (`Conversation` carries an administrator); `Core-Project.txt` (one administrator account type, all administrators see the same conversations) | R10 |
 | An administrator is a role on `User` in one place and a separate party that `Conversation` and `AuditLog` refer to in another | Product Register (roles); Authorization and Access Control (a separate application with a separate login) | R13 |
 | How a printed price that carries more than one separator is read (for example `1.250.000`), and how a file that separates thousands rather than decimals is read | File Processing Rules (price denomination); the price examples in `Core-Project.txt`; the source files themselves | R3 |
-| Where the administrator's platform settings are stored, given that no registered entity owns them | Product Scope (Administrator's Application → Settings); the Data entities register (ten entities, none of them settings, and an unregistered entity MUST NOT be introduced) | R13 |
+| Where the administrator's platform settings are stored, given that no registered entity owns them | Product Scope (Administrator's Application → Settings); the Data entities table (ten entities, none of them settings, and an unregistered entity MUST NOT be introduced) | R13 |
 
 **Resolved conflict (2026-10-03).** The sidebar conflict is resolved: the
 sidebar is required on desktop and must not hide or slide (Principle IX);
@@ -677,8 +677,7 @@ obey. Every project-level source is named in References, and this constitution
 carries the register of each: the repository's structure and the approved stack
 in Technology Standards, the design system's structure in Design System
 Standards, the product's roles, pages, and facts in Product Scope and Product
-Register, and the data model's entities and their ownership in the Data entities
-register.
+Register, and the data model's entities and their ownership in the Data entities table.
 
 - Detail lives in the referenced sources; the register lives here. A rule that
   cannot be discharged without reading a referenced source MUST name that source
@@ -693,7 +692,7 @@ register.
   code, or a table definition MUST NOT be copied into this constitution. A
   register that duplicates its source is a drift defect, because the two copies
   will disagree. The single exception is the design values a rule depends on —
-  those in Design System Standards → Decision values and those named in
+  those in Design System Standards → Decision values (binding) and those named in
   Principles IV and IX — which are restatements of `wafar.single.css` and MUST
   move with it.
 - A register row MUST name a value its source actually defines. A register that
@@ -1259,6 +1258,11 @@ for the other:
 | OpenSearch client library | Complexity Tracking | — |
 | Arabic analyzer configuration and verification | Complexity Tracking | — |
 | Automated accessibility checker | Complexity Tracking | — |
+| Error tracker | Complexity Tracking | — |
+| Secret manager, plus pre-commit and CI secret scanning | Complexity Tracking | — |
+| TLS certificate management | Complexity Tracking | — |
+| Backup and restore tooling | Complexity Tracking | — |
+| Log pipeline | Complexity Tracking | — |
 
 | Gap | Required by | Owning slice |
 |---|---|---|
@@ -1271,7 +1275,7 @@ for the other:
 | Backup and restore tooling | Deployment and Observability | R1 (the slice that introduces persistent storage) |
 | Log pipeline | Deployment and Observability | R12 (the first deploying slice) |
 | Icon set used by the interface: an open-source set under a permissive licence (MIT, Apache-2.0, ISC, or BSD), self-hosted as SVG, with no emoji standing in for an icon | Product Scope; Design System Standards; Principle V | R1 |
-| Redis client library | Files register row (BullMQ, Redis); Deployment's worker-durability rules | R3 |
+| Redis client library | Files register row (BullMQ, Redis); Deployment and Observability's worker-durability rules | R3 |
 | OpenSearch client library | Search register row; `packages/search` | R5 |
 | Automated accessibility checker | Principle IV's verification MUST | R1 |
 | Arabic analyzer configuration and verification | Principle V's root-aware search; Search register row | R5 |
@@ -1590,7 +1594,7 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | **Guest** | A visitor who has not signed in. See Authorization and Access Control. |
 | **Merchant** | A registered user who uploads catalogs. |
 | **Administrator** | The operator of the platform, who uses a separate application with a separate login. |
-| **User** | A registered merchant account: identity and shop details. See the Data entities register. |
+| **User** | A registered merchant account: identity and shop details. See the Data entities table. |
 | **Mobile number** | The account identifier, stored in E.164 form (+218…), normalized before comparison. |
 | **Message** | One message inside a `Conversation`. See `docs/domain-model.md`. |
 | **ContactMessage** | A message from the public contact form. See `docs/domain-model.md`. |
@@ -1605,6 +1609,13 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 | **SBOM** | Software Bill of Materials produced per build. |
 | **Presigned multipart upload** | Direct-to-object-storage upload in parts, avoiding buffering through the API. |
 | **Merchant isolation** | A tenant is a merchant account. A merchant-reachable query path MUST NOT return another merchant's rows. |
+| **Technical Context** | The per-feature block in `plan.md` that records the stack, version pins, and constraints for this feature. |
+| **Complexity Tracking** | The per-plan table that records justified deviations from a binding rule, each with an owner and a review date. |
+| **Ownership Map** | The per-plan table that assigns every file, route, migration, and test to the plan that introduces it. |
+| **Constitution Mandated Values** | The closed list of cross-slice values (tools, libraries, pins, limits) a feature plan MUST record before it is drafted. |
+| **Success Criteria** | The per-spec testable outcomes a feature promises, including its performance budgets. |
+| **Scale/Scope** | The per-feature row stating the target volume, concurrency, and user counts the plan assumes rather than guessing. |
+| **Test Coverage Request** | The per-plan note declaring what coverage the slice adds and how the coverage gate asserts it. |
 
 ## References
 
@@ -1612,7 +1623,7 @@ pointer and hover capability (`ds-touch-optimized`), screens below 360px
 |---|---|---|
 | `Project-Technologies.txt` | The technology register's detail: exact versions, per-technology notes, and the repository trees. Mirrors Technology Standards, which wins on conflict. | Repository root. |
 | `Core-Project.txt` | The product's detail: pages, roles, and the acceptance criteria the product already states. Mirrors Product Register and Product Scope, which win on conflict. | Repository root. |
-| `docs/domain-model.md` | The data model's source of truth: entities, relationships, cardinality, invariants, and the owning module of each. Mirrors the Data entities register, which holds the map. | `docs/`. |
+| `docs/domain-model.md` | The data model's source of truth: entities, relationships, cardinality, invariants, and the owning module of each. Mirrors the Data entities table, which holds the map. | `docs/`. |
 | `wafar.single.css` | The design system's values — the only permitted source of design values, composed of fourteen modules. Mirrors Design System Standards, which holds the register. | Repository root. |
 | `docs/DECISIONS.md` | The record of design decisions and the reasoning behind them. | `docs/`. |
 | `docs/architecture.md` | The repository layout, module map, and data-flow descriptions. | `docs/`. |
@@ -1644,7 +1655,7 @@ the same force as the principles above.
 - `plan.md` Constitution Check MUST be evaluated before Phase 0 and
   re-evaluated after Phase 1 design.
 - `/speckit.analyze` runs the consistency gate after `/speckit.tasks` and before implementation begins — by the engine workflow or by hand; its findings MUST be resolved before
-  `/speckit.implement` starts (see Governance → Module Discipline).
+  `/speckit.implement` starts (see Governance → Module Discipline and Development Workflow).
 - `/speckit.implement` and `/speckit.converge` MUST repeat until Converged; a
   feature reports Converged only when converge reports Converged.
 - The binding cycle runs in full order: specify → clarify → plan → checklist
@@ -1885,4 +1896,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.19.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-05
+**Version**: 2.19.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-06

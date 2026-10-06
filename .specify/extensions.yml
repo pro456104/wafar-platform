@@ -13,6 +13,7 @@ hooks:
       before creating the spec
     optional: true
     enabled: true
+    priority: 9
   - extension: git
     command: speckit.git.feature
     enabled: true

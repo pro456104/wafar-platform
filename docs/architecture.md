@@ -1,7 +1,7 @@
 # Architecture — Wafar
 
 This document records the repository layout, the API module map, and the data
-flow. Its sources of authority are `.specify/memory/constitution.md` (v2.19.0),
+flow. Its sources of authority are `.specify/memory/constitution.md` (v2.19.1),
 whose Technology Standards and Design System Standards are the registers, and
 `Project-Technologies.txt`; where this document and the constitution disagree,
 the constitution wins. The data model's entities and their owning modules are
@@ -44,6 +44,30 @@ Binding rules that shape this layout:
   strings, or a database client (Project Structure and Debt Control).
 - **Promotion rule**: code is promoted into a shared package only after a
   second consumer exists.
+
+### 1.1 Internal layout
+
+The top-level tree above is the topology. The paths **inside** each workspace
+are fixed too, and a plan's Ownership Map MUST record them from this table
+rather than inventing them. The register these paths come from is
+`.specify/memory/constitution.md` → Technology Standards → Internal layout;
+where the two disagree, the constitution wins and this table is corrected.
+
+| Concern | Fixed location |
+|---|---|
+| API module | `apps/api/src/modules/<module>/{routes,service,repository}` — one directory per module named in Principle X |
+| Worker processors | `apps/worker/src/processors/{extract-parts,normalize,deduplicate,index-parts}.ts` |
+| Worker queue | `apps/worker/src/queues/file-processing.ts` |
+| Database | `packages/db/schema/<module>.ts`, `packages/db/migrations/` |
+| Search | `packages/search/client.ts`, `packages/search/mappings/` |
+| Frontend | `apps/web/{pages,components,composables,stores,layouts}` |
+| Web server routes | `apps/web/server/` — optional Nitro server routes (Nitro is part of Nuxt 4 and is deliberately not a row of the Approved register); created only by the feature that declares them in its Ownership Map |
+| Administrator frontend | `apps/admin/{pages,components,composables,stores,layouts}` |
+| Validation | `packages/shared` only; a second local schema MUST NOT be created |
+| Database ownership | `packages/db/schema/<module>.ts` — one file per module named in Principle X; the table it declares belongs to that module |
+
+A feature MUST NOT create a parallel location for an artifact whose location
+is fixed above.
 
 ## 2. Module map — `apps/api`
 
@@ -209,10 +233,10 @@ Read/write notes:
 
 ## 6. Governance pointers
 
-- Constitution: `.specify/memory/constitution.md` (v2.19.0) — principles I–X and
+- Constitution: `.specify/memory/constitution.md` (v2.19.1) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-053; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-056; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;

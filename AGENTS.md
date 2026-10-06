@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-053; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-056; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -113,6 +113,16 @@ reader checks, not the engine.
   and re-evaluated after Phase 1. That satisfies Artifact Workflow and
   Traceability; a separate command is a convenience, not a requirement. Add one
   only with an ADR, and keep the plan-internal gate authoritative.
+
+- **`.opencode/package.json` is not version-controlled.** It is ignored by
+  `.opencode/.gitignore`, so a fresh clone relies on opencode regenerating it.
+  The `@opencode-ai/plugin` pin (recorded in the local file) is machine-local,
+  not repo-enforced.
+
+- **`create-new-feature.ps1` is an installed but uncalled script.** Feature
+  numbering and directory creation run inside the specify command, so the
+  script in `.specify/scripts/powershell/` is kept for parity with upstream
+  rather than used.
 
 ## 7. Before reporting a change complete
 

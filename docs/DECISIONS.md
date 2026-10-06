@@ -80,6 +80,8 @@ is not done; ADR-015 states that rule and this file follows it.
 | [ADR-052](#adr-052--the-two-granted-dependency-exceptions-are-recorded-in-the-exception-register) | The two granted dependency exceptions are recorded in the exception register | 2026-10-05 | 2.18.8 |
 | [ADR-053](#adr-053--constitution-2189-the-design-system-enforcement-scope-the-motion-scale-the-scoping-contradiction-and-the-register-counts-that-failed-verification) | Constitution 2.18.9: enforcement scope, motion scale, scoping contradiction, register counts | 2026-10-05 | 2.18.9 |
 | [ADR-054](#adr-054--constitution-2190-the-register-names-its-four-gates-and-the-amendment-procedure-names-its-own-stamp-sites) | Constitution 2.19.0: the register names its four gates, and the amendment procedure names its own stamp sites | 2026-10-05 | 2.19.0 |
+| [ADR-055](#adr-055--audit-fix-set-range-string-drift-a-stale-template-hash-an-assess-hook-conflict-and-the-mirror-sync-that-was-left-unrecorded) | Audit fix set: range-string drift, a stale template hash, an assess hook conflict, and the mirror sync that was left unrecorded | 2026-10-06 | 2.19.0 |
+| [ADR-056](#adr-056--constitution-2191-section-name-references-glossary-terms-and-the-register-gap-classification) | Constitution 2.19.1: section-name references, glossary terms, and the register-gap classification | 2026-10-06 | 2.19.1 |
 
 ---
 
@@ -3019,3 +3021,94 @@ procedure's stamp list exists once and is authoritative, and the command that
 performs amendments no longer contradicts it. The register gaps rule has one
 destination per gap. The design-system register describes the file that exists.
 This entry is the durable record.
+
+---
+
+## ADR-055 — Audit fix set: range-string drift, a stale template hash, an assess hook conflict, and the mirror sync that was left unrecorded
+
+**Status**: Accepted — 2026-10-06
+**Owning directory**: `docs/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A full audit of the repository found four drifts of the kind the
+registers exist to prevent, plus one change set that was made but never
+recorded.
+
+1. **Four files still cited ADR-053 as the register's last entry.** ADR-054
+   (Constitution 2.19.0) shipped on 2026-10-05 and `Project-Technologies.txt`
+   was updated with it, but `AGENTS.md`, `README.md`, `ROADMAP.md`, and
+   `docs/architecture.md` still read "ADR-001 … ADR-053".
+2. **`speckit.manifest.json` recorded a stale template hash.** The recorded
+   hash for `.specify/templates/overrides/plan-template.md` did not match the
+   working file, the `spec-template.md` and `checklist-template.md` overrides
+   were edited without re-recording, and the manifest had lost its trailing
+   newline.
+3. **The assess extension's README contradicted the registered hook.** The
+   README states assess "registers no lifecycle hooks", yet
+   `.specify/extensions.yml` enables `speckit.assess.intake` before
+   `speckit.specify`, and AGENTS.md documents that hook. The relative order of
+   the optional assess prompt and the mandatory `git.feature` hook inside
+   `before_specify` was also file-order dependent, because only the git hook
+   carried a `priority`.
+4. **A mirror sync and a template clarification landed with no decision
+   record.** `docs/architecture.md` gained its Internal layout table,
+   `Project-Technologies.txt` was neutralised (PgDog wording, the ADR-023
+   table, better-auth and SMS phrasing, the lockfile rows), the plan template
+   gained the fifteen-values-versus-seventeen-rows note, and `Core-Project.txt`
+   gained an English fragment ("taken from the record's immutable creation
+   timestamp") inside an Arabic rule. None of it was recorded.
+
+**Decision.** No constitution amendment (version stays 2.19.0):
+
+1. Every "ADR-001 … ADR-053" range string now reads "ADR-001 … ADR-054"
+   (`AGENTS.md`, `README.md`, `ROADMAP.md`, `docs/architecture.md`, and the
+   two override templates that carry the same string).
+2. The manifest's three override hashes were re-recorded from the actual
+   files, and the trailing newline restored.
+3. The assess README's claim is corrected to state that the project registers
+   the optional `speckit.assess.intake` hook at `before_specify`, and the hook
+   gains `priority: 9` so it runs before `git.feature` (`priority: 10`).
+4. This entry records the mirror sync and the template note that previously
+   landed unrecorded. The English fragment in the sort rule is replaced by
+   Arabic, and `ROADMAP.md`'s unresolved-facts note now names rows 12 and 13
+   together.
+
+**Alternatives considered.**
+
+- Drop the assess hook and let assess remain a deliberately standalone
+  pipeline: rejected because AGENTS.md and the workflow registry both document
+  the hook, and the repository owner chose to keep the prompt.
+- Amend the constitution for the internal-layout mirror and the lockfile
+  wording: rejected; both already match the constitutional register, so only
+  this record was missing.
+
+**Consequences.** Every ADR-range string, every recorded template hash, the
+assess hook's documentation, and the mirror sync are now consistent with the
+register and each other. Future amendments must move the range strings in the
+same change, or the drift this entry closes returns.
+
+---
+
+## ADR-056 — Constitution 2.19.1: section-name references, glossary terms, and the register-gap classification
+
+**Status**: Accepted — 2026-10-06
+**Owning directory**: `docs/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A deep read-only audit of `.specify/memory/constitution.md` found naming and classification drift: several references used a label that does not match the referenced heading (Data entities, Register gaps a slice MUST close, Decision values (binding), Deployment and Observability, Module Discipline and Development Workflow); the register-gap classification table named four fewer gaps than the owning-slice table; glossary terms used in planning templates were undefined; and an English parenthetical survived in the Arabic price rule of Core-Project.txt.
+
+**Decision.** Constitution 2.19.1 (PATCH — clarifications, wording, no rule change):
+
+1. Every internal cross-reference now names its target heading.
+2. The register-gap classification table lists all thirteen gaps, destination by the Mandated Values / Complexity Tracking test.
+3. Glossary adds Technical Context, Complexity Tracking, Ownership Map, Constitution Mandated Values, Success Criteria, Scale/Scope, and Test Coverage Request.
+4. Core-Project.txt's price rule is Arabic prose again.
+
+**Consequences.** The constitution's index of references is exact, the mirror register stays closed at thirteen gaps, and planners still see the same bindings; the version footer and all ten external stamp sites move to 2.19.1 in the same change.
+
+**Alternatives considered.**
+
+- Leave the drift and rely on convention: rejected — future drift audits would keep finding it.
+- MAJOR restatement: rejected — no principle is redefined.
+
+**This entry is the durable record.**

@@ -111,7 +111,7 @@ specify extension enable assess
 
 ## Handoff
 
-`assess` is a **standalone pipeline you enter deliberately** — it registers no lifecycle hooks and never inserts itself into `/speckit.specify`. The only coupling runs forward and by choice: a `go` verdict from `/speckit.assess.decide` hands its `decision.md` summary to `/speckit.specify`. Discovery and specification stay separate processes.
+`assess` is a **standalone pipeline you enter deliberately**. It ships no lifecycle hooks of its own; the only coupling runs forward and by choice: a `go` verdict from `/speckit.assess.decide` hands its `decision.md` summary to `/speckit.specify`. Discovery and specification stay separate processes. A project may additionally register the optional `/speckit.assess.intake` prompt at `before_specify` — this repository does so in `.specify/extensions.yml` and documents it in `AGENTS.md`.
 
 ## Guardrails
 

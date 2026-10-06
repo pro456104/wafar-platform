@@ -1,7 +1,7 @@
 # Project-Technologies.txt — the detail of the technology register
 
-**Constitution**: `.specify/memory/constitution.md` v2.19.0 (last amended
-2026-10-05, ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054). On any conflict with this file, the constitution
+**Constitution**: `.specify/memory/constitution.md` v2.19.1 (last amended
+2026-10-06, ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -25,8 +25,8 @@ and the way it may restate them — are the register's, stated there and not her
 |---|---|---|
 | **Monorepo** | مستودع واحد يجمع كل التطبيقات والحزم | يضم: `apps/web`، `apps/admin`، `apps/api`، `apps/worker` + `packages/shared`، `packages/db`، `packages/search`، `packages/config`. يسهّل مشاركة الكود والأنواع بين الواجهة والخادم. |
 | **Node.js** | بيئة التشغيل | **22 LTS** مثبّتة ومتوثّقة عبر ADR وسجل Constitution Mandated Values؛ لا يختار المطوّر نسخة مختلفة بين البيئات. |
-| **pnpm** | مدير الحزم | أسرع من npm/yarn، يوفر مساحة القرص عبر الروابط الصلبة (Hard Links). يدعم **pnpm Catalogs** لإدارة الإصدارات المركزية في Monorepo. |
-| **Turborepo** | منسق المهام والبناء | يشغّل `build`، `test`، `lint` عبر كل الحزم بأمر واحد. يخزّن النتائج مؤقتاً (Caching) فلا يعيد البناء إن لم يتغير شيء. يبني الحزم بالترتيب الصحيح (shared ← web). الإصدار v2.8 مستقر. |
+| **pnpm** | مدير الحزم | أسرع من npm/yarn، يوفر مساحة القرص عبر الروابط الصلبة (Hard Links). يدعم **pnpm Catalogs** لإدارة الإصدارات المركزية في Monorepo. ملف القفل (lockfile) مُودَع في المستودع، ولا يُولَّد إلا بعملية تحديث التبعيات أو بخطة صريحة. |
+| **Turborepo** | منسق المهام والبناء | يشغّل `build`، `test`، `lint` عبر كل الحزم بأمر واحد. يخزّن النتائج مؤقتاً (Caching) فلا يعيد البناء إن لم يتغير شيء. يبني الحزم بالترتيب الصحيح (shared ← web). الإصدار v2.8 مستقر. ملف القفل (lockfile) مُودَع في المستودع. |
 
 ### 📁 بنية Monorepo التفصيلية
 
@@ -34,7 +34,7 @@ and the way it may restate them — are the register's, stated there and not her
 wafar/
 ├── apps/
 │   ├── web/              # الموقع العام (Nuxt 4)
-│   ├── admin/            # لوحة الأدمن (Nuxt 4) — بنية داخلية مماثلة لـ apps/web وتشمل layouts/
+│   ├── admin/            # لوحة الأدمن (Nuxt 4) — البنية الداخلية الثابتة: apps/admin/{pages,components,composables,stores,layouts}
 │   ├── api/              # الخادم (Hono)
 │   └── worker/           # معالج الملفات (BullMQ)
 ├── packages/
@@ -85,8 +85,8 @@ apps/api/src/
 | **Nuxt 4** | إطار العمل | الإصدار 4.0 صدر يوليو 2025. الإصدار الحالي **4.5** (يوليو 2026). الاتجاه المعتمد للمشاريع الجديدة هو Nuxt 4؛ Nuxt 3 لم يعد التوصية. |
 | **Vue 3** | لغة بناء الواجهات | Composition API + `<script setup>`. |
 | **TypeScript** | لغة البرمجة | strict mode إلزامي. |
-| **Tailwind CSS** | تنسيق التصميم | الإصدار v4.2 مع 4 خيارات ألوان محايدة جديدة. |
-| **Nuxt UI** | مكتبة مكونات جاهزة | الإصدار **v4.11.2** (سبتمبر 2026). 125+ مكون و12 قالباً وFigma Kit. مجاني بالكامل. |
+| **Tailwind CSS** | تنسيق التصميم | الإصدار v4.2 مع خيارات ألوان محايدة جديدة. |
+| **Nuxt UI** | مكتبة مكونات جاهزة | الإصدار **v4.11.2** (سبتمبر 2026). مئات المكونات والقوالب وحزمة Figma. مجاني بالكامل. |
 | **Pinia** | إدارة الحالة المحلية | الإصدار **v3.0.4** (يناير 2026)، و**v4.0** (يوليو 2026). المكتبة الرسمية لـ Vue. |
 | **TanStack Query (Vue)** | إدارة بيانات الخادم | الإصدار v5. يدعم `useQueries`، `useQuery`، التخزين المؤقت، التحديثات التلقائية، Infinite Scroll، Optimistic Updates. |
 | **Zod** | التحقق من صحة البيانات | (مذكور في الخادم) — يُستخدم أيضاً في الواجهة. |
@@ -121,7 +121,7 @@ apps/web/
 |---|---|---|
 | **PostgreSQL** | قاعدة البيانات الرئيسية | الإصدار 16+. تخزين المستخدمين، الموردين، الملفات، القطع، سلة المشتريات، الإشعارات، المراسلات، Audit Log. |
 | **Drizzle ORM** | وسيط قاعدة البيانات | كل شيء في TypeScript. يستنتج الأنواع هيكلياً بدلاً من خطوة توليد منفصلة. خفيف وسريع. |
-| **PgDog** | مجمّع الاتصالات | الإصدار **v0.1**. مكتوب بلغة **Rust**. بديل PgBouncer. يدير **آلاف الاتصالات** على أجهزة عادية. أسرع من PgBouncer عند تجاوز 50 اتصالاً. مرخّص **AGPL-3.0**؛ يخضع لسجل معالجة تراخيص خدمات البنية التحتية في الدستور. |
+| **PgDog** | مجمّع الاتصالات | الإصدار **v0.1**. مكتوب بلغة **Rust**. بديل PgBouncer. يدير أعداداً كبيرة من الاتصالات على أجهزة عادية. أداءً، هو أبطأ من PgBouncer فوق عتبة اتصال منخفضة وأسرع منها فوق عتبة مرتفعة. مرخّص **AGPL-3.0**؛ يخضع لسجل معالجة تراخيص خدمات البنية التحتية في الدستور، ومعه بديل وتاريخ مراجعة يسجّلهما الخطة. |
 
 ### 📁 بنية قاعدة البيانات
 
@@ -231,7 +231,7 @@ apps/worker/src/
 
 | الفئة | التقنيات |
 |---|---|
-| **البنية** | Monorepo، pnpm، Turborepo |
+| **البنية** | Monorepo، pnpm، Turborepo، Node.js |
 | **الواجهة الأمامية** | Nuxt 4، Vue 3، TypeScript، Tailwind CSS، Nuxt UI، Pinia، TanStack Query، Zod |
 | **الواجهة الخلفية** | Hono، OpenAPI، Modular Monolith، Zod |
 | **قاعدة البيانات** | PostgreSQL، Drizzle ORM، PgDog |
@@ -247,24 +247,34 @@ apps/worker/src/
 
 ## Constitution 2.11.0 additions (2026-10-03, ADR-023)
 
-Mirrors the binding controls added by ADR-023. It records the technologies only;
-the rules stay in `.specify/memory/constitution.md`.
+Mirrors the binding controls added by ADR-023. This block names the technologies
+and points at the section that governs each one. It states no rule: the mandate,
+the order, and every numeric value are the constitution's, read there and not here
+(Technology Standards → the register; the single-reference rule at Single-Reference
+Sufficiency).
 
-- **ClamAV** — antivirus scanning of uploaded files, mandatory before processing.
-- **Stylelint** (+ ESLint) — fails the build on physical direction properties and on design values that do not reference a `wafar.single.css` token.
-- **Lighthouse CI** — LCP/INP/CLS budget asserted on the public Parts and Home pages.
-- **Semgrep OSS** (or equivalent) + **osv-scanner** — SAST and vulnerability scanning that block release; SBOM produced per build.
-- **Prometheus + Grafana** — p95 request latency, search p95, processing success rate, queue depth, with alerting on budget breach.
-- **BullMQ** — bounded retries with exponential backoff, dead-letter queue, per-worker concurrency cap, temporary-file sweep.
-- **SeaweedFS presigned multipart uploads** — direct-to-object-storage; the API never buffers the uploaded file. The size ceiling is the constitution's Usage Limits.
-- **pg_anonymize** (or equivalent) — staging holds no production personal data.
-- Content-safety tools — magic-byte validation, ClamAV, decoded-size cap, and macro stripping; the pipeline order and the cap's rule are the constitution's (File Processing Rules, File Processing Overview).
-- **API versioning** — the deployment version prefix is `/api/v1`; the removal-notice rule is the constitution's (Deployment and Observability).
-- **Session revocation** — server-side revocation of every authenticated session, including "sign out everywhere" and browser-stored tokens on password change; the mandate is the constitution's (Identity, Authentication, and Session Policy).
-- Account-protection controls — the tools that enforce uniform responses, an attempt/window lockout, honeypot fields, a minimum time-to-submit, per-client rate limits, the CAPTCHA prohibition, and the seeded administrator CLI with its forced first-sign-in password change. The numeric values are the constitution's (Identity, Authentication, and Session Policy); this mirror restates none of them.
-- **Merchant isolation verification** — the query-path test that fails the build when a merchant-reachable path returns another merchant's rows; the mandate is the constitution's (Deployment and Observability).
-- **Browser coverage** — where the plan states its supported browsers (constitution → Design System Standards → Supported browsers, recorded under Constitution Mandated Values); this mirror names no browser set of its own.
-- Design-system tokens — `ds-table-density-compact|normal|comfortable`, `--duration-fast|base|slow|slower`, the honoured media/capability states (`ds-touch-optimized`, small-screen handling); a sticky table header is a required missing component tracked in the constitution's missing-components list.
+| Technology | The section that governs it |
+|---|---|
+| **ClamAV** | File Processing Rules (content safety); Deployment and Observability (upload transport) |
+| **Stylelint** + **ESLint** | Design System Standards → Invariants (static enforcement) |
+| **Lighthouse CI** | Performance Budgets and Verification (lightweight budget) |
+| **Semgrep OSS** | Deployment and Observability (supply-chain controls) |
+| **osv-scanner** | Deployment and Observability (supply-chain controls) |
+| **Prometheus** + **Grafana** | Deployment and Observability (monitoring and alerting) |
+| **pg_anonymize** | Deployment and Observability (staging data anonymisation) |
+| **BullMQ** | Deployment and Observability (worker durability) |
+| **SeaweedFS** | Deployment and Observability (upload transport) |
+| **API path prefix** `/api/v1` | Deployment and Observability (API versioning and deprecation) |
+| **Session store** | Identity, Authentication, and Session Policy; Deployment and Observability (session revocation) |
+| **Anti-spam controls** | Identity, Authentication, and Session Policy (account enumeration, lockout, anti-spam) |
+| **Merchant-isolation test** | Deployment and Observability (merchant isolation verification); Schema and Migration Control (tenant scoping) |
+| **Supported browsers** | Design System Standards → Invariants (supported browsers); recorded under Constitution Mandated Values |
+| **Design-system tokens** | `wafar.single.css` holds the values; the constitution's Design System Standards registers them |
+
+Content-safety ordering, the decoded-size cap's rule, the CAPTCHA prohibition,
+the account lockout figures, the deprecation notice period, the LCP/INP/CLS
+thresholds, and the SBOM obligation are all constitutional. This mirror names the
+tool and stops there.
 
 ---
 
@@ -295,11 +305,12 @@ technology was introduced; no new dependency or licence obligation.
 Mirrors phone-only authentication.
 
 - **better-auth phone-number extension** — provides the phone-number sign-in
-  and OTP flows; custom authentication code remains prohibited. `scim`/`sso`
-  stay disabled (CVE-2026-67330, CVE-2026-80192).
-- **Transactional SMS provider** (international, e.g. Twilio or Vonage) — OTP
-  at sign-up and password-reset delivery. Owned by R1, per the register-gap
-  rule (choice, licence record, vulnerability scan recorded in R1's plan).
+  and OTP flows. The prohibition on custom authentication code and the
+  `scim`/`sso` module state are the register's and Identity, Authentication, and
+  Session Policy's, not this mirror's.
+- **Transactional SMS provider** — OTP at sign-up and password-reset delivery.
+  It is a register gap; the named provider and its licence obligation are the
+  owning slice's to record in its plan, and this mirror names no vendor.
 - **E.164 mobile number** — the identifier format the phone-number extension
   stores; the choice of identifier itself is the constitution's (Identity,
   Authentication, and Session Policy; ADR-030).
@@ -327,8 +338,9 @@ or licence obligation.
   recorded under Constitution Mandated Values; R1 owns setting it.
 - **Mirror claims cleanup** — unsourced or unverifiable figures (a Zod
   `.validate()` 35x claim, an exact Hono benchmark number, a Nuxt 3 EOL
-  date) were replaced by neutral wording. A mirror MUST NOT carry a precise
-  figure it cannot attribute to its vendor source.
+  date) were replaced by neutral wording. A precise figure appears here only
+  with its vendor source named; this entry records the policy, and the policy
+  itself is Single-Reference Sufficiency's to state.
 
 ---
 
@@ -419,9 +431,9 @@ This section records what 2.18.0 added. The rules are in
 ### Party/header sync markers
 
 The mirror headers now track the constitution footer:
-`Constitution: .specify/memory/constitution.md v2.19.0 (last amended 2026-10-05,
-ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054)`. Every later header here is the same value:
-v2.19.0 / 2026-10-05 / that ADR list. If the constitution is amended, move these
+`Constitution: .specify/memory/constitution.md v2.19.1 (last amended 2026-10-06,
+ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056)`. Every later header here is the same value:
+v2.19.1 / 2026-10-06 / that ADR list. If the constitution is amended, move these
 markers in the same change.
 
 ### Audit fix set (ADR-047)
