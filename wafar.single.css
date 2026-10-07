@@ -8,9 +8,11 @@
      <link rel="stylesheet" href="wafar.single.css" />
      أو:  @import "wafar.single.css";
 
-الإصدار:  1.2.0
+الإصدار:  1.2.1
    ملاحظة: R1 يختار رقم إصدار القشرة الفعلي في CMV (ADR-016/025)؛ هذا الرقم يعكس آخر إصلاح
-   (راجع ADR-016/025/038/053/057/058/060 عند الحاجة). 1.2.0: تصحيح تباين النص
+   (راجع ADR-016/025/038/053/057/058/060/064 عند الحاجة). 1.2.1: نقل ارتفاعات الأزرار
+   والحقول من الوحدة 05 إلى الوحدة 11 مطابقةً لخريطة الوحدات المسجَّلة، وحذف توكن
+   `--space-px` اليتيم الذي لا يملك أي مستهلك. 1.2.0: تصحيح تباين النص
    الموضعي في الحقول إلى ما لا يقل عن AA، وتوسيع قفل التمرير ليُحترم على كل
    المقاسات لا على اللوح وحده، ودمج استعلام تقليل الحركة الثاني في استعلام
    الحركة الواحد، وتسجيل توكنَي سهم القائمة (استثناء أصل البيانات في قاعدة
@@ -907,7 +909,6 @@ svg {
      ويُنسّق به كل شيء في النظام.
      ------------------------------------------------------------- */
   --space-0: 0;
-  --space-px: 1px;
   --space-0-5: 0.125rem; /* 2px */
   --space-1: 0.25rem; /* 4px */
   --space-1-5: 0.375rem; /* 6px */
@@ -952,26 +953,6 @@ svg {
   --touch-floor-lg: 48px; /* للأهداف الأساسية */
   --touch-floor-sm: 36px; /* بعد lg فقط */
   --touch-floor-xs: 32px; /* للمصغّرات الصغيرة */
-
-  /* ارتفاعات الأزرار (الجوال ← سطح المكتب) */
-  --control-height-xs: 36px;
-  --control-height-sm: 44px;
-  --control-height-md: 48px;
-  --control-height-lg: 56px;
-  --control-height-xl: 64px;
-
-  --control-height-sm-desktop: 36px;
-  --control-height-md-desktop: 40px;
-  --control-height-lg-desktop: 48px;
-  --control-height-xl-desktop: 56px;
-
-  /* ارتفاعات الحقول */
-  --field-height-sm: 44px;
-  --field-height-md: 48px;
-  --field-height-lg: 56px;
-  --field-height-sm-desktop: 40px;
-  --field-height-md-desktop: 44px;
-  --field-height-lg-desktop: 52px;
 
   /* ---------------------------------------------------------
      المقاييس الثابتة للهيكل
@@ -2724,6 +2705,26 @@ svg {
    بلون `--text-tertiary` في الوضع الداكن (`#a3a3a3`). ولا يقرأ CSS
    توكناً داخل عنوان أصل مضمَّن، فبقيت القاعدة تسمّي ما يقابل كل قيمة. */
 :root {
+  /* ارتفاعات الأزرار (الجوال ← سطح المكتب) */
+  --control-height-xs: 36px;
+  --control-height-sm: 44px;
+  --control-height-md: 48px;
+  --control-height-lg: 56px;
+  --control-height-xl: 64px;
+
+  --control-height-sm-desktop: 36px;
+  --control-height-md-desktop: 40px;
+  --control-height-lg-desktop: 48px;
+  --control-height-xl-desktop: 56px;
+
+  /* ارتفاعات الحقول */
+  --field-height-sm: 44px;
+  --field-height-md: 48px;
+  --field-height-lg: 56px;
+  --field-height-sm-desktop: 40px;
+  --field-height-md-desktop: 44px;
+  --field-height-lg-desktop: 52px;
+
   --select-chevron: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'><path stroke='%23737373' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/></svg>");
   --select-chevron-dark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'><path stroke='%23a3a3a3' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/></svg>");
 }

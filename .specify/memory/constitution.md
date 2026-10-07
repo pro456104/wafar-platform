@@ -1702,7 +1702,7 @@ ad hoc inside a feature, and it MUST NOT be defined in this constitution.
   whose job is to override user-agent styling that the tokens do not control; and
   a `prefers-color-scheme` rule, whose values must deliberately differ from the
   mode class because it exists only to serve elements that do not read the class
-  (Invariants below: the mode is class-based). A fourth case is an image asset
+  (the first rule of this section: the mode is class-based). A fourth case is an image asset
   embedded as a data URI, whose internal pixels belong to the asset rather than
   to a rendered property — a CSS variable cannot be read inside a `url()`, so the
   asset's colour cannot become a reference. Such a token is exempt only when the
@@ -2083,4 +2083,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.23.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-07
+**Version**: 2.23.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-07

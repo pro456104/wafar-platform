@@ -89,6 +89,7 @@ is not done; ADR-015 states that rule and this file follows it.
 | [ADR-061](#adr-061--the-in-flight-clarifications-recorded-and-the-reserved-decision-the-one-phrasing-pre-empted) | The in-flight clarifications recorded, and the reserved decision the one phrasing pre-empted | 2026-10-06 | 2.22.0 (unchanged) |
 | [ADR-062](#adr-062--constitution-2221-wording-only-reference-precision-and-stamp-sync) | Constitution 2.22.1: wording-only reference precision and stamp sync | 2026-10-06 | 2.22.1 |
 | [ADR-063](#adr-063--constitution-2230-the-form-metrics-register-corrected-against-its-source-and-the-amendment-closed) | Constitution 2.23.0: the form-metrics register corrected against its source, and the amendment closed | 2026-10-07 | 2.23.0 |
+| [ADR-064](#adr-064--constitution-2231-and-wafar-single-css-121-the-audit-fix-set) | Constitution 2.23.1 and wafar.single.css 1.2.1: the audit fix set | 2026-10-07 | 2.23.1 |
 
 ---
 
@@ -3971,6 +3972,12 @@ in the same change, and updates this register row alongside it.
   here. That list is the paragraph that governs itself, and moving it is a
   Governance amendment in its own right.
 
+**Annotation (2026-10-07, ADR-064).** Both file-level items above were carried
+out by ADR-064: `--space-px` is removed, the fifteen height tokens moved into
+module 11, and `wafar.single.css` is at 1.2.1. The third item remains open. The
+annotation is added rather than the text rewritten, because a decision record is
+a history.
+
 **Alternatives considered.**
 
 - *Add `--control-height-xs-desktop` to `wafar.single.css` so the register's
@@ -3989,3 +3996,74 @@ in the same change, and updates this register row alongside it.
   2.22.1.
 - *Untrack the catalog cache as its own commit.* Rejected: it belongs to the same
   audit set, and one commit closes one amendment.
+
+---
+
+## ADR-064 — Constitution 2.23.1 and wafar.single.css 1.2.1: the audit fix set
+
+**Status**: Accepted — 2026-10-07
+**Owning directory**: `.specify/memory/` and `wafar.single.css`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** Two register-to-source defects survived ADR-063, because that record
+corrected the Form metrics row and closed the amendment, and both were found by
+checking the sources against the registers rather than by reading the registers.
+
+The first was a wrong-direction citation. The Invariants bullet that exempts a
+`prefers-color-scheme` rule from the token rule ended "(Invariants below: the mode
+is class-based)" while sitting inside the Invariants section, whose first rule is
+the one that states it. It is the same defect class ADR-060 closed.
+
+The second was in `wafar.single.css`. The module map assigns "control and field
+heights" to module 11, and the file declared all fifteen height tokens in module
+05. The file also declared `--space-px: 1px`, an unnumbered one-off inside the
+space ladder with zero consumers, which no register pattern resolves.
+
+**Decision.**
+
+1. `wafar.single.css` moves to **1.2.1**. The fifteen `--control-height-*` and
+   `--field-height-*` declarations move from module 05's `:root` into module 11's
+   existing `:root`, beside the two `--select-chevron` image tokens that module
+   already owned, so the file agrees with the module map. `--space-px` is
+   removed. The move is inert: every relocated name is unique, no media query
+   between the old and new positions redeclares any of them, and the only
+   redeclaration — `--control-height-xs` at `32px` inside the
+   `max-width: 359px` block — still follows both positions and so still wins.
+2. The constitution is amended to **2.23.1** (PATCH: one citation direction, no
+   rule, value, or scope change). The exemption bullet now reads "(the first rule
+   of this section: the mode is class-based)".
+3. All eleven stamp sites move to 2.23.1, and the live `ADR-001 … ADR-0NN` range
+   strings name ADR-064. The technology mirror's own ADR list gains ADR-064
+   beside the version move its sync markers require.
+
+**What deliberately did not change.** No principle, section heading, register
+row, Product Scope item, entity, page, feature, Usage Limit, module-map row,
+slice, or slice dependency changed. No design value changed: the fifteen
+relocated declarations carry the values they already carried, and
+`--control-height-xs` still resolves to `36px` above 359px and `32px` at or
+below it. No token was added and no name was renamed. The file's module count
+and order were already correct and are untouched.
+
+**Consequences.** Every token the register names is a token the file defines,
+every token the file defines is registered or covered by a named pattern, and
+the module map's ownership claims are true of the file. The file's inventory is
+472 declared custom properties, one fewer than before.
+
+**Alternatives considered.**
+
+- *Keep `--space-px` and register it instead of removing it.* Rejected: the 2.23.0
+  review scratch had already recorded the removal as intended, no surface
+  consumes it, and registering a dead value would enlarge the register to
+  describe a defect rather than remove it. A ladder member the file keeps is
+  covered by the `--space-0` … `--space-32` pattern; this one is unnumbered, so
+  no pattern covered it.
+- *Correct the module map to give the heights to module 05.* Rejected: forms own
+  the control and field heights everywhere else — the Form metrics row, the
+  component inventory, and the `--select-chevron` tokens module 11 already held —
+  so moving the file to the map is the smaller and truer change.
+- *Move only the control heights and leave the field heights in module 05.*
+  Rejected: the map names both in one phrase, and a half-move leaves the same
+  defect with less of it fixed.
+- *Fold this record into ADR-063.* Rejected: that record's subject is the Form
+  metrics register text and the 2.23.0 closure. A file change and a second
+  amendment closed together would misstate what 2.23.0 covered.
