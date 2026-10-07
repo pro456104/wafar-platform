@@ -7,3 +7,9 @@ feature.json
 
 # Per-machine extension config overrides.
 extensions/*/local-config.yml
+
+# Refreshed catalog metadata the CLI rewrites on every check. Machine state,
+# not project content: tracked, it dirties the working tree on any command and
+# arrives with the CRLF endings .gitattributes reserves away from *.json
+# (ADR-039). A fresh clone regenerates it. See ADR-063.
+extensions/.cache/

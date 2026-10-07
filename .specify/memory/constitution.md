@@ -1361,7 +1361,7 @@ change.
 | 01 | core | reset, RTL root, accessibility baseline, numeral handling | 08 | motion | durations, easings, transitions, keyframes |
 | 02 | colors | eleven colour families and the semantic aliases | 09 | zindex | the z-index layer scale |
 | 03 | typography | families, sizes, leading, tracking, weights | 10 | glass | glass, gradients, tints, glow |
-| 04 | opacity | opacity and alpha steps | 11 | forms | buttons, fields, badges, dots, progress |
+| 04 | opacity | opacity and alpha steps | 11 | forms | buttons, fields, badges, dots, progress, control and field heights, select chevron image tokens |
 | 05 | spacing | space scale, gutters, containers, screens (except `--screen-tiny`, which module 14 owns), touch floors, navbar and sidebar | 12 | components | semantic layers: shell, page, card, table, empty |
 | 06 | radii | the radius ladder and the named radii | 13 | loaders | the six loader designs and their tokens |
 | 07 | shadows | the shadow ladder and the named shadows | 14 | modes | media queries and responsive utilities |
@@ -1390,16 +1390,40 @@ change.
   each value names a wrapping behaviour and not a duration. A one-off token whose
   name no pattern covers MUST be written out in full in the row that owns it; a
   family described in prose is not registered, because a checker cannot resolve it.
-- Opacity and alpha: the opacity steps and the named alpha and tint values.
-- Spacing: `--space-0` … `--space-32`, the gutters, the container widths, the
-  screen widths `--screen-xs` … `--screen-3xl`, the touch floors,
-  `--navbar-height`, `--sidebar-width`, the bottom-navigation tokens, the
-  safe-area tokens, and the vertical rhythm pair `--section-gap` and
+  A prefix glob (`--tracking-*`) or a range with named endpoints (`--space-0` …
+  `--space-32`, `--text-4xs` … `--text-6xl`) **is** a pattern and a checker can
+  resolve it, so a row may use one; the test is whether the row yields the
+  token's exact name, not whether the row reads as a list.
+- Opacity and alpha: the opacity steps `--opacity-0`, `--opacity-2`,
+  `--opacity-3`, `--opacity-4`, `--opacity-5`, `--opacity-6`, `--opacity-8`,
+  `--opacity-10`, `--opacity-12`, `--opacity-15`, `--opacity-20`, `--opacity-25`,
+  `--opacity-30`, `--opacity-40`, `--opacity-50`, `--opacity-60`, `--opacity-70`,
+  `--opacity-75`, `--opacity-80`, `--opacity-90`, `--opacity-95`, and
+  `--opacity-100`, and the named alpha values `--alpha-imperceptible`,
+  `--alpha-faint`, `--alpha-wash`, `--alpha-hint`, `--alpha-ghost`,
+  `--alpha-soft`, `--alpha-muted`, `--alpha-dimmed`, `--alpha-half`,
+  `--alpha-scrim`, and `--alpha-veil`. The tint values are not in this row:
+  `--ds-tint-base` and `--ds-tint-alpha` belong to the glass and gradients row,
+  which owns module 10.
+- Spacing: `--space-0` … `--space-32`; the gutters `--gutter`, `--gutter-sm`,
+  and `--gutter-md`; the container widths `--container-max`,
+  `--container-narrow`, and `--container-form`; the screen widths
+  `--screen-xs` … `--screen-3xl`; the touch floors `--touch-floor`,
+  `--touch-floor-sm`, `--touch-floor-lg`, and `--touch-floor-xs`;
+  `--navbar-height` and `--sidebar-width`; the bottom-navigation tokens
+  `--bottom-nav-height`, `--bottom-nav-height-compact`, `--bottom-nav-fab-size`,
+  `--bottom-nav-fab-size-compact`, `--bottom-nav-fab-breakout`, and
+  `--bottom-nav-fab-breakout-compact`; the safe-area tokens `--safe-top`,
+  `--safe-right`, `--safe-bottom`, `--safe-left`, `--safe-gutter-x`, and
+  `--safe-bottom-padding`; and the vertical rhythm pair `--section-gap` and
   `--section-gap-desktop`. `--screen-tiny` is the one exception to this row's
   ownership: it sits in module 14, beside the `max-width: 359px` case it
   exists to express.
-- Radii: the radius ladder plus the named radii `shell`, `canvas`, `sheet`,
-  `overlay`, `media`, `control`, `pill`, and `card`.
+- Radii: the ladder `--radius-none`, `--radius-xs`, `--radius-sm`,
+  `--radius-md`, `--radius-lg`, `--radius-xl`, `--radius-2xl`,
+  `--radius-3xl`, and `--radius-full`, plus the named radii `--radius-shell`,
+  `--radius-canvas`, `--radius-sheet`, `--radius-overlay`, `--radius-media`,
+  `--radius-control`, `--radius-pill`, and `--radius-card`.
 - Shadows: the size ladder (`--shadow-xs`, `--shadow-sm`, `--shadow-md`,
   `--shadow-lg`, `--shadow-xl`, `--shadow-2xl`) plus the named shadows `card`,
   `card-raised`, `cinematic`, `cinematic-hover`, `cinematic-panel`, `control`,
@@ -1436,17 +1460,62 @@ change.
   `--motion-slide-far`. Naming them here completes the motion row's inventory;
   a token absent from it may not be added to this row by a slice without the
   amendment that names it.
-- Z-index: the defined layer scale. Every layer takes a value from it.
-- Glass and gradients: the glass surfaces, the gradient utilities, the tints, and
-  the glow utilities.
-- Form metrics: the control and field heights, in their desktop variants, and the
-  select chevron's two image tokens, `--select-chevron` and `--select-chevron-dark`,
-  written out for the reason the Typography row gives. An image token's own pixels
-  are outside the token rule by the exemption "Inside the design system file"
-  gives an embedded data URI; naming the pair here, and in the rule that declares
-  them, is what makes the correspondence checkable and so keeps the file's
-  inventory complete.
-- Loaders: the loader size, stroke, gap, speed, and colour tokens.
+- Z-index: the layer scale `--z-base`, `--z-raised`, `--z-sticky`, `--z-header`,
+  `--z-nav`, `--z-backdrop`, `--z-dropdown`, `--z-sidebar-backdrop`,
+  `--z-sidebar`, `--z-widget`, `--z-popover`, `--z-modal`, `--z-drawer`,
+  `--z-loader`, `--z-toast`, `--z-tooltip`, and `--z-boot`. Every layer takes a
+  value from this scale.
+- Glass and gradients: the glass surfaces `--glass-surface`,
+  `--glass-brand-surface`, `--glass-dark-surface`, `--card-glass-surface`, and
+  `--backdrop-glass`; their borders and shadows `--glass-border`,
+  `--glass-dark-border`, `--card-glass-border`, `--glass-shadow`,
+  `--glass-brand-shadow`, and `--glass-dark-shadow`; the tints `--ds-tint-base`
+  and `--ds-tint-alpha`; the glows `--glow-brand-soft`, `--glow-brand-strong`,
+  `--glow-accent-soft`, `--glow-accent-strong`, `--glow-violet-soft`, and
+  `--glow-violet-strong`; the shimmer inks `--shimmer-edge` and `--shimmer-ink`;
+  and the decorative overlay inks `--vignette-ink` and `--scanline-ink`. The
+  gradient utilities are registered as components in the Component inventory row
+  and carry no token of their own. `--shadow-glass` and `--shadow-glow-brand`
+  are registered in the shadows row, and `--loader-glow` in the loaders row, so
+  they belong to those rows and not to this one.
+- Form metrics: the control heights `--control-height-xs`,
+  `--control-height-sm`, `--control-height-md`, `--control-height-lg`, and
+  `--control-height-xl`; the field heights `--field-height-sm`,
+  `--field-height-md`, and `--field-height-lg`; the desktop-parallel values
+  `--control-height-sm-desktop`, `--control-height-md-desktop`,
+  `--control-height-lg-desktop`, `--control-height-xl-desktop`,
+  `--field-height-sm-desktop`, `--field-height-md-desktop`, and
+  `--field-height-lg-desktop`; and the select chevron's two image tokens,
+  `--select-chevron` and `--select-chevron-dark`, written out for the reason the
+  Typography row gives. The eight base tokens hold the mobile-first value and
+  each `-desktop` sibling holds the desktop one, so a surface reads the sibling
+  its breakpoint calls for. `--control-height-xs` is the one height the file
+  gives no `-desktop` sibling, and this row therefore names none: a register
+  row names only what its source defines, and a correction is made by amending
+  the register rather than by inventing the value (Single-Reference
+  Sufficiency). Adding the missing sibling is a decision about the design
+  system, taken under Extension procedure and design-system version, and it
+  enters this row in the same change. On the narrow axis the
+  `max-width: 359px` block re-declares `--control-height-xs` from `36px` to
+  `32px`; that is a cascade override on a registered token rather than a
+  separate token, and it is named here so the override is checkable against the
+  file. These belong to module 11. An image token's own pixels are outside the
+  token rule by the exemption "Inside the design system file" gives an embedded
+  data URI; naming the pair here, and in the rule that declares them, is what
+  makes the correspondence checkable and so keeps the file's inventory
+  complete.
+- Loaders: the six loader designs named in the Component inventory row, and their
+  tokens - sizes `--loader-size-xs`, `--loader-size-sm`, `--loader-size-md`,
+  `--loader-size-lg`, `--loader-size-xl`, and `--loader-size-2xl`; strokes
+  `--loader-stroke-xs`, `--loader-stroke-sm`, `--loader-stroke-md`,
+  `--loader-stroke-lg`, and `--loader-stroke-xl`; gaps `--loader-gap-xs`,
+  `--loader-gap-sm`, `--loader-gap-md`, `--loader-gap-lg`, and `--loader-gap-xl`;
+  speeds `--loader-speed-slow`, `--loader-speed-normal`, and
+  `--loader-speed-fast`; the radar's dots `--loader-dot-xs`, `--loader-dot-sm`,
+  `--loader-dot-md`, `--loader-dot-lg`, and `--loader-dot-xl`; and the colours
+  `--loader-track`, `--loader-main`, `--loader-strong`, `--loader-soft`,
+  `--loader-accent`, `--loader-on-solid`, `--loader-on-solid-soft`,
+  `--loader-radar-ink`, and `--loader-glow`.
 ### Breakpoints
 
 The media queries use 640, 768, 1024, 1280, 1536, and 1920 px as minimum widths,
@@ -2014,4 +2083,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.22.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-06
+**Version**: 2.23.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-07

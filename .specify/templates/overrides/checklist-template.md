@@ -9,7 +9,7 @@
 **Marker Semantics**: `[x]` means the criterion has been reviewed and satisfied for requirements quality. It does not mean implementation work is complete.
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.22.1) - NORMATIVE:
+  BINDING RULES FOR THIS DOCUMENT (constitution v2.23.0) - NORMATIVE:
   1. This checklist reviews requirements quality, never implementation.
      Checklist items evaluate whether a requirement is clear, complete,
      consistent, and measurable — they MUST NOT be executed as work.
@@ -20,7 +20,7 @@
      - `.specify/memory/constitution.md` — principles and governance.
      - `Core-Project.txt` — the product definition: roles, pages, file
        processing, and acceptance criteria.
-      - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-062).
+      - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-063).
        An item that contradicts one is a blocking defect.
      - `docs/domain-model.md` — the entities a checklist may reference,
        and the invariants it MUST NOT contradict.

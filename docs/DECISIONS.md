@@ -88,6 +88,7 @@ is not done; ADR-015 states that rule and this file follows it.
 | [ADR-060](#adr-060--constitution-2220-the-design-systems-register-against-its-own-file-the-files-binding-rules-and-the-citations-that-named-the-wrong-section) | Constitution 2.22.0: the design system's register against its own file, the file's binding rules, and the citations that named the wrong section | 2026-10-06 | 2.22.0 |
 | [ADR-061](#adr-061--the-in-flight-clarifications-recorded-and-the-reserved-decision-the-one-phrasing-pre-empted) | The in-flight clarifications recorded, and the reserved decision the one phrasing pre-empted | 2026-10-06 | 2.22.0 (unchanged) |
 | [ADR-062](#adr-062--constitution-2221-wording-only-reference-precision-and-stamp-sync) | Constitution 2.22.1: wording-only reference precision and stamp sync | 2026-10-06 | 2.22.1 |
+| [ADR-063](#adr-063--constitution-2230-the-form-metrics-register-corrected-against-its-source-and-the-amendment-closed) | Constitution 2.23.0: the form-metrics register corrected against its source, and the amendment closed | 2026-10-07 | 2.23.0 |
 
 ---
 
@@ -3889,3 +3890,102 @@ set by reading the footer against the eleven sites Governance names.
 - *Fold this record into ADR-060.* Rejected: that record's subject is the
   2.22.0 design-system register; mixing a stamp-sync closure into it would
   misstate what that amendment covered.
+
+---
+
+## ADR-063 — Constitution 2.23.0: the form-metrics register corrected against its source, and the amendment closed
+
+**Status**: Accepted — 2026-10-07
+**Owning directory**: `.specify/memory/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** Three states of one amendment were open at once. The 2.23.0 body
+and footer had been written while ten of the eleven stamp sites still read
+2.22.1, the review scratch was still at the top of the constitution file, and no
+record of the amendment existed. ADR-062 records the same failure closing for
+2.22.1, so the pattern was known rather than surprising.
+
+The amendment also carried a defect of its own, found by checking the register
+against `wafar.single.css` rather than by reading it. Design System Standards →
+Token families → Form metrics named five control heights and then said "each
+with its desktop variant" while naming four, and the file defines no
+`--control-height-xs-desktop`; it narrows the `xs` height inside the
+`max-width: 359px` block instead. A register row naming a value its source does
+not contain is the same defect read in the other direction, and the row also
+omitted the field heights entirely although the module map assigns "control and
+field heights" to module 11 and the file defines six `--field-height-*` tokens,
+three of them with `-desktop` siblings. An unregistered token is not approved
+(Single-Reference Sufficiency), so those six were live and unregistered at the
+same time.
+
+**Decision.** The constitution is amended to 2.23.0 (MINOR: material expansion
+of the design-system register's content):
+
+1. **Token families → Form metrics** now names the five control heights, the
+   three field heights, the seven `-desktop` siblings, and the two select-chevron
+   image tokens. It states that `--control-height-xs` is the one height the file
+   gives no `-desktop` sibling and that the row therefore names none, and it
+   names the `max-width: 359px` re-declaration from `36px` to `32px` so the
+   cascade override is checkable against the file.
+2. **Token families** replaces prose descriptions with token names across the
+   Opacity, Spacing, Radii, Z-index, Glass and gradients, Loaders, and Form
+   metrics rows, and **Module map row 11** is corrected. The row names 238
+   tokens where it named 76; 162 are newly named by name and none is removed.
+3. **The review scratch is removed before commit**, per Governance and ADR-010.
+4. **All eleven stamp sites move to 2.23.0 in the same change**, and the live
+   `ADR-001 … ADR-0NN` range strings name ADR-063 across `AGENTS.md`, `README.md`,
+   `ROADMAP.md`, `docs/architecture.md`, and the specification and checklist
+   template overrides.
+5. **`.specify/extensions/.cache/` is removed from version control** and added
+   to `.specify/.gitignore`. The catalog cache is machine state that the Spec Kit
+   CLI rewrites on refresh; tracked, it made every command dirty the working
+   tree, and it arrived with CRLF endings while `.gitattributes` reserves `*.json`
+   to LF, which is the corruption risk ADR-039 exists to prevent.
+
+**What deliberately did not change.** No principle was added, removed, renamed,
+or redefined. No Product Scope item, entity, page, feature, Usage Limit, module
+map row other than row 11, slice, or slice dependency changed. No technology,
+version, licence, or exception changed. `wafar.single.css` is untouched — in
+particular no token was invented to satisfy the register. Design System Standards
+→ Invariants, Component inventory, Decision values, State map, and Interface
+State Matrix are untouched.
+
+**Consequences.** The amendment is complete: the stamps agree with the footer, no
+committed file carries review scratch, and every token the register names is a
+token the design-system file defines. A slice that wants the missing
+`--control-height-xs-desktop` value takes it as a design-system amendment under
+Extension procedure and design-system version, moves the design-system version
+in the same change, and updates this register row alongside it.
+
+**Deferred, recorded rather than silent.**
+
+- `wafar.single.css` declares `--space-px: 1px` with zero consumers. It is an
+  orphan rather than a member of a ladder, so it is removed under the design
+  system's own amendment and is deliberately not registered here.
+- `wafar.single.css` declares `--control-height-*` and `--field-height-*` in
+  module 05 while the module map assigns control and field heights to module 11.
+  The map is right and the file is not; module 11 already has a `:root` block and
+  no intervening media query redeclares these tokens, so the move is inert. It is
+  left to that amendment rather than folded into a governance one.
+- Moving the eleven stamp-site references out of the constitution is not done
+  here. That list is the paragraph that governs itself, and moving it is a
+  Governance amendment in its own right.
+
+**Alternatives considered.**
+
+- *Add `--control-height-xs-desktop` to `wafar.single.css` so the register's
+  "each" held.* Rejected: Single-Reference Sufficiency says a register naming a
+  value its source does not contain "is corrected by amending the register rather
+  than by inventing the value". The direction is fixed by the rule, and no
+  consumer exists, so the change would add an unused value to satisfy a clause.
+- *Register the orphan tokens the file declares but no surface consumes.*
+  Rejected: the Breakpoints section already records that state for the screen
+  ladder, the sidebar and navbar heights, and the touch floors, and records it
+  for the two shadow groups. Form metrics has no such split because all fifteen
+  of its height tokens are consumed by the file today, so a uniform claim would
+  be false in the other direction.
+- *Commit the scratch and let a later amendment clean it.* Rejected: Governance
+  and ADR-010 forbid committing it, and ADR-062 records this same closure for
+  2.22.1.
+- *Untrack the catalog cache as its own commit.* Rejected: it belongs to the same
+  audit set, and one commit closes one amendment.
