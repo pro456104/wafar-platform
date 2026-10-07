@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-068; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-069; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -134,11 +134,12 @@ reader checks, not the engine.
   The `@opencode-ai/plugin` pin (recorded in the local file) is machine-local,
   not repo-enforced.
 
-- **`.codebuddy/` and two Spec Kit state files are not yet committed.**
+- **Integration state is committed (gap closed 2026-10-08, ADR-069).**
   `.codebuddy/`, `.specify/integrations/codebuddy.manifest.json`, and
-  `.specify/memory/version.json` are untracked, so a fresh clone lacks the
-  default environment and one of the two version sources. They MUST be tracked
-  in the next commit (ADR-068).
+  `.specify/memory/version.json` were listed here as untracked while ADR-068 was
+  drafted. Commit `26df272` tracked all three, so a fresh clone carries the
+  default environment and both version sources. The gap is closed and the entry
+  is kept, marked closed, so it is not re-reported as an open gap.
 
 - **`create-new-feature.ps1` is an installed but uncalled script.** Feature
   numbering and directory creation run inside the specify command, so the

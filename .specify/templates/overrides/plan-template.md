@@ -168,8 +168,9 @@
   area MUST record here which rules are still missing for that area and how
   they will be ratified — no later than the feature's acceptance, and never
   after the area is in production. The five deferred areas: extraction
-  algorithm; catalog data shape; file ingestion internals; authorization
-  model; retrieval interface.
+  algorithm; catalog data shape (discharged in 2.18.0 by ADR-040 — a plan
+  touches this row only to record that it is already closed); file ingestion
+  internals; authorization model; retrieval interface.
 
   `docs/domain-model.md` → Unresolved facts is a second, related list: the open
   *product* questions the register carries, each already assigned to a slice.

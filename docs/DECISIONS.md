@@ -94,6 +94,7 @@ is not done; ADR-015 states that rule and this file follows it.
 | [ADR-066](#adr-066--constitution-2240-the-version-lives-in-two-sources-and-the-opensearch-client-owner) | Constitution 2.24.0: the version lives in two sources, and the OpenSearch client owner | 2026-10-07 | 2.24.0 |
 | [ADR-067](#adr-067--constitution-2250-the-administrator-is-a-role-userstatus-and-two-new-entities) | Constitution 2.25.0: the administrator is a role, `User.status`, and two new entities | 2026-10-07 | 2.25.0 |
 | [ADR-068](#adr-068--integration-topology-settled-and-the-constitution-command-aligned-to-upstream) | Integration topology settled, and the constitution command aligned to upstream | 2026-10-07 | 2.25.0 (unchanged) |
+| [ADR-069](#adr-069--cross-artifact-consistency-fix-set) | Cross-artifact consistency fix set | 2026-10-08 | 2.25.0 (unchanged) |
 
 ---
 
@@ -4421,3 +4422,99 @@ each other and to upstream, and either can be used with the same command
 spelling (`/speckit.*`). A `specify` refresh no longer leaves an unmanaged
 environment behind, and `Core-Project.txt` agrees with the register again. This
 entry is the durable record.
+
+---
+
+## ADR-069 — Cross-artifact consistency fix set
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `docs/`, `AGENTS.md`, `ROADMAP.md`, `README.md`, `Project-Technologies.txt`, `.specify/templates/overrides/`
+**Owning feature**: none — documentation-consistency decision; ratified by the repository owner
+
+**Context.** A deep cross-artifact audit of the governance set — the constitution,
+the two mirrors, the roadmap, the domain model, the binding templates, and the
+installed integration state — found three consistency defects. None changes a
+binding rule; each is a document disagreeing with another document, or with the
+repository's actual state.
+
+1. **The domain model named the wrong owner for two open facts.**
+   `docs/domain-model.md`'s Relationships note said the conversation's
+   administrator side and the audit record's administrator party were "owned by
+   R13". The same document's Unresolved facts table (rows 1–2), `ROADMAP.md`
+   (R10), `docs/architecture.md` (the `messages` row), and the constitution's
+   Unresolved product facts table all name **R10**. The audit record's
+   administrator party carries no unresolved fact at all: ADR-067 settled it by
+   making the administrator a role on `User`.
+2. **`AGENTS.md` §6 reported a closed gap as open.** Its "Known gaps" list said
+   `.codebuddy/`, `.specify/integrations/codebuddy.manifest.json`, and
+   `.specify/memory/version.json` were untracked and "MUST be tracked in the next
+   commit (ADR-068)". Commit `26df272` had already tracked all three, so the
+   entry was stale and would be re-reported on every read. It also put
+   `AGENTS.md` in direct conflict with ADR-068 item 7, which states `.codebuddy/`
+   "is tracked".
+3. **Two binding templates drifted from their own sources.**
+   `tasks-template.md` numbered its example tasks `T001`, `T002`, then `T004` —
+   a skipped `T003` — while the override's own rule requires IDs "in execution
+   order". `plan-template.md`'s Gate 3 still listed **Catalog data shape** among
+   live deferred areas, although the constitution discharged it in 2.18.0
+   (ADR-040).
+
+**Decision.**
+
+1. `docs/domain-model.md`'s Relationships note now names **R10** as the owner of
+   the conversation's administrator-reference fact, and states that the audit
+   record's administrator party carries no separate open fact because ADR-067
+   settled it.
+2. `AGENTS.md` §6's integration-state entry is marked **closed (2026-10-08)**,
+   with the verifying commit named, and is kept marked closed rather than deleted
+   so it is not re-reported.
+3. `.specify/templates/overrides/tasks-template.md`'s Foundational example tasks
+   are renumbered `T003`/`T004`, making the Setup-and-Foundational example range
+   contiguous from `T001`; a comment records that story phases begin at `T010` by
+   the core template's convention.
+4. `.specify/templates/overrides/plan-template.md`'s Gate 3 marks **Catalog data
+   shape** as discharged in 2.18.0 (ADR-040).
+5. **Every live `ADR-001 … ADR-0NN` range string moves to ADR-001 … ADR-069**:
+   `AGENTS.md`, `README.md`, `ROADMAP.md`, `docs/architecture.md`, and the
+   `spec-template.md` and `checklist-template.md` overrides.
+   `Project-Technologies.txt`'s header ADR list gains ADR-069.
+6. **`Core-Project.txt` §8's twelve-entity summary was reviewed and retained.**
+   It is the product mirror's map of the register — which the register itself
+   permits a mirror to carry — and it already defers to `docs/domain-model.md` as
+   the sole data-model authority. Replacing it with a pointer would remove a
+   reader's map without removing a second source of *rules*. No change.
+
+**What deliberately did not change.** No principle was added, removed, renamed,
+or redefined. No entity, page, feature, Usage Limit, module, or slice number
+changed, and no slice's `Depends on` edge changed. `wafar.single.css` is
+untouched. The constitution stays **2.25.0**: this record changes no
+constitutional text, so neither its footer nor `.specify/memory/version.json`
+moves, and the two version sources remain in agreement — the property this record
+exists to protect.
+
+**Alternatives considered.**
+- *Change ADR-068's "is tracked" wording to match `AGENTS.md`.* Rejected: ADR-068's
+  claim was **correct** and `AGENTS.md` was stale (verified with `git ls-files`);
+  a ratified record is not rewritten to match a stale statement, which is the
+  rewriting ADR-015 forbids.
+- *Delete the `AGENTS.md` gap entry entirely.* Rejected: keeping it marked closed
+  preserves the trace and stops the same gap being re-reported as new.
+- *Renumber the whole tasks template contiguously, including the story phases.*
+  Rejected: the story phases deliberately begin at `T010` to match the core
+  template's convention and to leave room for a feature's own Foundational tasks;
+  only the actual skip (`T003`) was the defect.
+- *Bump the constitution to 2.25.1 for the template edits.* Rejected: the
+  templates' binding blocks are unchanged and no register moved; the versioning
+  policy reserves PATCH for changes to the constitution itself, and a consistency
+  fix that leaves its text intact keeps the version.
+- *Edit `Project-Technologies.txt`'s header to drop its ADR list.* Rejected: the
+  list is the mirror's own record of the amendments it mirrored (ADR-066), and it
+  is appended to, not restated.
+
+**Consequences.** The governance set no longer contradicts itself on the
+message-owner question, the reported integration gap matches the repository's
+real state, and the two binding templates read cleanly against their own rules
+and against the constitution. ADR-068's byte-identity claim is independently
+confirmed: `.codebuddy/commands/` and `.opencode/commands/` are byte-identical
+(`diff` clean), and `speckit.specify.md` matches its manifest hash. This entry is
+the durable record.

@@ -104,8 +104,11 @@ PlatformSetting                (platform-wide; no user)
 administrator a role on `User`, while the conversation and the audit record both
 treat an administrator as a party of its own; drawing the relationship either way
 would settle a question the register records as open. The same holds for the
-administrator side of `Conversation`. Both are named in Unresolved facts and owned
-by R13.
+administrator side of `Conversation`: how it is represented is unresolved fact
+#2 below, and that fact is owned by **R10**. The audit record's administrator
+party carries no separate open fact — it follows from the register's role
+decision (ADR-067, the administrator is a `User` holding the administrator
+role) — so only the conversation side is recorded as unresolved.
 
 A dashed line is not used, because "related but undecided" is not a relationship
 the schema can express, and drawing one would read as a decision.

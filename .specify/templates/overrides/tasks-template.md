@@ -78,8 +78,13 @@ The frontend locations are fixed by the constitution's Technology Standards → 
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [Foundational task that a requirement genuinely covers] in [exact path] (implements FR-###, AC-###)
-- [ ] T005 [P] [Foundational task that a requirement genuinely covers] in [exact path] (implements FR-###, AC-###)
+<!-- Example identifiers run contiguously from T001 through the Setup and
+     Foundational phases; the story phases below begin at T010, following the
+     core template's convention, so a feature may expand Foundational up to T009
+     without renumbering. -->
+
+- [ ] T003 [Foundational task that a requirement genuinely covers] in [exact path] (implements FR-###, AC-###)
+- [ ] T004 [P] [Foundational task that a requirement genuinely covers] in [exact path] (implements FR-###, AC-###)
 
 **Checkpoint**: Foundation ready — user story implementation can now begin
 
