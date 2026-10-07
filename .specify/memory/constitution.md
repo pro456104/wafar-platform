@@ -519,7 +519,7 @@ and Verification and MUST NOT be restated here either.
 
 ### Data entities
 
-Ten entities are in scope, and `docs/domain-model.md` is their source of truth:
+Twelve entities are in scope, and `docs/domain-model.md` is their source of truth:
 it carries the relationships, the cardinality, the invariants, and the owning
 module for each. This section maps them; it does not restate them, because a
 field list held here would be a second source that drifts from the one.
@@ -535,7 +535,7 @@ registered, and prose is not a field list.
 
 | Entity | Owning module | One-line meaning |
 |---|---|---|
-| `User` | `users` | A registered merchant: full name, Libyan mobile number (E.164, unique, always +218), city, optional shop name, role. |
+| `User` | `users` | A registered merchant: full name, Libyan mobile number (E.164, unique, always +218), city, optional shop name, role, and status (`active` or `blocked`). |
 | `Supplier` | `suppliers` | The company named on a catalog's first page. |
 | `Catalog` | `catalogs` | An uploaded supplier file, its metadata, its status, and its stored bytes. |
 | `Part` | `parts` | One row extracted from a catalog, representing one car part. |
@@ -545,6 +545,8 @@ registered, and prose is not a field list.
 | `Message` | `messages` | One message inside a conversation. |
 | `ContactMessage` | `support` | A message from the public contact form; its phone is for contact only, never an account identifier. |
 | `AuditLog` | `admin` | The append-only record of every administrator operation. |
+| `Session` | `auth` | One server-side session for an account, revocable on its own or all at once ("sign out everywhere"). |
+| `PlatformSetting` | `admin` | The administrator-editable platform settings the Settings page reads and writes. |
 
 An entity absent from this table MUST NOT be introduced without amending this
 register, and an entity's shape is changed only through
@@ -609,9 +611,7 @@ bounds the answer; that is not an assertion of the answer.
 | Notification retention is undetermined | The product statement defers it ("to be determined later") | R9 |
 | A message's sender is either a merchant or an administrator, and the register names one sender | Product Register (`Message` carries a single sender); Authorization and Access Control (the administrator is a separate principal with a separate login) | R10 |
 | `Conversation` carries an administrator reference, yet every administrator account sees the same single thread | Product Register (`Conversation` carries an administrator); `Core-Project.txt` (one administrator account type, all administrators see the same conversations) | R10 |
-| An administrator is a role on `User` in one place and a separate party that `Conversation` and `AuditLog` refer to in another | Product Register (roles); Authorization and Access Control (a separate application with a separate login) | R13 |
 | How a printed price that carries more than one separator is read (for example `1.250.000`), and how a file that separates thousands rather than decimals is read | File Processing Rules (price denomination); the price examples in `Core-Project.txt`; the source files themselves | R3 |
-| Where the administrator's platform settings are stored, given that no registered entity owns them | Product Scope (Administrator's Application (Separate Login) → Settings); the Data entities table (ten entities, none of them settings, and an unregistered entity MUST NOT be introduced) | R13 |
 
 **Resolved conflict (2026-10-03).** The sidebar conflict is resolved: the
 sidebar is required on desktop and must not hide or slide (Principle IX);
@@ -744,7 +744,9 @@ Register, and the data model's entities and their ownership in the Data entities
   register rather than by inventing the value.
 - The feature templates' binding block MUST stay in step with this constitution:
   a register added here, renamed here, or renumbered here MUST be reflected there
-  in the same change, together with the constitution's version.
+  in the same change. The templates carry a pointer to this constitution rather
+  than a copied version string, so the current version is read from the footer
+  above or from `.specify/memory/version.json`, never restated.
 
 ## Query Safety and Secrets
 
@@ -804,13 +806,15 @@ schema should contain; see Deferred areas.
 - **A tenant is a merchant account.** A tenant identifier IS the `User` identifier;
   there is no separate tenant entity, and a table that holds merchant-owned data
   MUST carry `user_id` as a foreign key to `User`, and that column MUST be part of
-  every index serving a merchant-scoped query. Tables holding platform-wide data
-  that belongs to no single merchant — `Supplier`, `AuditLog` — carry no tenant
-  identifier, and a query against them is not tenant-scoped. `ContactMessage` is
-  in the same category and for the same reason: it is a public intake whose
-  submitter may hold no account at all, its only read path is the
-  administrator's, and no query reaches it from a merchant session, so a scoping
-  column on it could never be used as a scoping key (ADR-053).
+  every index serving a merchant-scoped query. A session belongs to one account,
+  so `Session` is merchant-scoped and carries `user_id`. Tables holding
+  platform-wide data that belongs to no single merchant — `Supplier`, `AuditLog`,
+  `PlatformSetting` — carry no tenant identifier, and a query against them is not
+  tenant-scoped. `ContactMessage` is in the same category and for the same
+  reason: it is a public intake whose submitter may hold no account at all, its
+  only read path is the administrator's, and no query reaches it from a merchant
+  session, so a scoping column on it could never be used as a scoping key
+  (ADR-053).
 - Every read and write of merchant-owned data MUST be merchant-scoped, and the
   scoping MUST be applied at a single shared entry point rather than repeated
   at each call site. A query path reachable from a merchant session MUST NOT
@@ -1321,7 +1325,7 @@ for the other:
 | Log pipeline | Deployment and Observability | R12 (the first deploying slice) |
 | Icon set used by the interface: an open-source set under a permissive licence (MIT, Apache-2.0, ISC, or BSD), self-hosted as SVG, with no emoji standing in for an icon | Product Scope; Design System Standards; Principle V | R1 |
 | Redis client library | Files register row (BullMQ, Redis); Deployment and Observability's worker-durability rules | R3 |
-| OpenSearch client library | Search register row; `packages/search` | R5 |
+| OpenSearch client library | Search register row; `packages/search`; the worker's index-write path (R3 indexes the parts, so R3 is the first slice to need the client) | R3 |
 | Automated accessibility checker | Principle IV's verification MUST | R1 |
 | Arabic analyzer configuration and verification | Principle V's root-aware search; Search register row | R5 |
 | SBOM generator | Deployment and Observability's supply-chain controls; Glossary (SBOM) | R1 (the slice that establishes the release build) |
@@ -1817,6 +1821,7 @@ however obviously the concept belongs to the entity.
 | `.specify/templates/exception-register.md` | The exception register required by Governance. | `.specify/templates/`. |
 | `.specify/templates/overrides/` | Template overrides required by Single-Reference Sufficiency and by Governance. | `.specify/templates/overrides/`. |
 | `.specify/memory/constitution.md` | This document. | `.specify/memory/`. |
+| `.specify/memory/version.json` | The machine-readable constitution version, whose `constitution_version` field MUST equal the footer's (Governance → amendment procedure). | `.specify/memory/`. |
 | `ROADMAP.md` | The MVP slice order. Names and orders slices; does not design them. | Repository root. |
 | `AGENTS.md` | Operating instructions for agent assistants. | Repository root. |
 | `.specify/extensions.yml` | The installed extensions and the hook registry every Spec Kit command reads before and after it runs. | `.specify/`. |
@@ -1983,39 +1988,36 @@ than governing it, and it restates MUSTs the document already states. The
 durable record of an amendment is an entry in `docs/DECISIONS.md` naming the
 version, what changed, and what deliberately did not.
 
-On every amendment the version stamps MUST move in the same change. This
-paragraph is the single authority for that list; no other document may restate
-it, and a document that carries a copy is corrected from here rather than
-edited in its own words. The stamp sites are:
+On every amendment the version lives in exactly two places, which MUST agree,
+and the amendment is recorded once:
 
-1. `.specify/memory/constitution.md` — the version footer.
-2. `.specify/templates/overrides/spec-template.md` — the binding-block
-   `constitution vX.Y.Z` string.
-3. `.specify/templates/overrides/plan-template.md` — the binding-block
-   `constitution vX.Y.Z` string.
-4. `.specify/templates/overrides/checklist-template.md` — the binding-block
-   `constitution vX.Y.Z` string.
-5. `.specify/templates/overrides/tasks-template.md` — the binding-block
-   `constitution vX.Y.Z` string.
-6. `.specify/templates/overrides/constitution-template.md` — the scaffold's own
-   version footer, and its stamp list, which points at this paragraph rather
-   than enumerating sites.
-7. `docs/architecture.md` — the version stamps.
-8. `docs/domain-model.md` — the version stamp.
-9. `ROADMAP.md` — the version stamps.
-10. `Project-Technologies.txt` — every version stamp in the file, which today
-    means the header at the top and the sync-marker block that reproduces it
-    further down. A file that restates its own header carries two sites, not one.
-11. `docs/DECISIONS.md` — the ADR index row and the ADR the amendment records.
+1. `.specify/memory/constitution.md` — the version footer, the human-readable
+   authority for the current version.
+2. `.specify/memory/version.json` — the machine-readable value, whose
+   `constitution_version` field MUST equal the footer's version.
+3. `docs/DECISIONS.md` — the ADR index row and the ADR the amendment records,
+   which is the durable record of what changed.
+
+This paragraph is the single authority for those sources; no other document may
+restate them, and a document that carries a copy is corrected from here rather
+than edited in its own words.
+
+A document that needs to name the governing constitution names
+`.specify/memory/constitution.md` and reads the version from one of the two
+sources above; it MUST NOT hard-code a version string of its own, because a
+copied version is a second source that drifts from the first. The feature
+templates' binding blocks, `docs/architecture.md`, `docs/domain-model.md`,
+`ROADMAP.md`, and `Project-Technologies.txt` therefore carry a pointer rather
+than a literal version.
 
 A stamp site that does not exist yet is not a gap; when one is added it enters
 this list in the same change that creates it.
 
-The constitution command edits only this document, so the remaining ten sites
-are moved by the amendment's own change rather than by that command, and an
-amendment that leaves them behind is incomplete. Precedence decides the overlap:
-where a command's scope guard and this paragraph conflict, this paragraph wins,
-because Governance opens by superseding any other written project instruction.
+The constitution command edits only this document, so `version.json` is moved
+by the amendment's own change rather than by that command, and an amendment that
+leaves it behind is incomplete. Precedence decides the overlap: where a
+command's scope guard and this paragraph conflict, this paragraph wins, because
+Governance opens by superseding any other written project instruction.
 
 A MAJOR amendment MUST additionally include a migration or backfill plan for
 artifacts produced under the previous version.
@@ -2083,4 +2085,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.23.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-07
+**Version**: 2.25.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-07

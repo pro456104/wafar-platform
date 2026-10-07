@@ -16,3 +16,7 @@ build/
 # OS and editor noise
 .DS_Store
 Thumbs.db
+
+# Agent working-tool state for this project (memory + audit notes), not Spec Kit
+# and not governance content. Machine-local; see docs/DECISIONS.md -> ADR-068.
+.workbuddy-ai/

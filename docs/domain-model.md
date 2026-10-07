@@ -5,7 +5,8 @@ entities the product reasons about, the relationships between them, their
 cardinality, their invariants, and the module that owns each one. It is the
 source the constitution's Product Register maps.
 
-Its authority is `.specify/memory/constitution.md` (v2.23.1); where this
+Its authority is `.specify/memory/constitution.md` (current version: its footer
+or `.specify/memory/version.json`); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
 change to a registered product fact and MUST be recorded as an ADR in
@@ -67,14 +68,14 @@ through R15 all read this document before planning.
 
 ## Entity map
 
-Ten entities, each owned by exactly one module. Ownership is binding: the
+Twelve entities, each owned by exactly one module. Ownership is binding: the
 owning module is the only one that may read or write the entity's storage, and
 every other module reaches it through that module's service, which is
 exposed via the shared package — never through a direct import.
 
 | Entity | Owning module | What it represents | Cardinality |
 |---|---|---|---|
-| `User` | `users` | A registered merchant whose identity is a full name, a Libyan mobile number (E.164, unique, always +218), a city, an optional shop name, and the role that separates a merchant from an administrator. No email address exists, and no dial-code selector is offered. | One account has many catalogs, bookmarks, notifications, and at most one conversation. |
+| `User` | `users` | A registered merchant whose identity is a full name, a Libyan mobile number (E.164, unique, always +218), a city, an optional shop name, the role that separates a merchant from an administrator, and a status that is `active` or `blocked`. No email address exists, and no dial-code selector is offered. | One account has many catalogs, bookmarks, notifications, sessions, and at most one conversation. |
 | `Supplier` | `suppliers` | The company named on a catalog's first page, from which the parts originate. | One supplier appears in many catalogs. |
 | `Catalog` | `catalogs` | An uploaded supplier file with its metadata, its processing status, and a pointer to its stored bytes. | One catalog belongs to one uploading user and to at most one supplier, and contains many parts. |
 | `Part` | `parts` | A single row extracted from a catalog, representing one car part, carrying the price its own catalog printed. | One part belongs to exactly one catalog. |
@@ -83,7 +84,9 @@ exposed via the shared package — never through a direct import.
 | `Conversation` | `messages` | The single thread between a merchant and the administrator. Whether it carries an administrator reference, and whether every administrator account reads the same thread, is unresolved fact #2 below, owned by R10. | A user has at most one conversation. |
 | `Message` | `messages` | One message inside a conversation. | Many per conversation. |
 | `ContactMessage` | `support` | A message from the public contact form: name, phone, body. | Independent of any account; it reaches the administrator without a conversation. The phone is for contact only, never an account identifier. |
-| `AuditLog` | `admin` | The append-only record of every administrator operation. | Append-only: never updated, never deleted. The administrator is a party the record names, but *how* it names one is undecided — see Unresolved facts. |
+| `AuditLog` | `admin` | The append-only record of every administrator operation. | Append-only: never updated, never deleted. The administrator is a party the record names, and the administrator is a `User` holding the administrator role (see `User`). |
+| `Session` | `auth` | One server-side session for an account, which proves the caller is signed in and is revocable on its own or all at once ("sign out everywhere"). | Many per user; each belongs to exactly one account. |
+| `PlatformSetting` | `admin` | The administrator-editable platform settings the Settings page reads and writes; the contact details shown on the Contact page are the first of them. | Platform-wide: one set for the platform, owned by no single merchant. |
 
 ## Relationships
 
@@ -91,8 +94,10 @@ exposed via the shared package — never through a direct import.
 User 1 ──< Catalog >── 1 Supplier
 User 1 ──< Bookmark >── 1 Part >── 1 Catalog
 User 1 ──< Notification
+User 1 ──< Session
 User 1 ── 1 Conversation 1 ──< Message
 ContactMessage                 (no user; the submitter may be a guest)
+PlatformSetting                (platform-wide; no user)
 ```
 
 `AuditLog` is deliberately absent from this diagram. The register makes an
@@ -129,17 +134,18 @@ service layer re-checks the ones a constraint cannot express.
 - **A tenant is a merchant account.** There is no `Tenant` entity. The scoping
   column is `user_id`, referencing `User`, and it appears on every
   merchant-owned table: `Catalog`, `Bookmark`, `Notification`, `Conversation`,
-  and `Message`. The constitution's Schema and Migration
+  `Message`, and `Session`. The constitution's Schema and Migration
   Control names this scoping; ADR-051 is its record, and ADR-053 corrects the one
   entry in it that this document contradicted.
-- **`Supplier`, `AuditLog`, and `ContactMessage` carry no `user_id`.**
-  `Supplier` is platform-wide — one company can appear in many merchants'
-  catalogs — and `AuditLog` records administrator operations, which have no
-  merchant owner. `ContactMessage` is a public intake: the submitter may be a
-  guest who holds no row, the fields the product fixes for it are the name and
-  phone it carries *instead of* a foreign key, and its only read path is the
-  administrator's "Contact messages" page. None of the three is
-  merchant-scoped, and no isolation test covers any of them.
+- **`Supplier`, `AuditLog`, `ContactMessage`, and `PlatformSetting` carry no
+  `user_id`.** `Supplier` is platform-wide — one company can appear in many
+  merchants' catalogs — and `AuditLog` records administrator operations, which
+  have no merchant owner. `ContactMessage` is a public intake: the submitter may
+  be a guest who holds no row, the fields the product fixes for it are the name
+  and phone it carries *instead of* a foreign key, and its only read path is the
+  administrator's "Contact messages" page. `PlatformSetting` is one set for the
+  whole platform. None of the four is merchant-scoped, and no isolation test
+  covers any of them.
 - **Every index serving a merchant-scoped query leads with `user_id`.** An
   index that does not lead with the scoping column cannot serve the scoped read
   without a filter the planner has to apply after the fact.
@@ -273,9 +279,25 @@ service layer re-checks the ones a constraint cannot express.
   details.
 - **The target is namespaced** in the `type:id` form the Product Register fixes,
   so one target is unambiguous across the modules. Only a module that owns a
-  registered entity can appear as a target type; an `auth:` target type
-  becomes meaningful only once open fact #8 (`auth`'s stored entity) is
-  decided in R1.
+  registered entity can appear as a target type; `auth` qualifies because it owns
+  `Session`.
+
+### Session
+
+- **A session belongs to exactly one account**, and is revoked on its own or all
+  at once ("sign out everywhere").
+- **A session is server-side and revocable**, and is never persisted in browser
+  storage in recoverable form (Identity, Authentication, and Session Policy).
+- **Changing the password revokes the account's browser tokens**, and a session
+  is withdrawn when its account is blocked or soft-deleted.
+
+### PlatformSetting
+
+- **Platform-wide.** One set for the platform, owned by no single merchant, so it
+  carries no `user_id`.
+- **It never carries a Usage Limit.** The Usage Limits are constitutional and
+  change only by amending the constitution, never from the Settings page.
+- **Admin-editable only.** No merchant-reachable path reads or writes it.
 
 ### User
 
@@ -286,7 +308,13 @@ service layer re-checks the ones a constraint cannot express.
 - **OTP verification is required at sign-up.** Sign-in of a verified account
   requires no OTP (Product Scope; ADR-030).
 - **The role is the only authority for what a user may do.** No one becomes an
-  administrator through the public registration flow.
+  administrator through the public registration flow. An administrator is a
+  `User` holding the administrator role; there is no separate administrator
+  entity.
+- **The status is `active` or `blocked`, a closed two-value set.** A blocked
+  account keeps every row and its public contributions; blocking only sets the
+  status and withdraws the account's access. It is not deletion, and nothing
+  cascades.
 - **No user deletes their own account.** The Product Register forbids it and
   the Profile page offers no such control.
 - **A user may delete a catalog they uploaded.** The cascade to that catalog's
@@ -309,9 +337,9 @@ mirror and nowhere a feature could be held to. The register now carries it, and
 this section is its statement.
 
 Blocking is a separate operation and is **not** deletion. A blocked merchant
-keeps every row; blocking only changes the account's state (see Unresolved fact
-#7) and withdraws the account's access. Nothing cascades when an account is
-blocked, because nothing is removed.
+keeps every row; blocking only sets `User.status` to `blocked` and withdraws the
+account's access. Nothing cascades when an account is blocked, because nothing is
+removed.
 
 - **A soft-deleted row is retained, not erased.** It carries a deletion
   timestamp, and every read path filters it out.
@@ -327,26 +355,22 @@ Recorded rather than silently resolved, per the constitution's Unresolved
 product facts rule. Each names the slice that must decide it and record the
 answer in `docs/DECISIONS.md`. A slice MUST NOT decide one on its own.
 
-**Read this table before planning.** Rows 1–4 and 6 are also carried in the
+**Read this table before planning.** Rows 1–4 are also carried in the
 constitution's Unresolved product facts table, so a slice reading either document
 sees the same questions with the same owners. Row 12 joined them there on
-2026-10-05 with the price column, and row 13 joined them there on 2026-10-05
-with the Settings page's storage. The remaining rows exist only in this table and
+2026-10-05 with the price column. The remaining rows exist only in this table and
 in `ROADMAP.md` → Open data-model questions; they are open field-level facts that
-were never registered anywhere else. Row 5 was resolved 2026-10-03 by ADR-028 (a
-dedicated administrator "Contact messages" page, owned by R13) and is kept
-struck-through for traceability.
+were never registered anywhere else. Rows 5, 6, 7, 8, and 13 were resolved —
+row 5 on 2026-10-03 by ADR-028, and rows 6, 7, 8, and 13 on 2026-10-07 by
+ADR-067 — and are kept struck-through for traceability.
 
-None of rows 7–11 names a field that `Core-Project.txt` or the constitution
-currently registers. Row 12 names no field at all: it is a reading rule for a
-value the pipeline reads. Row 13 names no field either: it is a register
-question — whether a stored setting is a new entity or a column on an existing
-one — that the Data entities register reserves to R13. The identifiers that
-appeared in earlier drafts of this table (`User.status`, `Catalog.size`,
-`Catalog.mime_type`, `Part.page`, `Part.row`, `ContactMessage.status`,
-`ContactMessage.admin_note`) were never
-added to the product mirror; any use of them is a reference to this table, not
-to the mirror.
+Rows 9–11 name no field that `Core-Project.txt` or the constitution currently
+registers. Row 12 names no field at all: it is a reading rule for a value the
+pipeline reads. The identifiers that appeared in earlier drafts of this table
+(`Catalog.size`, `Catalog.mime_type`, `Part.page`, `Part.row`,
+`ContactMessage.status`, `ContactMessage.admin_note`) were never added to the
+product mirror; any use of them is a reference to this table, not to the mirror.
+(`User.status` was one of them; ADR-067 has since registered it on `User`.)
 
 | # | Unresolved fact | Why it is not decided here | Decided in |
 |---|---|---|---|
@@ -355,21 +379,20 @@ to the mirror.
 | 3 | Whether `expires_at` is the retention deadline or the supplier's printed expiry date, and the point the 90-day retention is counted from. | Two product sources disagree on the field, and no source names a trigger for the period; both readings of each are defensible. | R15 |
 | 4 | Notification retention. | The product statement defers it. | R9 |
 | 5 | ~~Whether a contact message becomes a conversation or is read in its own inbox.~~ Resolved 2026-10-03 by ADR-028: a dedicated administrator "Contact messages" page. | — | ADR-028 (owning slice: R13) |
-| 6 | Whether an administrator is a distinct entity or a role on `User`. | The register treats administrators as a role on `User`, while the conversation and the audit record refer to an administrator as a party. | R13 |
-| 7 | What state an account carries, and whether a blocked merchant is a state or a separate flag. No field is registered for it today. | The Product Register's roles make blocking an administrator power, but no state is registered for it, so `block user` currently has nothing to write. | R1 |
-| 8 | Whether the `auth` module owns any stored entity of its own, or whether an account's identity and credential data belong entirely to `users`. | Principle X lists `auth` as a module and Technology Standards fixes `packages/db/schema/auth.ts` as its schema file, yet no registered entity is owned by `auth`. Either the module owns a table that the register does not name, or the schema file is a peer of `users.ts` rather than the owner of one. R1 introduces both modules, so R1 is where this is answered. | R1 |
+| 6 | ~~Whether an administrator is a distinct entity or a role on `User`.~~ Resolved 2026-10-07 by ADR-067: the administrator is a **role on `User`**, not a distinct entity. | — | ADR-067 |
+| 7 | ~~What state an account carries, and whether a blocked merchant is a state or a separate flag.~~ Resolved 2026-10-07 by ADR-067: `User.status` is a closed two-value set, `active` or `blocked` — a state, not a separate flag. | — | ADR-067 |
+| 8 | ~~Whether the `auth` module owns any stored entity of its own.~~ Resolved 2026-10-07 by ADR-067: `auth` owns `Session`, the server-side revocable session store; the account's identity and profile belong to `users`. | — | ADR-067 |
 | 9 | The stored byte count and content type a catalog carries. No fields are registered for them today. | Both would be validation facts (File Processing Overview step 1) as much as stored ones, so the slice that enforces validation is the slice that settles them. | R2 |
 | 10 | Whether a part stores the page and the row it came from. No such fields are registered today. | Beyond the Glossary's list of a part's fields, so **Catalog data shape**. Deduplication compares file, page, and row whatever a part stores, so nothing in the pipeline forces the answer either way. | R3 |
 | 11 | The state a contact message moves through, and whether the administrator's response to one is recorded on it. No such fields are registered today. | The contact form is the only way a visitor reaches the administrator, and nothing registers what happens to the message afterwards. | R11 |
 | 12 | How a printed price carrying more than one separator is read (for example `1.250.000`), and how a file that separates thousands rather than decimals is read. | The product fixes the currency and the single-separator rule (Libyan Dinar, decimal separator, so `123.000` is 123 dinar), but real supplier files are not uniform, and only R3 can settle the multi-separator form from samples. No feature may settle it on its own. | R3 |
-| 13 | Where the administrator's platform settings live. The Settings page is registered in Product Scope and no registered entity owns stored settings. | The Data entities register holds ten entities and forbids introducing an eleventh without amending it, so the choice between a new entity and storage on an existing one is a register decision rather than a field-level one. | R13 |
+| 13 | ~~Where the administrator's platform settings live.~~ Resolved 2026-10-07 by ADR-067: `PlatformSetting`, owned by `admin`, a platform-wide entity that carries no `user_id`. | — | ADR-067 |
 
-Rows 7 through 11 are field-level questions, not conceptual ones: the entity and
+Rows 9 through 11 are field-level questions, not conceptual ones: the entity and
 its owner are not in doubt, only what the entity carries. Row 12 is a reading
-rule rather than a field, and binds the extraction pipeline the same way. Row 13
-is a register question rather than a field, and binds the administrator
-application. Each is decided by the slice named, recorded as an ADR, and added to
-this document and the constitution's register in the same change.
+rule rather than a field, and binds the extraction pipeline the same way. Each is
+decided by the slice named, recorded as an ADR, and added to this document and
+the constitution's register in the same change.
 
 ## What this document deliberately does not contain
 

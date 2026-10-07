@@ -21,6 +21,7 @@ requires:
   any:
     - "alquimia"
     - "claude"
+    - "codebuddy"
     - "copilot"
     - "gemini"
     - "opencode"

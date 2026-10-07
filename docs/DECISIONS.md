@@ -90,6 +90,10 @@ is not done; ADR-015 states that rule and this file follows it.
 | [ADR-062](#adr-062--constitution-2221-wording-only-reference-precision-and-stamp-sync) | Constitution 2.22.1: wording-only reference precision and stamp sync | 2026-10-06 | 2.22.1 |
 | [ADR-063](#adr-063--constitution-2230-the-form-metrics-register-corrected-against-its-source-and-the-amendment-closed) | Constitution 2.23.0: the form-metrics register corrected against its source, and the amendment closed | 2026-10-07 | 2.23.0 |
 | [ADR-064](#adr-064--constitution-2231-and-wafar-single-css-121-the-audit-fix-set) | Constitution 2.23.1 and wafar.single.css 1.2.1: the audit fix set | 2026-10-07 | 2.23.1 |
+| [ADR-065](#adr-065--css-header-workflow-hint-and-r2-scope-defect-fix-set) | CSS header, workflow hint, and R2 scope defect fix set | 2026-10-07 | 2.23.1 (unchanged) |
+| [ADR-066](#adr-066--constitution-2240-the-version-lives-in-two-sources-and-the-opensearch-client-owner) | Constitution 2.24.0: the version lives in two sources, and the OpenSearch client owner | 2026-10-07 | 2.24.0 |
+| [ADR-067](#adr-067--constitution-2250-the-administrator-is-a-role-userstatus-and-two-new-entities) | Constitution 2.25.0: the administrator is a role, `User.status`, and two new entities | 2026-10-07 | 2.25.0 |
+| [ADR-068](#adr-068--integration-topology-settled-and-the-constitution-command-aligned-to-upstream) | Integration topology settled, and the constitution command aligned to upstream | 2026-10-07 | 2.25.0 (unchanged) |
 
 ---
 
@@ -4067,3 +4071,353 @@ the module map's ownership claims are true of the file. The file's inventory is
 - *Fold this record into ADR-063.* Rejected: that record's subject is the Form
   metrics register text and the 2.23.0 closure. A file change and a second
   amendment closed together would misstate what 2.23.0 covered.
+
+---
+
+## ADR-065 — CSS header, workflow hint, and R2 scope defect fix set
+
+**Status**: Accepted — 2026-10-07
+**Owning directory**: `ROADMAP.md`, `wafar.single.css`, `.specify/workflows/speckit/`, `AGENTS.md`, `README.md`, `docs/architecture.md`, `.specify/templates/overrides/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** An audit of the governance set against its sources found three
+artifact-level defects — of the same class the earlier audit fix sets closed
+(ADR-047, ADR-049, ADR-055, ADR-059) — and one register-level defect that no
+artifact-level change can fix.
+
+1. **`wafar.single.css`'s header omitted ADR-064.** The header's citation list
+   stopped at ADR-060 while its version line reads `1.2.1` — the version ADR-064
+   set by moving the fifteen `--control-height-*` / `--field-height-*`
+   declarations into module 11 and removing `--space-px`. The header's own second
+   line already named ADR-064, so the file disagreed with itself.
+2. **R3 indexes parts, but the OpenSearch client library is assigned to R5 —
+   and this one is register-level.** R3's scope is "index the parts" and the
+   pipeline's step 6 is "Index the parts in the search engine", so R3 is the
+   first slice that needs the client; yet the constitution's Technology Standards
+   → Register gaps assigns the choice to R5, and `Project-Technologies.txt` and
+   `ROADMAP.md`'s own defects table both repeat R5. R5 depends on R3, so R3
+   cannot depend on R5 and would use a library no dependency provides.
+3. **R2's scope asserted open fact #9's answer.** It named the fields
+   `Catalog.size` and `Catalog.mime_type` as recorded. Neither field is
+   registered anywhere, and the Product Register's reserved-decision clause
+   forbids a bound source asserting an answer the table has not given.
+4. **`workflow.yml`'s advisory `integrations.any` list named `opencode` but
+   neither `agy` nor `codebuddy`**, the two integrations
+   `.specify/integration.json` lists as installed.
+
+**Decision.**
+
+1. `wafar.single.css`'s header ADR list gains **ADR-064** — and deliberately
+   **not ADR-063**, which states the file was untouched. No design value changes;
+   the file's version stays `1.2.1`.
+2. R2's scope no longer names `Catalog.size` or `Catalog.mime_type`; it states
+   that the catalog's stored byte count and content type are decided in R2
+   (open fact #9).
+3. `.specify/workflows/speckit/workflow.yml`'s advisory `any` list gains `agy`
+   and `codebuddy`.
+4. Every live `ADR-001 … ADR-0NN` range string moves to **ADR-001 … ADR-065**:
+   `AGENTS.md`, `README.md`, `ROADMAP.md`, `docs/architecture.md`,
+   `.specify/templates/overrides/spec-template.md`, and
+   `.specify/templates/overrides/checklist-template.md`.
+5. **The OpenSearch client-library owner is left unchanged (R5)** and recorded
+   as a defect for a constitution amendment: the Register gaps row moves
+   `R5 → R3`, together with `Project-Technologies.txt` and `ROADMAP.md` (its
+   First obligations row and its defects-table row). Until that amendment lands,
+   no artifact may re-point the owner on its own.
+
+**What deliberately did not change.** The constitution is not amended and its
+version stays 2.23.1: no principle, register, value, entity, page, feature, Usage
+Limit, module, or slice number changed, and no slice's `Depends on` edge changed.
+`wafar.single.css`'s token set and rendered values are untouched. The OpenSearch
+client owner stays R5, because moving it is a register change this record cannot
+make.
+
+**Alternatives considered.**
+- *Add ADR-063 to the CSS header beside ADR-064.* Rejected: ADR-063 states the
+  file was untouched, so citing it would create the very defect the fix removes.
+- *Re-point the OpenSearch client owner to R3 in `ROADMAP.md` alone.* Rejected
+  after checking the register: the constitution's Register gaps row and the
+  mirror both name R5, so the change would have traded one drift for a
+  register-level contradiction. The owner moves only with the amendment.
+- *Keep R2's fields and register `Catalog.size` / `Catalog.mime_type`.* Rejected:
+  registering a field to justify a premature assertion inverts the rule that the
+  register is amended first.
+
+**Consequences.** R2's scope no longer pre-empts its own open fact; the design
+system's header names the record that set its version; the workflow hint names
+the integrations the repository actually runs; and the OpenSearch client owner is
+recorded as an open defect with its exact fix, rather than silently re-pointed
+against the register. This entry is the durable record.
+
+---
+
+## ADR-066 — Constitution 2.24.0: the version lives in two sources, and the OpenSearch client owner
+
+**Status**: Accepted — 2026-10-07
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `docs/`, `ROADMAP.md`, `Project-Technologies.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** Two defects, both found by auditing the governance set against its
+own sources.
+
+1. **The amendment procedure was fragile by design.** It named eleven
+   version-stamp sites that MUST all move in the same change. The procedure
+   failed three times in a row: ADR-062, ADR-063, and ADR-064 each exist in part
+   to close an amendment whose stamps had been left behind. A rule that eleven
+   copies of one value must stay equal is a rule that will be broken, and each
+   break costs a further amendment to repair.
+2. **The OpenSearch client library's owner made R3 impossible.** R3's scope is
+   "index the parts" and the pipeline's step 6 is "Index the parts in the search
+   engine", so R3 is the first slice that needs an OpenSearch client. But
+   Technology Standards → Register gaps assigned the client's choice to R5, and
+   R5 depends on R3 — so R3 would have used a library no dependency provides, and
+   could not depend on the slice that owned the choice. ADR-065 recorded this
+   defect and deliberately left the register unchanged, because a register row is
+   changed by an amendment, not by a roadmap edit.
+
+**Decision.** The constitution is amended to 2.24.0 (MINOR: the amendment
+procedure's version mechanism changes, and a register row changes).
+
+1. **The version now lives in two sources, which MUST agree:** the constitution's
+   version footer (human-readable) and `.specify/memory/version.json`
+   (machine-readable, `constitution_version`). The amendment is recorded once, as
+   an ADR in `docs/DECISIONS.md`. The feature templates' binding blocks,
+   `docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`, and
+   `Project-Technologies.txt` now carry a **pointer** instead of a copied version
+   string, because a copied version is a second source that drifts from the
+   first. Single-Reference Sufficiency's bullet that required the templates to
+   carry "the constitution's version" is amended to require the pointer.
+2. **Technology Standards → Register gaps** moves the OpenSearch client library's
+   owner from **R5 to R3**, because R3 is the first slice to need it; the row now
+   names the worker's index-write path as the reason. `Project-Technologies.txt`
+   (its owner list), `ROADMAP.md` (its First obligations row and its defects-table
+   row) move with it.
+3. **`ROADMAP.md`'s drift-check obligation** no longer says "the eleven version
+   stamps"; it verifies the constitution's footer against
+   `.specify/memory/version.json`, alongside the range strings, the manifest
+   hashes, and the design-system token register.
+4. **Every live `ADR-001 … ADR-0NN` range string moves to ADR-001 … ADR-066.**
+
+**What deliberately did not change.** No principle was added, removed, renamed,
+or redefined. No entity, page, feature, Usage Limit, module, or slice number
+changed, and no slice's `Depends on` edge changed. `wafar.single.css` is
+untouched. The design-system version mechanism (the file declares its own
+version; the plan records it under Constitution Mandated Values) is unchanged.
+
+**Alternatives considered.**
+- *Keep eleven stamp sites and only add the drift check.* Rejected: the check
+  cannot run until R1 exists (there is no code), so the fragility would remain
+  live for the whole pre-implementation period, and the three prior failures show
+  it does not hold on discipline alone.
+- *Keep the copied version in the five templates and collapse only the four
+  documents.* Rejected: it would leave five of the eleven sites in place for a
+  smaller gain, and the templates are the artifacts an agent reads most often — a
+  pointer serves them at least as well as a copy.
+- *Let ADR-065 re-point the OpenSearch owner in `ROADMAP.md` alone.* Rejected
+  there and again here: the register is the authority, so the owner moves only
+  with the amendment that changes the register row.
+- *Assign the OpenSearch client to both R3 and R5.* Rejected: the register names
+  one owner per gap; R3 makes the choice and R5 consumes it, which the row now
+  states.
+
+**Consequences.** A future amendment moves two version sources and one ADR
+instead of eleven files, so the failure mode that produced ADR-062/063/064 can no
+longer occur. A reader who needs the version reads the footer or `version.json`;
+a document that copies a version string is now the defect, not the norm. R3's
+plan can name the OpenSearch client without depending on a later slice. The
+mirror's header no longer reproduces a version string, so its "party/header sync
+markers" note describes the pointer scheme. This entry is the durable record.
+
+---
+
+## ADR-067 — Constitution 2.25.0: the administrator is a role, `User.status`, and two new entities
+
+**Status**: Accepted — 2026-10-07
+**Owning directory**: `.specify/memory/`, `docs/`, `ROADMAP.md`
+**Owning feature**: none — governance decision; ratified by the repository owner. R1 implements `User.status` and `Session`; R13 implements the administrator-role surface and `PlatformSetting`.
+
+**Context.** Four open product facts were resolved together, because each is a
+register decision that must land before the slices that implement it (R1, R13)
+plan. Each was decided from the sources rather than by preference.
+
+1. **#6 — is an administrator a distinct entity or a role on `User`?** The
+   Product Register's roles table and the `User` entity both treat the
+   administrator as a role on `User`, and `docs/architecture.md`'s `auth` and
+   `admin` rows do the same. The product mirror states one administrator account
+   type and that all administrators see the same conversations. The role reading
+   is therefore the one the sources already carry.
+2. **#7 — what state does an account carry, and is a blocked merchant a state or
+   a separate flag?** `docs/domain-model.md` (Soft deletion) states that blocking
+   "only changes the account's state" and that "nothing cascades", and the
+   Product Register gives the administrator a `block` power with no field to
+   write. The account therefore needs a state, not a second flag.
+3. **#8 — does the `auth` module own any stored entity?** Principle X lists
+   `auth`, and Technology Standards fixes `packages/db/schema/auth.ts` as its
+   schema file under the Internal-layout rule that "the table it declares belongs
+   to that module". The Identity policy requires sessions that are revocable
+   server-side, and `Project-Technologies.txt` names a session store. `auth`
+   therefore owns storage, and the register must name the entity it owns.
+4. **#13 — where do the administrator's platform settings live?** The Settings
+   page is registered in Product Scope with no entity behind it, and the register
+   forbids introducing an entity it does not name. The choice is between a new
+   entity and a column on an existing one.
+
+**Decision.** The constitution is amended to 2.25.0 (MINOR: the Data entities
+register grows by two entities and one field, and two unresolved facts close).
+
+1. **The administrator is a role on `User`.** No administrator entity exists;
+   `Conversation` and `AuditLog` name an administrator as a `User` holding the
+   administrator role.
+2. **`User` carries `status`, a closed two-value set: `active` or `blocked`.** It
+   is a state, not a separate flag. Blocking sets it and withdraws access;
+   nothing cascades, and it is not deletion (which stays soft, by timestamp).
+3. **`auth` owns `Session`** — the server-side, revocable session store. The
+   account's identity and profile belong to `users`. `Session` is merchant-scoped
+   and carries `user_id`.
+4. **`admin` owns `PlatformSetting`** — the administrator-editable platform
+   settings the Settings page reads and writes, starting with the contact
+   details shown on the Contact page. It is platform-wide and carries no
+   `user_id`, and it never carries a Usage Limit (those are constitutional).
+5. The Data entities register moves from **ten to twelve** entities; the
+   merchant-scoped list gains `Session`, and the platform-wide list gains
+   `PlatformSetting`. `docs/domain-model.md`, `docs/architecture.md`, and
+   `ROADMAP.md` move with it, and the four facts are struck from both
+   unresolved-fact tables with ADR-067 as their resolver.
+6. The constitution moves to **2.25.0**: its footer and
+   `.specify/memory/version.json`, and the live `ADR-001 … ADR-0NN` range strings
+   move with it.
+
+**What deliberately did not change.** No principle was added, removed, renamed,
+or redefined. No page, feature, Usage Limit, module, or slice number changed, and
+no slice's `Depends on` edge changed. `wafar.single.css` is untouched. Facts #1
+and #2 (the message sender's representation and `Conversation`'s administrator
+reference) stay open and stay with R10: they are schema decisions about the
+`messages` module, and resolving #6 removes the conceptual doubt without deciding
+their representation.
+
+**Alternatives considered.**
+- *Make the administrator a distinct entity.* Rejected: the Product Register,
+  the `User` entity, and both module rows already treat it as a role; a distinct
+  entity would contradict four sources and add a register entity for no product
+  need.
+- *Model blocking as a boolean flag beside the role.* Rejected: the domain model
+  says blocking changes "the account's state", and a state and a flag would both
+  describe the same thing; one closed enum is the smaller and truer shape.
+- *Leave `auth` owning no entity and call `auth.ts` a peer of `users.ts`.*
+  Rejected: the Internal-layout rule says the table a module's schema file
+  declares belongs to that module, and the register forbids an entity it does not
+  name, so `auth`'s session store must be registered rather than left unnamed.
+- *Store the platform settings as a column on an existing entity.* Rejected: no
+  registered entity is platform-wide and admin-editable at once, and a settings
+  column on `User` or `AuditLog` would put platform data where a merchant row
+  belongs.
+- *Resolve facts #1 and #2 here too.* Rejected: they are R10's schema decisions
+  about message representation, not consequences of the administrator being a
+  role; pre-empting them would be the reserved-decision defect.
+
+**Consequences.** R1 can build the account with a `status` and the `auth`
+module's session store without deciding a reserved fact; R13 can build the
+administrator surface and the Settings page against `PlatformSetting`. The
+register now names twelve entities, so a slice that needs a thirteenth must amend
+it as this record did. Both unresolved-fact tables carry four fewer open rows and
+a struck-through record of each answer. This entry is the durable record.
+
+---
+
+## ADR-068 — Integration topology settled, and the constitution command aligned to upstream
+
+**Status**: Accepted — 2026-10-07
+**Owning directory**: `.specify/`, `.opencode/`, `.codebuddy/`, `.gitignore`, `AGENTS.md`, `Core-Project.txt`, `Project-Technologies.txt`
+**Owning feature**: none — governance/tooling decision; ratified by the repository owner
+
+**Context.** Three defects, found by auditing the installed Spec Kit environments
+against upstream and against the governance set.
+
+1. **The installed-integration registry and the environment on disk disagreed.**
+   `.specify/integration.json` listed `agy` and `codebuddy` while `.opencode/`
+   existed and was version-controlled, so `opencode` was unmanaged by the CLI and
+   `agy` (Antigravity) was installed although the Spec Kit catalogue does not
+   declare it multi-install safe — it shares `.agents/skills/` with Codex and Zed.
+2. **The constitution command carried a stale scope-guard exception.** Both
+   `.opencode/commands/speckit.constitution.md` and
+   `.codebuddy/commands/speckit.constitution.md` carried an "amendment stamp
+   sites" block asserting that the amendment procedure "requires eleven version
+   stamps to move". ADR-066 (2.24.0) replaced that mechanism: the version now
+   lives in exactly two sources (the constitution footer and
+   `.specify/memory/version.json`) plus one ADR, and Governance states that the
+   command "edits only this document". The block therefore contradicted the
+   constitution it was meant to serve, and it restated a version mechanism that
+   Single-Reference Sufficiency forbids another document from restating.
+3. **`integrations/.cache/` was not ignored.** `.specify/.gitignore` ignored
+   `extensions/.cache/` only, so the CLI's refreshed catalogue files dirtied the
+   working tree on every check — the same defect ADR-063 closed for the
+   extension cache.
+
+**Decision.**
+
+1. **The installed integrations are `codebuddy` (default) and `opencode`.**
+   `agy` is retired and its `.agents/` tree removed. `.specify/integration.json`
+   lists both installed integrations with their settings, `integration` and
+   `default_integration` stay `codebuddy`, and `.specify/extensions/.registry`
+   carries no `agy` entry.
+2. **The constitution command is aligned to upstream in both environments.** The
+   stale "eleven version stamps" block is removed and the three sentences it had
+   modified are restored to the upstream wording, so
+   `.opencode/commands/speckit.constitution.md` and
+   `.codebuddy/commands/speckit.constitution.md` are byte-identical to the
+   official command. Governance's precedence rule ("where a command's scope
+   guard and this paragraph conflict, this paragraph wins") already covers the
+   case the block tried to pre-empt.
+3. **Both integration manifests record the aligned hash** for
+   `speckit.constitution.md` (`c172c743…`).
+4. **`integrations/.cache/` is added to `.specify/.gitignore`**, on the same
+   reasoning as `extensions/.cache/` (ADR-063).
+5. **`Core-Project.txt` §8 is corrected to twelve entities.** Its summary table
+   still read "the ten entities" and omitted `Session` and `PlatformSetting`,
+   which ADR-067 registered; a bound mirror that contradicts the register is
+   corrected to it.
+6. **The live `ADR-001 … ADR-0NN` range strings move to ADR-068**, and
+   `Project-Technologies.txt`'s header ADR list gains ADR-067 and ADR-068.
+7. **`.workbuddy-ai/` is added to the root `.gitignore`.** It is the agent's
+   working-tool state for this project (its memory and its audit notes), not
+   Spec Kit and not governance content, so it stays out of the repository. It is
+   distinct from `.codebuddy/`, which is the Spec Kit integration's command
+   directory and is tracked.
+8. **`.specify/integrations/.cache/` is untracked** (`git rm --cached`),
+   completing item 4's ignore rule: a file that is both tracked and ignored
+   still surfaces as modified, so the ignore alone does not stop the tree from
+   dirtying.
+9. **`workflow.yml` drops the retired `agy` entry** from its advisory
+   `integrations.any` list; `codebuddy` and `opencode` stay.
+10. **`speckit.manifest.json` is restored to its committed state, and its
+    remaining drift is left visible rather than re-recorded.** The manifest is
+    the CLI's pristine baseline: re-recording the hashes of files the project
+    deliberately customized (the five binding overrides and `.specify/.gitignore`)
+    would make the CLI treat them as unmodified and overwrite them on a refresh.
+    The drift is the truthful signal that they are customized.
+
+**What deliberately did not change.** No principle was added, removed, renamed,
+or redefined; the constitution stays 2.25.0 and `wafar.single.css` is untouched.
+No entity, page, feature, Usage Limit, module, or slice number changed. The
+binding cycle, the extensions (`assess`, `bug`, `git`), the hooks, and the
+templates are unchanged.
+
+**Alternatives considered.**
+- *Keep `agy` installed alongside the others.* Rejected: the Spec Kit catalogue
+  does not declare it multi-install safe, and the two remaining integrations each
+  own a private command directory, so neither collides with the other.
+- *Keep the exception block and correct "eleven" to "two".* Rejected: the
+  constitution is the single authority for the version sources and forbids
+  another document from restating them, so the block is removed rather than
+  re-worded.
+- *Align only the codebuddy copy.* Rejected: the two environments must behave
+  identically, so both files are aligned and both manifests re-hashed.
+- *Correct `Core-Project.txt` in a separate change.* Rejected: it is the same
+  mirror-sync defect ADR-067 left behind, and one record closes it.
+
+**Consequences.** Both installed environments are first-class: the CLI manages
+`.codebuddy/commands/` and `.opencode/commands/`, which are byte-identical to
+each other and to upstream, and either can be used with the same command
+spelling (`/speckit.*`). A `specify` refresh no longer leaves an unmanaged
+environment behind, and `Core-Project.txt` agrees with the register again. This
+entry is the durable record.

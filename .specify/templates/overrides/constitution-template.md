@@ -17,12 +17,12 @@
   Product Register, or `### Register gaps a slice MUST close` under Technology
   Standards) are not listed below and are not tracked here; the `##` order is.
 
-  On every amendment (normative): this scaffold's version footer MUST move in
-  the same change. The full list of stamp sites is NOT restated here — the
-  constitution's Governance -> Amendment procedure is the single authority for
-  it, and this block points at that paragraph. An amendment that changes only
-  the constitution is an incomplete amendment, because that list has ten sites
-  outside this file.
+  On every amendment (normative): the constitution's version lives in its footer
+  and in `.specify/memory/version.json`, which MUST agree, and the amendment is
+  recorded as an ADR in `docs/DECISIONS.md`. The authoritative statement is the
+  constitution's Governance -> Amendment procedure; this block points at it. The
+  footer below is a placeholder: a scaffolded constitution writes its own version
+  there.
 -->
 
 # Wafar Platform Constitution
@@ -112,4 +112,4 @@
 
 ## Governance
 
-**Version**: 2.23.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-07
+**Version**: [X.Y.Z] | **Ratified**: [DATE] | **Last Amended**: [DATE]

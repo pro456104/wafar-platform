@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-064; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-068; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -97,6 +97,14 @@ to normalize a raw idea into an intake note before specification
 cycle. Hook states are read from `.specify/extensions.yml`; the `git` commit
 hooks are registered but disabled by default.
 
+Two integrations are installed: `codebuddy` (WorkBuddy AI) is the default, and
+`opencode` is the second. Each owns a private command directory
+(`.codebuddy/commands/`, `.opencode/commands/`) whose files are byte-identical
+to each other and to the upstream Spec Kit commands; both read the same
+`.specify/` tree (templates, extensions, hooks, scripts, workflow), so either
+environment runs the same cycle with the same command spelling (`/speckit.*`).
+`.specify/integration.json` lists both and keeps `codebuddy` as the default.
+
 Templates resolve from `.specify/templates/overrides/` first, then
 presets, then extensions, then core. The `speckit.taskstoissues` command is a
 reserved optional surface: no product requirement names it today, and adopting
@@ -125,6 +133,12 @@ reader checks, not the engine.
   `.opencode/.gitignore`, so a fresh clone relies on opencode regenerating it.
   The `@opencode-ai/plugin` pin (recorded in the local file) is machine-local,
   not repo-enforced.
+
+- **`.codebuddy/` and two Spec Kit state files are not yet committed.**
+  `.codebuddy/`, `.specify/integrations/codebuddy.manifest.json`, and
+  `.specify/memory/version.json` are untracked, so a fresh clone lacks the
+  default environment and one of the two version sources. They MUST be tracked
+  in the next commit (ADR-068).
 
 - **`create-new-feature.ps1` is an installed but uncalled script.** Feature
   numbering and directory creation run inside the specify command, so the

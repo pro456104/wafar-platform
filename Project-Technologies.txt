@@ -1,7 +1,8 @@
 # Project-Technologies.txt — the detail of the technology register
 
-**Constitution**: `.specify/memory/constitution.md` v2.23.1 (last amended
-2026-10-07, ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064). On any conflict with this file, the constitution
+**Constitution**: `.specify/memory/constitution.md` (current version: its footer
+or `.specify/memory/version.json`; last amended 2026-10-07,
+ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064/065/066/067/068). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -388,7 +389,7 @@ named in the sources.
   Pinia, server-state cache from TanStack Query; validation schemas live in
   `packages/shared`.
 - **Open register gaps** (owners in parentheses): Redis client library for
-  BullMQ (R3), OpenSearch client library (R5), automated accessibility checker
+  BullMQ (R3), OpenSearch client library (R3), automated accessibility checker
   (R1), Arabic analyzer configuration and verification (R5), SBOM generator (R1),
   load-test tool (R12). The scans the release gate runs are registered; the
   SBOM's generator and the load-test tool are not, and naming either here is
@@ -436,14 +437,16 @@ This section records what 2.18.0 added. The rules are in
 
 ### Party/header sync markers
 
-The mirror header carries the constitution's version and last-amended date, and
-then the ADR list of its own:
-`Constitution: .specify/memory/constitution.md v2.23.1 (last amended 2026-10-07,
-ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064)`.
-The version and the date are the constitution footer's; the ADR list is this
-mirror's record of the amendments it mirrored, and the footer does not carry it.
-Every later header here is the same value: v2.23.1 / 2026-10-07 / that ADR list.
-If the constitution is amended, move these markers in the same change.
+The mirror header names the constitution and points at the two sources that hold
+its version (the footer and `.specify/memory/version.json`) instead of copying a
+version string, and then carries the ADR list of its own:
+`Constitution: .specify/memory/constitution.md (current version: its footer or
+.specify/memory/version.json; last amended 2026-10-07, ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064/065/066/067/068)`.
+The date is the constitution footer's; the ADR list is this mirror's record of
+the amendments it mirrored, and the footer does not carry it. Because the mirror
+copies no version string, an amendment moves the constitution footer and
+`.specify/memory/version.json` and appends its ADR to this list; the header's
+prose changes only in that list and the last-amended date.
 
 ### Audit fix set (ADR-047)
 

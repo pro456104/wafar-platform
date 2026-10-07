@@ -19,21 +19,13 @@ You **MUST** consider the user input before proceeding (if not empty).
 This command's own work is limited to updating the project constitution itself. Dependent templates
 and commands read the constitution at runtime and are not modified here.
 
-**Exception — the amendment stamp sites.** `.specify/memory/constitution.md` → Governance →
-Amendment procedure requires eleven version stamps to move in the same change as the constitution
-text, and ten of them are outside this file. That procedure is the single authority for the list.
-Where this scope guard and that procedure conflict, the procedure wins, because Governance opens by
-superseding any other written project instruction. This command therefore edits the constitution
-text and its own version footer, and leaves the remaining ten sites to the amendment's change.
-The command MUST NOT edit any file that is not one of those eleven sites.
-
 - Classify every part of the user input as either constitution content or a separate,
   non-governance intent.
 - If the input includes feature implementation, code generation, refactoring, building, or
   deployment requests, you **MUST NOT** execute them. Extract them as deferred intents instead.
 - You **MUST NOT** create, modify, or delete application source files, feature routes,
   components, tests, deployment files, or other artifacts unrelated to the constitution
-  workflow. An amendment stamp site named by Governance is not such an artifact.
+  workflow.
 - If it is unclear whether an instruction is constitution content, ask for clarification before
   making changes.
 - After completing the constitution update, include a `Next Actions` section for each deferred
@@ -93,9 +85,7 @@ Follow this execution flow:
      values and amendments. Preserve information that is still applicable when applying the newly
      resolved scaffold.
    - If it does not exist, use the resolved template as the initial document.
-   - Do not write back to the resolved template layer (core, presets, or extensions);
-     the project's override stamp sites are moved by the amendment's change, per the
-     scope guard above.
+   - Do not write back to any versioned template layer.
    - Identify every placeholder token of the form `[ALL_CAPS_IDENTIFIER]`.
    **IMPORTANT**: The user might require less or more principles than the ones used in the template. If a number is specified, respect that - follow the general template. You will update the doc accordingly.
 
@@ -149,11 +139,7 @@ If the user supplies partial updates (e.g., only one principle revision), still 
 
 If critical info missing (e.g., ratification date truly unknown), insert `TODO(<FIELD_NAME>): explanation` and include in the Sync Impact Report under deferred items.
 
-Write `.specify/memory/constitution.md` and its own version footer as this command's
-output. The amendment's change — not this command — MUST then move the ten amendment
-stamp sites outside this document, as Governance → Amendment procedure requires (it is
-the single authority for the list and for the precedence rule); no other template source
-file is created or modified.
+Write only `.specify/memory/constitution.md`; do not create or modify template source files.
 
 ## Post-Execution Checks
 

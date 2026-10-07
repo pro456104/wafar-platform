@@ -13,3 +13,8 @@ extensions/*/local-config.yml
 # arrives with the CRLF endings .gitattributes reserves away from *.json
 # (ADR-039). A fresh clone regenerates it. See ADR-063.
 extensions/.cache/
+
+# Refreshed integration-catalog metadata. Same reasoning as extensions/.cache/
+# above: machine state the CLI rewrites on every check, tracked it dirties the
+# working tree on any command. A fresh clone regenerates it. See ADR-068.
+integrations/.cache/

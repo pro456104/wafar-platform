@@ -24,7 +24,7 @@ path a task touches MUST appear in the plan's ownership map, that map MUST match
 ## Format (REQUIRED)
 
 <!--
-  BINDING RULES FOR THIS DOCUMENT (constitution v2.23.1) - NORMATIVE:
+  BINDING RULES FOR THIS DOCUMENT (governed by `.specify/memory/constitution.md`; the current version is in its footer and in `.specify/memory/version.json`) - NORMATIVE:
   1. Every task MUST end with `(implements FR-###, AC-###)`, or
      `(implements Complexity Tracking: <row>)` when no requirement genuinely
      applies (Principle I).
