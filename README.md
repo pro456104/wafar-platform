@@ -16,7 +16,7 @@ not sell, buy, process payment, or host user-to-user chat.
 | `docs/CHANGELOG-mirror.md` | The mirror's historical amendment blocks, split out of `Project-Technologies.txt` (ADR-075). History, not a source of rules. |
 | `docs/architecture.md` | Repository layout, API module map, data flow. |
 | `docs/domain-model.md` | The data model: entities, relationships, cardinality, invariants, and the module that owns each. |
-| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-081; index at the top). |
+| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-082; index at the top). |
 | `wafar.single.css` | The design system's values — the only permitted source of design values. Its register is `.specify/memory/constitution.md` → Design System Standards. |
 | `ROADMAP.md` | The MVP slice order. Names and orders slices; does not design them. |
 | `AGENTS.md` | Operating instructions for agent assistants. |
@@ -56,7 +56,8 @@ the project's binding templates and must not be replaced with the core ones.
 
 **Governance drift check.** `node governance-drift-check.mjs` (repository root)
 verifies the invariants the governance set cannot verify by discipline: the two
-version sources, every live `ADR-001 … ADR-081` range string, the ADR list in
+version sources, every live `ADR-001 … ADR-082` range string, every ADR index
+row's anchor against its heading, the ADR list in
 `Project-Technologies.txt`'s header, the upstream manifest hashes, the two
 integrations' byte-identity (their command directories and their two integration
 manifests), the design system's token register against

@@ -8,7 +8,8 @@
  *   A. the constitution footer version equals `.specify/memory/version.json`
  *   B. every live `ADR-001 … ADR-0NN` range string, in every governance
  *      markdown file under `docs/` and the template overrides, equals the last
- *      ADR row in `docs/DECISIONS.md`'s index
+ *      ADR row in `docs/DECISIONS.md`'s index; and every index row's anchor
+ *      resolves to its heading
  *   F. the ADR list in `Project-Technologies.txt`'s header ends at that row
  *   C. every `speckit.manifest.json` hash for an *upstream-owned* file matches
  *      the working tree; project-owned files are excluded by a path rule
@@ -108,7 +109,30 @@ if (expected === null) {
       }
     }
   }
+  // Every index row's anchor must resolve to its heading. The heading anchor is
+  // GitHub's slug: lowercase, drop every character that is not a letter, digit,
+  // space, or hyphen, then replace each space with a hyphen (no collapsing, so
+  // an em dash between two spaces yields two hyphens). ADR-082 added this check
+  // and repaired the one row it found (ADR-064).
+  const anchorOf = (s) =>
+    s.toLowerCase().replace(/[^a-z0-9 -]/g, '').replace(/ /g, '-');
+  const headingAnchors = new Map();
+  for (const m of decisions.matchAll(/^## ADR-(\d{3}) — (.+)$/gm)) {
+    headingAnchors.set(m[1], anchorOf(`adr-${m[1]} — ${m[2]}`));
+  }
+  let anchorsChecked = 0;
+  for (const m of decisions.matchAll(/^\| \[ADR-(\d{3})\]\(#([^)]+)\)/gm)) {
+    const [, n, anchor] = m;
+    const expectedAnchor = headingAnchors.get(n);
+    if (!expectedAnchor) {
+      failures.push(`B: ADR-${n} has an index row but no "## ADR-${n} — …" heading`);
+    } else if (expectedAnchor !== anchor) {
+      failures.push(`B: ADR-${n} index anchor #${anchor} != heading anchor #${expectedAnchor}`);
+    }
+    anchorsChecked++;
+  }
   notes.push(`B: index ends at ADR-${expected}; ${scannedRangeFiles.size} markdown files scanned`);
+  notes.push(`B: ${anchorsChecked} ADR index anchors resolved against their headings`);
 }
 
 /* ---- F. the Project-Technologies.txt header ADR list ends at the index ----- */

@@ -99,7 +99,7 @@ from the index rather than edited in its own words.
 | [ADR-061](#adr-061--the-in-flight-clarifications-recorded-and-the-reserved-decision-the-one-phrasing-pre-empted) | The in-flight clarifications recorded, and the reserved decision the one phrasing pre-empted | 2026-10-06 | 2.22.0 (unchanged) |
 | [ADR-062](#adr-062--constitution-2221-wording-only-reference-precision-and-stamp-sync) | Constitution 2.22.1: wording-only reference precision and stamp sync | 2026-10-06 | 2.22.1 |
 | [ADR-063](#adr-063--constitution-2230-the-form-metrics-register-corrected-against-its-source-and-the-amendment-closed) | Constitution 2.23.0: the form-metrics register corrected against its source, and the amendment closed | 2026-10-07 | 2.23.0 |
-| [ADR-064](#adr-064--constitution-2231-and-wafar-single-css-121-the-audit-fix-set) | Constitution 2.23.1 and wafar.single.css 1.2.1: the audit fix set | 2026-10-07 | 2.23.1 |
+| [ADR-064](#adr-064--constitution-2231-and-wafarsinglecss-121-the-audit-fix-set) | Constitution 2.23.1 and wafar.single.css 1.2.1: the audit fix set | 2026-10-07 | 2.23.1 |
 | [ADR-065](#adr-065--css-header-workflow-hint-and-r2-scope-defect-fix-set) | CSS header, workflow hint, and R2 scope defect fix set | 2026-10-07 | 2.23.1 (unchanged) |
 | [ADR-066](#adr-066--constitution-2240-the-version-lives-in-two-sources-and-the-opensearch-client-owner) | Constitution 2.24.0: the version lives in two sources, and the OpenSearch client owner | 2026-10-07 | 2.24.0 |
 | [ADR-067](#adr-067--constitution-2250-the-administrator-is-a-role-userstatus-and-two-new-entities) | Constitution 2.25.0: the administrator is a role, `User.status`, and two new entities | 2026-10-07 | 2.25.0 |
@@ -117,6 +117,7 @@ from the index rather than edited in its own words.
 | [ADR-079](#adr-079--constitution-2281-the-drift-checks-four-descriptions-aligned) | Constitution 2.28.1: the drift check's four descriptions aligned | 2026-10-08 | 2.28.1 |
 | [ADR-080](#adr-080--the-drift-checks-structural-count-coverage-completed) | The drift check's structural-count coverage completed | 2026-10-08 | 2.28.1 (unchanged) |
 | [ADR-081](#adr-081--spec-kit-cli-upgraded-to-112-the-scaffold-pin-annotated) | Spec Kit CLI upgraded to 1.1.2; the scaffold pin annotated | 2026-10-08 | 2.28.1 (unchanged) |
+| [ADR-082](#adr-082--the-adr-indexs-anchor-integrity-checked-and-adr-064s-anchor-repaired) | The ADR index's anchor integrity checked, and ADR-064's anchor repaired | 2026-10-08 | 2.28.2 |
 
 ---
 
@@ -5944,3 +5945,64 @@ floor holds, the move is recorded, and the scaffold's own version is left as the
 fact it is. The drift check reports clean with the index ending at ADR-081 and
 every live range string reading `ADR-001 … ADR-081`. This entry is the durable
 record.
+
+---
+
+## ADR-082 — The ADR index's anchor integrity checked, and ADR-064's anchor repaired
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `governance-drift-check.mjs`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `.specify/templates/overrides/`, `Project-Technologies.txt`, `.specify/memory/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** `docs/DECISIONS.md` is read through its index: every index row links
+to an ADR by anchor (`[ADR-0NN](#adr-0nn--…)`), and a reader — a person or an
+agent — follows that link rather than scrolling. A verification pass over all 81
+index rows against the anchors GitHub generates from their headings found exactly
+one that does not resolve: **ADR-064**. Its heading reads "… and
+`wafar.single.css` 1.2.1 …", whose slug is `wafarsinglecss` (a period is dropped,
+exactly as "1.2.1" → "121" elsewhere), while its index row wrote
+`wafar-single-css`. The other eighty rows resolve, the numbering is contiguous
+ADR-001…ADR-081, and there are no duplicates. ADR-047 repaired two broken anchors
+(ADR-045, ADR-046) by hand; nothing checked the class since, which is why a third
+survived.
+
+**Decision.**
+
+1. `docs/DECISIONS.md`'s ADR-064 index row's anchor is corrected to
+   `#adr-064--constitution-2231-and-wafarsinglecss-121-the-audit-fix-set`, the
+   slug of its heading. The ADR-064 record itself is not touched — only the link
+   that points at it.
+2. `governance-drift-check.mjs`'s check B gains the anchor verification: every
+   `[ADR-0NN](#…)` index row's anchor MUST equal the slug of its `## ADR-0NN — …`
+   heading, and every index row MUST have a heading. The slug is computed as
+   GitHub computes it — lowercase, drop every character that is not a letter,
+   digit, space, or hyphen, then replace each space with a hyphen without
+   collapsing, so an em dash between two spaces yields two hyphens.
+3. The four descriptions of the check gain the same clause, and the constitution's
+   References row names it, which moves the constitution to **2.28.2** (PATCH).
+4. Every live `ADR-001 … ADR-0NN` range string moves to **ADR-082**, and
+   `Project-Technologies.txt`'s header ADR list gains ADR-082.
+
+**What deliberately did not change.** No principle, entity, page, feature, Usage
+Limit, module, or slice changed, and no slice's `Depends on` edge changed. No ADR
+record's substance was rewritten: ADR-064's anchor is a link target, not the
+record's text. The 2.28.2 bump is PATCH, on ADR-079's precedent for a
+description-completing change.
+
+**Alternatives considered.**
+- *Repair ADR-064's anchor without adding the check.* Rejected: this is the third
+  broken anchor the project has found, and the check that would have caught all
+  three costs a few lines.
+- *Change ADR-064's heading to `wafar-single-css` so the old anchor resolves.*
+  Rejected: the heading is a ratified record's title, and the anchor — not the
+  title — is the thing that was wrong.
+- *Fold the check into a new letter rather than check B.* Rejected: B already
+  parses the index and owns its integrity; a new letter would make the four
+  descriptions enumerate a ninth check for no gain.
+- *Leave the constitution's References row generic and skip the bump.* Rejected:
+  the row names what the check verifies, and B now verifies one more thing.
+
+**Consequences.** A broken index anchor now fails the committed check instead of
+surviving until a reader clicks it. The drift check reports clean with the index
+ending at ADR-082, every index anchor resolving, and every live range string
+reading `ADR-001 … ADR-082`. This entry is the durable record.
