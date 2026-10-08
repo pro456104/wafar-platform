@@ -113,6 +113,7 @@ from the index rather than edited in its own words.
 | [ADR-075](#adr-075--constitution-2280-the-constitutions-reading-protocol-structural-count-checks-and-mirror-hygiene) | Constitution 2.28.0: the constitution's reading protocol, structural-count checks, and mirror hygiene | 2026-10-08 | 2.28.0 |
 | [ADR-076](#adr-076--roadmap-module-ownership-counts-corrected) | Roadmap module-ownership counts corrected | 2026-10-08 | 2.28.0 (unchanged) |
 | [ADR-077](#adr-077--admin-module-creation-and-the-platformsetting-read-surface) | Admin-module creation and the PlatformSetting read surface | 2026-10-08 | 2.28.0 (unchanged) |
+| [ADR-078](#adr-078--superseded-owner-assignments-annotated-and-the-platformsetting-duty-corrected) | Superseded owner assignments annotated, and the PlatformSetting duty corrected | 2026-10-08 | 2.28.0 (unchanged) |
 
 ---
 
@@ -1689,6 +1690,8 @@ record was annotated for the same reason; it was not, and it is annotated now.
 **Annotation (2026-10-06, ADR-058).** The cart label this record fixes,
 «المحفوظات», no longer stands. ADR-045 superseded this clause with «سلة المشتريات» and ADR-049 unified the mirror citation on ADR-045, but this record was left carrying the superseded label with nothing pointing at the change. The label clause is a history and is not rewritten; the superseding name is ADR-045's, and the record is annotated now so that a reader of this section alone is not left with a label the platform does not use.
 
+**Annotation (2026-10-08, ADR-078).** The Decision above assigns the OpenSearch client library to **R5**. ADR-066 moved that owner to **R3**, because R3 is the first slice to need the client (it indexes the parts) and R5 depends on R3. The other three gap rows the Decision names — Redis client library (R3), automated accessibility checker (R1), Arabic analyzer configuration and verification (R5) — are unchanged; only the OpenSearch owner is superseded.
+
 ---
 
 ## ADR-039 — Repository line-ending and encoding policy recorded; mirror stops restating rules; fallback templates labelled
@@ -1792,6 +1795,8 @@ line that it is the fallback and names its override; a Spec Kit refresh may
 restore the installed default, which is harmless because the override still
 resolves first. Living ADR range strings move to ADR-001 … ADR-039.
 This entry is the durable record.
+
+**Annotation (2026-10-08, ADR-078).** Decision item 4 above names **R5** for the sticky table header, and the Consequences repeat it. ADR-074 moved that owner to **R4**, because My Files (R4) carries the first table the product renders. The rail-width token's owner (R1) is unchanged; only the sticky header's is superseded.
 
 ---
 
@@ -5636,3 +5641,95 @@ puts it. ADR-074 and ADR-076 carry annotations naming this record, so a reader o
 either is not left with the superseded `admin` assignment. The two version sources agree at **2.28.0**, the drift check reports clean
 with the index ending at ADR-077, and every live range string reads
 `ADR-001 … ADR-077`. This entry is the durable record.
+
+---
+
+## ADR-078 — Superseded owner assignments annotated, and the PlatformSetting duty corrected
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `docs/`, `ROADMAP.md`, `AGENTS.md`, `README.md`, `.specify/templates/overrides/`, `Project-Technologies.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A deep audit of the whole governance set, and of `ROADMAP.md` in
+particular, was carried out before R1 was specified. It ran the committed drift
+check (clean at 2.28.0, index ending at ADR-077) and then read every ADR citation
+in the roadmap against the record it names, and each of those records against the
+decisions that followed it. Three defects of the same class surfaced: a live owner
+assignment superseded by a later ADR and left un-annotated, twice, and a roadmap
+duty that had not been updated when the read surface it governs was placed.
+
+1. **F-01 — ADR-038 still assigns the OpenSearch client library to R5.** Its
+   Decision names four register-gap owners: "Redis client library → R3, OpenSearch
+   client library → **R5**, automated accessibility checker → R1, Arabic analyzer
+   configuration and verification → R5". ADR-066 moved the OpenSearch owner to
+   **R3** — R3 indexes the parts, so it is the first slice to need the client, and
+   R5 depends on R3 — and stated the move in its own record but did not annotate
+   ADR-038. A reader of ADR-038 alone is left with R5.
+2. **F-02 — ADR-039 still assigns the sticky table header to R5.** Its Decision
+   item 4 reads "`ROADMAP.md` names R1 for the rail-width token and **R5** for the
+   sticky table header", and its Consequences repeat it. ADR-074 moved the sticky
+   header to **R4**, because My Files carries the first table the product renders.
+   ADR-074 annotated two other records for a supersession in the same change
+   (ADR-019 and ADR-052, after ADR-067) but did not annotate ADR-039. A reader of
+   ADR-039 alone is left with R5.
+3. **F-03 — the `PlatformSetting` duty row did not move with ADR-077.**
+   `ROADMAP.md` → First obligations carries a row for the `PlatformSetting` entity
+   the Contact page reads; its reference column named ADR-067 and ADR-072 but not
+   ADR-077, and its text still described the read projection without the module
+   that hosts it. ADR-077 placed the read surface inside the `admin` module's
+   directory, so the row is aligned with it.
+
+The file's own rule is the test: "A record is annotated when a later decision
+changes what it says." F-01 and F-02 are exactly that — a live assignment a later
+decision changed — and the precedent is ADR-074's annotation of ADR-019 and
+ADR-052.
+
+**Decision.** Constitution version **unchanged at 2.28.0** — no constitution text
+changes, so the versioning policy does not move it, following the pattern of
+ADR-031, ADR-032, ADR-076, and ADR-077.
+
+1. **ADR-038 gains an annotation** naming ADR-066: the OpenSearch client library's
+   owner is R3, and the other three gap rows the Decision names are unchanged.
+2. **ADR-039 gains an annotation** naming ADR-074: the sticky table header's owner
+   is R4, and the rail-width token's owner (R1) is unchanged.
+3. **`ROADMAP.md` → First obligations** aligns the `PlatformSetting` row with
+   ADR-077: the read projection is "created inside the `admin` module's directory
+   (the read surface only)", R13 "extends that module", and the reference column
+   adds ADR-077.
+4. Every live `ADR-001 … ADR-0NN` range string moves to **ADR-078** (`AGENTS.md`,
+   `README.md`, `ROADMAP.md`, `docs/architecture.md`, and the `spec-template.md`
+   and `checklist-template.md` overrides), and `Project-Technologies.txt`'s header
+   ADR list gains ADR-078.
+
+**What deliberately did not change.** No principle was added, removed, renamed, or
+redefined. No entity, page, feature, Usage Limit, module, or slice number changed,
+and no slice's `Depends on` edge changed — an annotation records a change ADR-066
+and ADR-074 already made; it makes none. The constitution's footer and
+`.specify/memory/version.json` stay at 2.28.0. `wafar.single.css`,
+`Core-Project.txt`, `docs/domain-model.md`, `docs/architecture.md`'s module map,
+and the exception register are untouched. `.codebuddy/commands/*` and
+`.opencode/commands/*` are untouched, so they stay byte-identical to each other and
+to their integration manifests. The five binding overrides keep their structure;
+only their range string moved.
+
+**Alternatives considered.**
+- *Leave the two records un-annotated, since ADR-066 and ADR-074 each state the
+  change in their own record.* Rejected: the file's rule annotates the superseded
+  record, and ADR-074 set the precedent by annotating ADR-019 and ADR-052 rather
+  than relying on ADR-067's own statement. A reader who opens ADR-038 or ADR-039
+  alone must not be left with the superseded owner.
+- *Rewrite ADR-038 and ADR-039 in place.* Rejected: a decision record is a
+  history; the annotation marks the superseded clause and leaves what was decided
+  visible.
+- *Fold the correction into ADR-077.* Rejected: ADR-077 is committed, and this is
+  a distinct finding of the audit that followed it.
+- *Bump to 2.28.1 (PATCH).* Rejected: the change touches no constitution text, and
+  the established pattern for a roadmap-and-log fix (ADR-031, ADR-032, ADR-076,
+  ADR-077) leaves the constitution version unchanged.
+
+**Consequences.** A reader of ADR-038 or ADR-039 alone now sees the current owner,
+with the superseding record named. The `PlatformSetting` duty row and the slice row
+that implements it agree on where the read surface lives. The two version sources
+agree at **2.28.0**, the drift check reports clean with the index ending at
+ADR-078, and every live range string reads `ADR-001 … ADR-078`. This entry is the
+durable record.

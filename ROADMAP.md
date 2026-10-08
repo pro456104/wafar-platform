@@ -35,7 +35,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-077) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-078) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -90,7 +90,7 @@ an owner.
 | The cart add/remove toggle and the toast surface the full-cart notice uses, added to `wafar.single.css` | R8 | Design System Standards → Components the product requires and the design system does not yet provide; Product Fact Clarifications (the 99-part notice); Principle IX |
 | The message-thread surface, added to `wafar.single.css` | R10 | Design System Standards → Components the product requires and the design system does not yet provide; Principle IX |
 | The notification bell with its counter, added to `wafar.single.css` and used by the shell header when the notification list lands | R9 | Design System Standards → Components the product requires and the design system does not yet provide; Principle IX |
-| The `PlatformSetting` entity the Contact page reads — its schema and public read projection, seeded with a default — created by the first surface that reads it; `admin` remains the owning module and R13 adds the administrator's Settings write surface | R11 | Product Scope → Contact; Product Register → Data entities (`PlatformSetting`); ADR-067; ADR-072 |
+| The `PlatformSetting` entity the Contact page reads — its schema and public read projection, created inside the `admin` module's directory (the read surface only), seeded with a default — created by the first surface that reads it; `admin` remains the owning module and R13 extends that module with the administrator's Settings write surface | R11 | Product Scope → Contact; Product Register → Data entities (`PlatformSetting`); ADR-067; ADR-072; ADR-077 |
 | CSRF, output-encoding, and security-header tests | R1 | Identity, Authentication, and Session Policy (first browser-facing feature) |
 | The automated accessibility scan and the manual keyboard-only pass | R1 | Principle IV (interface verification) |
 | The resolution of the sidebar conflict | Resolved 2026-10-03 in ADR-017: sidebar required fixed on desktop; auth/404/static pages bare; `Core-Project.txt` now defines the shell | Closed by ADR-017 |
