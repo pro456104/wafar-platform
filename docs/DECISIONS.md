@@ -5319,6 +5319,8 @@ and R3 rather than invisible. The two version sources agree at **2.27.2**, the
 drift check reports clean with the index ending at ADR-074, and every live range
 string reads `ADR-001 … ADR-074`. This entry is the durable record.
 
+**Annotation (2026-10-08, ADR-077).** Item 7 above records the module ownership map as "R13 `admin`". ADR-077 supersedes that one assignment: the `admin` module's creating slice is R11 (the `PlatformSetting` public read surface), and R13 extends it. The rest of item 7 — the other four modules and the schema-file row — stands.
+
 ---
 
 ## ADR-075 — Constitution 2.28.0: the constitution's reading protocol, structural-count checks, and mirror hygiene
@@ -5516,6 +5518,8 @@ every schema file. The two version sources agree at **2.28.0**, the drift check
 reports clean with the index ending at ADR-076, and every live range string reads
 `ADR-001 … ADR-076`. This entry is the durable record.
 
+**Annotation (2026-10-08, ADR-077).** Items 1 and 2 above assign `admin` to R13 and keep the schema row's "one named overlap". ADR-077 corrects both: `admin` has one creator, R11 (for the `PlatformSetting` public read surface), and R13 extends it, so the module row now reads "R11 creates its `PlatformSetting` read surface; R13 extends it" and the schema row names two overlaps. The count (eight modules) and the `admin.ts` file's creator (R11) are unchanged; only the module's creating slice and the overlap wording are superseded.
+
 ---
 
 ## ADR-077 — Admin-module creation and the PlatformSetting read surface
@@ -5584,6 +5588,9 @@ ADR-031, ADR-032, and ADR-076.
    `README.md`, `ROADMAP.md`, `docs/architecture.md`, and the `spec-template.md`
    and `checklist-template.md` overrides), and `Project-Technologies.txt`'s header
    ADR list gains ADR-077.
+7. **ADR-074 and ADR-076 gain annotations** naming ADR-077, following the file's
+   own annotation rule: their `admin`-ownership claims are marked superseded, and
+   the rest of each record stands.
 
 **What deliberately did not change.** No principle was added, removed, renamed, or
 redefined. No entity, page, feature, Usage Limit, module count, or slice number
@@ -5625,6 +5632,7 @@ rule holds without an exception. R11's plan no longer has to choose between two
 binding rules, and the R11 → R13 edge stays one-way. The "one overlap" wording now
 names both cross-slice writes, so a reader does not conclude there is only one. The
 defects table names content-type validation against R2, which is where the register
-puts it. The two version sources agree at **2.28.0**, the drift check reports clean
+puts it. ADR-074 and ADR-076 carry annotations naming this record, so a reader of
+either is not left with the superseded `admin` assignment. The two version sources agree at **2.28.0**, the drift check reports clean
 with the index ending at ADR-077, and every live range string reads
 `ADR-001 … ADR-077`. This entry is the durable record.
