@@ -114,6 +114,7 @@ from the index rather than edited in its own words.
 | [ADR-076](#adr-076--roadmap-module-ownership-counts-corrected) | Roadmap module-ownership counts corrected | 2026-10-08 | 2.28.0 (unchanged) |
 | [ADR-077](#adr-077--admin-module-creation-and-the-platformsetting-read-surface) | Admin-module creation and the PlatformSetting read surface | 2026-10-08 | 2.28.0 (unchanged) |
 | [ADR-078](#adr-078--superseded-owner-assignments-annotated-and-the-platformsetting-duty-corrected) | Superseded owner assignments annotated, and the PlatformSetting duty corrected | 2026-10-08 | 2.28.0 (unchanged) |
+| [ADR-079](#adr-079--constitution-2281-the-drift-checks-four-descriptions-aligned) | Constitution 2.28.1: the drift check's four descriptions aligned | 2026-10-08 | 2.28.1 |
 
 ---
 
@@ -5733,3 +5734,82 @@ that implements it agree on where the read surface lives. The two version source
 agree at **2.28.0**, the drift check reports clean with the index ending at
 ADR-078, and every live range string reads `ADR-001 … ADR-078`. This entry is the
 durable record.
+
+---
+
+## ADR-079 — Constitution 2.28.1: the drift check's four descriptions aligned
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `.specify/memory/`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `.specify/templates/overrides/`, `Project-Technologies.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** The deep audit that produced ADR-077 and ADR-078 also read the four
+prose descriptions of `governance-drift-check.mjs` — in `AGENTS.md` §5,
+`README.md`, the constitution's References table, and `ROADMAP.md` → First
+obligations — against the script itself. The script runs eight checks (A, B, F, C,
+D, D2, E, G; nine output lines, because D2 runs once per integration manifest). The
+four descriptions did not agree on which of them they named:
+
+- `AGENTS.md` §5 names all eight.
+- `README.md` names seven: it omits D2 as a distinct item, folding it into "the two
+  integrations' byte-identity".
+- The constitution's References row names six: it omits F (the ADR list in
+  `Project-Technologies.txt`'s header) and D2.
+- `ROADMAP.md`'s First obligations row names four — A, B, C, and E only — omitting
+  F, D, D2, and G.
+
+A governance set whose whole purpose is to prevent drift, and which commits a
+machine check to enforce it, must not describe that check four different ways: a
+reader who takes the sparsest description for the definition believes the check
+covers four things when it covers eight.
+
+**Decision.** Constitution **2.28.0 → 2.28.1** (PATCH: a References-row description
+is completed and three other descriptions are aligned; no principle, register
+entry, entity, page, feature, Usage Limit, module, or slice number changes — the
+pattern ADR-048 set for a References-row correction).
+
+1. **The constitution's References row** for `governance-drift-check.mjs` names the
+   ADR list in `Project-Technologies.txt`'s header, and states that the two
+   integrations' byte-identity covers their command directories and their two
+   integration manifests.
+2. **`README.md`**'s paragraph states the same coverage for the two integrations'
+   byte-identity.
+3. **`ROADMAP.md` → First obligations**'s drift-check row names the full set: the
+   two version sources, every live range string, the ADR list in
+   `Project-Technologies.txt`'s header, the upstream manifest hashes, the two
+   integrations' byte-identity (their command directories and their two integration
+   manifests), the design-system token register, and the structural counts.
+4. `.specify/memory/version.json`'s `constitution_version` moves with the footer,
+   and every live `ADR-001 … ADR-0NN` range string moves to **ADR-079**
+   (`AGENTS.md`, `README.md`, `ROADMAP.md`, `docs/architecture.md`, and the
+   `spec-template.md` and `checklist-template.md` overrides), and
+   `Project-Technologies.txt`'s header ADR list gains ADR-079.
+
+**What deliberately did not change.** No principle was added, removed, renamed, or
+redefined. No entity, page, feature, Usage Limit, module, or slice number changed,
+and no slice's `Depends on` edge changed. `governance-drift-check.mjs` itself is
+unchanged: the four descriptions are brought to what the script already does, not
+the reverse. `wafar.single.css`, `Core-Project.txt`, `docs/domain-model.md`,
+`docs/architecture.md`'s module map, and the exception register are untouched.
+`.codebuddy/commands/*` and `.opencode/commands/*` are untouched, so they stay
+byte-identical to each other and to their integration manifests. The five binding
+overrides keep their structure; only their range string moved.
+
+**Alternatives considered.**
+- *Leave the four descriptions at their different granularities.* Rejected: the
+  tool is one artifact with one definition, and a reader of the sparsest
+  description would believe the check covers four things when it covers eight.
+- *Rewrite the script's header to match the roadmap's four.* Rejected: the
+  script's header documents what the script does, and the script does more;
+  narrowing the description would misdescribe the tool.
+- *Fold this into ADR-078.* Rejected: ADR-078 is committed, and this is a distinct
+  finding of the same audit.
+- *Bump to 2.29.0 (MINOR).* Rejected: nothing is added to the guidance — a
+  description is completed and three documents are aligned; ADR-048 set the PATCH
+  precedent for a References-row correction.
+
+**Consequences.** The four descriptions of the drift check name the same eight
+checks, so a reader of any one of them learns what the committed check verifies.
+The two version sources agree at **2.28.1**, the drift check reports clean with the
+index ending at ADR-079, and every live range string reads `ADR-001 … ADR-079`.
+This entry is the durable record.
