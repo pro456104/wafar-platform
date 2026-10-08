@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-070; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-072; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -54,6 +54,13 @@ re-invent what already exists. See `docs/DECISIONS.md` → ADR-007.
 - `/speckit.checklist` → the constitution, `Core-Project.txt`,
   `docs/domain-model.md`, and `docs/DECISIONS.md`.
 - `/speckit.implement` → `plan.md`, `tasks.md`, and the constitution.
+- `/speckit.analyze` → `spec.md`, `plan.md`, `tasks.md`, and the constitution;
+  it also reads `docs/DECISIONS.md` and `docs/domain-model.md` for the
+  consistency pass, because a conflict with an accepted ADR or a model invariant
+  is a blocking finding (Artifact Workflow and Traceability).
+- `/speckit.converge` → `spec.md`, `plan.md`, `tasks.md`, and the constitution;
+  it appends its convergence tasks to `tasks.md` and reports Converged only when
+  the implementation satisfies all three artifacts.
 
 The feature templates in `.specify/templates/overrides/` carry this duty as
 binding text. They resolve as the top layer with `strategy: replace`; do not
@@ -119,7 +126,24 @@ numbered feature branch (`001-feature-name`, matching `feature_numbering: sequen
 in `.specify/init-options.json` and ADR-015). Converge remains a separate command by
 decision (ADR-013), not a spec-kit engine concern; the workflow file lists it
 so the cycle reads as one sequence. Templates and the registry are what a
-reader checks, not the engine.
+reader checks, not the engine. `.specify/workflows/speckit/workflow.yml` is a
+**project-customised** copy of the bundled workflow (it adds the constitution,
+clarify, checklist, analyze, and converge steps and the `codebuddy` integration
+key), so a `specify` upgrade may replace it; the project copy is the one to keep,
+and its `requires.integrations.any` list must stay correctly nested under
+`integrations:` (ADR-072).
+
+**The governance drift check is committed (ADR-071).** `governance-drift-check.mjs`
+in the repository root is a read-only, dependency-free Node script that verifies
+the invariants the governance set cannot verify by discipline: the constitution
+footer against `.specify/memory/version.json`; every live `ADR-001 … ADR-072`
+range string against the last row of `docs/DECISIONS.md`'s index; every
+`speckit.manifest.json` hash for an upstream-owned file against the working tree
+(the project-owned `templates/overrides/*` files and `.specify/.gitignore` are
+excluded, because the project edits them by design); and the byte-identity of
+`.codebuddy/commands/` and `.opencode/commands/`. Run it with
+`node governance-drift-check.mjs`; it exits non-zero on drift. The slice that
+introduces the test runner (R1) wires it into continuous integration.
 
 ## 6. Known gaps
 
@@ -131,8 +155,9 @@ reader checks, not the engine.
 
 - **`.opencode/package.json` is not version-controlled.** It is ignored by
   `.opencode/.gitignore`, so a fresh clone relies on opencode regenerating it.
-  The `@opencode-ai/plugin` pin (recorded in the local file) is machine-local,
-  not repo-enforced.
+  The pin is `@opencode-ai/plugin` **1.1.21**; it is recorded here (ADR-071) so a
+  fresh clone knows the value, and stays machine-local rather than
+  repo-enforced.
 
 - **Integration state is committed (gap closed 2026-10-08, ADR-069).**
   `.codebuddy/`, `.specify/integrations/codebuddy.manifest.json`, and
@@ -141,10 +166,16 @@ reader checks, not the engine.
   default environment and both version sources. The gap is closed and the entry
   is kept, marked closed, so it is not re-reported as an open gap.
 
-- **`create-new-feature.ps1` is an installed but uncalled script.** Feature
-  numbering and directory creation run inside the specify command, so the
-  script in `.specify/scripts/powershell/` is kept for parity with upstream
-  rather than used.
+- **`create-new-feature.ps1` is an installed but uncalled script — intentional
+  (ADR-071).** Feature numbering and directory creation run inside the specify
+  command, so the script in `.specify/scripts/powershell/` is kept for parity
+  with upstream rather than used. It is a deliberate parity artifact, not a gap
+  to close.
+
+- **`speckit.taskstoissues` is a reserved optional surface (ADR-071).** It ships
+  with the integration, but no product requirement names it; adopting it later
+  requires recording the owner and the requirement it serves. It is reserved,
+  not an open gap.
 
 ## 7. Before reporting a change complete
 

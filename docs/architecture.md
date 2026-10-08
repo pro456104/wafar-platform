@@ -140,7 +140,7 @@ The canonical chain is **web → api → PostgreSQL for the system of record; la
  packages/db          packages/search     SeaweedFS
  (PostgreSQL 16+)     (OpenSearch +       (object storage)
        ▲               Arabic analyzer,
-       │               ILM 90 days)
+       │               ISM 90 days)
        │                   ▲
        │                   │ index writes
 ┌──────┴───────────────────┴──────────────────────────────────┐
@@ -162,12 +162,14 @@ The canonical chain is **web → api → PostgreSQL for the system of record; la
 3. **db → search.** The parts listing is served from the search index, which
    mirrors catalog data derived from the system of record. PostgreSQL remains
    authoritative; the index is a projection. The index uses the Arabic
-   analyzer (root-aware search) and Index Lifecycle Management aligned with
-   the 90-day auto-deletion rule, and search results follow the p95 < 1 s
-   budget (Usage Limits). The projection is not one shape for everyone: a guest's
-   read path projects a part without its price, through an allowlist of its own,
-   so the price is absent from the response rather than hidden by the
-   presentation layer (Principle VI, Query Safety and Secrets).
+   analyzer (root-aware search) and Index State Management (ISM). ISM deletes
+   whole indices by index age, so the per-catalog 90-day deletion is enforced by
+   the retention job (R15) rather than by the index lifecycle alone. Search
+   results follow the p95 < 1 s budget (Usage Limits). The projection is not one
+   shape for everyone: a guest's read path projects a part without its price,
+   through an allowlist of its own, so the price is absent from the response
+   rather than hidden by the presentation layer (Principle VI, Query Safety and
+   Secrets).
 4. **worker → db and search.** The worker is what keeps the projection current: it
    consumes queued jobs, extracts and normalizes parts, then writes both the
    catalog status in the system of record and the parts in the search index.
@@ -212,7 +214,7 @@ Read/write notes:
 |---|---|---|
 | `packages/shared` | Validation schemas, types, and contracts shared between frontend and backend. | Single source of the two contracts (Principle II); promoted code only after a second consumer exists. |
 | `packages/db` | Database schema and migrations. | One migration tool only; every migration a single reversible step; destructive changes split into expand/backfill/contract (Schema and Migration Control). |
-| `packages/search` | Search client and index mappings. | Arabic analyzer; ILM aligned with the 90-day deletion; one mapping owner per index. |
+| `packages/search` | Search client and index mappings. | Arabic analyzer; OpenSearch Index State Management (ISM) on the index, with the per-catalog 90-day deletion enforced by the retention job (R15); one mapping owner per index. |
 | `packages/config` | ESLint, Stylelint, Prettier, TypeScript configuration shared by all workspaces. | Dependency and tooling changes follow Dependency Governance. Stylelint + ESLint fail the build on physical direction properties and on any colour, radius, shadow, duration, or z-index value that does not reference a declared token in `wafar.single.css` — enforced by the committed configuration, not a review comment (Design System Standards). |
 
 ## 5. Environments and operations
@@ -248,7 +250,7 @@ Read/write notes:
   `.specify/memory/version.json`) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-070; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-072; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;

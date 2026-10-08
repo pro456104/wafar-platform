@@ -205,8 +205,14 @@ surface.
   a disclosure caret, a select chevron, a progress or loading fill, an arrow, a
   text-direction indicator, a gradient that stands for a reading direction —
   MUST be expressed logically: the `start` and `end` keywords, the
-  `inset-inline-start` and `inset-inline-end` functions, or a `to inline-start`
-  or `to inline-end` gradient direction. A direction that is *not* derived from
+  `inline-start`, `inline-end`, `block-start`, and `block-end` position
+  keywords, or the `inset-inline-start` and `inset-inline-end` properties. CSS
+  defines no logical gradient direction — `linear-gradient` accepts only
+  `to left`, `to right`, `to top`, `to bottom`, or an angle — so a gradient
+  whose direction follows the writing mode MUST state the explicit angle that
+  the document's single writing mode fixes (`dir="rtl"`, whose line end is the
+  left edge, so the angle is `270deg`), and MUST NOT use a `to <side>` keyword.
+  A direction that is *not* derived from
   the writing mode — a sheen, a vignette, a scanline, a surface highlight, a
   decorative wash — MUST state an explicit angle in degrees (`90deg`), MUST
   NOT be flipped to match a logical neighbour, and MUST NOT be read as an
@@ -637,9 +643,14 @@ questions.
 Every uploaded file follows the pipeline below. The pipeline MUST be
 implemented as a single sequence; a shortcut that skips a step is a defect.
 
-1. **Upload.** The user submits the file from My Files.
-2. **Storage.** The file is stored in object storage, and a content hash is
-   computed over its bytes.
+1. **Upload and validation.** The user submits the file from My Files. The file
+   is validated against the file-size and content-type rules, and a file that
+   fails MUST NOT be stored (File Processing Rules).
+2. **Content safety and storage.** The file passes, in order, magic-byte
+   validation against its declared content type, a ClamAV scan, the decoded-size
+   cap that rejects a zip-bomb archive, and macro stripping; a file failing any
+   step MUST NOT be stored or processed (File Processing Rules). The file is
+   then stored in object storage, and a content hash is computed over its bytes.
 3. **Duplicate check.** The hash is compared against hashes of files already
    recorded. A match is reported to the user and the file is not processed
    again.
@@ -1251,7 +1262,7 @@ fixed above.
 | Backend | Hono, OpenAPI, Modular Monolith | the module list is Principle X |
 | Validation | Zod | one schema set, shared by frontend and backend |
 | Database | PostgreSQL 16+, Drizzle ORM, PgDog | PgDog is pre-1.0: a plan using it MUST name a fallback and a review date |
-| Search | OpenSearch, the Arabic analyzer, Index Lifecycle Management | the index lifecycle is aligned with the 90-day deletion |
+| Search | OpenSearch, the Arabic analyzer, Index State Management (ISM) | the index is a projection; ISM deletes whole indices by index age, so the per-catalog 90-day deletion is enforced by the retention job (R15), not by the index lifecycle alone |
 | Files | SeaweedFS, BullMQ, Redis | Redis >= 5.0.0 (the BullMQ requirement) |
 | Auth | better-auth | `scim` and `sso` MUST stay disabled (CVE-2026-67330, CVE-2026-80192); better-auth MUST be used with its phone-number extension, or an ADR-recorded alternative |
 | Testing | Vitest, Playwright | unit and integration in Vitest, end-to-end in Playwright |
@@ -1442,7 +1453,8 @@ change.
   `--shadow-lg`, `--shadow-xl`, `--shadow-2xl`) plus the named shadows `card`,
   `card-raised`, `cinematic`, `cinematic-hover`, `cinematic-panel`, `control`,
   `focus`, `glass`, `hairline`, `hairline-soft`, `inner`, `navbar`, `none`,
-  `overlay`, `panel`, and `glow-brand`, plus the brand tints `brand-sm`,
+  `overlay`, `panel`, `glow-brand`, `ring-error`, `ring-error-strong`, and
+  `ring-success`, plus the brand tints `brand-sm`,
   `brand-md`, and `brand-lg`. The brand tints are a
   three-step sub-ladder and not a single `brand` shadow; a `brand` shadow does
   not exist and MUST NOT be used.
@@ -1477,8 +1489,10 @@ change.
 - Z-index: the layer scale `--z-base`, `--z-raised`, `--z-sticky`, `--z-header`,
   `--z-nav`, `--z-backdrop`, `--z-dropdown`, `--z-sidebar-backdrop`,
   `--z-sidebar`, `--z-widget`, `--z-popover`, `--z-modal`, `--z-drawer`,
-  `--z-loader`, `--z-toast`, `--z-tooltip`, and `--z-boot`. Every layer takes a
-  value from this scale.
+  `--z-loader`, `--z-toast`, `--z-tooltip`, and `--z-boot`, plus the five
+  floating layers `--z-float-1`, `--z-float-2`, `--z-float-3`, `--z-float-modal`,
+  and `--z-float-drawer`, each derived from the scale by a fixed offset. Every
+  layer takes a value from this scale or from one of those derived layers.
 - Glass and gradients: the glass surfaces `--glass-surface`,
   `--glass-brand-surface`, `--glass-dark-surface`, `--card-glass-surface`, and
   `--backdrop-glass`; their borders and shadows `--glass-border`,
@@ -1558,16 +1572,17 @@ layout rule.
 The shadow ladder is **not** in that state, and this paragraph does not claim it
 is. The size ladder `--shadow-xs` through `--shadow-2xl` and the named shadows
 `--shadow-card`, `--shadow-card-raised`, `--shadow-focus`, `--shadow-hairline`,
-`--shadow-hairline-soft`, `--shadow-navbar`, and `--shadow-glow-brand` are
-declared **and already consumed** by `wafar.single.css`; they are in force. The
-remaining nine named shadows — `--shadow-cinematic`, `--shadow-cinematic-hover`,
-`--shadow-cinematic-panel`, `--shadow-control`, `--shadow-glass`,
-`--shadow-inner`, `--shadow-none`, `--shadow-overlay`, and `--shadow-panel` —
-and the `brand-sm`, `brand-md`, `brand-lg` triple are declared-but-unused, and
-no slice MAY rely on one until the surface that needs it consumes it. The two
-groups account for the whole file: twenty-five shadow tokens, being the six-step
-size ladder, sixteen named shadows (seven consumed, nine not), and the brand
-triple. A register row naming a value MUST match what the source actually does
+`--shadow-hairline-soft`, `--shadow-navbar`, `--shadow-glow-brand`,
+`--shadow-ring-error`, `--shadow-ring-error-strong`, and `--shadow-ring-success`
+are declared **and already consumed** by `wafar.single.css`; they are in force.
+The remaining nine named shadows — `--shadow-cinematic`,
+`--shadow-cinematic-hover`, `--shadow-cinematic-panel`, `--shadow-control`,
+`--shadow-glass`, `--shadow-inner`, `--shadow-none`, `--shadow-overlay`, and
+`--shadow-panel` — and the `brand-sm`, `brand-md`, `brand-lg` triple are
+declared-but-unused, and no slice MAY rely on one until the surface that needs it
+consumes it. The two groups account for the whole file: twenty-eight shadow
+tokens, being the six-step size ladder, nineteen named shadows (ten consumed,
+nine not), and the brand triple. A register row naming a value MUST match what the source actually does
 (Single-Reference Sufficiency); this paragraph distinguishes the two states
 because the two groups are not uniform.
 
@@ -1855,6 +1870,11 @@ the same force as the principles above.
   written before implementation and MUST fail before implementation changes.
 - Every task MUST end with `(implements FR-###, AC-###)`, or, when no
   requirement genuinely applies, `(implements Complexity Tracking: <row>)`.
+  A convergence task appended by `/speckit.converge` carries its traceability in
+  that command's own form, `per <source-ref> (<gap-type>)` (for example
+  `per FR-003 (missing)`, `per US1/AC2 (partial)`, `per Constitution II
+  (contradicts)`), which names the same identifiers and satisfies this rule for a
+  task that repairs an existing obligation rather than introducing one.
 - Every task MUST end in a commit; commits MUST reference the spec, plan, and
   task identifiers.
 - `plan.md` Constitution Check MUST be evaluated before Phase 0 and
@@ -2098,4 +2118,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.26.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-08
+**Version**: 2.27.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-08

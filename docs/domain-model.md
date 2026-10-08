@@ -182,11 +182,12 @@ service layer re-checks the ones a constraint cannot express.
   or the supplier's printed expiry date. This is a recorded unresolved product
   fact owned by R15; until R15 decides it, no feature may give the field a
   meaning.
-- **Retention is 90 days, enforced by R15 and expressed through the same window
-  in the search index's lifecycle.** The period is fixed; the point the 90 days
-  are counted from is not, and it belongs to the same open fact: until R15
-  decides it, no feature may name a trigger, and neither this model nor
-  `ROADMAP.md` states one.
+- **Retention is 90 days, enforced by R15.** The search index is a projection,
+  and its lifecycle policy (OpenSearch Index State Management) deletes whole
+  indices by index age, so per-catalog expiry is the retention job's work and not
+  the index's. The period is fixed; the point the 90 days are counted from is
+  not, and it belongs to the same open fact: until R15 decides it, no feature may
+  name a trigger, and neither this model nor `ROADMAP.md` states one.
 - **Upload quotas are 50 files per calendar month and 100 files in total per
   user**, enforced server-side by the `catalogs` module service (R2).
 
@@ -308,7 +309,10 @@ service layer re-checks the ones a constraint cannot express.
   carries no `user_id`.
 - **It never carries a Usage Limit.** The Usage Limits are constitutional and
   change only by amending the constitution, never from the Settings page.
-- **Admin-editable only.** No merchant-reachable path reads or writes it.
+- **Admin-writable only; publicly readable where the product requires it.** No
+  merchant-reachable path writes it, and the public Contact page reads the
+  contact details it holds through a projection of its own (Product Register;
+  Product Scope → Contact).
 
 ### User
 

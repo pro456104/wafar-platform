@@ -18,13 +18,13 @@ requires:
     # against any integration the project was initialized with, including
     # ones not listed below, as long as that integration provides the
     # commands referenced in ``steps``.
-  any:
-    - "alquimia"
-    - "claude"
-    - "codebuddy"
-    - "copilot"
-    - "gemini"
-    - "opencode"
+    any:
+      - "alquimia"
+      - "claude"
+      - "codebuddy"
+      - "copilot"
+      - "gemini"
+      - "opencode"
 
 inputs:
   spec:

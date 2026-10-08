@@ -22,6 +22,15 @@ A record is annotated when a later decision changes what it says, and corrected
 when the record's own claim was wrong. Rewriting a ratified decision's substance
 is not done; ADR-015 states that rule and this file follows it.
 
+**Reading protocol (ADR-071).** This file is large and grows with every
+amendment, so a reader — a person or an agent — MUST NOT read it end to end.
+Read this index, then only the specific ADR records the change in hand touches.
+The index's last row is the current ADR number, and it is the single authority
+for the live `ADR-001 … ADR-071` range string that the governance documents
+carry: `governance-drift-check.mjs` compares every live range string against
+that last row, so a document whose range disagrees with the index is corrected
+from the index rather than edited in its own words.
+
 ## Index
 
 | ADR | Subject | Ratified | Constitution version |
@@ -96,6 +105,8 @@ is not done; ADR-015 states that rule and this file follows it.
 | [ADR-068](#adr-068--integration-topology-settled-and-the-constitution-command-aligned-to-upstream) | Integration topology settled, and the constitution command aligned to upstream | 2026-10-07 | 2.25.0 (unchanged) |
 | [ADR-069](#adr-069--cross-artifact-consistency-fix-set) | Cross-artifact consistency fix set | 2026-10-08 | 2.25.0 (unchanged) |
 | [ADR-070](#adr-070--part-tenancy-and-a-clarification-set) | Part tenancy, and a clarification set | 2026-10-08 | 2.26.0 |
+| [ADR-071](#adr-071--cross-artifact-consistency-and-tooling-fix-set) | Cross-artifact consistency and tooling fix set | 2026-10-08 | 2.26.0 (unchanged) |
+| [ADR-072](#adr-072--workflow-execution-defects-and-css-standard-conformance) | Workflow execution defects and CSS standard conformance | 2026-10-08 | 2.27.0 |
 
 ---
 
@@ -4660,3 +4671,302 @@ is registered. All twelve entities are now classified — six merchant-scoped,
 five platform-wide, and the tenant root — so the isolation test's scope is
 decidable from the constitution alone. The two version sources agree at
 **2.26.0**. This entry is the durable record.
+
+---
+
+## ADR-071 — Cross-artifact consistency and tooling fix set
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: repository root, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `.specify/templates/overrides/`, `.specify/integrations/`
+**Owning feature**: none — documentation-consistency and tooling decision; ratified by the repository owner
+
+**Context.** The repository was audited against upstream Spec Kit (1.1.0) and
+against its own governance set. The audit read the `.specify/` tree, the
+constitution, the two mirrors, the roadmap, the domain model, the four binding
+templates, the integration state, and the two installed command directories, and
+it verified the installed-file integrity **mechanically** rather than by reading:
+every SHA-256 hash `speckit.manifest.json` records was recomputed against the
+working tree. The findings are these.
+
+1. **The integration manifest had drifted on the files the project owns.** Of
+   the manifest's eighteen entries, **twelve match** — the six PowerShell
+   scripts, the five core templates, and `exception-register.md`, which are
+   upstream-owned and MUST stay unmodified — and **six are stale**: the five
+   `templates/overrides/*` files and `.specify/.gitignore`. All six are files the
+   project deliberately edits (the overrides are the binding layer; the
+   `.gitignore` gained the `extensions/.cache/` and `integrations/.cache/` rules
+   of ADR-063/ADR-068). The drift is therefore expected, but it made the manifest
+   read as an integrity failure when it is not one, and no check distinguished
+   the two cases.
+2. **The live `ADR-001 … ADR-0NN` range strings drift by hand.** Six documents
+   carry the range literally — `AGENTS.md`, `README.md`, `docs/architecture.md`,
+   `ROADMAP.md`, and the `spec-template.md` and `checklist-template.md`
+   overrides — and every amendment must move all six in step with the index.
+   `ROADMAP.md` → First obligations already assigned a committed read-only
+   governance drift check to R1 to catch a miss, but the check did not exist yet.
+3. **`docs/DECISIONS.md` had grown to ~0.3 MB across 71 records.** The binding
+   templates' Project Context Sources blocks told a reader to read the file, and
+   a whole-file read is both the most expensive load in the set and the least
+   targeted.
+4. **The binding templates asked for whole-file reads of the largest sources.**
+   The four overrides' Project Context Sources blocks named the constitution and
+   `docs/DECISIONS.md` without narrowing to the sections or records a feature
+   actually needs.
+5. **`AGENTS.md` §6 carried three gaps of unequal standing.** `.opencode/package.json`
+   is untracked and its `@opencode-ai/plugin` pin is machine-local;
+   `create-new-feature.ps1` is installed but uncalled (kept for upstream parity);
+   and `speckit.taskstoissues` is a reserved surface with no owner.
+6. **The two-integration byte-identity invariant was asserted, not checked.**
+   ADR-068 states `.codebuddy/commands/` and `.opencode/commands/` are
+   byte-identical and their manifests match; nothing verified it mechanically.
+
+**Decision.**
+
+1. **A committed, dependency-free governance drift check is added** at
+   `governance-drift-check.mjs` in the repository root — a root-level governance
+   tool, like `README.md` and `AGENTS.md`, not a product workspace, so the
+   constitution's Repository topology table is unaffected. It runs on the pinned
+   Node runtime and adds no dependency, as `ROADMAP.md` → First obligations
+   requires, and it verifies four invariants:
+   (a) the constitution footer equals `constitution_version` in
+   `.specify/memory/version.json`;
+   (b) every live `ADR-001 … ADR-0NN` range string equals the last ADR row in
+   `docs/DECISIONS.md`'s index;
+   (c) every `speckit.manifest.json` hash for an **upstream-owned** file matches
+   the working tree — the project-owned files are excluded by a documented rule
+   (any path under `.specify/templates/overrides/`, plus the explicit
+   `.specify/.gitignore`);
+   (d) `.codebuddy/commands/*` and `.opencode/commands/*` are byte-identical and
+   match their manifest hashes.
+2. **The live range strings stay literal and move to `ADR-001 … ADR-071`** in the
+   six documents that carry them, and the check in item 1(b) is what keeps them
+   from drifting. A literal range is kept rather than replaced by a pointer so a
+   reader still sees the range at a glance; the check, not discipline, is the
+   guarantee.
+3. **The manifest's integrity check covers upstream-owned files only, and the
+   project-owned hashes stay at the CLI baseline.** ADR-068 item 10 is the
+   governing decision: re-recording the hashes of the five overrides and
+   `.specify/.gitignore` would make the CLI treat them as unmodified and
+   overwrite them on a refresh, so the drift is left visible and the path rule in
+   item 1(c) excludes those files from enforcement. *(Amended 2026-10-08 by
+   ADR-072: an earlier draft of this item said the six hashes are "refreshed once
+   so the file is truthful at commit time"; that was reverted, because it
+   contradicted ADR-068 item 10.)*
+4. **`docs/DECISIONS.md` gains a Reading protocol** near its head: read the index,
+   then only the records the change touches; the index's last row is the single
+   authority for the live range string. The four binding templates' Project
+   Context Sources blocks are narrowed the same way — they name the sections and
+   records to read instead of the whole file — so the guidance is targeted even
+   when the context window is not the constraint.
+5. **`AGENTS.md` §6 is corrected**: the `@opencode-ai/plugin` pin is recorded in
+   the file so a fresh clone knows it; `create-new-feature.ps1` is marked
+   intentional upstream parity; `speckit.taskstoissues` stays reserved.
+6. **`ROADMAP.md` → First obligations' drift-check row is marked delivered** by
+   this record (pre-R1), so the duty is not owned twice.
+
+**What deliberately did not change.** No principle was added, removed, renamed,
+or redefined. No entity, page, feature, Usage Limit, module, or slice number
+changed, and no slice's `Depends on` edge changed. `wafar.single.css`,
+`Core-Project.txt`, and `Project-Technologies.txt` are untouched. The
+constitution stays **2.26.0**: this record changes no constitutional text, so
+neither its footer nor `.specify/memory/version.json` moves, and the two version
+sources remain in agreement. The upstream-owned files — the six scripts and the
+five core templates — are not modified; their hashes already match and the fix
+leaves them alone.
+
+**Alternatives considered.**
+- *Replace the literal range strings with a pointer to the index.* Rejected: the
+  range is useful at a glance in `AGENTS.md` and `README.md`, and the automated
+  check removes the drift the pointer would avoid; the project keeps the literal
+  form and gains a guarantee instead of losing a convenience.
+- *Refresh every manifest hash and enforce all eighteen.* Rejected: the five
+  overrides and `.gitignore` are edited on purpose, so an all-eighteen check
+  fails on every legitimate edit and trains the reader to ignore it; enforcing
+  only the upstream-owned files keeps the check meaningful.
+- *Split `docs/DECISIONS.md` into several files.* Rejected: the file is the
+  single authority the constitution names in References, and a reading protocol
+  plus a compact index removes the cost without fragmenting that authority.
+- *Place the drift check under `.specify/scripts/`.* Rejected: that directory is
+  upstream-owned and hash-tracked, and a project script there blurs the parity
+  the manifest exists to protect; a root-level governance tool is the honest
+  location.
+- *Bump the constitution to 2.26.1 (PATCH).* Rejected: no constitutional text
+  changes; the versioning policy reserves PATCH for changes to the constitution
+  itself, and a consistency-and-tooling fix that leaves its text intact keeps the
+  version, as ADR-069 established.
+
+**Consequences.** The installed-file integrity check is now meaningful: it passes
+on a clean tree and fails on a real upstream modification, while tolerating the
+project's own edits. The live range strings can no longer drift silently — the
+check compares them to the index, which is their authority. The largest document
+in the set is read by index and record rather than end to end, in the templates
+as well as by hand. The two-integration byte-identity claim is verified rather
+than asserted. The two version sources remain in agreement at **2.26.0**. This
+entry is the durable record.
+
+---
+
+## ADR-072 — Workflow execution defects and CSS standard conformance
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `.specify/workflows/`, `.specify/integrations/`, `.specify/templates/overrides/`, `.specify/memory/`, `docs/`, `wafar.single.css`, `AGENTS.md`, `Project-Technologies.txt`, repository root
+**Owning feature**: none — governance, tooling, and design-system decision; ratified by the repository owner
+
+**Context.** A deep audit compared the repository against upstream Spec Kit 1.1.0
+(its `engine.py`, `presets.md`, and bundled workflow) and against the CSS and
+HTML standards, reading every command, script, template, mirror, and the
+stylesheet. It confirmed defects that earlier consistency passes did not reach,
+because those passes checked cross-references rather than executability and
+standard conformance.
+
+1. **`workflow.yml` was structurally invalid.** Its `requires.integrations.any`
+   list had been re-indented to the same level as `speckit_version`, so `any`
+   became an unknown sibling key inside `requires`. The engine's
+   `_RECOGNIZED_REQUIRES_KEYS` accepts only `speckit_version` and `integrations`
+   and rejects the rest, so `specify workflow run speckit` fails validation
+   before any step runs.
+2. **ADR-071 contradicted ADR-068 item 10.** ADR-071 said the six project-owned
+   manifest hashes are "refreshed once"; ADR-068 had already decided the opposite
+   — re-recording them makes the CLI treat the customised overrides as unmodified
+   and overwrite them on a refresh. The refresh was reverted.
+3. **Gate 2 of the plan template was one row out of step with Governance.**
+   ADR-070 added `Glossary` to Governance's binding enumeration, and the
+   constitution requires the templates to move with it, but
+   `overrides/plan-template.md` Gate 2 still listed eighteen of the nineteen
+   sections.
+4. **Two CSS values were not valid CSS.** `linear-gradient(to inline-end, …)` and
+   `background-position: inset-inline-end …` are not defined by any CSS
+   specification, so both declarations were dropped — the gradient text rendered
+   invisible (`color: transparent` with no background) and the select chevron
+   fell to the wrong corner. Principle V itself named `to inline-start`/`to
+   inline-end` gradient directions and `inset-inline-*` "functions", none of
+   which exist.
+5. **`prefers-contrast: high` is not a valid media-feature value** (the values are
+   `no-preference`, `more`, `less`, `custom`), so the constitution's
+   high-contrast MUST was silently unimplemented.
+6. **`PlatformSetting`'s invariant forbade a read the product requires.** The
+   model said "No merchant-reachable path reads or writes it" while the same
+   entity's meaning, and Product Scope, require the public Contact page to render
+   the contact details it holds.
+7. **Convergence tasks could not satisfy the traceability rule.** The
+   constitution and the tasks template require every task to end with
+   `(implements FR-###, AC-###)`, but `/speckit.converge` (byte-identical to
+   upstream) appends tasks ending with `per <source-ref> (<gap-type>)`.
+8. **The binding File Processing Overview omitted the validation and
+   content-safety steps** that File Processing Rules require "before storage", so
+   the single binding sequence, read alone, permitted storing an unvalidated
+   file.
+9. **The register named the wrong OpenSearch feature and the wrong retention
+   granularity.** OpenSearch's lifecycle feature is Index State Management (ISM),
+   not Index Lifecycle Management (ILM, which is Elasticsearch's), and ISM
+   deletes whole indices by index age — it cannot expire each catalog 90 days
+   after its own trigger, which is the product's rule.
+10. **`Project-Technologies.txt`'s header ADR list omitted ADR-071**, though the
+    mirror's own sync marker requires each amendment to append its ADR.
+11. **`AGENTS.md` §3 omitted `analyze` and `converge`**, and the drift check
+    enforced only half of ADR-071's item 1(d): it compared the two command
+    directories to each other but never against their integration manifests.
+
+**Decision.**
+
+1. **`workflow.yml`'s `requires.integrations.any` list is re-indented under
+   `integrations:`**, matching upstream's shape, so the workflow validates and
+   runs. `AGENTS.md` §5 records that the file is a project-customised copy that a
+   `specify` upgrade may replace.
+2. **`speckit.manifest.json` is restored to its committed baseline**, and
+   ADR-071 item 3 is amended to cite ADR-068 item 10. The drift check continues to
+   exclude the project-owned files from hash enforcement.
+3. **Gate 2 gains a `Glossary` row**, restoring the template to Governance's
+   nineteen-section enumeration.
+4. **Principle V's value-form sentence is corrected**: the logical forms are the
+   `start`/`end` keywords, the `inline-start`/`inline-end`/`block-start`/
+   `block-end` **position keywords**, and the `inset-inline-start`/
+   `inset-inline-end` **properties**; CSS defines no logical gradient direction,
+   so a writing-mode-derived gradient states the explicit angle the document's
+   single direction fixes (`dir="rtl"`, line end at the left edge, `270deg`) and
+   MUST NOT use a `to <side>` keyword. `wafar.single.css` moves to **1.3.0**:
+   the three gradients use `270deg`, the chevron uses
+   `inline-end var(--space-2) block-start 50%`, and the two literal radii use
+   `--radius-full` / `--radius-lg` / `--radius-xl`.
+5. **`prefers-contrast: high` becomes `more`**, so the high-contrast block
+   actually matches.
+6. **`PlatformSetting`'s invariant becomes "Admin-writable only; publicly
+   readable where the product requires it"**, naming the Contact page's
+   projection.
+7. **Artifact Workflow and the tasks template accept the converge tail**:
+   `per <source-ref> (<gap-type>)` satisfies the traceability rule for a task that
+   repairs an existing obligation.
+8. **The File Processing Overview's steps 1 and 2 are rewritten** to carry
+   validation and content safety in the binding sequence, keeping the eight-step
+   numbering so existing "step 1/4/6" references stay valid.
+9. **The Search register row, `docs/architecture.md`, and `docs/domain-model.md`
+   name Index State Management (ISM) and state that per-catalog 90-day deletion
+   is the retention job's work** (R15), not the index lifecycle's.
+10. **`Project-Technologies.txt`'s header ADR list gains ADR-071 and ADR-072.**
+11. **`AGENTS.md` §3 gains `analyze` and `converge` entries, and
+    `governance-drift-check.mjs` is extended**: check B scans every markdown file
+    under `docs/` and the overrides (not only the six required files), and a new
+    check D2 verifies each integration manifest against the tree it records —
+    completing ADR-071's item 1(d).
+12. **The constitution moves 2.26.0 → 2.27.0** (MINOR: the File Processing
+    Overview and Artifact Workflow expansions are material guidance additions;
+    the Principle V and register corrections ride with them). The footer and
+    `.specify/memory/version.json` move together, and every live
+    `ADR-001 … ADR-0NN` range string moves to **ADR-001 … ADR-072** (`AGENTS.md`,
+    `README.md`, `ROADMAP.md`, `docs/architecture.md`, and the `spec-template.md`
+    and `checklist-template.md` overrides).
+13. **The two remaining token-rule defects are fixed in the same amendment.**
+    The literal `box-shadow` offsets on the field focus rings become three tokens
+    (`--shadow-ring-error`, `--shadow-ring-error-strong`, `--shadow-ring-success`)
+    and the off-scale `z-index: calc(… + 10)` values on the floating-layer
+    classes become five tokens (`--z-float-1`, `--z-float-2`, `--z-float-3`,
+    `--z-float-modal`, `--z-float-drawer`). Every one is a token definition, so no
+    class rule in `wafar.single.css` now carries a raw shadow offset or a raw
+    `z-index`. The register's Shadows and Z-index rows, and the Breakpoints shadow
+    count, move with them (twenty-five → twenty-eight shadow tokens; sixteen →
+    nineteen named shadows, seven → ten consumed).
+
+**What deliberately did not change.** No principle was added, removed, or
+renamed; item 4 corrects a value-form sentence inside Principle V without moving
+the principle. No entity, page, feature, Usage Limit, module, or slice number
+changed, and no slice's `Depends on` edge changed. `Core-Project.txt` is
+untouched. The five binding overrides keep their structure; only Gate 2 and the
+tasks template's rule 1 changed.
+
+**No defect the audit found is left open by this amendment.** The two remaining
+classes of the design system's own "Inside the design system file" rule — raw
+shadow offsets in class rules and off-scale `z-index` values — are fixed in item
+13, so the rule now holds for every class rule in `wafar.single.css`, not only for
+its token definitions.
+
+**Alternatives considered.**
+- *Leave `workflow.yml` and document the engine as unused.* Rejected: the file
+  claims to run the binding cycle, and a file that fails validation is worse than
+  no file.
+- *Keep ADR-071's hash refresh and add an ADR-068 annotation.* Rejected: ADR-068's
+  rationale is a live risk (a refresh overwriting the binding overrides), so the
+  correct action is to revert the refresh, not to annotate around it.
+- *Express the logical gradient direction with `to left`.* Rejected: that is the
+  physical keyword Principle V prohibits, and under the fixed `dir="rtl"` document
+  the explicit angle `270deg` is equivalent and permitted.
+- *Keep `prefers-contrast: high` and treat it as a browser extension.* Rejected:
+  no browser defines it; the block never matched.
+- *Renumber the File Processing Overview steps to insert validation.* Rejected:
+  three documents cite steps 1, 4, and 6 by number, so the steps were widened in
+  place instead.
+- *Bump to 2.26.1 (PATCH).* Rejected: the Overview and Artifact Workflow changes
+  are material expansions of binding guidance, which the versioning policy
+  classifies MINOR.
+
+**Consequences.** The bundled workflow validates and runs; the manifest matches
+ADR-068's decision and the binding overrides are protected from a refresh
+overwrite; the plan template's Gate 2 is back in step with Governance; the
+stylesheet's gradient text, chevron, and high-contrast block render as intended
+and the values are standard CSS; the Contact page's read of `PlatformSetting` is
+no longer contradicted by the model; convergence tasks are traceable under the
+rule as written; the ingestion sequence carries validation and content safety;
+and the search register names the feature OpenSearch actually has, with the
+retention mechanism stated correctly for R15. The drift check is stronger: it
+scans every governance markdown file for a stale range string and verifies both
+integration manifests. The two version sources agree at **2.27.0**. This entry is
+the durable record.

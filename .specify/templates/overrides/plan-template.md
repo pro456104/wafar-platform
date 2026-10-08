@@ -24,7 +24,9 @@
     `docs/domain-model.md` (the entities, their relationships, and their
     invariants, which the plan's Phase 1 `data-model.md` MUST NOT contradict),
     `Project-Technologies.txt` (a mirror), `wafar.single.css` (the design values),
-    `Core-Project.txt`, `docs/DECISIONS.md`. A plan that contradicts an
+    `Core-Project.txt`, `docs/DECISIONS.md`. Read the sections named; for
+    `docs/DECISIONS.md` read its index and the records this feature touches,
+    not the whole file (ADR-071, Reading protocol). A plan that contradicts an
     accepted ADR (docs/DECISIONS.md) or the Technology Standards is an ERROR,
     not a preference. The Ownership Map MUST record paths that match
     `docs/architecture.md`, and a project-level concern (architecture, data
@@ -154,6 +156,7 @@
 | Deployment and Observability | | [dev/staging/production; staging parity; health checks per used dependency; structured logs + correlation id; error tracker; backups; RTO/RPO in CMV] |
 | Technology Standards | | [stack unchanged from the constitution's Technology Standards register; the paths match the repository topology and the internal layout; no unregistered technology; a MAJOR substitution would require a constitutional amendment] |
 | Design System Standards | | [dark default; tables for data; motion scale; z-index scale; AA contrast] |
+| Glossary | | [every term the feature uses is the Glossary's term, not a synonym; no entity, field, or column name is invented outside the register] |
 | Product Scope | | [pages and features stay inside the defined list; an addition is recorded in Complexity Tracking] |
 | File Processing Overview | | [single pipeline sequence; status enum exactly uploaded/processing/completed/failed; validation before storage; duplicate rejected] |
 | Product Register | | [roles respected; no page outside the twenty-six; no feature outside the sixteen; every unresolved product fact handled or recorded — the register's open facts are listed in `docs/domain-model.md` → Unresolved facts, and the slice named MUST resolve the ones this feature touches] |

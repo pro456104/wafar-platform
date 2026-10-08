@@ -15,7 +15,9 @@ sources the plan was written against — `.specify/memory/constitution.md`,
 path a task touches MUST appear in the plan's ownership map, that map MUST match
 `docs/architecture.md`, an entity a task touches MUST exist in
 `docs/domain-model.md`, and a task that contradicts an accepted decision in
-`docs/DECISIONS.md` MUST NOT be generated.
+`docs/DECISIONS.md` MUST NOT be generated. Read the sections named; for
+`docs/DECISIONS.md` read its index and the records this feature touches, not the
+whole file (ADR-071, Reading protocol).
 
 **Tests**: Test tasks are generated only when the spec's **Test Coverage Request** section requests them (constitution Principle III reads the request from the specification, not from the plan). If requested, include unit, integration, and end-to-end tasks as requested; if not requested, say so here explicitly rather than omitting silently.
 
@@ -27,7 +29,10 @@ path a task touches MUST appear in the plan's ownership map, that map MUST match
   BINDING RULES FOR THIS DOCUMENT (governed by `.specify/memory/constitution.md`; the current version is in its footer and in `.specify/memory/version.json`) - NORMATIVE:
   1. Every task MUST end with `(implements FR-###, AC-###)`, or
      `(implements Complexity Tracking: <row>)` when no requirement genuinely
-     applies (Principle I).
+     applies (Principle I). A convergence task appended by `/speckit.converge`
+     is the one exception: it ends with `per <source-ref> (<gap-type>)`, the
+     converge command's own traceability form (constitution § Artifact Workflow
+     and Traceability).
   2. Every path a task touches MUST appear in plan.md's ownership map, and that
      map MUST match `docs/architecture.md`.
   3. Test tasks are generated only when spec.md's Test Coverage Request asks

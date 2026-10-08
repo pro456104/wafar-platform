@@ -34,7 +34,7 @@
        - `Core-Project.txt` — the product definition: roles and their
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
-        - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-070). A
+        - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-072). A
          specification that contradicts one is a blocking defect.
        - `docs/domain-model.md` — the entities a Key Entities section may name,
          and the invariants such a specification MUST NOT contradict. A
@@ -42,6 +42,9 @@
          entity's columns: an entity, a relationship, or an invariant is a
          registered product fact changed only by amending the register and
          recording an ADR.
+     Read the sections named above; for `docs/DECISIONS.md` read its index and
+     the records this feature touches, not the whole file (ADR-071, Reading
+     protocol).
      The technical sources (`docs/architecture.md`, `Project-Technologies.txt`,
      `wafar.single.css`) are bound in plan-template.md, NOT here: naming their
      content in this file would breach rule 1 (Principle VII).

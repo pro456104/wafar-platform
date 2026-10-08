@@ -8,9 +8,15 @@
      <link rel="stylesheet" href="wafar.single.css" />
      أو:  @import "wafar.single.css";
 
-الإصدار:  1.2.1
+الإصدار:  1.3.0
    ملاحظة: R1 يختار رقم إصدار القشرة الفعلي في CMV (ADR-016/025)؛ هذا الرقم يعكس آخر إصلاح
-   (راجع ADR-016/025/038/053/057/058/060/064 عند الحاجة). 1.2.1: نقل ارتفاعات الأزرار
+   (راجع ADR-016/025/038/053/057/058/060/064/072 عند الحاجة). 1.3.0: إصلاح قيمتين غير
+   قياسيتين إلى صيغة صحيحة — اتجاه التدرّج (`to inline-end` ← زاوية صريحة `270deg`) وموضع
+   سهم القائمة (`inset-inline-end(…)` ← صيغة `inline-end … block-start …`) — وتحويل
+   `prefers-contrast: high` إلى `more`، واستبدال نصف قطر حرفي بتوكنات
+   (`--radius-full`/`--radius-lg`/`--radius-xl`)، وإضافة توكنات حلقات التركيز
+   (`--shadow-ring-*`) والطبقات العائمة (`--z-float-*`) كي لا تحمل قواعد الأصناف
+   ظلًّا ولا z-index حرفيًّا. 1.2.1: نقل ارتفاعات الأزرار
    والحقول من الوحدة 05 إلى الوحدة 11 مطابقةً لخريطة الوحدات المسجَّلة، وحذف توكن
    `--space-px` اليتيم الذي لا يملك أي مستهلك. 1.2.0: تصحيح تباين النص
    الموضعي في الحقول إلى ما لا يقل عن AA، وتوسيع قفل التمرير ليُحترم على كل
@@ -24,7 +30,7 @@
    1.0.4: إكمال توحيد قيم التوهج
    والوميض وخطوط المسح وسهم القائمة وتوكنات شاشة التحميل، ومدة ضغط الزر على
    step المدة المسجَّل، وإزالة التتبع الموجب عن رؤوس الجداول (Principle V).
-   الدستور:          .specify/memory/constitution.md → Design System Standards · docs/DECISIONS.md → ADR-009, ADR-012, ADR-025, ADR-038, ADR-053, ADR-057, ADR-058, ADR-060, ADR-064
+   الدستور:          .specify/memory/constitution.md → Design System Standards · docs/DECISIONS.md → ADR-009, ADR-012, ADR-025, ADR-038, ADR-053, ADR-057, ADR-058, ADR-060, ADR-064, ADR-072
    إعادة التوليد:    هذا الملف هو المصدر الوحيد للقيم؛ والدستور يحمل السجل فقط
    ============================================================ */
 
@@ -1082,7 +1088,7 @@ svg {
 }
 .ds-scroll::-webkit-scrollbar-track {
   background-color: var(--neutral-100);
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
 }
 .dark .ds-scroll::-webkit-scrollbar-track {
   background-color: var(--neutral-900);
@@ -1090,7 +1096,7 @@ svg {
 .ds-scroll::-webkit-scrollbar-thumb {
   background-color: var(--neutral-400);
   border: 2px solid var(--neutral-100);
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
 }
 .dark .ds-scroll::-webkit-scrollbar-thumb {
   background-color: var(--neutral-600);
@@ -1242,6 +1248,11 @@ svg {
   --shadow-panel: var(--shadow-md); /* الألواح */
   --shadow-overlay: var(--shadow-2xl); /* النوافذ والألواح المنزلقة */
   --shadow-focus: 0 0 0 3px var(--border-focus-ring);
+  /* حلقات التركيز كتوكنات، فلا تحمل قاعدة صنف قيمة ظل حرفية
+     (Design System Standards → Invariants → Inside the design system file). */
+  --shadow-ring-error: 0 0 0 3px var(--ring-error);
+  --shadow-ring-error-strong: 0 0 0 3px var(--ring-error-strong);
+  --shadow-ring-success: 0 0 0 3px var(--ring-success);
 }
 
 .dark {
@@ -1906,6 +1917,14 @@ svg {
   --z-tooltip: 170; /* التلميحات — الأعلى دائماً */
 
   --z-boot: 9999; /* شاشة الإقلاع قبل اكتمال التحميل */
+
+  /* الطبقات العائمة المشتقة: تُعرَّف كتوكنات كي لا تحمل قاعدة صنف
+     قيمة z-index حرفية (Design System Standards → Invariants). */
+  --z-float-1: calc(var(--z-popover) + 10);
+  --z-float-2: calc(var(--z-popover) + 20);
+  --z-float-3: calc(var(--z-popover) + 30);
+  --z-float-modal: calc(var(--z-modal) + 10);
+  --z-float-drawer: calc(var(--z-drawer) + 10);
 }
 
 /* ============================================================
@@ -1987,13 +2006,13 @@ svg {
    تضيف 10 فقط فوق سابقتها، فلا تتراكم الأرقام.
    ============================================================ */
 .ds-float-1 {
-  z-index: calc(var(--z-popover) + 10);
+  z-index: var(--z-float-1);
 }
 .ds-float-2 {
-  z-index: calc(var(--z-popover) + 20);
+  z-index: var(--z-float-2);
 }
 .ds-float-3 {
-  z-index: calc(var(--z-popover) + 30);
+  z-index: var(--z-float-3);
 }
 
 /* ============================================================
@@ -2003,10 +2022,10 @@ svg {
    يُحدَّد خلاف ذلك. تُستخدم في القوائم داخل النوافذ.
    ============================================================ */
 .ds-float-above-modal {
-  z-index: calc(var(--z-modal) + 10);
+  z-index: var(--z-float-modal);
 }
 .ds-float-above-drawer {
-  z-index: calc(var(--z-drawer) + 10);
+  z-index: var(--z-float-drawer);
 }
 
 /* ============================================================
@@ -2198,7 +2217,7 @@ svg {
    ------------------------------------------------------------- */
 .ds-text-gradient {
   background: linear-gradient(
-    to inline-end,
+    270deg,
     var(--brand-600) 0%,
     var(--brand-700) 100%
   );
@@ -2208,7 +2227,7 @@ svg {
 }
 .dark .ds-text-gradient {
   background: linear-gradient(
-    to inline-end,
+    270deg,
     var(--brand-400) 0%,
     var(--brand-500) 100%
   );
@@ -2648,10 +2667,10 @@ svg {
 }
 .ds-field-error:focus {
   border-color: var(--error-500);
-  box-shadow: 0 0 0 3px var(--ring-error);
+  box-shadow: var(--shadow-ring-error);
 }
 .dark .ds-field-error:focus {
-  box-shadow: 0 0 0 3px var(--ring-error-strong);
+  box-shadow: var(--shadow-ring-error-strong);
 }
 
 /* حقل ناجح */
@@ -2660,7 +2679,7 @@ svg {
 }
 .ds-field-success:focus {
   border-color: var(--success-500);
-  box-shadow: 0 0 0 3px var(--ring-success);
+  box-shadow: var(--shadow-ring-success);
 }
 
 /* --- التسمية والنص المساعد --- */
@@ -2733,7 +2752,7 @@ svg {
   padding-inline-end: var(--space-10);
   background-image: var(--select-chevron);
   background-repeat: no-repeat;
-  background-position: inset-inline-end var(--space-2) center;
+  background-position: inline-end var(--space-2) block-start 50%;
   background-size: 1.25rem 1.25rem;
 }
 .dark .ds-select {
@@ -3059,7 +3078,7 @@ svg {
    إلزامياً (Principle V): تمتلئ نحو نهاية السطر. كان `to left` قبل 2.20.0. */
 .ds-progress-gradient {
   background: linear-gradient(
-    to inline-end,
+    270deg,
     var(--brand-500) 0%,
     var(--accent-500) 100%
   );
@@ -3902,7 +3921,7 @@ svg {
    القاعدة: لا نغيّر الألوان — نزيد حدود العناصر وحدّ
    سماكة الخطوط التي يعتمد عليها التمييز.
    --------------------------------------------------------- */
-@media (prefers-contrast: high) {
+@media (prefers-contrast: more) {
   :root {
     /* حدود أصرم، لأن تمييز الحقول والصفوف يعتمد عليها.
        ملاحظة: الأسماء هنا هي أسماء متغيّرات CSS (--border-*).
@@ -4344,13 +4363,13 @@ svg {
    ------------------------------------------------------------- */
 .ds-card-fluid {
   padding: 1rem;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-lg);
 }
 
 @media (min-width: 640px) {
   .ds-card-fluid {
     padding: 1.5rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-xl);
   }
 }
 
