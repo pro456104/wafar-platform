@@ -1280,15 +1280,20 @@ fixed above.
 | Quality | osv-scanner | Dependency vulnerability scan whose failures block release (Deployment and Observability's supply-chain rule); a CI gate, not a runtime dependency — exception `EX-005` in `.specify/templates/exception-register.md` |
 | Quality | pg_anonymize | Staging data anonymisation (Deployment and Observability); a staging tool, not a runtime dependency — exception `EX-006` in `.specify/templates/exception-register.md` |
 
-These six rows are the named implementations of rules that
-Deployment and Observability already required, and they close a register gap
-rather than open one: the rules said "or an equivalent", the register named no
-implementation, and the technology mirror named these six anyway. Each is a
-scanner, a CI gate, a metrics service, or a staging tool — never imported into an
-application image and never shipped to a merchant's browser — so the treatment
-is the one ClamAV and Lighthouse CI already carry. The clause "or an equivalent"
-in the rule body survives: substituting a different tool for one of these rows is
-an amendment to this register, not a local choice.
+These six rows are the named implementations of rules the constitution already
+stated, and they close a register gap rather than open one: the register named no
+implementation, and the technology mirror named these six anyway. The six are not
+uniform in the rule they serve. Four — Prometheus + Grafana, Semgrep OSS,
+osv-scanner, and pg_anonymize — implement a rule in Deployment and Observability
+whose own body says "or an equivalent"; the other two implement a rule that names
+its tool directly and allows no equivalent: ClamAV is File Processing Rules'
+content-safety step, and Lighthouse CI is Performance Budgets and Verification's
+Lighthouse budget. Each of the six is a scanner, a CI gate, a metrics service, or
+a staging tool — never imported into an application image and never shipped to a
+merchant's browser — so the treatment is uniform even though the two groups are
+not. Substituting a different tool for one of the four rows whose rule says "or
+an equivalent" is an amendment to this register, not a local choice; substituting
+one for ClamAV or Lighthouse CI is the same, because their rules name them.
 
 The frontend row's libraries split their roles and MUST NOT overlap: Nuxt UI
 v4 provides the UI components; Pinia holds client-side stores; TanStack Query
@@ -1860,6 +1865,7 @@ however obviously the concept belongs to the entity.
 | `.specify/extensions.yml` | The installed extensions and the hook registry every Spec Kit command reads before and after it runs. | `.specify/`. |
 | `.specify/workflows/speckit/workflow.yml` | The bundled workflow that runs the binding cycle in order, with its human review gates. | `.specify/workflows/speckit/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
+| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-074): the two version sources, every live ADR range string, the upstream manifest hashes, the two integrations' byte-identity, and the design system's token register. Read-only and dependency-free; exits non-zero on drift. | Repository root. |
 
 ## Artifact Workflow and Traceability
 
@@ -2123,4 +2129,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.27.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-08
+**Version**: 2.27.2 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-08

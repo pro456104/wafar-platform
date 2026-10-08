@@ -210,7 +210,8 @@ Read/write notes:
 
 - Filters offered by the parts table: a search field over part number and
   original number (partial match), multi-select filters over car model, type,
-  catalog file, and supplier (no selection means every supplier), and a price
+  catalog file, and supplier (no selection means every value of that filter, so
+  an unselected supplier filter means every supplier), and a price
   range (minimum and maximum); pagination 20/50/100; column sorting on every
   column except `type`; `?file=<id>` filters by catalog (Product Scope). The
   price column, and any filter or sort over it, are rendered for a registered
@@ -260,7 +261,7 @@ Read/write notes:
   `.specify/memory/version.json`) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-073; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-074; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;

@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-073; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-074; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -97,10 +97,12 @@ triage), and `git` (repository initialization and mandatory feature branch
 creation). The `git` extension registers a mandatory `before_constitution` hook,
 `speckit.git.initialize` (`optional: false`, enabled), which runs before
 constitution work, and a mandatory `before_specify` hook,
-`speckit.git.feature` (`optional: false`, enabled). The `assess` extension also
-registers an optional `before_specify` hook, `speckit.assess.intake`: prompting
-to normalize a raw idea into an intake note before specification
-(`optional: true`, enabled). It is a prompt, not a mandatory step of the binding
+`speckit.git.feature` (`optional: false`, enabled). The `assess` extension ships
+no lifecycle hooks of its own; **this project** registers its optional
+`speckit.assess.intake` prompt at `before_specify` in `.specify/extensions.yml` —
+prompting to normalize a raw idea into an intake note before specification
+(`optional: true`, enabled, `priority: 9` so it precedes the mandatory
+`git.feature`). It is a prompt, not a mandatory step of the binding
 cycle. Hook states are read from `.specify/extensions.yml`; the `git` commit
 hooks are registered but disabled by default.
 
@@ -133,17 +135,20 @@ key), so a `specify` upgrade may replace it; the project copy is the one to keep
 and its `requires.integrations.any` list must stay correctly nested under
 `integrations:` (ADR-072).
 
-**The governance drift check is committed (ADR-071).** `governance-drift-check.mjs`
+**The governance drift check is committed (ADR-071, ADR-074).** `governance-drift-check.mjs`
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
-footer against `.specify/memory/version.json`; every live `ADR-001 … ADR-073`
-range string against the last row of `docs/DECISIONS.md`'s index; every
+footer against `.specify/memory/version.json`; every live `ADR-001 … ADR-074`
+range string against the last row of `docs/DECISIONS.md`'s index; the ADR list in
+`Project-Technologies.txt`'s header against the same row; every
 `speckit.manifest.json` hash for an upstream-owned file against the working tree
-(the project-owned `templates/overrides/*` files and `.specify/.gitignore` are
-excluded, because the project edits them by design); and the byte-identity of
-`.codebuddy/commands/` and `.opencode/commands/`. Run it with
-`node governance-drift-check.mjs`; it exits non-zero on drift. The slice that
-introduces the test runner (R1) wires it into continuous integration.
+(the project-owned `templates/overrides/*` files, `.specify/.gitignore`, and
+`.specify/templates/exception-register.md` are excluded, because the project
+edits them by design); the byte-identity of `.codebuddy/commands/` and
+`.opencode/commands/` and their two integration manifests; and every design token
+the constitution's Design System Standards names against `wafar.single.css`. Run
+it with `node governance-drift-check.mjs`; it exits non-zero on drift. The slice
+that introduces the test runner (R1) wires it into continuous integration.
 
 ## 6. Known gaps
 
@@ -158,6 +163,15 @@ introduces the test runner (R1) wires it into continuous integration.
   The pin is `@opencode-ai/plugin` **1.1.21**; it is recorded here (ADR-071) so a
   fresh clone knows the value, and stays machine-local rather than
   repo-enforced.
+
+- **`.specify/memory/.constitution-template.json` is ignored and untracked (gap
+  closed 2026-10-08, ADR-074).** It is the CLI's record of which constitution
+  template it scaffolded from — machine state of the same class as
+  `memory/.resolved-template.json`, `extensions/.cache/`, and
+  `integrations/.cache/`. It was tracked until 2026-10-08, so it was removed from
+  the index and added to `.specify/.gitignore` in the same change. Its `source`
+  field is not a governance statement: the binding template layer is
+  `.specify/templates/overrides/`.
 
 - **Integration state is committed (gap closed 2026-10-08, ADR-069).**
   `.codebuddy/`, `.specify/integrations/codebuddy.manifest.json`, and

@@ -8,9 +8,10 @@ what was considered and why the chosen option won.
 **Record duties (Documentation rule).** Every record below names the directory
 that owns the decision and the feature that owns the work, per the Documentation
 rule. Most were made by a constitutional amendment, but not all: ADR-001 to
-ADR-007 were made during repository bootstrap on 2026-10-01, ADR-012 to ADR-013
-were design-system and workflow decisions, and ADR-015 onward are governance
-decisions ratified by the repository owner. The owning feature is one of
+ADR-007 were made during repository bootstrap on 2026-10-01, ADR-009 and ADR-011
+recorded the design system's own decisions and the mirrors' encoding, ADR-012 to
+ADR-013 were design-system and workflow decisions, and ADR-015 onward are
+governance decisions ratified by the repository owner. The owning feature is one of
 "none yet — repository bootstrap (pre-feature record)", "none — governance
 decision; ratified by the repository owner", or the identifier of the slice that
 first implements the decision. The bootstrap-era records state the reaffirmation
@@ -108,6 +109,7 @@ from the index rather than edited in its own words.
 | [ADR-071](#adr-071--cross-artifact-consistency-and-tooling-fix-set) | Cross-artifact consistency and tooling fix set | 2026-10-08 | 2.26.0 (unchanged) |
 | [ADR-072](#adr-072--workflow-execution-defects-and-css-standard-conformance) | Workflow execution defects and CSS standard conformance | 2026-10-08 | 2.27.0 |
 | [ADR-073](#adr-073--duplicate-storage-semantics-slice-component-obligations-and-mirror-precision) | Duplicate-storage semantics, slice component obligations, and mirror precision | 2026-10-08 | 2.27.1 |
+| [ADR-074](#adr-074--deep-audit-fix-set-the-exception-registers-classification-the-sticky-headers-owner-module-ownership-and-the-constitutions-own-precision-defects) | Deep-audit fix set: the exception register's classification, the sticky header's owner, module ownership, and the constitution's own precision defects | 2026-10-08 | 2.27.2 |
 
 ---
 
@@ -923,6 +925,8 @@ No exception was granted; the exception register stays empty.
 **Consequences.** A slice that changes an entity, a relationship, or an invariant now changes a registered product fact and MUST amend the register, record an ADR, and update `docs/domain-model.md` in the same change. A slice that introduces a column owns it in its own `data-model.md` and its migration; the two are no longer confused. R1, R2, R3, R11 and R13 each carry an open data-model question by name, so none of them can pass its Constitution Check by silently choosing.
 
 **Annotation (2026-10-05, audit follow-up).** The Context's statement that seven facts "existed only in the Arabic mirror" is corrected by ADR-034: the field identifiers named there (`User.status`, `Catalog.size`, `Catalog.mime_type`, `Part.page`, `Part.row`, `ContactMessage.status`, `ContactMessage.admin_note`) appeared in earlier drafts of the unresolved-facts table, not in `Core-Project.txt`. The current `docs/domain-model.md` carries rows 7–11 alone and attributes none of the identifiers to the product mirror. The decision this record made is unchanged; only the provenance sentence is superseded.
+
+**Annotation (2026-10-08, ADR-074).** Item 4 above and the Consequences paragraph assign three of those facts to slices that no longer decide them: the administrator-representation question (#6) to R13, and `User.status` (#7) and the `auth` module's stored entity (#8) to R1. ADR-067 resolved all three on 2026-10-07 — the administrator is a role on `User`, `User.status` is `active` or `blocked`, and `auth` owns `Session` — so the sentence "R1, R2, R3, R11 and R13 each carry an open data-model question by name" now holds for R2, R3, and R11 only. The decision this record made is unchanged; only its assignment of those three facts is superseded.
 
 ---
 
@@ -2814,6 +2818,8 @@ and Performance Budgets and Verification respectively.
 be, each with a review date a later audit can act on. A reader checking whether a
 dependency is permitted finds the answer in the exception register rather than
 inferring it from the Approved register's prose. This entry is the durable record.
+
+**Annotation (2026-10-08, ADR-074).** The Context above quotes the register as reading "No exceptions recorded". ADR-054 restructured it into its current `Register` and `Closed` tables, so that phrase is no longer in the file, and the register now carries six rows (EX-001 … EX-006: the two this record added, plus four added by ADR-054). The decision is unchanged; only the quoted state of the file is superseded.
 
 ---
 
@@ -4819,6 +4825,8 @@ as well as by hand. The two-integration byte-identity claim is verified rather
 than asserted. The two version sources remain in agreement at **2.26.0**. This
 entry is the durable record.
 
+**Annotation (2026-10-08, ADR-074).** Item 1 above classifies `.specify/templates/exception-register.md` as an upstream-owned file that "MUST stay unmodified", and item 3 keeps the project-owned exclusion to the five `templates/overrides/*` files and `.specify/.gitignore`. The register is not upstream-owned: Governance requires the project to maintain it, and ADR-052 and ADR-054 wrote its six rows into it. Its recorded hash happens to match the project's copy, so check C enforced a project-authored file — and would have failed on the next exception granted. ADR-074 adds it to the exclusion rule, so the three project-owned paths are the five overrides, `.specify/.gitignore`, and the exception register.
+
 ---
 
 ## ADR-072 — Workflow execution defects and CSS standard conformance
@@ -5130,3 +5138,180 @@ every live `ADR-001 … ADR-0NN` range string moves to **ADR-001 … ADR-073**
 `spec-template.md` and `checklist-template.md` overrides), and
 `Project-Technologies.txt`'s header ADR list gains ADR-073. The drift check reports
 clean at 2.27.1 with the index ending at ADR-073. This entry is the durable record.
+
+---
+
+## ADR-074 — Deep-audit fix set: the exception register's classification, the sticky header's owner, module ownership, and the constitution's own precision defects
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `.specify/`, `docs/`, `ROADMAP.md`, `AGENTS.md`, `README.md`, `Project-Technologies.txt`, repository root
+**Owning feature**: none — governance and tooling decision; ratified by the repository owner
+
+**Context.** A deep audit read the whole governance set before the first slice (R1)
+was specified — the constitution, both mirrors, `ROADMAP.md`, `AGENTS.md`,
+`README.md`, `docs/architecture.md`, `docs/domain-model.md`, this log, the five
+binding overrides, the extension and integration registries, `.gitattributes`, and
+`wafar.single.css` — and then ran the committed drift check and recomputed the
+manifest hashes. The check reported **clean at 2.27.1**, so every finding below is
+a defect the check cannot see: a classification, an ownership, or a statement that
+contradicts another statement. Each was reproduced against the working tree before
+it was written here.
+
+1. **F-01 — the roadmap still assigned a resolved question.** `ROADMAP.md`'s
+   "Administrator representation" note read "R13 decides the distinct-entity
+   question", while ADR-067 had closed it on 2026-10-07 (the administrator is a
+   role on `User`) and the same file's own unresolved-facts list already carried it
+   struck through. A slice reading the note would have planned to decide a fact
+   that is fixed.
+2. **F-02 — the drift check enforced a project-authored file.** ADR-071 item 1
+   classified `.specify/templates/exception-register.md` as upstream-owned and
+   "MUST stay unmodified", and item 3's exclusion covered only the five overrides
+   and `.specify/.gitignore`. The register is the project's: Governance requires it
+   to be maintained there, and ADR-052 and ADR-054 wrote its six rows into it. Its
+   recorded hash matched the project's copy, so check C passed — and would have
+   failed the moment a seventh exception was granted, which Governance makes
+   mandatory.
+3. **F-03 — two decision records were not annotated after ADR-067.** ADR-019 still
+   assigned the administrator question to R13 and `User.status` and `auth`'s
+   stored entity to R1, and stated that R1 and R13 "each carry an open data-model
+   question by name"; ADR-052 still quoted the exception register as reading "No
+   exceptions recorded". The file's own rule annotates a record a later decision
+   supersedes.
+4. **F-04 — a machine-local CLI cache was tracked.**
+   `.specify/memory/.constitution-template.json` is the CLI's record of which
+   constitution template it scaffolded from — the same class as
+   `memory/.resolved-template.json`, which ADR-073 ignored. It was tracked, and it
+   recorded `"source": "core"`, which reads as a statement that the core template
+   scaffolded this constitution rather than the project's binding override.
+5. **F-05 — `AGENTS.md` attributed the assess hook to the extension.** It said
+   "The `assess` extension also registers an optional `before_specify` hook",
+   while the extension's own README (corrected by ADR-055) states that assess
+   ships no lifecycle hooks and that *this repository* registers the prompt in
+   `.specify/extensions.yml`.
+6. **F-06 — the sticky header had an owner that is not its first consumer.** The
+   First obligations table assigned it to R5, "used by the first table that
+   requires it", but R4's My Files carries the first table the product renders,
+   and Decision values → Table declares the sticky header required.
+7. **F-07 — five of the ten modules had no creating slice.** R1, R3, and R11 name
+   the modules they create (`auth`/`users`, `suppliers`/`parts`, `support`), but
+   `catalogs`, `bookmarks`, `notifications`, `messages`, and `admin` had none,
+   while Project Structure and Debt Control requires one owning feature per
+   directory holding production code.
+8. **F-08 — the register's own paragraph over-generalised.** Technology Standards
+   said all six exception rows "close a register gap" for rules that "said 'or an
+   equivalent' in Deployment and Observability". Four do; ClamAV's rule is File
+   Processing Rules and Lighthouse CI's is Performance Budgets and Verification,
+   and both name their tool directly.
+9. **F-09 — `governance-drift-check.mjs` was named in neither register.** It is a
+   committed governance instrument (ADR-071) and is described in `AGENTS.md` and
+   `ROADMAP.md`, but the constitution's References table and `README.md`'s
+   documentation map — the two places a reader looks — did not list it.
+10. **F-10 — three smaller precision defects.** `docs/architecture.md` described
+    the whole filter set as "no selection means every supplier" where the
+    constitution's rule is "every value of that filter"; this log's own header
+    enumeration skipped ADR-009 and ADR-011; and ADR-052 quoted a phrase the
+    register no longer contains (item 3 above).
+
+**Decision.** Constitution **2.27.1 → 2.27.2** (PATCH: two corrections inside
+existing text and one References row; no principle, register entry, entity, page,
+feature, Usage Limit, module, or slice number changes).
+
+1. **The roadmap note is corrected** to state that ADR-067 fixed the administrator
+   as a role on `User`, that no slice decides it, and that R1 seeds the account
+   while R13 implements the surface over the same role.
+2. **The exception register joins the drift check's project-owned exclusion**, and
+   check C's header comment names all three excluded paths. `AGENTS.md` §5 records
+   the exclusion.
+3. **ADR-019 and ADR-052 gain annotations** naming ADR-067 and ADR-054
+   respectively, following the form ADR-034's annotation established: the
+   decisions stand, and the superseded assignment or quoted state is marked.
+4. **`.specify/memory/.constitution-template.json` is added to
+   `.specify/.gitignore` and removed from the index** in the same change, and
+   `AGENTS.md` §6 records the gap as closed.
+5. **`AGENTS.md` §5 states where the hook lives**: the `assess` extension ships
+   none, and this project registers `speckit.assess.intake` at `before_specify` in
+   `.specify/extensions.yml` with `priority: 9`.
+6. **The sticky table header is R4's**, and R5's component sentence no longer
+   claims it. The First obligations row names My Files as the first table the
+   product renders.
+7. **The module ownership map is completed**: R2 creates `catalogs`, R8
+   `bookmarks`, R9 `notifications`, R10 `messages`, and R13 `admin`; a second row
+   records the `packages/db/schema/<module>.ts` file each module first writes,
+   naming the one overlap — R11 creates `packages/db/schema/admin.ts` for
+   `PlatformSetting` while the `admin` module directory is R13's.
+8. **The Technology Standards paragraph distinguishes the two groups** of
+   exception rows: the four whose rule says "or an equivalent", and ClamAV and
+   Lighthouse CI, whose rules name them.
+9. **`governance-drift-check.mjs` is named in References and in the README's
+   documentation map**, and `README.md` gains a short paragraph naming what it
+   verifies.
+10. **The three precision defects are corrected**: the architecture filter
+    sentence now reads "every value of that filter"; this log's header enumeration
+    names ADR-009 and ADR-011; and `wafar.single.css`, `Core-Project.txt`,
+    `docs/domain-model.md`, and the exception register's own rows are left
+    untouched.
+11. **Every live `ADR-001 … ADR-0NN` range string moves to ADR-074** (`AGENTS.md`,
+    `README.md`, `ROADMAP.md`, `docs/architecture.md`, and the `spec-template.md`
+    and `checklist-template.md` overrides), `Project-Technologies.txt`'s header ADR
+    list gains ADR-074, and the two version sources move together.
+
+**What deliberately did not change.** No principle was added, removed, renamed, or
+redefined. No entity, page, feature, Usage Limit, module, or slice number changed,
+and no slice's `Depends on` edge changed — F-06 and F-07 move an obligation and
+name owners, and neither adds a dependency. `wafar.single.css` is untouched, so the
+design-system version stays 1.3.0. `Core-Project.txt` is untouched: two of its
+statements are recorded below rather than edited. The five binding overrides keep
+their structure; only their range string moved. The exception register's six rows
+are unchanged. The `.specify/` extension and integration registries are unchanged:
+F-05 is a documentation defect, not an installed-manifest one, and editing
+`assess/extension.yml` would have fought the install rather than fixed the
+statement.
+
+**Recorded, not decided (the two `Core-Project.txt` statements).** Two statements
+in the product mirror have no counterpart in the register, and neither is a
+reserved fact, so neither is decided here: the duplicate-file message is described
+as naming the upload date and carrying "a link to open" the original (File
+Processing Rules says only that the message names the original), and the
+first-page extraction step is described as also displaying "the issue dates
+matching the name" (File Processing Overview step 4 names the supplier's name and
+the issue date only). R2 owns the first and R3 the second; each MUST either
+implement the mirror's statement and record it as an addition to Product Scope in
+its plan, or drop it from the mirror in its own change. Recording them here is what
+keeps them from being settled silently.
+
+**Alternatives considered.**
+- *Leave the exception register in the enforced set and refresh its hash when a row
+  is added.* Rejected: ADR-068 item 10 is the governing decision — re-recording a
+  project-owned hash makes the CLI treat the file as unmodified and overwrite it on
+  a refresh. The correct action is to exclude it, as the five overrides already are.
+- *Fix F-05 by adding a `hooks:` block to
+  `.specify/extensions/assess/extension.yml`.* Rejected: the extension is installed
+  state whose hash `.specify/extensions/.registry` records, and ADR-055 already
+  ratified the opposite reading — assess ships no hooks, the project registers the
+  prompt in the registry the commands read. Editing the manifest would also be
+  reverted by the next extension refresh.
+- *Move the sticky header to R5 and exempt My Files' table.* Rejected: the
+  constitution declares the sticky header required and assigns each missing
+  component to the slice that first needs it; My Files' table is the first the
+  product renders, so R4 is the honest owner.
+- *Delete the two unregistered `Core-Project.txt` statements.* Rejected: they are
+  product intent, and a governance repair is not the instrument for removing
+  product intent. They are recorded with their owning slices instead.
+- *Bump to 2.28.0 (MINOR).* Rejected: nothing is added to the guidance — the
+  paragraph correction narrows an over-general sentence, the References row is a
+  pointer, and the rest is classification, ownership, and annotation.
+- *Fix only the findings that block R1 and defer the precision items.* Rejected:
+  F-08, F-09, and F-10 are the same class of defect and cost nothing to correct in
+  the same pass; deferring them would leave the register stating something its own
+  rows contradict.
+
+**Consequences.** The drift check now enforces only files the project does not own
+by design, so granting the next exception cannot fail it. The roadmap no longer
+sends a slice to decide a fixed fact, and the first table's owner is the slice that
+builds it. Five module directories have a named creating slice, so no two slices
+can claim one. `AGENTS.md` states where the assess hook actually lives, so a reader
+does not look for it in an installed manifest. The two registers a reader starts
+from name the drift check. The two `Core-Project.txt` statements are owned by R2
+and R3 rather than invisible. The two version sources agree at **2.27.2**, the
+drift check reports clean with the index ending at ADR-074, and every live range
+string reads `ADR-001 … ADR-074`. This entry is the durable record.

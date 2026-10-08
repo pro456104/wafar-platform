@@ -15,10 +15,11 @@ not sell, buy, process payment, or host user-to-user chat.
 | `Project-Technologies.txt` | Mirror of the approved technology register. The register itself is `.specify/memory/constitution.md` → Technology Standards. |
 | `docs/architecture.md` | Repository layout, API module map, data flow. |
 | `docs/domain-model.md` | The data model: entities, relationships, cardinality, invariants, and the module that owns each. |
-| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-073; index at the top). |
+| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-074; index at the top). |
 | `wafar.single.css` | The design system's values — the only permitted source of design values. Its register is `.specify/memory/constitution.md` → Design System Standards. |
 | `ROADMAP.md` | The MVP slice order. Names and orders slices; does not design them. |
 | `AGENTS.md` | Operating instructions for agent assistants. |
+| `governance-drift-check.mjs` | The committed read-only drift check: the two version sources, every live ADR range string, the upstream manifest hashes, the two integrations, and the design system's token register. Run it with `node governance-drift-check.mjs`. |
 
 ## Prerequisites
 
@@ -51,6 +52,14 @@ This repository is driven by Spec Kit. With `.specify/` present and the
 
 Templates resolve from `.specify/templates/overrides/` first; those overrides are
 the project's binding templates and must not be replaced with the core ones.
+
+**Governance drift check.** `node governance-drift-check.mjs` (repository root)
+verifies the invariants the governance set cannot verify by discipline: the two
+version sources, every live `ADR-001 … ADR-074` range string, the ADR list in
+`Project-Technologies.txt`'s header, the upstream manifest hashes, the two
+integrations' byte-identity, and the design system's token register against
+`wafar.single.css`. It is read-only, adds no dependency, and exits non-zero on
+drift (ADR-071, ADR-074).
 
 **Project-level knowledge is not a feature.** The constitution, the
 architecture, the data model, the technology stack, the design system, the

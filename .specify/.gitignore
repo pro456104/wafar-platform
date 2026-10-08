@@ -24,3 +24,10 @@ integrations/.cache/
 # on a fresh clone, and a stale copy of the constitution scaffold otherwise
 # reaches `git add -A`. See ADR-073.
 memory/.resolved-template.json
+
+# The CLI's record of which constitution template it scaffolded from. Same
+# class as the three caches above — machine state, not project content — and it
+# was tracked until 2026-10-08, so it is untracked in the same change that
+# ignores it. Its `source` field is not a governance statement: the binding
+# template layer is `.specify/templates/overrides/` (ADR-074).
+memory/.constitution-template.json

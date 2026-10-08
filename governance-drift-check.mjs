@@ -12,7 +12,8 @@
  *   F. the ADR list in `Project-Technologies.txt`'s header ends at that row
  *   C. every `speckit.manifest.json` hash for an *upstream-owned* file matches
  *      the working tree; project-owned files are excluded by a path rule
- *      (`.specify/templates/overrides/**`, `.specify/.gitignore`)
+ *      (`.specify/templates/overrides/**`, `.specify/.gitignore`,
+ *      `.specify/templates/exception-register.md`)
  *   D. `.codebuddy/commands/*` and `.opencode/commands/*` are byte-identical
  *   D2. each integration manifest (`.specify/integrations/codebuddy.manifest.json`,
  *      `.specify/integrations/opencode.manifest.json`) matches the tree it
@@ -124,8 +125,14 @@ if (!ptRun) {
 }
 
 /* ---- C. manifest hashes for upstream-owned files -------------------------- */
+// The exception register is a project-owned file, not an upstream one: the
+// constitution's Governance section requires the project to maintain it, and
+// ADR-052 and ADR-054 added its six rows to it. Enforcing its recorded hash
+// would fail on the next granted exception, so it is excluded here (ADR-074).
 const projectOwned = (p) =>
-  p.startsWith('.specify/templates/overrides/') || p === '.specify/.gitignore';
+  p.startsWith('.specify/templates/overrides/') ||
+  p === '.specify/.gitignore' ||
+  p === '.specify/templates/exception-register.md';
 
 const manifest = JSON.parse(read('.specify/integrations/speckit.manifest.json'));
 let checked = 0;
