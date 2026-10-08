@@ -8,8 +8,9 @@
  *   A. the constitution footer version equals `.specify/memory/version.json`
  *   B. every live `ADR-001 … ADR-0NN` range string, in every governance
  *      markdown file under `docs/` and the template overrides, equals the last
- *      ADR row in `docs/DECISIONS.md`'s index; and every index row's anchor
- *      resolves to its heading
+ *      ADR row in `docs/DECISIONS.md`'s index; every index row's anchor resolves
+ *      to its heading; and every `ADR-NNN` reference in the governance set
+ *      resolves to an ADR the index carries
  *   F. the ADR list in `Project-Technologies.txt`'s header ends at that row
  *   C. every `speckit.manifest.json` hash for an *upstream-owned* file matches
  *      the working tree; project-owned files are excluded by a path rule
@@ -133,6 +134,36 @@ if (expected === null) {
   }
   notes.push(`B: index ends at ADR-${expected}; ${scannedRangeFiles.size} markdown files scanned`);
   notes.push(`B: ${anchorsChecked} ADR index anchors resolved against their headings`);
+
+  // Every `ADR-NNN` reference in the governance set must resolve to an ADR the
+  // index carries. ADR-083 added this check; a typo or a reference to an ADR
+  // that does not exist would otherwise pass silently.
+  const REFERENCE_FILES = [
+    'README.md', 'AGENTS.md', 'ROADMAP.md', 'Core-Project.txt',
+    'Project-Technologies.txt', 'docs/architecture.md', 'docs/domain-model.md',
+    'docs/CHANGELOG-mirror.md', 'docs/DECISIONS.md',
+    '.specify/templates/exception-register.md',
+    '.specify/templates/overrides/spec-template.md',
+    '.specify/templates/overrides/plan-template.md',
+    '.specify/templates/overrides/tasks-template.md',
+    '.specify/templates/overrides/checklist-template.md',
+    '.specify/templates/overrides/constitution-template.md',
+  ];
+  const knownAdr = new Set(indexNumbers.map((n) => String(n).padStart(3, '0')));
+  let referencesChecked = 0;
+  for (const file of REFERENCE_FILES) {
+    if (!existsSync(join(ROOT, file))) {
+      failures.push(`B: ${file} is missing`);
+      continue;
+    }
+    for (const n of new Set([...read(file).matchAll(/ADR-(\d{3})/g)].map((m) => m[1]))) {
+      if (!knownAdr.has(n)) {
+        failures.push(`B: ${file} references ADR-${n}, which the index does not carry`);
+      }
+      referencesChecked++;
+    }
+  }
+  notes.push(`B: ${referencesChecked} distinct ADR references resolved across ${REFERENCE_FILES.length} files`);
 }
 
 /* ---- F. the Project-Technologies.txt header ADR list ends at the index ----- */

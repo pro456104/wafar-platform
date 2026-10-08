@@ -35,7 +35,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-082) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-083) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -119,7 +119,7 @@ an owner.
 | Arabic analyzer configuration and verification: choice recorded in the plan's Complexity Tracking table with an ADR | R5 | Technology Standards → Register gaps |
 | SBOM generator: the tool that produces the per-build SBOM, recorded with an ADR (the scans themselves are already registered) | R1 | Technology Standards → Register gaps; Deployment and Observability (supply-chain controls) |
 | Load-test tool: the tool that performs the pre-release load test, recorded with an ADR | R12 | Technology Standards → Register gaps; Performance Budgets and Verification |
-| A committed read-only governance drift check that verifies the constitution's version footer against `.specify/memory/version.json`, every live `ADR-001 … ADR-0NN` range string, every ADR index row's anchor against its heading, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes, the two integrations' byte-identity (their command directories and their two integration manifests), the design system's token register against `wafar.single.css`, and the structural counts the governance text states in prose | R1 — **delivered 2026-10-08 by ADR-071** (`governance-drift-check.mjs`); R1 only wires it into CI | Governance (version sources, amendment procedure); Documentation (records that drift after the author moves on); ADR-061 |
+| A committed read-only governance drift check that verifies the constitution's version footer against `.specify/memory/version.json`, every live `ADR-001 … ADR-0NN` range string, every ADR index row's anchor against its heading, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes, the two integrations' byte-identity (their command directories and their two integration manifests), the design system's token register against `wafar.single.css`, and the structural counts the governance text states in prose | R1 — **delivered 2026-10-08 by ADR-071** (`governance-drift-check.mjs`); R1 only wires it into CI | Governance (version sources, amendment procedure); Documentation (records that drift after the author moves on); ADR-061 |
 | The same check names no external tool: it runs from the repository and adds no dependency, and a slice that wants one records the choice with an ADR | R1 | Technology Standards → Register gaps (naming a library before its ADR is prohibited) |
 
 ## Defects in the slice order, and the slice that closes each

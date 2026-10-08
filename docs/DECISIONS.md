@@ -118,6 +118,7 @@ from the index rather than edited in its own words.
 | [ADR-080](#adr-080--the-drift-checks-structural-count-coverage-completed) | The drift check's structural-count coverage completed | 2026-10-08 | 2.28.1 (unchanged) |
 | [ADR-081](#adr-081--spec-kit-cli-upgraded-to-112-the-scaffold-pin-annotated) | Spec Kit CLI upgraded to 1.1.2; the scaffold pin annotated | 2026-10-08 | 2.28.1 (unchanged) |
 | [ADR-082](#adr-082--the-adr-indexs-anchor-integrity-checked-and-adr-064s-anchor-repaired) | The ADR index's anchor integrity checked, and ADR-064's anchor repaired | 2026-10-08 | 2.28.2 |
+| [ADR-083](#adr-083--every-adr-reference-resolved-against-the-index) | Every ADR reference resolved against the index | 2026-10-08 | 2.28.3 |
 
 ---
 
@@ -6006,3 +6007,48 @@ description-completing change.
 surviving until a reader clicks it. The drift check reports clean with the index
 ending at ADR-082, every index anchor resolving, and every live range string
 reading `ADR-001 … ADR-082`. This entry is the durable record.
+
+---
+
+## ADR-083 — Every ADR reference resolved against the index
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `governance-drift-check.mjs`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `.specify/templates/overrides/`, `Project-Technologies.txt`, `.specify/memory/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** The governance set cites ADRs by number everywhere — "ADR-040",
+"ADR-067", "ADR-082" — and the committed check verified the live range string and,
+from ADR-082, the index anchors, but not the individual references. A reference to
+an ADR the index does not carry (a typo, or a forward reference to an ADR not yet
+written) passed silently. A verification sweep over the fifteen governance files
+found 187 distinct references, all of which resolve today: the class was
+unchecked, not broken.
+
+**Decision.**
+
+1. `governance-drift-check.mjs`'s check B gains the reference verification: every
+   `ADR-NNN` occurrence in the fifteen governance files MUST resolve to an ADR the
+   index carries.
+2. The four descriptions of the check gain the same clause, and the constitution's
+   References row names it, which moves the constitution to **2.28.3** (PATCH).
+3. Every live `ADR-001 … ADR-0NN` range string moves to **ADR-083**, and
+   `Project-Technologies.txt`'s header ADR list gains ADR-083.
+
+**What deliberately did not change.** No principle, entity, page, feature, Usage
+Limit, module, or slice changed, and no slice's `Depends on` edge changed. No
+governance file's content changed beyond the descriptions and the range strings:
+the sweep found nothing to repair. The 2.28.3 bump is PATCH, on ADR-079's
+precedent for a description-completing change.
+
+**Alternatives considered.**
+- *Leave the references unchecked.* Rejected: the anchor check (ADR-082) proved
+  the class real, and a reference check is the same class one step out.
+- *Add the check as a new letter rather than to B.* Rejected: B owns ADR
+  integrity — its range strings, its anchors, and now its references.
+- *Also assert a fixed reference count.* Rejected: the count moves with every
+  ADR; the invariant is that each reference resolves, not how many there are.
+
+**Consequences.** A dangling ADR reference now fails the committed check. The
+drift check reports clean with the index ending at ADR-083, every index anchor
+resolving, 187 references resolving, and every live range string reading
+`ADR-001 … ADR-083`. This entry is the durable record.
