@@ -115,6 +115,7 @@ from the index rather than edited in its own words.
 | [ADR-077](#adr-077--admin-module-creation-and-the-platformsetting-read-surface) | Admin-module creation and the PlatformSetting read surface | 2026-10-08 | 2.28.0 (unchanged) |
 | [ADR-078](#adr-078--superseded-owner-assignments-annotated-and-the-platformsetting-duty-corrected) | Superseded owner assignments annotated, and the PlatformSetting duty corrected | 2026-10-08 | 2.28.0 (unchanged) |
 | [ADR-079](#adr-079--constitution-2281-the-drift-checks-four-descriptions-aligned) | Constitution 2.28.1: the drift check's four descriptions aligned | 2026-10-08 | 2.28.1 |
+| [ADR-080](#adr-080--the-drift-checks-structural-count-coverage-completed) | The drift check's structural-count coverage completed | 2026-10-08 | 2.28.1 (unchanged) |
 
 ---
 
@@ -5813,3 +5814,68 @@ checks, so a reader of any one of them learns what the committed check verifies.
 The two version sources agree at **2.28.1**, the drift check reports clean with the
 index ending at ADR-079, and every live range string reads `ADR-001 … ADR-079`.
 This entry is the durable record.
+
+---
+
+## ADR-080 — The drift check's structural-count coverage completed
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `governance-drift-check.mjs`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `.specify/templates/overrides/`, `Project-Technologies.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** `governance-drift-check.mjs`'s check G verifies "the structural counts
+the governance text states in prose" against the lists that enumerate them. It
+carried seven counts — slices, exception rows, principles, data entities,
+design-system modules, binding sections, and API modules (ADR-075) — while the
+governance text states two more in prose: the constitution's Product Register says
+"Twenty-six pages are in scope" and "The sixteen product features are listed in
+Product Scope". Neither was machine-checked, so either could drift silently: a page
+or a feature added to Product Scope without amending the register would leave the
+prose count wrong and the check green. The check's own description was therefore
+incomplete in exactly the way ADR-075 exists to prevent.
+
+**Decision.**
+
+1. `governance-drift-check.mjs`'s check G gains two rows:
+   - **G8 — pages**: 26, counted from the three page tables in Product Scope (the
+     public site, the merchant area, and the administrator application), sliced by
+     heading and matched by the two-column row shape, so the three-column Product
+     Features table is excluded without a second anchor.
+   - **G9 — product features**: 16, counted from the numbered rows of the Product
+     Features table.
+2. The script's header comment and its check-G inline comment name the two new
+   counts, so the tool describes what it does.
+3. `AGENTS.md` §5's enumeration of the counts gains "pages" and "product
+   features". The other three descriptions of the check (`README.md`, the
+   constitution's References table, and `ROADMAP.md` → First obligations) state
+   the counts generically and need no change.
+4. Every live `ADR-001 … ADR-0NN` range string moves to **ADR-080**
+   (`AGENTS.md`, `README.md`, `ROADMAP.md`, `docs/architecture.md`, and the
+   `spec-template.md` and `checklist-template.md` overrides), and
+   `Project-Technologies.txt`'s header ADR list gains ADR-080.
+
+**What deliberately did not change.** No principle was added, removed, renamed, or
+redefined. No entity, page, feature, Usage Limit, module, or slice number changed,
+and no slice's `Depends on` edge changed. The constitution's text is untouched —
+its References row already describes check G generically — so the version stays
+**2.28.1**. `wafar.single.css`, `Core-Project.txt`, `docs/domain-model.md`,
+`docs/architecture.md`'s module map, the exception register, and the two
+integrations' command directories are untouched.
+
+**Alternatives considered.**
+- *Leave the two counts unchecked.* Rejected: the check claims to verify the
+  structural counts the governance text states in prose, and a claim that omits two
+  of its nine is the defect ADR-075 named.
+- *Add the counts by editing the constitution instead of the script.* Rejected: the
+  counts are already stated in prose; the gap is in the enforcement, not the text.
+- *Bump to 2.29.0 (MINOR) or 2.28.2 (PATCH).* Rejected: the change touches no
+  constitution text, and the established pattern for a tooling change that leaves
+  the text alone (ADR-071, ADR-078) leaves the version unchanged.
+- *Fold this into ADR-079.* Rejected: ADR-079 is committed and aligned the
+  descriptions; this adds the enforcement those descriptions then describe.
+
+**Consequences.** Check G now verifies nine counts, so a page or a feature added
+to Product Scope without amending the register fails the check instead of drifting
+silently. The two version sources agree at **2.28.1**, the drift check reports clean
+with the index ending at ADR-080, and every live range string reads
+`ADR-001 … ADR-080`. This entry is the durable record.

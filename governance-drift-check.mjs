@@ -22,7 +22,8 @@
  *      is defined in `wafar.single.css`
  *   G. the structural counts the governance text states in prose — slices,
  *      exception rows, principles, data entities, design-system modules,
- *      binding sections, and API modules — match the lists that enumerate them
+ *      binding sections, API modules, pages, and product features — match the
+ *      lists that enumerate them
  *
  * Usage:  node governance-drift-check.mjs
  * Exit:   0 = clean, 1 = drift found.
@@ -256,7 +257,8 @@ if (!dsSection) {
 // The constitution, the roadmap, the exception register, and the architecture
 // state countable facts ("fifteen slices", "six exception rows", "ten
 // principles", "twelve entities", "fourteen modules", "nineteen binding
-// sections", "ten API modules"). None was machine-checked before ADR-075, so
+// sections", "ten API modules", "twenty-six pages", "sixteen product
+// features"). None was machine-checked before ADR-075, so
 // any of them could drift silently. Each row counts an enumerable list and
 // compares it to the number the governance text states. Anchors are line-start
 // and lists are sliced by heading, never by line number, so a renamed heading
@@ -330,6 +332,27 @@ const structuralCounts = [
     got: () => {
       const s = sliceBetween(read('docs/architecture.md'), '## 2. Module map', '## 3. ');
       return s === null ? -1 : countMatches(s, /^\| `\w+` \|/gm);
+    } },
+  // G8 and G9 complete the set: the governance text also states a page count
+  // ("Twenty-six pages are in scope", Product Register) and a product-feature
+  // count ("The sixteen product features are listed in Product Scope"). Both
+  // were stated in prose and left unchecked until ADR-080.
+  { id: 'G8', label: 'pages (the twenty-six)', want: 26,
+    file: '.specify/memory/constitution.md',
+    got: () => {
+      const s = sliceBetween(constitution, '## Product Scope', '\n## Product Register');
+      if (s === null) return -1;
+      // The three page tables (public site, merchant area, administrator
+      // application) carry two columns and a "Page" header row. The Product
+      // Features table carries three columns, so the two-column shape excludes
+      // it without a second anchor.
+      return countMatches(s, /^\| (?!Page \|)[^|]+ \| [^|]+ \|$/gm);
+    } },
+  { id: 'G9', label: 'product features (the sixteen)', want: 16,
+    file: '.specify/memory/constitution.md',
+    got: () => {
+      const s = sliceBetween(constitution, '### Product Features', '\n## ');
+      return s === null ? -1 : countMatches(s, /^\| \d+ \|/gm);
     } },
 ];
 
