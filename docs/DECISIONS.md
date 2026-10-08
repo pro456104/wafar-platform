@@ -120,6 +120,7 @@ from the index rather than edited in its own words.
 | [ADR-082](#adr-082--the-adr-indexs-anchor-integrity-checked-and-adr-064s-anchor-repaired) | The ADR index's anchor integrity checked, and ADR-064's anchor repaired | 2026-10-08 | 2.28.2 |
 | [ADR-083](#adr-083--every-adr-reference-resolved-against-the-index) | Every ADR reference resolved against the index | 2026-10-08 | 2.28.3 |
 | [ADR-084](#adr-084--the-drift-checks-adr-citations-unified) | The drift check's ADR citations unified | 2026-10-08 | 2.28.4 |
+| [ADR-085](#adr-085--roadmap-slice-description-precision-fix-set) | Roadmap slice-description precision fix set | 2026-10-08 | 2.28.4 (unchanged) |
 
 ---
 
@@ -6103,3 +6104,81 @@ check was added or removed: this change corrects citations, not behaviour. The
 **Consequences.** One list, in five places, that matches the file's history. The
 drift check reports clean with the index ending at ADR-084 and every live range
 string reading `ADR-001 … ADR-084`. This entry is the durable record.
+
+---
+
+## ADR-085 — Roadmap slice-description precision fix set
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `ROADMAP.md`, `docs/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A deep audit of the fifteen slices (R1–R15) against the constitution
+on 2026-10-08 found no blocking defect — coverage is complete across all eight
+registers, the dependency graph is acyclic, and the drift check is clean — but it
+found five low-severity precision defects in the slices' own descriptions, of the
+class the committed drift check does not cover because none of them is a
+countable or a range string:
+
+1. R1's sign-up enumeration omitted the **full name**, which Product Scope → Sign
+   Up fixes and which ADR-033 registered as a `User` field.
+2. R7's enumeration of the editable non-identifier details named the city and the
+   shop name and omitted the **full name**, while Product Scope → Profile reads
+   "Edit account details" and `Core-Project.txt` reads "تعديل البيانات"; only the
+   mobile number is the non-editable identifier.
+3. The handoff of the shell header's **notification control** between R1 and R9
+   was unstated: Product Fact Clarifications requires the header to carry a
+   notifications control, R1 builds the shell, and the bell with its counter is
+   R9's component.
+4. R1's **link surface** to the four bare-layout static pages was assigned to R1
+   while the four pages are R11's, so the two slices share four routes — a
+   coupling that was left implicit.
+5. "The first slice with a merchant-scoped query surface" (R2, in
+   `docs/domain-model.md` and `ROADMAP.md`) was imprecise: R1 creates `Session`,
+   which the constitution's Schema and Migration Control classifies as
+   merchant-scoped, so the phrase needed the qualifier the isolation test
+   actually turns on.
+
+**Decision.**
+
+1. R1's row names the **full name** in its sign-up enumeration, matching Product
+   Scope → Sign Up.
+2. R7's row names the **full name** among the non-identifier account details.
+3. The notification-bell obligation row states that R1 renders the header's
+   notification control from the icon set until R9's bell lands, so the shell is
+   complete without that component.
+4. The link-surface obligation row states that the four static pages are R11's
+   and that the two slices share their four routes.
+5. The merchant-isolation statements in `ROADMAP.md` and `docs/domain-model.md`
+   are qualified: R2 owns the test as **the first slice whose merchant-scoped
+   read surface returns merchant-owned rows**, and R1's `Session` read is keyed
+   by the session token, so it cannot return another account's rows and is not
+   the surface the test covers.
+6. Every live `ADR-001 … ADR-0NN` range string moves to **ADR-085**, and
+   `Project-Technologies.txt`'s header ADR list gains ADR-085.
+
+**What deliberately did not change.** No principle, entity, page, feature, Usage
+Limit, module, or slice changed; no slice was added, removed, renumbered, or
+reordered; no slice's `Depends on` edge changed. The constitution is unchanged
+and stays **2.28.4**: no constitutional text is touched, and ADR-076's precedent
+keeps a roadmap-only correction at the same version. The audit's sixth
+observation — the size of R1 and R3 — is a planning risk, not a defect, and is
+recorded rather than acted on: splitting a slice is a scope change and belongs to
+its own decision.
+
+**Alternatives considered.**
+- *Bump the constitution to 2.28.5.* Rejected: no constitutional rule, register,
+  or count changes; a roadmap wording fix is not an amendment, and ADR-076 already
+  set the precedent for a roadmap correction at an unchanged version.
+- *Split R1 or R3 in this change.* Rejected: the audit found no defect in either,
+  and a split would renumber the slices and move every downstream edge — a
+  separate decision with its own ADR, not a precision fix.
+- *Leave N-05 as a recorded observation.* Rejected: the phrase is checkable, the
+  qualifier costs one clause, and a slice reading "first merchant-scoped query
+  surface" alone could misplace the entry point.
+
+**Consequences.** The five slice descriptions now name what the registers fix,
+and the two cross-slice handoffs (the notification control and the four static
+routes) are explicit. The drift check reports clean with the index ending at
+ADR-085 and every live range string reading `ADR-001 … ADR-085`. This entry is the
+durable record.

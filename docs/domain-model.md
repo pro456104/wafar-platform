@@ -162,7 +162,9 @@ service layer re-checks the ones a constraint cannot express.
   without a filter the planner has to apply after the fact.
 - **A query path reachable from a merchant session MUST NOT return another
   merchant's rows**, and the test that proves it fails the build. R2 owns that
-  test, as the first slice with a merchant-scoped query surface.
+  test, as the first slice whose merchant-scoped read surface returns
+  merchant-owned rows: R1's `Session` read is keyed by the session token, so it
+  cannot return another account's rows and is not the surface this test covers.
 
 ### Catalog
 

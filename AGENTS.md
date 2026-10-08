@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-084; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-085; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -142,7 +142,7 @@ and its `requires.integrations.any` list must stay correctly nested under
 **The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083).** `governance-drift-check.mjs`
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
-footer against `.specify/memory/version.json`; every live `ADR-001 … ADR-084`
+footer against `.specify/memory/version.json`; every live `ADR-001 … ADR-085`
 range string against the last row of `docs/DECISIONS.md`'s index; every ADR index
 row's anchor against its heading; every `ADR-NNN` reference against the index; the
 ADR list in
