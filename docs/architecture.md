@@ -87,7 +87,7 @@ shared package — never through a direct import from one module to another.
 | `notifications` | Processing-completed/failed notices and administrative messages; read state. | Failed processing presents a retry action. |
 | `messages` | The conversation thread between a merchant and the administrator: a user has at most one (Product Register). Whether it carries an administrator reference, and whether every administrator account reads the same thread, is unresolved fact #2 in `docs/domain-model.md`, owned by R10 — never user-to-user. | Direct user-to-user messaging is prohibited (Principle VI). |
 | `support` | Support content and assistance flows: FAQ, privacy policy, terms of use; contact intake that reaches the administrator. | Public pages from Product Scope. |
-| `admin` | Administrator operations: users, files (review/delete/reprocess), suppliers, parts (edit/add), message replies, broadcasts, settings, contact messages. | Every administrator operation is recorded in the append-only audit log (Authorization and Access Control). The administrator is a `User` holding the administrator role. The Settings page reads and writes `PlatformSetting`, owned by `admin` (ADR-067); it never carries a Usage Limit. |
+| `admin` | Administrator operations: users, files (review/delete/reprocess), suppliers, parts (edit/add), message replies, broadcasts, settings, contact messages. | Every administrator operation is recorded in the append-only audit log (Authorization and Access Control). The administrator is a `User` holding the administrator role. The Settings page reads and writes `PlatformSetting`, owned by `admin` (ADR-067); it never carries a Usage Limit. The module is created by R11 for the public Contact page's read of `PlatformSetting` (its schema and its public read projection), and R13 extends it with the administrator's write surface and the remaining operations (ADR-077). |
 
 Cross-cutting rules for every module:
 
@@ -261,7 +261,7 @@ Read/write notes:
   `.specify/memory/version.json`) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-076; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-077; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;

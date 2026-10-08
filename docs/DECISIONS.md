@@ -112,6 +112,7 @@ from the index rather than edited in its own words.
 | [ADR-074](#adr-074--deep-audit-fix-set-the-exception-registers-classification-the-sticky-headers-owner-module-ownership-and-the-constitutions-own-precision-defects) | Deep-audit fix set: the exception register's classification, the sticky header's owner, module ownership, and the constitution's own precision defects | 2026-10-08 | 2.27.2 |
 | [ADR-075](#adr-075--constitution-2280-the-constitutions-reading-protocol-structural-count-checks-and-mirror-hygiene) | Constitution 2.28.0: the constitution's reading protocol, structural-count checks, and mirror hygiene | 2026-10-08 | 2.28.0 |
 | [ADR-076](#adr-076--roadmap-module-ownership-counts-corrected) | Roadmap module-ownership counts corrected | 2026-10-08 | 2.28.0 (unchanged) |
+| [ADR-077](#adr-077--admin-module-creation-and-the-platformsetting-read-surface) | Admin-module creation and the PlatformSetting read surface | 2026-10-08 | 2.28.0 (unchanged) |
 
 ---
 
@@ -5514,3 +5515,116 @@ description, so a planner reading either sees the same owner for every module an
 every schema file. The two version sources agree at **2.28.0**, the drift check
 reports clean with the index ending at ADR-076, and every live range string reads
 `ADR-001 … ADR-076`. This entry is the durable record.
+
+---
+
+## ADR-077 — Admin-module creation and the PlatformSetting read surface
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `ROADMAP.md`, `docs/`, `AGENTS.md`, `README.md`, `.specify/templates/overrides/`, `Project-Technologies.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A deep audit of the fifteen MVP slices (R1–R15) was carried out before
+R1 was specified. It ran the committed drift check, which reported **clean at
+2.28.0** with the index ending at ADR-076, and it then tested each recorded overlap
+for whether it is a real defect or a cosmetic one. One is real: the roadmap named
+the `admin` module's creator twice, and the two namings cannot both hold.
+
+1. **F-01 — the `admin` module had two creating slices, and `PlatformSetting`'s
+   public read had no compliant home.** `ROADMAP.md` → R11 assigns this slice "that
+   entity — its schema and its **public read projection**", and R11 is the first
+   surface that reads it (the public Contact page). `ROADMAP.md` → R13 states "This
+   slice also **creates the `admin` module**", and the First obligations table
+   states "**R13 owns the `admin` module directory**". The two cannot both hold: a
+   *projection* in this repository is a **read path** (`docs/architecture.md`
+   describes "a guest's read path projects a part without its price";
+   `docs/domain-model.md` has the Contact page read "through a projection of its
+   own"), and `docs/architecture.md` §2 requires every read of a table to go through
+   the **owning module's service** — "no module outside the owner may read or write
+   that table directly". So R11's read of `PlatformSetting` (owned by `admin`) has
+   exactly one compliant home — the `admin` module — which R11 is told it may not
+   create, and R13 is told it creates. `PlatformSetting` is the **only** entity
+   whose creating slice does not own its module: every other entity is created with
+   its module (R2 `catalogs`, R3 `parts`/`suppliers`, R8 `bookmarks`, R9
+   `notifications`, R10 `messages`, R11 `support`, R13 `AuditLog`). Deferring the
+   read to R13 is not available, because R13 already depends on R11 and the edge
+   must stay one-way.
+2. **F-02 — the "one overlap" wording was scoped too narrowly to be read safely.**
+   The schema-file row said "the one overlap named", which reads as "the only
+   cross-slice write in the repository"; but R4 extends the `catalogs` module
+   service R2 creates, which is the same class of cross-slice write. The wording is
+   corrected to name both.
+3. **F-03 — the defects table misattributed content-type validation.** The
+   roadmap's historical "Defects in the slice order" table listed `R3 (validation,
+   …)`, while the register states `R3 (validation: R2)` and R2's own scope row
+   reads "Validation, storage, hash, duplicate check, status, and upload quota
+   only". Validation is R2's; the row is corrected.
+
+**Decision.** Constitution version **unchanged at 2.28.0** — no constitution text
+changes, so the versioning policy does not move it, following the pattern of
+ADR-031, ADR-032, and ADR-076.
+
+1. **`ROADMAP.md` → R11** states the read projection is "created inside the
+   `admin` module's directory (the read surface only)", and that R13 "extends that
+   same module with the administrator's Settings write surface".
+2. **`ROADMAP.md` → R13** no longer "creates the `admin` module"; it "extends the
+   `admin` module R11 created for the `PlatformSetting` read, adding the
+   administrator's write surface and the remaining administrator operations".
+3. **`ROADMAP.md` → First obligations** — the module row annotates `admin` as "R11
+   creates its `PlatformSetting` read surface; R13 extends it", and the schema-file
+   row names both overlaps: `admin.ts` and the `admin` module's read surface
+   created by R11 while R13 extends the same module, and R4 extending the
+   `catalogs` module R2 creates.
+4. **`docs/architecture.md` → Module map, the `admin` row** records that the module
+   is created by R11 for the public Contact page's read of `PlatformSetting` and
+   extended by R13 with the administrator's write surface.
+5. **The precision items F-02 and F-03 are corrected** in the same pass, because
+   both sit in rows this change already touches.
+6. Every live `ADR-001 … ADR-0NN` range string moves to **ADR-077** (`AGENTS.md`,
+   `README.md`, `ROADMAP.md`, `docs/architecture.md`, and the `spec-template.md`
+   and `checklist-template.md` overrides), and `Project-Technologies.txt`'s header
+   ADR list gains ADR-077.
+
+**What deliberately did not change.** No principle was added, removed, renamed, or
+redefined. No entity, page, feature, Usage Limit, module count, or slice number
+changed, and no slice's `Depends on` edge changed — R13 already depends on R11, and
+R11 gains no dependency. The `admin` module is still one of the eight modules R1
+does not create, and Principle X's module list is unchanged. The constitution's
+footer and `.specify/memory/version.json` stay at 2.28.0. `wafar.single.css` is
+untouched. `Core-Project.txt`, `docs/domain-model.md`, and the exception register
+are untouched: they describe `PlatformSetting`'s nature and ownership, both
+unchanged. `.codebuddy/commands/*` and `.opencode/commands/*` are untouched, so
+they stay byte-identical to each other and to their integration manifests. The five
+binding overrides keep their structure; only their range string moved.
+
+**Alternatives considered.**
+- *Leave the overlap as recorded and let R11's plan resolve it.* Rejected: the
+  plan's Constitution Check would then have to choose between violating table
+  ownership (a `support` read of an `admin` table) and violating module ownership
+  (R11 writing into R13's directory), and both are binding rules — a plan cannot
+  lawfully choose either.
+- *Keep R13 as the `admin` module's creator and defer the Contact page's read.*
+  Rejected: R13 already depends on R11, so R11 cannot depend on R13; the read would
+  be a cycle. It would also strip R11's acceptance of the Contact page's contact
+  details.
+- *Put the read projection in `support` and treat the public read as an exception.*
+  Rejected: `docs/architecture.md` states the rule without an exception, and an
+  exception is recorded in the exception register with a review date — the honest
+  fix is to give the read its compliant home, not to widen the rule.
+- *Reword the row without naming a creating slice.* Rejected: the defect is the
+  double attribution, and the correction is to name one creator; an unnamed creator
+  would leave the row unverifiable again.
+- *Bump to 2.28.1 (PATCH).* Rejected: the change touches no constitution text, and
+  the established pattern for a roadmap-and-architecture fix (ADR-031, ADR-032,
+  ADR-076) leaves the constitution version unchanged.
+
+**Consequences.** The `admin` module has one creator (R11, for the read surface)
+and one extender (R13), which is the same shape the roadmap already uses for
+`catalogs` (R2 creates, R4 extends), so the "first slice that needs it creates it"
+rule holds without an exception. R11's plan no longer has to choose between two
+binding rules, and the R11 → R13 edge stays one-way. The "one overlap" wording now
+names both cross-slice writes, so a reader does not conclude there is only one. The
+defects table names content-type validation against R2, which is where the register
+puts it. The two version sources agree at **2.28.0**, the drift check reports clean
+with the index ending at ADR-077, and every live range string reads
+`ADR-001 … ADR-077`. This entry is the durable record.
