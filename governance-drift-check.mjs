@@ -101,6 +101,23 @@ if (expected === null) {
   notes.push(`B: index ends at ADR-${expected}; ${scannedRangeFiles.size} markdown files scanned`);
 }
 
+/* ---- F. the Project-Technologies.txt header ADR list ends at the index ----- */
+const projectTech = read('Project-Technologies.txt');
+const ptRun = projectTech.match(/ADR-040((?:\/\d{3})+)/);
+if (!ptRun) {
+  failures.push('F: Project-Technologies.txt header carries no ADR list starting at ADR-040');
+} else if (expected !== null) {
+  const nums = ptRun[1].split('/').filter(Boolean);
+  const lastPt = nums[nums.length - 1];
+  if (lastPt !== expected) {
+    failures.push(
+      `F: Project-Technologies.txt ADR list ends at ${lastPt}, index ends at ${expected}`,
+    );
+  } else {
+    notes.push(`F: Project-Technologies.txt ADR list ends at ${lastPt}`);
+  }
+}
+
 /* ---- C. manifest hashes for upstream-owned files -------------------------- */
 const projectOwned = (p) =>
   p.startsWith('.specify/templates/overrides/') || p === '.specify/.gitignore';

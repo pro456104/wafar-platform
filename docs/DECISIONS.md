@@ -26,7 +26,7 @@ is not done; ADR-015 states that rule and this file follows it.
 amendment, so a reader — a person or an agent — MUST NOT read it end to end.
 Read this index, then only the specific ADR records the change in hand touches.
 The index's last row is the current ADR number, and it is the single authority
-for the live `ADR-001 … ADR-071` range string that the governance documents
+for the live `ADR-001 … ADR-0NN` range string that the governance documents
 carry: `governance-drift-check.mjs` compares every live range string against
 that last row, so a document whose range disagrees with the index is corrected
 from the index rather than edited in its own words.
@@ -4905,9 +4905,13 @@ standard conformance.
 10. **`Project-Technologies.txt`'s header ADR list gains ADR-071 and ADR-072.**
 11. **`AGENTS.md` §3 gains `analyze` and `converge` entries, and
     `governance-drift-check.mjs` is extended**: check B scans every markdown file
-    under `docs/` and the overrides (not only the six required files), and a new
-    check D2 verifies each integration manifest against the tree it records —
-    completing ADR-071's item 1(d).
+    under `docs/` and the overrides (not only the six required files); a new check
+    D2 verifies each integration manifest against the tree it records, completing
+    ADR-071's item 1(d); and a new check F verifies that the
+    `Project-Technologies.txt` header ADR list ends at the index's last ADR. The
+    Reading protocol's own range reference is made range-agnostic (`ADR-0NN`), so
+    the one live range string in `docs/DECISIONS.md` cannot go stale behind the
+    check's exclusion of that file.
 12. **The constitution moves 2.26.0 → 2.27.0** (MINOR: the File Processing
     Overview and Artifact Workflow expansions are material guidance additions;
     the Principle V and register corrections ride with them). The footer and
