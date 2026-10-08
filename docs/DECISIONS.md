@@ -111,6 +111,7 @@ from the index rather than edited in its own words.
 | [ADR-073](#adr-073--duplicate-storage-semantics-slice-component-obligations-and-mirror-precision) | Duplicate-storage semantics, slice component obligations, and mirror precision | 2026-10-08 | 2.27.1 |
 | [ADR-074](#adr-074--deep-audit-fix-set-the-exception-registers-classification-the-sticky-headers-owner-module-ownership-and-the-constitutions-own-precision-defects) | Deep-audit fix set: the exception register's classification, the sticky header's owner, module ownership, and the constitution's own precision defects | 2026-10-08 | 2.27.2 |
 | [ADR-075](#adr-075--constitution-2280-the-constitutions-reading-protocol-structural-count-checks-and-mirror-hygiene) | Constitution 2.28.0: the constitution's reading protocol, structural-count checks, and mirror hygiene | 2026-10-08 | 2.28.0 |
+| [ADR-076](#adr-076--roadmap-module-ownership-counts-corrected) | Roadmap module-ownership counts corrected | 2026-10-08 | 2.28.0 (unchanged) |
 
 ---
 
@@ -5438,3 +5439,78 @@ header. The two product statements ADR-074 could only record are now binding
 rules the owning slices implement, and the domain model states them. The drift
 check reports clean at 2.28.0 with the index ending at ADR-075, and every live
 range string reads `ADR-001 … ADR-075`. This entry is the durable record.
+
+---
+
+## ADR-076 — Roadmap module-ownership counts corrected
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `ROADMAP.md`, `docs/`, `AGENTS.md`, `README.md`, `.specify/templates/overrides/`, `Project-Technologies.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A deep audit of the fifteen MVP slices (R1–R15) was carried out
+before R1 was specified. It read the constitution's registers, `Core-Project.txt`,
+`docs/domain-model.md`, `docs/architecture.md`, and `ROADMAP.md`, and it ran the
+committed drift check. The check reports clean, so the two findings below are
+defects the check could not see: they are a count and an enumeration in
+`ROADMAP.md` → First obligations that no check covers.
+
+1. **The module-creation row undercounted.** `ROADMAP.md` read "The **five** API
+   modules R1 does not create … `catalogs` (R2), `bookmarks` (R8),
+   `notifications` (R9), `messages` (R10), and `admin` (R13)". R1 creates only
+   `auth` and `users`; the remaining **eight** modules are created by other
+   slices — `catalogs` (R2), `parts` and `suppliers` (R3), `bookmarks` (R8),
+   `notifications` (R9), `messages` (R10), `support` (R11), and `admin` (R13).
+   The row omitted `parts`, `suppliers`, and `support`.
+2. **The schema-file row omitted R1 and `support.ts`.** The row listed the slices
+   that first write each `packages/db/schema/<module>.ts` as "R2, R3, R8, R9,
+   R10, R11, R13". R1 creates the `users` and `auth` modules, so it writes
+   `users.ts` and `auth.ts` and belongs in the list; and R11's `support` module
+   writes `support.ts`, which the row did not name beside the `admin.ts` overlap.
+
+**Decision.** Constitution version **unchanged at 2.28.0** (the fix touches
+`ROADMAP.md` only; no constitution text changes, so the versioning policy does
+not move it, following the pattern of ADR-031 and ADR-032).
+
+1. `ROADMAP.md` → First obligations reads "The **eight** API modules R1 does not
+   create … `catalogs` (R2), `parts` and `suppliers` (R3), `bookmarks` (R8),
+   `notifications` (R9), `messages` (R10), `support` (R11), and `admin` (R13)",
+   and the owning-slice column reads "R2, R3, R8, R9, R10, R11, R13".
+2. `ROADMAP.md` → First obligations enumerates each schema file with its creating
+   slice — R1 writes `users.ts` and `auth.ts`, R2 `catalogs.ts`, R3 `parts.ts`
+   and `suppliers.ts`, R8 `bookmarks.ts`, R9 `notifications.ts`, R10
+   `messages.ts`, R11 `support.ts` and `admin.ts`, and R13 owns the `admin`
+   module directory — keeping the one named overlap (`admin.ts` created by R11
+   for `PlatformSetting`).
+3. Every live `ADR-001 … ADR-0NN` range string moves to **ADR-076** (`AGENTS.md`,
+   `README.md`, `ROADMAP.md`, `docs/architecture.md`, and the `spec-template.md`
+   and `checklist-template.md` overrides), and `Project-Technologies.txt`'s header
+   ADR list gains ADR-076.
+
+**What deliberately did not change.** No principle was added, removed, renamed,
+or redefined. No entity, page, feature, Usage Limit, module count, or slice number
+changed, and no slice's `Depends on` edge changed — the module-ownership map
+already assigned every module; only the roadmap's enumeration of it was
+corrected. The constitution's footer and `.specify/memory/version.json` stay at
+2.28.0. `wafar.single.css` is untouched, so the design-system version is
+unchanged. `.codebuddy/commands/*` and `.opencode/commands/*` are untouched, so
+they stay byte-identical to each other and to their integration manifests. The
+five binding overrides keep their structure; only their range string moved.
+
+**Alternatives considered.**
+- *Reword the row without a count.* Rejected: the count is the defect, and stating
+  the true count (eight) is the correction; an unstated count would leave the row
+  unverifiable again.
+- *Leave the schema row as-is.* Rejected: R1 creates two modules and therefore
+  writes two schema files; a row that omits the first slice would send R1's
+  planner to the wrong owner.
+- *Bump to 2.28.1 (PATCH).* Rejected: the change touches no constitution text,
+  and the established pattern for a roadmap-only fix (ADR-031, ADR-032) leaves the
+  constitution version unchanged.
+
+**Consequences.** The First obligations table now agrees with the
+module-ownership map in `docs/architecture.md` and with each slice's own
+description, so a planner reading either sees the same owner for every module and
+every schema file. The two version sources agree at **2.28.0**, the drift check
+reports clean with the index ending at ADR-076, and every live range string reads
+`ADR-001 … ADR-076`. This entry is the durable record.

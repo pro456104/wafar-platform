@@ -35,7 +35,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-075) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-076) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -73,8 +73,8 @@ an owner.
 | Duty | Owning slice | Constitution reference |
 |---|---|---|
 | The workspace, `packages/config`, and the shared tooling | R1 | Technology Standards → repository topology; `docs/architecture.md` |
-| The five API modules R1 does not create, each with its `apps/api/src/modules/<module>/` directory: `catalogs` (R2), `bookmarks` (R8), `notifications` (R9), `messages` (R10), and `admin` (R13) | R2, R8, R9, R10, R13 | Principle X (the module list); Technology Standards → Internal layout; Project Structure and Debt Control (one owning feature per directory) |
-| The `packages/db/schema/<module>.ts` file each module first writes, with the one overlap named: `packages/db/schema/admin.ts` is created by R11 for `PlatformSetting`, while the `admin` module directory belongs to R13 | R2, R3, R8, R9, R10, R11, R13 | Technology Standards → Internal layout (Database ownership); Schema and Migration Control |
+| The eight API modules R1 does not create, each with its `apps/api/src/modules/<module>/` directory: `catalogs` (R2), `parts` and `suppliers` (R3), `bookmarks` (R8), `notifications` (R9), `messages` (R10), `support` (R11), and `admin` (R13) | R2, R3, R8, R9, R10, R11, R13 | Principle X (the module list); Technology Standards → Internal layout; Project Structure and Debt Control (one owning feature per directory) |
+| The `packages/db/schema/<module>.ts` file each module first writes — R1 writes `users.ts` and `auth.ts`, R2 `catalogs.ts`, R3 `parts.ts` and `suppliers.ts`, R8 `bookmarks.ts`, R9 `notifications.ts`, R10 `messages.ts`, R11 `support.ts` and `admin.ts`, and R13 owns the `admin` module directory — with the one overlap named: `packages/db/schema/admin.ts` is created by R11 for `PlatformSetting`, while the `admin` module directory belongs to R13 | R1, R2, R3, R8, R9, R10, R11, R13 | Technology Standards → Internal layout (Database ownership); Schema and Migration Control |
 | The test runner and the continuous-integration provider that enforces the 80% coverage gate | R1 | Principle III; Register gaps |
 | The transactional SMS provider for OTP sign-up verification and password reset (replaces the previous transactional-email gap) | R1 | Technology Standards → Register gaps (ADR-030) |
 | Provisioning of PostgreSQL, Redis, SeaweedFS, and OpenSearch for development | R1 | Technology Standards |
