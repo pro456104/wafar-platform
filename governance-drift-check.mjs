@@ -6,12 +6,17 @@
  *
  * It verifies the invariants the governance set cannot verify by discipline:
  *   A. the constitution footer version equals `.specify/memory/version.json`
- *   B. every live `ADR-001 … ADR-0NN` range string equals the last ADR row in
- *      `docs/DECISIONS.md`'s index
+ *   B. every live `ADR-001 … ADR-0NN` range string, in every governance
+ *      markdown file under `docs/` and the template overrides, equals the last
+ *      ADR row in `docs/DECISIONS.md`'s index
+ *   F. the ADR list in `Project-Technologies.txt`'s header ends at that row
  *   C. every `speckit.manifest.json` hash for an *upstream-owned* file matches
  *      the working tree; project-owned files are excluded by a path rule
  *      (`.specify/templates/overrides/**`, `.specify/.gitignore`)
  *   D. `.codebuddy/commands/*` and `.opencode/commands/*` are byte-identical
+ *   D2. each integration manifest (`.specify/integrations/codebuddy.manifest.json`,
+ *      `.specify/integrations/opencode.manifest.json`) matches the tree it
+ *      records
  *   E. every token named in the constitution's Design System Standards section
  *      is defined in `wafar.single.css`
  *

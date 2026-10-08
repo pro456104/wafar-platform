@@ -107,6 +107,7 @@ from the index rather than edited in its own words.
 | [ADR-070](#adr-070--part-tenancy-and-a-clarification-set) | Part tenancy, and a clarification set | 2026-10-08 | 2.26.0 |
 | [ADR-071](#adr-071--cross-artifact-consistency-and-tooling-fix-set) | Cross-artifact consistency and tooling fix set | 2026-10-08 | 2.26.0 (unchanged) |
 | [ADR-072](#adr-072--workflow-execution-defects-and-css-standard-conformance) | Workflow execution defects and CSS standard conformance | 2026-10-08 | 2.27.0 |
+| [ADR-073](#adr-073--duplicate-storage-semantics-slice-component-obligations-and-mirror-precision) | Duplicate-storage semantics, slice component obligations, and mirror precision | 2026-10-08 | 2.27.1 |
 
 ---
 
@@ -4974,3 +4975,144 @@ retention mechanism stated correctly for R15. The drift check is stronger: it
 scans every governance markdown file for a stale range string and verifies both
 integration manifests. The two version sources agree at **2.27.0**. This entry is
 the durable record.
+
+## ADR-073 — Duplicate-storage semantics, slice component obligations, and mirror precision
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `.specify/`, `docs/`, `ROADMAP.md`, `Project-Technologies.txt`, repository root
+**Owning feature**: none — governance and documentation decision; ratified by the repository owner
+
+**Context.** A deep audit read the whole governance set — the constitution, both
+Arabic mirrors, `docs/architecture.md`, `docs/domain-model.md`, `ROADMAP.md`, this
+log, the bundled workflow, the extension registry, and the design-system register —
+and then checked the fifteen slices' order and ownership against the artifacts. It
+confirmed a residue that the cross-reference passes of ADR-070 through ADR-072 did
+not reach: one rule whose own words contradicted the pipeline it governs, and a set
+of obligations and mirror statements that had drifted one step behind the decisions
+that fixed their neighbours. Every finding below was reproduced against the working
+tree before it was written here; where an earlier draft of this log cited a line
+number, the record is cited by content instead, because position drifts.
+
+1. **F-01 — the duplicate rule contradicted the pipeline it governs.** File
+   Processing Overview step 2 stores the bytes in object storage and computes the
+   content hash; step 3 is the duplicate check, and it necessarily runs *after*
+   storage, because there is no hash to compare before the bytes exist. But File
+   Processing Rules said a duplicate "MUST NOT be stored", which reads as "never
+   written". The two other "MUST NOT be stored" sentences in the same section are
+   sound — validation and content safety both run *before* storage, so for them the
+   phrase means exactly what it says — but the duplicate sentence sat at the one
+   point in the sequence where storage has already happened. The rule is corrected
+   to say what the pipeline does: no catalog is created, the bytes step 2 stored are
+   withdrawn so that no duplicate is retained, and the file is not queued or
+   processed. Step 3 carries the same correction, so the sequence and the rules
+   agree.
+2. **N-01 — the Contact page's `PlatformSetting` read had no creating slice.** The
+   entity is `admin`-owned (ADR-067) and the Settings page reads and writes it, but
+   the *first* surface that reads it is the public Contact page, which R11 owns. R11's
+   scope boundary said "Static content and the contact form only", and the Settings
+   write surface is R13's — while R13's `Depends on` already includes R11. Read
+   together with ADR-072 item 6, which made the entity publicly readable, this left
+   R11 with a read it could not satisfy and no owner for the schema. The assignment
+   follows the rule the constitution already states — the slice that first needs a
+   thing creates it — so **R11 creates `PlatformSetting`'s schema and its public read
+   projection, seeded with a default**, `admin` remains its owning module, and R13
+   adds the administrator's write surface over it. The edge stays one-way
+   (R11 → R13); no dependency cycle exists.
+3. **N-02 — the technology mirror still named ILM.** ADR-072 item 9 corrected the
+   Search register row, `docs/architecture.md`, and `docs/domain-model.md` to Index
+   State Management (ISM), the feature OpenSearch actually has, and stated that the
+   per-catalog 90-day deletion is the retention job's work (R15). The mirror is
+   corrected from the register, which is its source: both occurrences now read ISM,
+   and the row states why ILM is not the name (it is Elasticsearch's feature) and why
+   the index lifecycle alone cannot enforce the window.
+4. **N-03 — the worker's write path was unregistered.** `docs/architecture.md`
+   forbids reading or writing a table from outside the module that owns it, and the
+   constitution's Project Structure and Debt Control repeats the rule — but the data
+   flow diagram drew `apps/worker` writing `packages/db` directly, and the worker
+   writes `catalogs` and `parts`, both owned by `apps/api` modules. R3 would have had
+   to invent the channel. It is now stated: the worker reaches the system of record
+   through the owning module's service (`catalogs` for the status, `parts` for the
+   extracted rows), exposed via the shared package, and the diagram's arrow into
+   `packages/db` is that service path rather than a direct table access. The worker
+   writes the search index directly, because it is the projection's only writer.
+5. **N-04 — six of the fifteen missing design components had no named owner.** The
+   constitution's "Components the product requires and the design system does not
+   yet provide" list carries fifteen items, and each MUST be added to
+   `wafar.single.css` by the slice that first needs it. The First obligations table
+   named owners for the shell's items and the sticky header, but pagination, the
+   column sort indicator, the filters toolbar, the multi-select control, and the
+   price-range control were unassigned, and the notification bell with its counter
+   had no owner at all. All six now have a row: the five Parts-table components to
+   R5, and the notification bell to R9, which is the slice that first needs it. Every
+   one of the fifteen now has a named owning slice.
+6. **N-05 — R5's scope did not name two of its own components.** R5's row listed
+   pagination, the sort indicator, the filter bar, and the sticky header as coming
+   from `wafar.single.css`, but the multi-select control and the price-range control
+   are required by the same slice's filters and were missing from the sentence. Both
+   are named, and the row now states that the slice adds the ones the file does not
+   yet provide.
+7. **F-02 — the constitution template said "eighteen binding sections".** Governance
+   enumerates nineteen: the eighteen it already listed plus `Glossary`, which ADR-070
+   added. ADR-072 item 3 corrected the plan template's Gate 2 for the same reason but
+   left the constitution override's own header text at the old count. It now reads
+   nineteen and points at Governance as the count's authority.
+8. **F-03 — the drift check's header did not document its own checks.** ADR-072
+   added check F and check D2 to `governance-drift-check.mjs`; the header comment
+   still described only A, B, C, D, and E. The header now lists every check, so the
+   file documents the invariants it enforces.
+9. **A stale CLI cache sat untracked and unignored.** `.specify/memory/.resolved-template.json`
+   is machine-local resolved-template state the Specify CLI writes, and a fresh clone
+   regenerates it — the same class as `extensions/.cache/` and `integrations/.cache/`,
+   which `.specify/.gitignore` already excludes for the reasons ADR-063 and ADR-068
+   record. It was not ignored, so a `git add -A` would have committed a stale copy of
+   the constitution scaffold (it still read "eighteen binding sections"). It is added
+   to `.specify/.gitignore` and is not tracked.
+
+**What deliberately did not change.** No principle was added, removed, or renamed.
+No entity, page, feature, Usage Limit, module, or slice number changed, and no
+slice's `Depends on` edge changed — R11 gains no dependency, because the rule that
+the first reader creates the entity is what the roadmap already applies elsewhere.
+`Core-Project.txt` is untouched, and so are `docs/domain-model.md` and the
+constitution's Product Register: they describe `PlatformSetting`'s nature and
+ownership, both of which are unchanged, and the creating slice is a roadmap concern.
+`wafar.single.css` is untouched — this amendment assigns owners for components the
+stylesheet does not yet contain; it does not add them. The six binding overrides
+keep their structure.
+
+**Alternatives considered.**
+- *Say the duplicate is "never stored" and move the duplicate check before storage.*
+  Rejected: the check compares hashes, and a hash needs the bytes; moving the check
+  before storage would mean hashing a stream the platform has not yet accepted, and
+  it would break the presigned-multipart transport the register names. The honest
+  fix is to say what the sequence does.
+- *Leave R11's read and let R13 create the entity, reversing the edge.* Rejected:
+  that is the cycle the audit found — R13 already depends on R11, so R11 cannot
+  depend on R13.
+- *Assign the notification bell to R1, since it lives in the shell header.*
+  Rejected: the constitution assigns each component to the slice that first *needs*
+  it, and R1's shell has no notification source; R9 is the first slice whose product
+  requires the bell, and R1's shell row already fixes the header it sits in.
+- *Record the mirror and architecture fixes without an ADR, as errata.* Rejected:
+  the mirror is corrected *from* the register, and the worker's write path is a
+  binding architectural statement; both are governance text, and Governance requires
+  a recorded amendment for any change to it.
+- *Bump to 2.28.0 (MINOR).* Rejected: item 1 clarifies a rule whose meaning was
+  already fixed by the pipeline it governs, and the remaining items assign existing
+  obligations and correct text that had fallen behind ADR-070 and ADR-072. Nothing
+  is added to the guidance, so the versioning policy classifies this PATCH.
+
+**Consequences.** The File Processing Rules and the pipeline they govern now say the
+same thing about a duplicate, and the presigned-multipart transport stays valid. R11
+has an owner for `PlatformSetting`'s schema and public projection, so its plan no
+longer depends on a table R13 has not yet built, and the R11 → R13 edge stays
+one-way. The worker's write path is registered, so R3 chooses a service call rather
+than inventing an exception. Every one of the fifteen missing design components now
+has a named owning slice, so no slice can ship a screen whose control the design
+system still lacks without the gap being visible in the roadmap. The technology
+mirror names the feature the register names. The constitution moves 2.27.0 →
+**2.27.1** (PATCH), and its footer and `.specify/memory/version.json` move together;
+every live `ADR-001 … ADR-0NN` range string moves to **ADR-001 … ADR-073**
+(`AGENTS.md`, `README.md`, `ROADMAP.md`, `docs/architecture.md`, and the
+`spec-template.md` and `checklist-template.md` overrides), and
+`Project-Technologies.txt`'s header ADR list gains ADR-073. The drift check reports
+clean at 2.27.1 with the index ending at ADR-073. This entry is the durable record.

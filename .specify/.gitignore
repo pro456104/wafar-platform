@@ -18,3 +18,9 @@ extensions/.cache/
 # above: machine state the CLI rewrites on every check, tracked it dirties the
 # working tree on any command. A fresh clone regenerates it. See ADR-068.
 integrations/.cache/
+
+# Resolved-template cache the CLI writes under memory/ when it resolves a
+# template. Same reasoning as the two caches above: machine state, regenerated
+# on a fresh clone, and a stale copy of the constitution scaffold otherwise
+# reaches `git add -A`. See ADR-073.
+memory/.resolved-template.json

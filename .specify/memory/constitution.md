@@ -652,7 +652,8 @@ implemented as a single sequence; a shortcut that skips a step is a defect.
    step MUST NOT be stored or processed (File Processing Rules). The file is
    then stored in object storage, and a content hash is computed over its bytes.
 3. **Duplicate check.** The hash is compared against hashes of files already
-   recorded. A match is reported to the user and the file is not processed
+   recorded. A match is reported to the user, the bytes step 2 stored are
+   withdrawn so that no duplicate is retained, and the file is not processed
    again.
 4. **First-page extraction.** The supplier's company name and the file's issue
    date are read from the first page. A file whose first page yields neither
@@ -674,8 +675,12 @@ implemented as a single sequence; a shortcut that skips a step is a defect.
 
 - A file MUST be validated against the file size and content-type rules
   before storage. A file that fails validation MUST NOT be stored.
-- A duplicate file MUST be rejected with a message naming the original. The
-  duplicate MUST NOT be stored, queued, or processed.
+- A duplicate file MUST be rejected with a message naming the original. No
+  catalog is created for it, the bytes step 2 stored are withdrawn, and it MUST
+  NOT be queued or processed. The duplicate check runs after storage (File
+  Processing Overview, steps 2-3), so "not stored" means "not retained", not
+  "never written": the upload transport puts the bytes in object storage before
+  a hash exists to compare, and the check is what removes them.
 - **Content safety.** Every uploaded file MUST pass, in order: magic-byte
   validation against its declared content type; ClamAV antivirus scanning; a
   decoded-size cap recorded under Constitution Mandated Values that rejects
@@ -2118,4 +2123,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.27.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-08
+**Version**: 2.27.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-08

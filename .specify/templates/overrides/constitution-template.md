@@ -8,7 +8,8 @@
   and uses it as the REQUIRED STRUCTURE, then applies the existing project values
   and amendments to that scaffold. Without this override the core scaffold governs
   (5 principle slots and two generic sections), so a `/constitution` run could
-  collapse this project's ten principles and eighteen binding sections.
+  collapse this project's ten principles and its nineteen binding sections (the
+  count Governance enumerates).
 
   Rule: keep the heading names and their order in step with
   `.specify/memory/constitution.md`. When a section is added or renamed there,

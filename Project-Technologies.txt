@@ -2,7 +2,7 @@
 
 **Constitution**: `.specify/memory/constitution.md` (current version: its footer
 or `.specify/memory/version.json`; last amended 2026-10-08,
-ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064/065/066/067/068/069/070/071/072). On any conflict with this file, the constitution
+ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064/065/066/067/068/069/070/071/072/073). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -151,7 +151,7 @@ packages/db/
 |---|---|---|
 | **OpenSearch** | محرك البحث | **محلل عربي مدمج** (`arabic` analyzer) مع تجذيع وإزالة كلمات التوقف. يدعم **`icu_analyzer`** لتطبيع النصوص العربية. |
 | **Arabic Analyzer** | محلل اللغة العربية | مدمج في OpenSearch. **إعدادته والتحقق منه فجوة مسجلة يملكها R5**؛ هذا Mirror لا يسمّي إعداداً ولا يقرّر ضبطه. |
-| **ILM** | إدارة دورة حياة الفهارس | آليات حذف الفهارس؛ نافذة الاحتفاظ بالكتالوجات (90 يوماً) قاعدة في الدستور (Usage Limits) وملكها R15، وILM متوائمة معها. |
+| **ISM** | إدارة حالة الفهارس (Index State Management) | ميزة دورة حياة الفهارس في OpenSearch (لا ILM، فهي ميزة Elasticsearch). تحذف فهارس كاملة بعمر الفهرس، لذا الحذف لكل كتالوج بعد 90 يوماً ينفّذه عامل الاحتفاظ (R15) لا دورة حياة الفهرس وحدها. النافذة قاعدة في الدستور (Usage Limits) وملكها R15. |
 
 ### 📁 بنية البحث
 
@@ -238,7 +238,7 @@ apps/worker/src/
 | **الواجهة الأمامية** | Nuxt 4، Vue 3، TypeScript، Tailwind CSS، Nuxt UI، Pinia، TanStack Query، Zod |
 | **الواجهة الخلفية** | Hono، OpenAPI، Modular Monolith، Zod |
 | **قاعدة البيانات** | PostgreSQL، Drizzle ORM، PgDog |
-| **البحث** | OpenSearch، Arabic Analyzer، ILM |
+| **البحث** | OpenSearch، Arabic Analyzer، ISM |
 | **الملفات** | SeaweedFS، BullMQ، Redis |
 | **المصادقة** | better-auth |
 | **الاختبارات** | Vitest، Playwright |

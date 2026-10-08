@@ -119,7 +119,7 @@ Cross-cutting rules for every module:
 
 ## 3. Data flow
 
-The canonical chain is **web → api → PostgreSQL for the system of record; large file bytes go web → SeaweedFS directly (presigned multipart); processing runs api → queue → worker → (PostgreSQL, OpenSearch)**:
+The canonical chain is **web → api → PostgreSQL for the system of record; large file bytes go web → SeaweedFS directly (presigned multipart); processing runs api → queue → worker → (the owning modules' services for the system of record, OpenSearch directly for the search projection)**:
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -153,6 +153,14 @@ The canonical chain is **web → api → PostgreSQL for the system of record; la
                         └── apps/api (catalogs module)
 ```
 
+The worker reaches the system of record through the owning module's service —
+`catalogs` for the status, `parts` for the extracted rows — exposed via the
+shared package. The arrow into `packages/db` in the diagram above is that
+service path and not a direct table access: the module-ownership rule above,
+and Project Structure and Debt Control, forbid reading or writing a table from
+outside the module that owns it, and the worker is not that module. The worker
+writes the search index directly, because it is the projection's only writer.
+
 1. **web → api.** Every visitor and merchant action becomes an API request
    with a schema-validated contract; the public site and the admin application
    use the same modules.
@@ -171,8 +179,10 @@ The canonical chain is **web → api → PostgreSQL for the system of record; la
    rather than hidden by the presentation layer (Principle VI, Query Safety and
    Secrets).
 4. **worker → db and search.** The worker is what keeps the projection current: it
-   consumes queued jobs, extracts and normalizes parts, then writes both the
-   catalog status in the system of record and the parts in the search index.
+   consumes queued jobs, extracts and normalizes parts, then writes the catalog
+   status and the extracted parts into the system of record through the owning
+   modules' services (`catalogs`, `parts`), and writes the parts into the search
+   index.
    Normalisation assigns every extracted value to the canonical column the
    constitution's Glossary fixes, with no manual mapping step and no question put
    to the merchant. The canonical set is complete for a parts table, so a value
@@ -250,7 +260,7 @@ Read/write notes:
   `.specify/memory/version.json`) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-072; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-073; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
