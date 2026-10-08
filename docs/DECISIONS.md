@@ -226,6 +226,20 @@ and is maintained by the worker; PostgreSQL remains authoritative. Search
 ranking beyond the sortable columns remains a deferred area (retrieval
 interface) whose ratification is recorded by the first feature that needs it.
 
+**Annotation (2026-10-08, ADR-072 item 9 / ADR-073 item 3).** This record's
+Decision and Rationale name "Index Lifecycle Management" as the feature the
+index lifetime relies on. Two halves of that naming are superseded. First, the
+feature OpenSearch actually ships is Index State Management (ISM); ILM is
+Elasticsearch's name for its own policy, and the technology register,
+`docs/architecture.md`, and `docs/domain-model.md` name ISM (ADR-072 item 9),
+with the technology mirror corrected to match (ADR-073 item 3). Second, the
+Rationale's claim that the lifecycle feature "expresses the 90-day index
+lifecycle natively" overstates what it does: ISM deletes whole indices by
+index age, so the per-catalog 90-day deletion is the retention job's work
+(R15), not the index lifecycle's alone. The decision this record made —
+OpenSearch with its built-in Arabic analyzer — is unchanged by both; only the
+lifecycle feature's name and reach are annotated.
+
 ---
 
 ## ADR-004 — better-auth without the `scim` and `sso` modules
