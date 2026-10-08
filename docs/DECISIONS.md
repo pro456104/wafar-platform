@@ -119,6 +119,7 @@ from the index rather than edited in its own words.
 | [ADR-081](#adr-081--spec-kit-cli-upgraded-to-112-the-scaffold-pin-annotated) | Spec Kit CLI upgraded to 1.1.2; the scaffold pin annotated | 2026-10-08 | 2.28.1 (unchanged) |
 | [ADR-082](#adr-082--the-adr-indexs-anchor-integrity-checked-and-adr-064s-anchor-repaired) | The ADR index's anchor integrity checked, and ADR-064's anchor repaired | 2026-10-08 | 2.28.2 |
 | [ADR-083](#adr-083--every-adr-reference-resolved-against-the-index) | Every ADR reference resolved against the index | 2026-10-08 | 2.28.3 |
+| [ADR-084](#adr-084--the-drift-checks-adr-citations-unified) | The drift check's ADR citations unified | 2026-10-08 | 2.28.4 |
 
 ---
 
@@ -6050,5 +6051,55 @@ precedent for a description-completing change.
 
 **Consequences.** A dangling ADR reference now fails the committed check. The
 drift check reports clean with the index ending at ADR-083, every index anchor
-resolving, 187 references resolving, and every live range string reading
+resolving, 188 references resolving, and every live range string reading
 `ADR-001 … ADR-083`. This entry is the durable record.
+
+---
+
+## ADR-084 — The drift check's ADR citations unified
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `governance-drift-check.mjs`, `docs/`, `AGENTS.md`, `README.md`, `.specify/memory/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** Five places cite the ADRs that shaped `governance-drift-check.mjs`:
+the script's header and its printed banner, `AGENTS.md` §5, `README.md`, and the
+constitution's References row. They did not agree. The script said
+"(ADR-071, ADR-075)"; the other three said "(ADR-071, ADR-074, ADR-075)". Neither
+list matched the history: the file was added in the commit that records ADR-071
+and ADR-072, then touched by ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, and
+ADR-083, and ADR-071's own record states it created the check. ADR-072 — not
+ADR-074 — added checks D2 and F, and the script names ADR-074 in its body while
+its header omitted it, so the citation was wrong in both directions. Separately,
+ADR-083's Consequences claimed "187 references resolving"; the check reported 188
+at that commit.
+
+**Decision.**
+
+1. All five citation sites read the same complete list — **ADR-071, ADR-072,
+   ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083** — the ADRs that created
+   or amended the check, taken from the file's own git history and the records.
+2. ADR-083's Consequences "187 references resolving" is corrected to "188
+   references resolving", the value the check reported at that commit. The record
+   is corrected, not annotated: the claim was wrong, not superseded.
+3. The constitution's References row names the list, which moves the constitution
+   to **2.28.4** (PATCH).
+4. Every live `ADR-001 … ADR-0NN` range string moves to **ADR-084**, and
+   `Project-Technologies.txt`'s header ADR list gains ADR-084.
+
+**What deliberately did not change.** No principle, entity, page, feature, Usage
+Limit, module, or slice changed, and no slice's `Depends on` edge changed. No
+check was added or removed: this change corrects citations, not behaviour. The
+2.28.4 bump is PATCH, on ADR-079's precedent for a citation change.
+
+**Alternatives considered.**
+- *Align the script to the docs' list (ADR-071, ADR-074, ADR-075).* Rejected: that
+  list is itself incomplete — it omits ADR-072, which added two checks.
+- *Cite only the creating ADR (ADR-071) and drop the rest.* Rejected: the record
+  of what shaped the check is useful, and the file's history makes it exact.
+- *Record a fixed reference count in this record.* Rejected for the reason
+  ADR-083 already gives: the count moves with every ADR. This record cites none.
+
+**Consequences.** One list, in five places, that matches the file's history. The
+drift check reports clean with the index ending at ADR-084 and every live range
+string reading `ADR-001 … ADR-084`. This entry is the durable record.

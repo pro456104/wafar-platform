@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /*
- * governance-drift-check.mjs — Wafar governance drift check (ADR-071, ADR-075)
+ * governance-drift-check.mjs — Wafar governance drift check
+ * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083)
  * -------------------------------------------------------------------
  * Read-only. Dependency-free. Runs on the pinned Node runtime.
  *
@@ -420,7 +421,7 @@ for (const c of structuralCounts) {
 notes.push(`G: ${structuralCounts.length} structural counts checked`);
 
 /* ---- report --------------------------------------------------------------- */
-console.log('Wafar governance drift check (ADR-071, ADR-075)');
+console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083)');
 console.log('=====================================');
 for (const n of notes) console.log(`  ok   ${n}`);
 if (failures.length === 0) {
