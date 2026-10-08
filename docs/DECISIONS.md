@@ -116,6 +116,7 @@ from the index rather than edited in its own words.
 | [ADR-078](#adr-078--superseded-owner-assignments-annotated-and-the-platformsetting-duty-corrected) | Superseded owner assignments annotated, and the PlatformSetting duty corrected | 2026-10-08 | 2.28.0 (unchanged) |
 | [ADR-079](#adr-079--constitution-2281-the-drift-checks-four-descriptions-aligned) | Constitution 2.28.1: the drift check's four descriptions aligned | 2026-10-08 | 2.28.1 |
 | [ADR-080](#adr-080--the-drift-checks-structural-count-coverage-completed) | The drift check's structural-count coverage completed | 2026-10-08 | 2.28.1 (unchanged) |
+| [ADR-081](#adr-081--spec-kit-cli-upgraded-to-112-the-scaffold-pin-annotated) | Spec Kit CLI upgraded to 1.1.2; the scaffold pin annotated | 2026-10-08 | 2.28.1 (unchanged) |
 
 ---
 
@@ -1004,6 +1005,13 @@ to "by the engine workflow or by hand", and the bundled workflow at
 step, as `AGENTS.md` and `README.md` state. `/speckit.analyze` is therefore
 binding in both invocation paths. The Spec Kit and Node pins in the same
 Decision are unaffected and stand.
+
+**Annotation (2026-10-08, ADR-081).** The local Spec Kit install was upgraded
+from 1.1.0 to 1.1.2. The pin's floor (`>=1.1.0`) still holds and the Node 22 LTS
+line is unaffected, so the Decision stands; only the installed version moved. The
+project's scaffold — its `.specify/` templates, scripts, manifests,
+`init-options.json`, `integration.json`, and `workflow.yml` — was left at 1.1.0,
+the version that created it; re-scaffolding is a separate decision (ADR-081).
 
 ---
 
@@ -5879,3 +5887,60 @@ to Product Scope without amending the register fails the check instead of drifti
 silently. The two version sources agree at **2.28.1**, the drift check reports clean
 with the index ending at ADR-080, and every live range string reads
 `ADR-001 … ADR-080`. This entry is the durable record.
+
+---
+
+## ADR-081 — Spec Kit CLI upgraded to 1.1.2; the scaffold pin annotated
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `.specify/templates/overrides/`, `Project-Technologies.txt`, `.specify/workflows/speckit/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** ADR-021 pinned Spec Kit to `>=1.1.0`, and both the local install and
+the project's scaffold were 1.1.0. `specify self check` reported "Update
+available: 1.1.0 → v1.1.2", and the local CLI was upgraded on 2026-10-08 to
+v1.1.2 (upstream commit 959e866). The 1.1.1 and 1.1.2 release notes carry no
+breaking change to the `.specify/` layout, the command names, or the workflow
+schema: they add MCP tools (artifact list, version), workflow and bundler fixes,
+and `--json` for `preset info` / `extension info`. The upgrade touches only the
+`uv` tool environment; the project's working tree is unchanged by it.
+
+**Decision.**
+
+1. The installed Spec Kit CLI is **1.1.2**. ADR-021's pin floor (`>=1.1.0`) still
+   holds and the Node 22 LTS line is unaffected, so ADR-021's Decision stands;
+   ADR-021 gains an annotation recording the move.
+2. The project's scaffold is **not** re-created. Its `.specify/` templates,
+   scripts, manifests, `init-options.json`, `integration.json`, and
+   `workflow.yml` remain the 1.1.0 versions that created them, because
+   re-scaffolding (`specify init --here --force`) would overwrite the project's
+   binding overrides and its customised `workflow.yml` (ADR-072). A scaffold
+   refresh, if ever wanted, is a separate decision with its own ADR.
+3. `.specify/workflows/speckit/workflow.yml`'s `requires.speckit_version` stays
+   `>=1.1.0` — 1.1.2 satisfies it — and its comment now names ADR-081 alongside
+   ADR-021.
+4. Every live `ADR-001 … ADR-0NN` range string moves to **ADR-081**, and
+   `Project-Technologies.txt`'s header ADR list gains ADR-081.
+
+**What deliberately did not change.** No principle, entity, page, feature, Usage
+Limit, module, or slice changed, and no slice's `Depends on` edge changed. The
+constitution's text is untouched, so the version stays **2.28.1**. No project
+file was rewritten to chase the new CLI: a scaffold's recorded version is a fact
+about what created it, not a pin to keep in step with the local install.
+
+**Alternatives considered.**
+- *Re-scaffold the project to 1.1.2.* Rejected: it would overwrite the binding
+  overrides and the customised workflow, and the release carries no change the
+  scaffold needs.
+- *Leave ADR-021 un-annotated.* Rejected: the record would then read as if the
+  install were still 1.1.0 — the class of stale claim ADR-078 closed for
+  superseded owner assignments.
+- *Bump the constitution to 2.28.2 (PATCH).* Rejected: no constitution text
+  changes, and the established pattern for a tooling change that leaves the text
+  alone (ADR-071, ADR-078, ADR-080) leaves the version unchanged.
+
+**Consequences.** The installed CLI and the recorded pin are reconciled: the
+floor holds, the move is recorded, and the scaffold's own version is left as the
+fact it is. The drift check reports clean with the index ending at ADR-081 and
+every live range string reading `ADR-001 … ADR-081`. This entry is the durable
+record.

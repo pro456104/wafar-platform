@@ -7,7 +7,7 @@ workflow:
   description: "Runs constitution → specify → clarify → plan → checklist → tasks → analyze → implement → converge with review gates; implement and converge repeat until converge reports Converged (ADR-013)"
 
 requires:
-  # ">=1.1.0" matches the pinned install (ADR-021); 0.8.5 was the first
+  # ">=1.1.0" matches the pinned install (ADR-021, ADR-081); 0.8.5 was the first
   # release with engine-side resolution of the ``integration: "auto"``
   # default, but the project install is pinned higher.
   speckit_version: ">=1.1.0"
