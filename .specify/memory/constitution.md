@@ -42,6 +42,20 @@ shapes. See Deferred areas.
 - Product Fact Clarifications
 - Governance
 
+**Reading protocol.** This document is large, and no feature command needs all
+of it. It MUST NOT be read end to end for a feature command. Read the sections
+the command in hand names, and only those, mirroring `AGENTS.md` §3:
+`/speckit.specify` reads Product Scope, Product Register, Usage Limits, and
+Glossary; `/speckit.plan` reads Technology Standards, Design System Standards,
+and Product Register; `/speckit.tasks` reads Product Register, Single-Reference
+Sufficiency, and Artifact Workflow and Traceability; `/speckit.checklist` reads
+Product Scope, Product Register, and the binding sections its checklist names;
+`/speckit.implement` reads the sections its plan's Constitution Check cites;
+`/speckit.analyze` and `/speckit.converge` read the sections the artifacts under
+review cite. A per-command read SHOULD stay within the context budget its plan
+records. Reading the whole document is reserved to an amendment (Governance →
+amendment procedure) and to a full review (Review trigger).
+
 ## Core Principles
 
 ### I. Evident, Traceable Change (NON-NEGOTIABLE)
@@ -656,10 +670,12 @@ implemented as a single sequence; a shortcut that skips a step is a defect.
    withdrawn so that no duplicate is retained, and the file is not processed
    again.
 4. **First-page extraction.** The supplier's company name and the file's issue
-   date are read from the first page. A file whose first page yields neither
-   value is processed and marked: the catalog record carries a boolean
-   `first_page_metadata_incomplete` flag. The flag is not a status value; the
-   status enum below stays closed to its four values.
+   date are read from the first page, and any additional issue dates the first
+   page prints that match the supplier's name are read with them and displayed
+   with the result. A file whose first page yields neither the supplier's name
+   nor the issue date is processed and marked: the catalog record carries a
+   boolean `first_page_metadata_incomplete` flag. The flag is not a status
+   value; the status enum below stays closed to its four values.
 5. **Queue.** A job is enqueued for the worker.
 6. **Worker pipeline.**
    - Extract parts from the file's tables.
@@ -675,7 +691,8 @@ implemented as a single sequence; a shortcut that skips a step is a defect.
 
 - A file MUST be validated against the file size and content-type rules
   before storage. A file that fails validation MUST NOT be stored.
-- A duplicate file MUST be rejected with a message naming the original. No
+- A duplicate file MUST be rejected with a message naming the original, stating
+  the original's upload date, and carrying a link that opens it. No
   catalog is created for it, the bytes step 2 stored are withdrawn, and it MUST
   NOT be queued or processed. The duplicate check runs after storage (File
   Processing Overview, steps 2-3), so "not stored" means "not retained", not
@@ -1851,6 +1868,7 @@ however obviously the concept belongs to the entity.
 | Document | Purpose | Location |
 |---|---|---|
 | `Project-Technologies.txt` | The technology register's detail: exact versions, per-technology notes, and the repository trees. Mirrors Technology Standards, which wins on conflict. | Repository root. |
+| `docs/CHANGELOG-mirror.md` | The mirror's historical "Constitution X additions" blocks, split out of `Project-Technologies.txt` (ADR-075). History, not a source of rules. | `docs/`. |
 | `Core-Project.txt` | The product's detail: pages, roles, and the acceptance criteria the product already states. Mirrors Product Register and Product Scope, which win on conflict. | Repository root. |
 | `docs/domain-model.md` | The data model's source of truth: entities, relationships, cardinality, invariants, and the owning module of each. Mirrors the Data entities table, which holds the map. | `docs/`. |
 | `wafar.single.css` | The design system's values — the only permitted source of design values, composed of fourteen modules. Mirrors Design System Standards, which holds the register. | Repository root. |
@@ -1865,7 +1883,7 @@ however obviously the concept belongs to the entity.
 | `.specify/extensions.yml` | The installed extensions and the hook registry every Spec Kit command reads before and after it runs. | `.specify/`. |
 | `.specify/workflows/speckit/workflow.yml` | The bundled workflow that runs the binding cycle in order, with its human review gates. | `.specify/workflows/speckit/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
-| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-074): the two version sources, every live ADR range string, the upstream manifest hashes, the two integrations' byte-identity, and the design system's token register. Read-only and dependency-free; exits non-zero on drift. | Repository root. |
+| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-074, ADR-075): the two version sources, every live ADR range string, the upstream manifest hashes, the two integrations' byte-identity, the design system's token register, and the structural counts the governance text states in prose. Read-only and dependency-free; exits non-zero on drift. | Repository root. |
 
 ## Artifact Workflow and Traceability
 
@@ -2129,4 +2147,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.27.2 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-08
+**Version**: 2.28.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-08

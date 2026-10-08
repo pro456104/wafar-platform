@@ -13,13 +13,14 @@ not sell, buy, process payment, or host user-to-user chat.
 | `.specify/memory/constitution.md` | Engineering law, product scope, and limits. Supersedes every other document. |
 | `Core-Project.txt` | Product definition: roles, permissions, pages, file processing, acceptance criteria. |
 | `Project-Technologies.txt` | Mirror of the approved technology register. The register itself is `.specify/memory/constitution.md` → Technology Standards. |
+| `docs/CHANGELOG-mirror.md` | The mirror's historical amendment blocks, split out of `Project-Technologies.txt` (ADR-075). History, not a source of rules. |
 | `docs/architecture.md` | Repository layout, API module map, data flow. |
 | `docs/domain-model.md` | The data model: entities, relationships, cardinality, invariants, and the module that owns each. |
-| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-074; index at the top). |
+| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-075; index at the top). |
 | `wafar.single.css` | The design system's values — the only permitted source of design values. Its register is `.specify/memory/constitution.md` → Design System Standards. |
 | `ROADMAP.md` | The MVP slice order. Names and orders slices; does not design them. |
 | `AGENTS.md` | Operating instructions for agent assistants. |
-| `governance-drift-check.mjs` | The committed read-only drift check: the two version sources, every live ADR range string, the upstream manifest hashes, the two integrations, and the design system's token register. Run it with `node governance-drift-check.mjs`. |
+| `governance-drift-check.mjs` | The committed read-only drift check: the two version sources, every live ADR range string, the upstream manifest hashes, the two integrations, the design system's token register, and the structural counts the governance text states in prose. Run it with `node governance-drift-check.mjs`. |
 
 ## Prerequisites
 
@@ -55,11 +56,12 @@ the project's binding templates and must not be replaced with the core ones.
 
 **Governance drift check.** `node governance-drift-check.mjs` (repository root)
 verifies the invariants the governance set cannot verify by discipline: the two
-version sources, every live `ADR-001 … ADR-074` range string, the ADR list in
+version sources, every live `ADR-001 … ADR-075` range string, the ADR list in
 `Project-Technologies.txt`'s header, the upstream manifest hashes, the two
-integrations' byte-identity, and the design system's token register against
-`wafar.single.css`. It is read-only, adds no dependency, and exits non-zero on
-drift (ADR-071, ADR-074).
+integrations' byte-identity, the design system's token register against
+`wafar.single.css`, and the structural counts the governance text states in
+prose. It is read-only, adds no dependency, and exits non-zero on
+drift (ADR-071, ADR-074, ADR-075).
 
 **Project-level knowledge is not a feature.** The constitution, the
 architecture, the data model, the technology stack, the design system, the

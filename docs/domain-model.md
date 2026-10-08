@@ -173,11 +173,15 @@ service layer re-checks the ones a constraint cannot express.
 - **`first_page_metadata_incomplete` is a boolean flag, never a status value.**
   It is set when the file's first page yields neither the supplier's name nor
   the issue date. It was absent from the constitution's entity register while
-  the File Processing Overview required it; the register now carries it.
+  the File Processing Overview required it; the register now carries it. A first
+  page may print more than one issue date that matches the supplier's name; all
+  of them are displayed with the result. Displaying them stores no field, and a
+  later slice that must *store* several dates records that as its own open fact.
 - **The content hash is unique across catalogs.** A duplicate upload is
   rejected by hash and is neither stored, queued, nor processed. A merchant who
-  uploads the same supplier file twice receives a message naming the original,
-  not a second catalog.
+  uploads the same supplier file twice receives a message naming the original
+  (with the original's upload date and a link that opens it), not a second
+  catalog.
 - **`expires_at` semantics are undecided.** It is either the retention deadline
   or the supplier's printed expiry date. This is a recorded unresolved product
   fact owned by R15; until R15 decides it, no feature may give the field a

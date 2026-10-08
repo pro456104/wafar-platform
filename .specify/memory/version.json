@@ -1,6 +1,6 @@
 {
-  "constitution_version": "2.27.2",
+  "constitution_version": "2.28.0",
   "last_amended": "2026-10-08",
-  "recorded_by": "ADR-074",
+  "recorded_by": "ADR-075",
   "note": "The machine-readable counterpart of the constitution's footer. The two MUST agree; the amendment that moves one moves the other."
 }

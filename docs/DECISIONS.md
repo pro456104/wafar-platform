@@ -110,6 +110,7 @@ from the index rather than edited in its own words.
 | [ADR-072](#adr-072--workflow-execution-defects-and-css-standard-conformance) | Workflow execution defects and CSS standard conformance | 2026-10-08 | 2.27.0 |
 | [ADR-073](#adr-073--duplicate-storage-semantics-slice-component-obligations-and-mirror-precision) | Duplicate-storage semantics, slice component obligations, and mirror precision | 2026-10-08 | 2.27.1 |
 | [ADR-074](#adr-074--deep-audit-fix-set-the-exception-registers-classification-the-sticky-headers-owner-module-ownership-and-the-constitutions-own-precision-defects) | Deep-audit fix set: the exception register's classification, the sticky header's owner, module ownership, and the constitution's own precision defects | 2026-10-08 | 2.27.2 |
+| [ADR-075](#adr-075--constitution-2280-the-constitutions-reading-protocol-structural-count-checks-and-mirror-hygiene) | Constitution 2.28.0: the constitution's reading protocol, structural-count checks, and mirror hygiene | 2026-10-08 | 2.28.0 |
 
 ---
 
@@ -5315,3 +5316,125 @@ from name the drift check. The two `Core-Project.txt` statements are owned by R2
 and R3 rather than invisible. The two version sources agree at **2.27.2**, the
 drift check reports clean with the index ending at ADR-074, and every live range
 string reads `ADR-001 … ADR-074`. This entry is the durable record.
+
+---
+
+## ADR-075 — Constitution 2.28.0: the constitution's reading protocol, structural-count checks, and mirror hygiene
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `.specify/memory/`, `docs/`, `.specify/templates/overrides/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `Project-Technologies.txt`, repository root
+**Owning feature**: none — governance and tooling decision; ratified by the repository owner
+
+**Context.** A deep, whole-set audit was carried out before the first slice (R1)
+was specified. It read the constitution, both Arabic mirrors, `ROADMAP.md`,
+`AGENTS.md`, `README.md`, `docs/architecture.md`, `docs/domain-model.md`, this
+log, the five binding overrides, the extension and integration registries, and
+`wafar.single.css`, and it ran the committed drift check. The check reports
+clean, so every finding below is a defect the check could not see — a reading
+cost, an unguarded count, or a statement that had drifted. Each was reproduced
+against the working tree before it was written here.
+
+1. **The constitution had no reading protocol.** It is 2,133 lines, and
+   `docs/DECISIONS.md` carries a Reading protocol (ADR-071) but the constitution
+   — the largest source every feature command must read — did not. The command
+   files that load it are byte-identical to upstream (ADR-068) and cannot be
+   scoped, so the fix belongs in the document itself.
+2. **The structural counts the governance text states in prose were unguarded.**
+   The drift check verified version strings, ADR-range strings, manifest hashes,
+   integration byte-identity, and design tokens, but not one countable fact:
+   fifteen slices, six exception rows, ten principles, twelve entities, fourteen
+   design-system modules, nineteen binding sections, ten API modules. Each could
+   drift silently, and ADR-074 had already recorded that the check cannot see
+   this class of defect.
+3. **The mirror carried its own changelog.** `Project-Technologies.txt` held
+   thirteen "Constitution X additions" blocks (ADR-023 … ADR-060) inline — a
+   history of rule restatements in a file whose rule is that a mirror MUST NOT
+   restate a rule (Single-Reference Sufficiency) and whose job is the exact
+   version of each approved technology.
+4. **The mirror's header example had gone stale.** Its "Party/header sync
+   markers" note showed the header ADR list ending at `…068` and the date
+   `2026-10-07`, while the actual header ended at `…074` and `2026-10-08`. A
+   fixed example of a value that moves every amendment is a defect by
+   construction.
+5. **Two product statements in `Core-Project.txt` had no register counterpart.**
+   ADR-074 recorded them rather than deciding them: the duplicate-file message
+   names the original's upload date and carries "a link to open" it, and the
+   first-page extraction also displays "the issue dates matching the name". They
+   were assigned to R2 and R3, and neither slice exists yet.
+
+**Decision.** Constitution **2.27.2 → 2.28.0** (MINOR: item 1 adds a section and
+items 5 widen two binding rules; items 2–4 are tooling and hygiene that ride in
+the same amendment).
+
+1. **A Reading protocol is added to the constitution**, between its Contents
+   list and `## Core Principles`. It states that the document MUST NOT be read
+   end to end for a feature command, names the sections each command needs
+   (mirroring `AGENTS.md` §3), and reserves a whole-document read to an
+   amendment and to a full review. `AGENTS.md` §3 gains the matching pointer.
+2. **`governance-drift-check.mjs` gains check G**, a structural-count check. It
+   counts seven enumerable lists and compares each to the number the governance
+   text states: slices (`ROADMAP.md` R-rows, 15), exception rows
+   (`EX-\d{3}`, 6), principles (`### [IVX]+.`, 10), data entities (the
+   constitution's Data entities table, 12), design-system modules (the Module map
+   table, 14), binding sections (the nineteen names in Governance's Authority
+   paragraph), and API modules (`docs/architecture.md`, 10). Lists are sliced by
+   heading, never by line number, so a renamed heading fails loudly. The script's
+   header comment, `AGENTS.md` §5, the README's drift-check paragraphs, and the
+   constitution's References row for the script name the new check.
+3. **The mirror's changelog moves to `docs/CHANGELOG-mirror.md`**, a new
+   project-owned file, and `Project-Technologies.txt` keeps a one-paragraph
+   pointer instead. The new file is registered in the constitution's References
+   table and the README's documentation map. It carries no live `ADR-001 … ADR-0NN`
+   range string, so check B ignores it.
+4. **The stale header example is replaced with pointer wording** that names no
+   fixed ADR number and no fixed date, so it cannot go stale again.
+5. **The two `Core-Project.txt` statements are elevated into the register as
+   binding.** File Processing Rules now requires the duplicate message to state
+   the original's upload date and carry a link that opens it; File Processing
+   Overview step 4 now requires the issue date, and any additional issue dates
+   the first page prints that match the supplier's name, to be displayed with the
+   result. `Core-Project.txt` is left untouched, because the mirror now matches
+   the register. `docs/domain-model.md`'s Catalog section records both: the
+   duplicate bullet gains "(with the original's upload date and a link that opens
+   it)", and the first-page bullet notes that more than one matching issue date
+   may be displayed. Displaying them stores no field; a slice that later must
+   *store* several dates records that as its own open fact.
+6. **Every live `ADR-001 … ADR-0NN` range string moves to ADR-075** (`AGENTS.md`,
+   `README.md`, `ROADMAP.md`, `docs/architecture.md`, and the `spec-template.md`
+   and `checklist-template.md` overrides), `Project-Technologies.txt`'s header ADR
+   list gains ADR-075, and the two version sources move together.
+
+**What deliberately did not change.** No principle was added, removed, renamed,
+or redefined. No entity, page, feature, Usage Limit, module, or slice number
+changed, and no slice's `Depends on` edge changed. `wafar.single.css` is
+untouched, so the design-system version stays 1.3.0. The six exception rows are
+unchanged. `.codebuddy/commands/*` and `.opencode/commands/*` are untouched, so
+they stay byte-identical to each other and to their integration manifests. The
+five binding overrides keep their structure; only their range string moved.
+
+**Alternatives considered.**
+- *Scope the constitution read by editing the command files.* Rejected: the
+  commands are kept byte-identical to upstream (ADR-068) and are hash-tracked, so
+  the scoping belongs in the constitution and in `AGENTS.md` §3, which the
+  commands already defer to.
+- *Leave the structural counts to discipline.* Rejected: ADR-074 recorded that
+  the check cannot see them, and a count in prose that nothing checks is exactly
+  the class of drift the check exists to stop.
+- *Compress the mirror changelog in place instead of moving it.* Rejected: the
+  blocks restate rules, which a mirror MUST NOT do; moving them out of the mirror
+  and into a history file is the correction, not a cosmetic shrink.
+- *Delete the two `Core-Project.txt` statements instead of elevating them.*
+  Rejected: they are product intent, and ADR-074's own alternatives rejected
+  removing product intent; the register is where they belong.
+- *Bump to 2.27.3 (PATCH).* Rejected: item 1 adds a section and item 5 widens two
+  binding rules, which the versioning policy classifies MINOR.
+
+**Consequences.** A feature command can read the constitution by section and
+knows the budget it is held to, so the largest source stops being read end to
+end. The seven structural counts can no longer drift silently — a renamed section
+or a miscounted list fails the build. The technology mirror is a map again, its
+history lives in one place, and its header example can no longer contradict the
+header. The two product statements ADR-074 could only record are now binding
+rules the owning slices implement, and the domain model states them. The drift
+check reports clean at 2.28.0 with the index ending at ADR-075, and every live
+range string reads `ADR-001 … ADR-075`. This entry is the durable record.

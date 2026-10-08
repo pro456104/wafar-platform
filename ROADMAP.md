@@ -35,7 +35,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-074) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-075) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide

@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-074; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-075; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -36,6 +36,10 @@ error — it makes the agent treat a project-wide rule as work, and later featur
 re-invent what already exists. See `docs/DECISIONS.md` → ADR-007.
 
 ## 3. Load these before writing any feature artifact
+
+Read only the constitution sections this list names; the constitution's own
+Reading protocol mirrors this map, and the constitution MUST NOT be read end to
+end for a feature command.
 
 - `/speckit.specify` → the constitution (Product Scope, Product Register, Usage
   Limits, Glossary), `Core-Project.txt`, `docs/domain-model.md`, and
@@ -135,10 +139,10 @@ key), so a `specify` upgrade may replace it; the project copy is the one to keep
 and its `requires.integrations.any` list must stay correctly nested under
 `integrations:` (ADR-072).
 
-**The governance drift check is committed (ADR-071, ADR-074).** `governance-drift-check.mjs`
+**The governance drift check is committed (ADR-071, ADR-074, ADR-075).** `governance-drift-check.mjs`
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
-footer against `.specify/memory/version.json`; every live `ADR-001 … ADR-074`
+footer against `.specify/memory/version.json`; every live `ADR-001 … ADR-075`
 range string against the last row of `docs/DECISIONS.md`'s index; the ADR list in
 `Project-Technologies.txt`'s header against the same row; every
 `speckit.manifest.json` hash for an upstream-owned file against the working tree
@@ -146,7 +150,10 @@ range string against the last row of `docs/DECISIONS.md`'s index; the ADR list i
 `.specify/templates/exception-register.md` are excluded, because the project
 edits them by design); the byte-identity of `.codebuddy/commands/` and
 `.opencode/commands/` and their two integration manifests; and every design token
-the constitution's Design System Standards names against `wafar.single.css`. Run
+the constitution's Design System Standards names against `wafar.single.css`; and
+the structural counts the governance text states in prose — slices, exception
+rows, principles, data entities, design-system modules, binding sections, and API
+modules — against the lists that enumerate them. Run
 it with `node governance-drift-check.mjs`; it exits non-zero on drift. The slice
 that introduces the test runner (R1) wires it into continuous integration.
 

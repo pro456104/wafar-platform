@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * governance-drift-check.mjs — Wafar governance drift check (ADR-071)
+ * governance-drift-check.mjs — Wafar governance drift check (ADR-071, ADR-075)
  * -------------------------------------------------------------------
  * Read-only. Dependency-free. Runs on the pinned Node runtime.
  *
@@ -20,6 +20,9 @@
  *      records
  *   E. every token named in the constitution's Design System Standards section
  *      is defined in `wafar.single.css`
+ *   G. the structural counts the governance text states in prose — slices,
+ *      exception rows, principles, data entities, design-system modules,
+ *      binding sections, and API modules — match the lists that enumerate them
  *
  * Usage:  node governance-drift-check.mjs
  * Exit:   0 = clean, 1 = drift found.
@@ -249,8 +252,97 @@ if (!dsSection) {
   );
 }
 
+/* ---- G. structural counts the governance text states in prose ------------- */
+// The constitution, the roadmap, the exception register, and the architecture
+// state countable facts ("fifteen slices", "six exception rows", "ten
+// principles", "twelve entities", "fourteen modules", "nineteen binding
+// sections", "ten API modules"). None was machine-checked before ADR-075, so
+// any of them could drift silently. Each row counts an enumerable list and
+// compares it to the number the governance text states. Anchors are line-start
+// and lists are sliced by heading, never by line number, so a renamed heading
+// fails loudly instead of passing silently.
+const sliceBetween = (text, from, to) => {
+  const start = text.indexOf(from);
+  if (start < 0) return null;
+  const end = text.indexOf(to, start + from.length);
+  return text.slice(start, end < 0 ? undefined : end);
+};
+const countMatches = (text, re) => [...text.matchAll(re)].length;
+
+// The nineteen binding sections Governance enumerates in its Authority
+// paragraph. A section renamed in the constitution drops out of the paragraph
+// and is caught here.
+const GOV_BINDING_SECTIONS = [
+  'Query Safety and Secrets',
+  'Schema and Migration Control',
+  'Identity, Authentication, and Session Policy',
+  'Authorization and Access Control',
+  'Performance Budgets and Verification',
+  'Dependency Governance',
+  'Module Discipline and Development Workflow',
+  'Project Structure and Debt Control',
+  'Documentation',
+  'Deployment and Observability',
+  'Technology Standards',
+  'Design System Standards',
+  'Glossary',
+  'Product Scope',
+  'Product Register',
+  'Single-Reference Sufficiency',
+  'File Processing Overview',
+  'Artifact Workflow and Traceability',
+  'Product Fact Clarifications',
+];
+
+const structuralCounts = [
+  { id: 'G1', label: 'slices (R1–R15)', want: 15, file: 'ROADMAP.md',
+    got: () => countMatches(read('ROADMAP.md'), /^\| R\d+ \|/gm) },
+  { id: 'G2', label: 'exception rows (EX-###)', want: 6,
+    file: '.specify/templates/exception-register.md',
+    got: () => countMatches(read('.specify/templates/exception-register.md'), /^\| EX-\d{3} \|/gm) },
+  { id: 'G3', label: 'principles', want: 10,
+    file: '.specify/memory/constitution.md',
+    got: () => countMatches(constitution, /^### [IVX]+\./gm) },
+  { id: 'G4', label: 'data entities', want: 12,
+    file: '.specify/memory/constitution.md',
+    got: () => {
+      const s = sliceBetween(constitution, '### Data entities', '\n### ');
+      return s === null ? -1 : countMatches(s, /^\| `\w+` \| `\w+` \|/gm);
+    } },
+  { id: 'G5', label: 'design-system modules', want: 14,
+    file: '.specify/memory/constitution.md',
+    got: () => {
+      const s = sliceBetween(constitution, '### Module map', '\n### ');
+      return s === null ? -1 : countMatches(s, /\| \d{2} \| [a-z]+ \|/g);
+    } },
+  { id: 'G6', label: 'binding sections', want: 19,
+    file: '.specify/memory/constitution.md',
+    got: () => {
+      const s = sliceBetween(constitution, '**Authority.**', '\n\n');
+      if (s === null) return -1;
+      // The enumeration wraps across lines, so a name can straddle a newline;
+      // collapse whitespace before matching.
+      const flat = s.replace(/\s+/g, ' ');
+      return GOV_BINDING_SECTIONS.filter((n) => flat.includes(n)).length;
+    } },
+  { id: 'G7', label: 'API modules', want: 10,
+    file: 'docs/architecture.md',
+    got: () => {
+      const s = sliceBetween(read('docs/architecture.md'), '## 2. Module map', '## 3. ');
+      return s === null ? -1 : countMatches(s, /^\| `\w+` \|/gm);
+    } },
+];
+
+for (const c of structuralCounts) {
+  const actual = c.got();
+  if (actual !== c.want) {
+    failures.push(`G: ${c.file} should carry ${c.want} ${c.label} but ${actual} found`);
+  }
+}
+notes.push(`G: ${structuralCounts.length} structural counts checked`);
+
 /* ---- report --------------------------------------------------------------- */
-console.log('Wafar governance drift check (ADR-071)');
+console.log('Wafar governance drift check (ADR-071, ADR-075)');
 console.log('=====================================');
 for (const n of notes) console.log(`  ok   ${n}`);
 if (failures.length === 0) {
