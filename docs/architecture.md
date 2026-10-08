@@ -102,11 +102,13 @@ Cross-cutting rules for every module:
   scoping column is `user_id`, there is no separate tenant entity, and
   platform-wide tables carry no such column. The merchant-scoped tables are
   exactly `Catalog`, `Bookmark`, `Notification`, `Conversation`, `Message`, and
-  `Session`; `Supplier`, `AuditLog`, `ContactMessage`, and `PlatformSetting`
-  carry no `user_id`. The authorization model is a deferred area: the first
-  feature
-  that implements it records the missing rules and their ratification in its
-  plan.
+  `Session`; `Supplier`, `AuditLog`, `ContactMessage`, `PlatformSetting`, and
+  `Part` carry no `user_id` — a part is read globally through the public Parts
+  table, so its merchant scope is carried by its `Catalog` and the parts read
+  path is not merchant-scoped; `User` is the tenant root, the row `user_id`
+  references, so it is neither scoped nor platform-wide (ADR-070). The
+  authorization model is a deferred area: the first feature that implements it
+  records the missing rules and their ratification in its plan.
 - Soft deletion applies to users and catalogs: soft-deleted rows are retained
   with their timestamp and every read path filters them out; deleting a
   catalog also withdraws its parts, bookmarks, and search-index entries,
@@ -246,7 +248,7 @@ Read/write notes:
   `.specify/memory/version.json`) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-069; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-070; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;

@@ -95,6 +95,7 @@ is not done; ADR-015 states that rule and this file follows it.
 | [ADR-067](#adr-067--constitution-2250-the-administrator-is-a-role-userstatus-and-two-new-entities) | Constitution 2.25.0: the administrator is a role, `User.status`, and two new entities | 2026-10-07 | 2.25.0 |
 | [ADR-068](#adr-068--integration-topology-settled-and-the-constitution-command-aligned-to-upstream) | Integration topology settled, and the constitution command aligned to upstream | 2026-10-07 | 2.25.0 (unchanged) |
 | [ADR-069](#adr-069--cross-artifact-consistency-fix-set) | Cross-artifact consistency fix set | 2026-10-08 | 2.25.0 (unchanged) |
+| [ADR-070](#adr-070--part-tenancy-and-a-clarification-set) | Part tenancy, and a clarification set | 2026-10-08 | 2.26.0 |
 
 ---
 
@@ -4518,3 +4519,144 @@ and against the constitution. ADR-068's byte-identity claim is independently
 confirmed: `.codebuddy/commands/` and `.opencode/commands/` are byte-identical
 (`diff` clean), and `speckit.specify.md` matches its manifest hash. This entry is
 the durable record.
+
+---
+
+## ADR-070 — Part tenancy, and a clarification set
+
+**Status**: Accepted — 2026-10-08
+**Owning directory**: `.specify/memory/`, `docs/`, `ROADMAP.md`, `Core-Project.txt`, `Project-Technologies.txt`, `AGENTS.md`, `README.md`, `.specify/templates/overrides/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A deep audit of `.specify/memory/constitution.md` (2.25.0) against
+`wafar.single.css` and the four other governing documents — carried out
+mechanically as well as by reading — found one substantive gap and five
+clarifications. The mechanical pass was clean on the things a register can be
+checked for: all 258 tokens the constitution names exist in the stylesheet, all
+42 `ds-*` classes it names exist, all nine components it reports as missing are
+absent, the shadow ladder's consumed/unconsumed split matches, and every live
+ADR range string and `Register gaps` owner agrees across the set. The
+findings below are what the pass did not cover.
+
+1. **`Part`'s tenancy was unclassified.** Schema and Migration Control names the
+   merchant-scoped column and lists the platform-wide tables that carry none —
+   `Supplier`, `AuditLog`, `PlatformSetting`, and `ContactMessage` — but `Part`,
+   the twelfth entity, appeared in neither list. `docs/architecture.md` sharpened
+   the omission into a contradiction: "The merchant-scoped tables are **exactly**
+   `Catalog`, `Bookmark`, `Notification`, `Conversation`, `Message`, and
+   `Session`". The ambiguity is consequential, not cosmetic: the public Parts
+   table shows every part to every merchant and to a guest, so a reader who
+   classified `Part` as merchant-owned would make the product's own read path
+   violate the isolation invariant that follows in the same section. `User` was
+   the only other entity in neither list; its place is self-evident and already
+   stated — the rule opens by declaring that a tenant identifier *is* the `User`
+   identifier — so it is the tenant root rather than scoped data, and the record
+   names it so the classification is a complete partition of the twelve entities.
+2. **Governance's enumeration of binding sections omitted `Glossary`**, although
+   `Glossary` states a MUST ("a feature MUST use a term as defined rather than a
+   synonym for it"). The section was binding through the paragraph above it; the
+   list simply did not name it.
+3. **Principle V carried an invalid CSS example.** A fixed-angle direction was
+   written `to 90deg`; an angle is written `90deg` and `to` takes a side-or-corner
+   keyword, so the example could not be executed as written inside a
+   NON-NEGOTIABLE principle.
+4. **The multi-select filter's "no selection" semantics was stated two ways.**
+   Product Scope and Product Features #7 said "no selection means every
+   **supplier**"; Design System Standards said "no selection meaning every
+   **value**". The filters span four dimensions, so only the general wording is
+   true of all four.
+5. **Breakpoints read as forbidding tokens that Decision values binds.** It said
+   the screen ladder, `--sidebar-width`, `--navbar-height`, and `--touch-floor`
+   "MAY not be relied on" while Decision values fixes two of those values and
+   Principle IX requires them.
+6. **`--text-2xs-tight` sat outside the Typography register.** The row resolves
+   sizes with the range `--text-4xs` … `--text-6xl`, which yields the ladder
+   steps and not a `-tight` variant, and the row's own rule requires a one-off
+   token to be written out in full.
+
+**Decision.**
+
+1. **`Part` is classified as platform-wide-readable.** Schema and Migration
+   Control now states that a part is read by every merchant and by a guest
+   through the public Parts table, so a merchant-scoped `parts` read would
+   contradict Product Scope; `Part` carries no `user_id`, the merchant scope of a
+   part is carried by the `Catalog` it belongs to, and the isolation rule does not
+   treat the parts read path as a merchant-scoped path. `docs/domain-model.md`'s
+   merchant-ownership note adds `Part` to the tables that carry no `user_id`, and
+   `docs/architecture.md`'s cross-cutting bullet does the same, so all three
+   documents state one classification. The same three documents also name
+   **`User` as the tenant root** — the row a `user_id` references, scoped by its
+   own identifier rather than by a foreign key to itself — so the classification
+   now covers all twelve entities: six merchant-scoped, five platform-wide, and
+   the tenant root.
+2. `Glossary` is added to Governance's list of binding sections.
+3. Principle V's example is corrected to `` `90deg` ``.
+4. Product Scope's Parts row and Product Features #7 now read "no selection means
+   every value of that filter"; the two mirrors carry the same wording
+   (`Core-Project.txt` §5 page 2 and §12 feature 7; `ROADMAP.md` R5).
+5. Breakpoints now forbids relying on a token **as a wired value** until its
+   module wires it to a media query, and states that `--sidebar-width`,
+   `--navbar-height`, and `--touch-floor` keep the values Decision values and
+   Principle IX fix.
+6. `--text-2xs-tight` is named in the Typography row, beside the four aliases the
+   row already names for the same reason.
+7. **The constitution moves 2.25.0 → 2.26.0.** The footer and
+   `.specify/memory/version.json` move together, this record is the durable
+   record, and every live `ADR-001 … ADR-0NN` range string moves to
+   **ADR-001 … ADR-070** (`AGENTS.md`, `README.md`, `ROADMAP.md`,
+   `docs/architecture.md`, and the `spec-template.md` and `checklist-template.md`
+   overrides). `Project-Technologies.txt`'s header ADR list gains ADR-070.
+
+**What deliberately did not change.** No principle was added, removed, renamed,
+or redefined; item 1 expands the Schema section's guidance and does not move a
+principle. No entity, page, feature, Usage Limit, module, or slice number
+changed, and no slice's `Depends on` edge changed. `wafar.single.css` is
+untouched: the six findings are defects of the register, and the stylesheet
+already behaves as the corrected text describes. **The two Unresolved-facts
+tables were not merged.** The constitution's five rows and
+`docs/domain-model.md`'s thirteen are deliberately on two levels — a product fact
+binding in the register, and a field-level fact carried by the model and mirrored
+in `ROADMAP.md` → Open data-model questions — and `domain-model.md` records the
+split; the audit that produced this record briefly read the difference as a gap
+and retracted that reading on finding the split documented.
+
+**Alternatives considered.**
+- *Classify `Part` as merchant-scoped (carry `user_id`).* Rejected: the public
+  Parts table is read by every merchant and by a guest, so a merchant-scoped
+  `parts` read would contradict Product Scope and break the product's core read
+  path. The catalog already carries the merchant scope the part inherits.
+- *Leave `User` implicit.* Rejected: the rule reads as a partition of the twelve
+  entities, and naming the tenant root costs one clause while removing the last
+  entity that appears in neither list.
+- *Leave `Part` unclassified and let `docs/domain-model.md` decide.* Rejected:
+  the constitution requires a feature to be able to discharge every rule it must
+  obey from the constitution itself (Single-Reference Sufficiency), and the
+  classification decides whether the isolation test covers the parts read path —
+  a security-relevant question cannot be left to inference.
+- *Move the model's rows 9–11 into the constitution's Unresolved product facts
+  table.* Rejected: the two-level split is deliberate and documented; merging it
+  would create the second source the split exists to avoid.
+- *Keep "every supplier" and correct the design-system sentence instead.*
+  Rejected: the filters span car model, type, catalog file, and supplier, so
+  "every supplier" is false for three of the four; the general wording is the one
+  that is true everywhere.
+- *Delete the unused tokens from `wafar.single.css` instead of clarifying the
+  Breakpoints sentence.* Rejected: the tokens' values are binding decisions that
+  Principle IX and Decision values depend on; only the phrasing that made them
+  unusable was wrong.
+- *Bump to 2.25.1 (PATCH).* Rejected: item 1 is a material expansion of binding
+  guidance, which the versioning policy classifies MINOR; items 2–6 are
+  clarifications that ride in the same amendment.
+
+**Consequences.** A feature planning R5 or R2 can now discharge the tenancy of
+`Part` from the constitution alone, and the isolation test's scope is stated
+rather than inferred. The three documents that describe the data model agree on
+one classification of the twelfth entity. `Glossary` is named where the binding
+procedure is enumerated, the one unexecutable example is fixed, the filter
+semantics reads one way across the constitution and both mirrors, the design
+system's binding values are no longer in apparent conflict with the paragraph
+that reports their wiring state, and the stylesheet's full text-token inventory
+is registered. All twelve entities are now classified — six merchant-scoped,
+five platform-wide, and the tenant root — so the isolation test's scope is
+decidable from the constitution alone. The two version sources agree at
+**2.26.0**. This entry is the durable record.

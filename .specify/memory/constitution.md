@@ -208,7 +208,7 @@ surface.
   `inset-inline-start` and `inset-inline-end` functions, or a `to inline-start`
   or `to inline-end` gradient direction. A direction that is *not* derived from
   the writing mode — a sheen, a vignette, a scanline, a surface highlight, a
-  decorative wash — MUST state an explicit angle in degrees (`to 90deg`), MUST
+  decorative wash — MUST state an explicit angle in degrees (`90deg`), MUST
   NOT be flipped to match a logical neighbour, and MUST NOT be read as an
   indicator. An explicit angle is not a physical direction under this rule,
   because it fixes the design instead of reading the writing mode, and that is
@@ -407,7 +407,7 @@ Complexity Tracking table.
 | Page | Content |
 |---|---|
 | Home | Platform name, quick search field, four statistical cards (accounts, files, parts, searches). |
-| Parts | A search field covering part number and original number (partial match), multi-select filters (car model, type, catalog file, supplier, in which no selection means every supplier), a price filter taking a minimum and a maximum, a parts table showing every column at all times — part number, name, car model, original number, type, price, the supplier's name, and the cart control — pagination (20/50/100), and column sorting on every column except type. Accepts `?file=<id>` to filter by a catalog. The price column, and any filter or sort over it, are rendered for a registered merchant only; a guest receives the same table and the same filters without them. |
+| Parts | A search field covering part number and original number (partial match), multi-select filters (car model, type, catalog file, supplier, in which no selection means every value of that filter), a price filter taking a minimum and a maximum, a parts table showing every column at all times — part number, name, car model, original number, type, price, the supplier's name, and the cart control — pagination (20/50/100), and column sorting on every column except type. Accepts `?file=<id>` to filter by a catalog. The price column, and any filter or sort over it, are rendered for a registered merchant only; a guest receives the same table and the same filters without them. |
 | Catalog | Table of every uploaded catalog file. |
 | Contact | Contact information and a form (name, phone, body) that reaches the administrator. |
 | Log In | Mobile number and password. |
@@ -475,7 +475,7 @@ implemented through a specification that references this list.
 | 4 | Column Normalisation | Across sources, including the merged and overlapping source columns some suppliers print. Every extracted value is assigned to the canonical column the Glossary fixes for a part, and the six canonical columns are the whole of a part: no description is extracted or stored. |
 | 5 | Deduplication | By file, by page, by row. |
 | 6 | Arabic Search | Root-aware (طرمبة → طرمبات). |
-| 7 | Multi-Filter Search | Part number and original number through the search field, plus multi-select filters over car model, type, catalog file, and supplier, in which no selection means every supplier, and a price range. |
+| 7 | Multi-Filter Search | Part number and original number through the search field, plus multi-select filters over car model, type, catalog file, and supplier, in which no selection means every value of that filter, and a price range. |
 | 8 | Tables | Every data view. |
 | 9 | Pagination | 20 / 50 / 100. |
 | 10 | Column Sorting | By clicking the header, on every column of the parts table except `type`, which is free text whose alphabetical order carries no meaning. |
@@ -814,7 +814,15 @@ schema should contain; see Deferred areas.
   reason: it is a public intake whose submitter may hold no account at all, its
   only read path is the administrator's, and no query reaches it from a merchant
   session, so a scoping column on it could never be used as a scoping key
-  (ADR-053).
+  (ADR-053). `Part` is in the same category for a product reason rather than an
+  intake one: a part is read by every merchant and by a guest through the public
+  Parts table, so a merchant-scoped `parts` read would contradict Product Scope.
+  `Part` therefore carries no `user_id`; the merchant scope of a part is carried
+  by the `Catalog` it belongs to, and the isolation rule below does not treat the
+  parts read path as a merchant-scoped path. `User` is a third case, named so the
+  classification covers every entity: it is the tenant root, the row a `user_id`
+  points at, so it carries no `user_id` of its own and its own row is scoped by
+  its identifier rather than by a foreign key to itself (ADR-070).
 - Every read and write of merchant-owned data MUST be merchant-scoped, and the
   scoping MUST be applied at a single shared entry point rather than repeated
   at each call site. A query path reachable from a merchant session MUST NOT
@@ -1388,7 +1396,9 @@ change.
   `--font-display`, `--font-mono`. Four aliases name a size role rather than a
   step, and each is named here because none of them follows a step pattern:
   `--text-body-line-height`, `--text-heading-line-height`,
-  `--text-body-letter-spacing`, and `--text-heading-letter-spacing`. The line-wrap
+  `--text-body-letter-spacing`, and `--text-heading-letter-spacing`. One size
+  token also sits outside the step ladder and is named here for the same reason:
+  `--text-2xs-tight`. The line-wrap
   set `--wrap-normal`, `--wrap-tight`, and `--wrap-loose`
   is the `text-wrap` family and belongs to this row rather than to motion, because
   each value names a wrapping behaviour and not a duration. A one-off token whose
@@ -1538,9 +1548,12 @@ band. The token ladder names them, and the mapping below is binding:
 | `--screen-3xl` | 1920px | yes |
 
 The stylesheet contains no `var(--screen-*)` reference: every token in the ladder
-is declared-but-unused, so none of them MAY be relied on until the module that
-owns it wires it to a media query. The same holds for `--sidebar-width`,
-`--navbar-height`, and `--touch-floor` (and its `-sm`/`-lg`/`-xs` siblings).
+is declared-but-unused, so none of them MAY be relied on as a wired value until
+the module that owns it wires it to a media query. The same holds for
+`--sidebar-width`, `--navbar-height`, and `--touch-floor` (and its `-sm`/`-lg`/`-xs`
+siblings): their values are fixed by Decision values and by Principle IX, but a
+surface MUST NOT assume the token is already consumed by a media query or a
+layout rule.
 
 The shadow ladder is **not** in that state, and this paragraph does not claim it
 is. The size ladder `--shadow-xs` through `--shadow-2xl` and the named shadows
@@ -1944,7 +1957,7 @@ Identity, Authentication, and Session Policy, Authorization and Access Control,
 Performance Budgets and Verification, Dependency Governance, Module Discipline
 and Development Workflow, Project Structure and Debt Control, Documentation,
 Deployment and Observability, Technology Standards, Design System Standards,
-Product Scope, Product Register, Single-Reference Sufficiency, File
+Glossary, Product Scope, Product Register, Single-Reference Sufficiency, File
 Processing Overview, Artifact Workflow and Traceability, and Product Fact
 Clarifications. This adjudication spans all ten principles — I. Evident,
 Traceable Change; II. Strict Type Safety; III. Measured Test Coverage; IV.
@@ -2085,4 +2098,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.25.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-07
+**Version**: 2.26.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-08

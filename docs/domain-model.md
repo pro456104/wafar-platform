@@ -140,15 +140,23 @@ service layer re-checks the ones a constraint cannot express.
   `Message`, and `Session`. The constitution's Schema and Migration
   Control names this scoping; ADR-051 is its record, and ADR-053 corrects the one
   entry in it that this document contradicted.
-- **`Supplier`, `AuditLog`, `ContactMessage`, and `PlatformSetting` carry no
-  `user_id`.** `Supplier` is platform-wide — one company can appear in many
-  merchants' catalogs — and `AuditLog` records administrator operations, which
-  have no merchant owner. `ContactMessage` is a public intake: the submitter may
-  be a guest who holds no row, the fields the product fixes for it are the name
-  and phone it carries *instead of* a foreign key, and its only read path is the
-  administrator's "Contact messages" page. `PlatformSetting` is one set for the
-  whole platform. None of the four is merchant-scoped, and no isolation test
-  covers any of them.
+- **`Supplier`, `AuditLog`, `ContactMessage`, `PlatformSetting`, and `Part`
+  carry no `user_id`.** `Supplier` is platform-wide — one company can appear in
+  many merchants' catalogs — and `AuditLog` records administrator operations,
+  which have no merchant owner. `ContactMessage` is a public intake: the
+  submitter may be a guest who holds no row, the fields the product fixes for it
+  are the name and phone it carries *instead of* a foreign key, and its only read
+  path is the administrator's "Contact messages" page. `PlatformSetting` is one
+  set for the whole platform. **`Part` is platform-wide-readable for a product
+  reason**: the public Parts table shows every part to every merchant and to a
+  guest, so a merchant-scoped `parts` read would contradict Product Scope; the
+  merchant scope of a part is carried by its `Catalog`, and the isolation test
+  does not treat the parts read path as merchant-scoped (ADR-070). None of the
+  five is merchant-scoped, and no isolation test covers any of them.
+- **`User` is the tenant root, named so the classification is complete.** It is
+  the row a `user_id` references, so it carries no `user_id` of its own and its
+  own row is scoped by its identifier rather than by a foreign key to itself; it
+  is neither merchant-scoped nor platform-wide (ADR-070).
 - **Every index serving a merchant-scoped query leads with `user_id`.** An
   index that does not lead with the scoping column cannot serve the scoped read
   without a filter the planner has to apply after the fact.

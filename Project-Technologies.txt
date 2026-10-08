@@ -1,8 +1,8 @@
 # Project-Technologies.txt — the detail of the technology register
 
 **Constitution**: `.specify/memory/constitution.md` (current version: its footer
-or `.specify/memory/version.json`; last amended 2026-10-07,
-ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064/065/066/067/068/069). On any conflict with this file, the constitution
+or `.specify/memory/version.json`; last amended 2026-10-08,
+ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064/065/066/067/068/069/070). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
