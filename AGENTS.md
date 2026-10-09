@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-088; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-091; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -147,7 +147,7 @@ and its `requires.integrations.any` list must stay correctly nested under
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-088` range string — in the required files, under `docs/`, in
+live `ADR-001 … ADR-091` range string — in the required files, under `docs/`, in
 the two Arabic mirrors, and in the template overrides — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading, and
 every heading against the index; every `ADR-NNN` reference against the index; the
@@ -213,20 +213,22 @@ runner (R1) wires it into continuous integration.
   requires recording the owner and the requirement it serves. It is reserved,
   not an open gap.
 
-- **Twenty-three decision records carry no `Alternatives considered` section.**
-  Documentation requires every non-trivial technical decision to record the
-  alternatives considered. Most of the twenty-three are amendment records, for
-  which that field is not the right shape, and their reasoning was never captured
-  — so writing the sections now would be the reconstruction ADR-050 refused to
-  present as contemporaneous. The debt is deliberately kept open, and is recorded
-  here so a reader meets it without reading `docs/DECISIONS.md` → ADR-054's
-  annotation (ADR-088).
+- **Twenty-three decision records carry no `Alternatives considered` section
+  (closed 2026-10-09, ADR-090).** The Documentation rule now states its own
+  subject: the field reaches a non-trivial technical decision, and a governance
+  record — one whose subject is the constitution's own text, a register, the
+  process, or the governance tooling — is outside its reach. The twenty-three
+  are governance records, so the field never reached them and no section is
+  reconstructed; the debt is closed. The entry is kept so a reader meets the
+  closure without reading `docs/DECISIONS.md` → ADR-090.
 
-- **The constitution's stamp-site list has not been moved out of the
-  constitution.** ADR-064 deferred it — "That list is the paragraph that governs
-  itself, and moving it is a Governance amendment in its own right" — so it is an
-  owned, unscheduled amendment rather than a defect. It is recorded here so it is
-  not lost (ADR-088).
+- **The constitution's stamp-site list stays in the constitution (decided
+  2026-10-09, ADR-091).** ADR-064 deferred moving it as "a Governance amendment
+  in its own right". ADR-091 decided to keep it: the paragraph declares itself
+  the single authority for the version sources, so relocating it to a
+  lower-precedence document would create a lower-precedence authority governing
+  the constitution and contradict Governance's precedence rule. The debt is
+  closed by that decision, not by a move.
 
 ## 7. Before reporting a change complete
 

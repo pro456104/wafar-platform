@@ -35,7 +35,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-088) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-091) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -131,13 +131,13 @@ carried. Each names the slice that closes it.
 | # | Defect | Closed by |
 |---|--------|-----------|
 | 1 | The My Files page had no owning slice; the file-intake slice's scope boundary excluded it | R4 |
-| 2 | Six register gaps were assigned to "the first deploying slice" or "the first slice that introduces the test runner", which no slice satisfied | R1 (test runner, CI, accessibility checker, icon set, backup tooling) · R2 (content-type validation) · R3 (extraction libraries, Redis client library, OpenSearch client library) · R5 (Arabic analyzer) · R12 (the rest: deploying slice) |
+| 2 | Six register gaps were assigned to "the first deploying slice" or "the first slice that introduces the test runner", which no slice satisfied | R1 (continuous-integration provider) · R12 (error tracker, secret manager, TLS certificate management, log pipeline, load-test tool) |
 | 3 | The sidebar conflict was assigned to "the first surface that lays out a page", which no slice satisfied | Closed by ADR-017 (2026-10-03); no slice owns it |
 | 4 | The administrator slice did not depend on the extraction slice whose output it administers | R13 |
 | 5 | The administrator slice shipped operations before the audit log existed, though every administrator operation must be recorded | R13 records each operation; R14 is the read surface |
 | 6 | The contact form reaches the administrator, but no administrator page receives it | Closed 2026-10-03 by ADR-028: a dedicated Contact messages page (owned by R13, decided in ADR-028) |
 | 7 | The application shell had no owner, so every browser-facing slice would rebuild it | R1 |
-| 8 | The sub-spec `Input` convention was stated in two different forms, and the binding template carried neither | Fixed 2026-10-03 in `.specify/templates/overrides/spec-template.md` |
+| 8 | The sub-spec `Input` convention was stated in two different forms | Fixed 2026-10-03 in `.specify/templates/overrides/spec-template.md` |
 | 9 | The icon set was assigned to the parts-search slice, but the shell needs it first | R1 |
 | 10 | The Sync Impact Report was committed into the constitution | Fixed 2026-10-03 |
 | 11 | The product mirror listed five catalog status values, and pre-empted two facts the constitution assigns to R9 and R15 | Fixed 2026-10-03 in `Core-Project.txt` |

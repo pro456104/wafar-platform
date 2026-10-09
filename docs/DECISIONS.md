@@ -124,6 +124,9 @@ from the index rather than edited in its own words.
 | [ADR-086](#adr-086--deep-audit-fix-set-licensing-ownership-drift-check-coverage-and-tooling-pins) | Deep-audit fix set: licensing ownership, drift-check coverage, and tooling pins | 2026-10-09 | 2.28.5 |
 | [ADR-087](#adr-087--the-projects-licence-proprietary-all-rights-reserved) | The project's licence: proprietary, all rights reserved | 2026-10-09 | 2.28.5 (unchanged) |
 | [ADR-088](#adr-088--governance-debt-status-and-the-integration-topology-check) | Governance-debt status, and the integration-topology check | 2026-10-09 | 2.28.6 |
+| [ADR-089](#adr-089--roadmap-defect-table-precision-fix-set) | Roadmap defect-table precision fix set | 2026-10-09 | 2.28.6 (unchanged) |
+| [ADR-090](#adr-090--the-documentation-rule-reaches-technical-decisions) | The Documentation rule reaches technical decisions | 2026-10-09 | 2.29.0 |
+| [ADR-091](#adr-091--the-stamp-site-list-stays-in-the-constitution) | The stamp-site list stays in the constitution | 2026-10-09 | 2.29.0 (unchanged) |
 
 ---
 
@@ -6478,3 +6481,196 @@ debts that remain open are findable from the entry point, and four files that st
 one fact are compared by a gate instead of by discipline. The check reports clean
 with the index ending at ADR-088 and every live range string reading
 `ADR-001 … ADR-088`. This entry is the durable record.
+
+---
+
+## ADR-089 — Roadmap defect-table precision fix set
+
+**Status**: Accepted — 2026-10-09
+**Owning directory**: `ROADMAP.md`, `docs/`, `Project-Technologies.txt`, `AGENTS.md`, `README.md`, `.specify/templates/overrides/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A deep audit of `ROADMAP.md`'s own "Defects in the slice order"
+table on 2026-10-09 found three precision defects in the table itself, plus a
+stale date in the technology mirror. The defects were found by checking the
+table's claims against the sources it cites, not by reading the table:
+
+1. **Defect #2's closure cell over-listed.** The defect names "Six register
+   gaps", and the count is correct — the constitution's Register gaps table
+   names exactly five rows assigned to "the first deploying slice" (error
+   tracker, secret manager, TLS certificate management, log pipeline, load-test
+   tool) and one to "the first slice that introduces the test runner" (the
+   continuous-integration provider). But the "Closed by" cell enumerated ten
+   items and omitted the SMS provider and SBOM generator that R1 owns directly.
+2. **Defects #8 and #13 stated the same fact.** Both said the binding template
+   did not carry the sub-spec `Input` line.
+3. **The icon set appeared in both #2 and #9.**
+4. **The mirror's date was stale.** `Project-Technologies.txt` read "last
+   amended 2026-10-08" while the constitution's footer and `.specify/memory/version.json`
+   both read 2026-10-09.
+
+**Decision.**
+
+1. Defect #2's "Closed by" cell is corrected to name exactly the six register
+   gaps that named a phantom owner: the continuous-integration provider (R1) and,
+   for R12, the error tracker, secret manager, TLS certificate management, log
+   pipeline, and load-test tool. The over-listed items are removed.
+2. Defect #8 keeps only "the sub-spec `Input` convention was stated in two
+   different forms"; the binding-template statement belongs to #13 alone.
+3. The icon set is named only in defect #9; it leaves defect #2's cell.
+4. `Project-Technologies.txt`'s "last amended" date is corrected from 2026-10-08
+   to 2026-10-09, to agree with the constitution's footer and `version.json`.
+5. The ADR-020, ADR-021, and ADR-022 "reconstructed" markers are accurate as
+   they stand (ADR-086) and are left unchanged; no original has surfaced.
+6. Every live `ADR-001 … ADR-0NN` range string moves to ADR-089, and
+   `Project-Technologies.txt`'s header ADR list gains ADR-089.
+
+**What deliberately did not change.** The sixteen-defect count, the slice order,
+every slice and its `Depends on` edges, and the First obligations rows are
+untouched. No principle, section heading, register row, Product Scope item,
+entity, page, feature, Usage Limit, module-map row, or design value changed, so
+the constitution is not amended and stays **2.28.6**. No slice was added,
+removed, renumbered, or reordered.
+
+**Alternatives considered.**
+
+- *Rewrite defect #2 to enumerate every register gap.* Rejected: the defect's
+  subject is the six gaps assigned to phantom owners, not the register's full
+  gap set; the constitution's Register gaps table already carries the complete
+  list, and repeating it here would be a second source that drifts.
+- *Merge defects #8 and #13 into one row.* Rejected: merging would change the
+  sixteen-row count the governance text states in prose (gate G), and the two
+  rows record two distinct findings.
+- *Move the constitution's stamp-site list in this change.* Rejected: ADR-064
+  recorded that as a Governance amendment in its own right, so it is a separate
+  change and not this record's subject.
+- *Leave the mirror's stale date.* Rejected: a date that disagrees with both
+  version sources is the class of drift the check exists to catch, even where no
+  gate reads this file's date.
+
+**Consequences.** The defect table names exactly what each defect closed, the
+two `Input`-line defects are distinct, the mirror's date agrees with the two
+version sources, and the check reports clean with the index ending at ADR-089 and
+every live range string reading `ADR-001 … ADR-089`. This entry is the durable
+record.
+
+---
+
+## ADR-090 — The Documentation rule reaches technical decisions
+
+**Status**: Accepted — 2026-10-09
+**Owning directory**: `.specify/memory/`, `docs/`, `AGENTS.md`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** Twenty-three decision records carry no `Alternatives considered`
+section: ADR-011, ADR-012, ADR-013, ADR-014, ADR-017, ADR-018, ADR-020, ADR-021,
+ADR-022, ADR-023, ADR-024, ADR-025, ADR-026, ADR-027, ADR-028, ADR-029, ADR-035,
+ADR-036, ADR-037, ADR-038, ADR-044, ADR-045, and ADR-046. The Documentation rule
+requires the field "for every non-trivial technical decision". Writing the
+sections now would be the reconstruction ADR-050 refused to present as
+contemporaneous. ADR-088 recorded the debt as deliberately open and named the only
+honest closure — narrowing the rule to its own subject — while leaving it to a
+separate amendment rather than folding it into a status record.
+
+**Decision.**
+
+1. The Documentation rule is clarified: the `Alternatives considered` field
+   reaches a non-trivial **technical** decision — a product or engineering
+   choice. A **governance record**, whose subject is this constitution's own
+   text, a register, the process, or the governance tooling rather than a product
+   or engineering choice, is not a technical decision and is outside the field's
+   reach. A section is not written for such a record after the fact, because that
+   would be reconstruction rather than a record.
+2. The twenty-three records above are governance records under that reading, so
+   the field never reached them. The debt is **closed**; no section is
+   reconstructed.
+3. `AGENTS.md` §6's entry is updated to record the closure.
+4. The constitution moves to **2.29.0** (MINOR: the change narrows the reach of a
+   binding MUST, a semantic change, not a wording or citation refinement). The
+   footer and `.specify/memory/version.json` move together, and `version.json`'s
+   `recorded_by` becomes ADR-090.
+5. Every live `ADR-001 … ADR-0NN` range string moves to ADR-090, and
+   `Project-Technologies.txt`'s header ADR list gains ADR-090.
+
+**What deliberately did not change.** No principle, section heading, register
+row, Product Scope item, entity, page, feature, Usage Limit, module-map row,
+design value, slice, or slice dependency changed. The twenty-three records
+themselves are untouched. The rule's obligation for a technical decision is
+unchanged: a product or engineering decision still MUST record its alternatives,
+and every bootstrap record that carries the section keeps it.
+
+**Alternatives considered.**
+
+- *Write the twenty-three missing sections.* Rejected: ADR-050 already refused to
+  present reconstruction as contemporaneous reasoning, and those alternatives
+  were never captured.
+- *Grandfather the twenty-three by number and require the field from ADR-090
+  onward.* Rejected: a number-based cut-off would leave a future governance
+  record in doubt and would not state why the field does not reach it; the
+  subject test is the durable rule.
+- *Leave the debt open.* Rejected: ADR-088 named narrowing the rule as the only
+  honest closure and made the debt findable; this record completes it.
+- *Bump PATCH instead of MINOR.* Rejected: the change narrows the reach of a
+  binding MUST, which is a semantic change; PATCH is reserved for clarifications
+  and citations that leave scope untouched.
+
+**Consequences.** The Documentation rule states its own subject, the
+twenty-three-record debt is closed without reconstruction, `AGENTS.md` §6 records
+the closure, the constitution moves to 2.29.0, and the check reports clean with
+the index ending at ADR-090 and every live range string reading
+`ADR-001 … ADR-090`. This entry is the durable record.
+
+---
+
+## ADR-091 — The stamp-site list stays in the constitution
+
+**Status**: Accepted — 2026-10-09
+**Owning directory**: `docs/`, `AGENTS.md`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** The Governance section's stamp-site paragraph — the numbered list of
+the version's two sources and the durable record, at `.specify/memory/constitution.md`
+→ Governance — has been recorded since ADR-064 as an amendment "in its own right"
+whose relocation was deferred. `AGENTS.md` §6 carried it as an owned, unscheduled
+amendment so it would not be lost. No record had decided whether the list should
+move or stay.
+
+**Decision.**
+
+1. The stamp-site list stays in the constitution. It is not moved to another
+   document.
+2. The reason is that the paragraph declares itself "the single authority for
+   those sources"; relocating it to a document of lower precedence would place a
+   lower-precedence authority over the constitution's own version sources and
+   contradict Governance's precedence rule (constitution, then agent instruction
+   files, then the readme, then any other guidance). The list is a Governance
+   MUST binding this document, so it belongs in this document, and gate A of the
+   drift check already enforces the two sources mechanically.
+3. `AGENTS.md` §6's entry is updated to record the decision.
+4. The debt is **closed** by the decision; no further amendment is owed.
+5. Every live `ADR-001 … ADR-0NN` range string moves to ADR-091, and
+   `Project-Technologies.txt`'s header ADR list gains ADR-091.
+
+**What deliberately did not change.** The constitution's text is unchanged, so it
+stays **2.29.0**. No principle, section heading, register row, Product Scope item,
+entity, page, feature, Usage Limit, module-map row, design value, slice, or slice
+dependency changed.
+
+**Alternatives considered.**
+
+- *Move the list to a separate governance file.* Rejected: it would create a
+  lower-precedence authority over the version sources and contradict Governance's
+  precedence rule; the paragraph's own self-declaration as the single authority is
+  the reason it stays.
+- *Move it into `AGENTS.md`.* Rejected for the same reason: `AGENTS.md` is an
+  agent instruction file, below the constitution in precedence.
+- *Leave the debt open as an unscheduled amendment.* Rejected: the audit's goal
+  is closure; the decision to keep the list is itself the closure, and it costs no
+  rule change.
+- *Fold this into ADR-090.* Rejected: ADR-090's subject is the Documentation
+  rule; bundling a Governance decision with it would misstate what each covers.
+
+**Consequences.** The stamp-site list's home is decided rather than pending,
+`AGENTS.md` §6 records the decision, the constitution stays 2.29.0, and the check
+reports clean with the index ending at ADR-091 and every live range string reading
+`ADR-001 … ADR-091`. This entry is the durable record.

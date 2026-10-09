@@ -1137,7 +1137,13 @@ after the author has moved on.
 
 - Architecture Decision Records MUST be written for every non-trivial
   technical decision, recording the alternatives considered and why the
-  chosen one won. A decision whose rationale lives only in a commit message
+  chosen one won. The field reaches a technical decision — a product or
+  engineering choice. A governance record, whose subject is this
+  constitution's own text, a register, the process, or the governance tooling
+  rather than a product or engineering choice, is not a technical decision and
+  is outside the field's reach; a section is not written for such a record
+  after the fact, because that would be reconstruction rather than a record
+  (ADR-090). A decision whose rationale lives only in a commit message
   or a conversation is not recorded. The record MUST be committed under the
   directory that owns the decision, and the owning feature MUST be named in
   the record.
@@ -2147,4 +2153,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.28.6 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-09
+**Version**: 2.29.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-09
