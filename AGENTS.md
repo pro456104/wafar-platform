@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-086; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-087; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -147,7 +147,7 @@ and its `requires.integrations.any` list must stay correctly nested under
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-086` range string — in the required files, under `docs/`, in
+live `ADR-001 … ADR-087` range string — in the required files, under `docs/`, in
 the two Arabic mirrors, and in the template overrides — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading, and
 every heading against the index; every `ADR-NNN` reference against the index; the

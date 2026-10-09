@@ -35,7 +35,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-086) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-087) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -72,7 +72,7 @@ an owner.
 
 | Duty | Owning slice | Constitution reference |
 |---|---|---|
-| The project's own `LICENSE` file and the licence it carries — no rule and no slice owned it before ADR-086 | Repository owner (the licence decision); R1 (commits it with the workspace) | No constitutional rule names it; ADR-086 records the gap and its owner |
+| The project's own `LICENSE` file and the licence it carries — no rule and no slice owned it before ADR-086 | **Decided 2026-10-09**: the repository owner chose proprietary, all rights reserved; ADR-087 added the `LICENSE` file at the repository root | No constitutional rule names it; ADR-086 recorded the gap and its owner, ADR-087 records the decision |
 | The workspace, `packages/config`, and the shared tooling | R1 | Technology Standards → repository topology; `docs/architecture.md` |
 | The eight API modules R1 does not create, each with its `apps/api/src/modules/<module>/` directory: `catalogs` (R2), `parts` and `suppliers` (R3), `bookmarks` (R8), `notifications` (R9), `messages` (R10), `support` (R11), and `admin` (R11 creates its `PlatformSetting` read surface; R13 extends it) | R2, R3, R8, R9, R10, R11, R13 | Principle X (the module list); Technology Standards → Internal layout; Project Structure and Debt Control (one owning feature per directory) |
 | The `packages/db/schema/<module>.ts` file each module first writes — R1 writes `users.ts` and `auth.ts`, R2 `catalogs.ts`, R3 `parts.ts` and `suppliers.ts`, R8 `bookmarks.ts`, R9 `notifications.ts`, R10 `messages.ts`, R11 `support.ts` and `admin.ts`, and R13 extends the `admin` module — with the overlaps named: `packages/db/schema/admin.ts` and the `admin` module's read surface are created by R11 for `PlatformSetting`, while R13 extends the same module with the administrator's write surface (ADR-077), and R4 extends the `catalogs` module R2 creates | R1, R2, R3, R8, R9, R10, R11, R13 | Technology Standards → Internal layout (Database ownership); Schema and Migration Control |

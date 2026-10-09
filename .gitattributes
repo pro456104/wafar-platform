@@ -31,6 +31,7 @@
 # a CRLF version file is read back with a trailing carriage return.
 .githooks/**  text eol=lf
 .nvmrc        text eol=lf
+LICENSE       text eol=lf
 
 # PowerShell is a Windows-first runtime: keep CRLF.
 *.ps1   text eol=crlf

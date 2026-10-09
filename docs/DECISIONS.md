@@ -122,6 +122,7 @@ from the index rather than edited in its own words.
 | [ADR-084](#adr-084--the-drift-checks-adr-citations-unified) | The drift check's ADR citations unified | 2026-10-08 | 2.28.4 |
 | [ADR-085](#adr-085--roadmap-slice-description-precision-fix-set) | Roadmap slice-description precision fix set | 2026-10-08 | 2.28.4 (unchanged) |
 | [ADR-086](#adr-086--deep-audit-fix-set-licensing-ownership-drift-check-coverage-and-tooling-pins) | Deep-audit fix set: licensing ownership, drift-check coverage, and tooling pins | 2026-10-09 | 2.28.5 |
+| [ADR-087](#adr-087--the-projects-licence-proprietary-all-rights-reserved) | The project's licence: proprietary, all rights reserved | 2026-10-09 | 2.28.5 (unchanged) |
 
 ---
 
@@ -6225,7 +6226,9 @@ defect the check cannot see, and it found four:
    `LICENSE` file and the licence it carries to the repository owner (the
    decision) and to R1 (it is committed with the workspace). No `LICENSE` file is
    created by this record: the grant a project makes is the owner's decision, not
-   an engineering choice.
+   an engineering choice. **Annotated 2026-10-09:** the owner made that decision
+   the same day — the project is proprietary, all rights reserved — and **ADR-087**
+   creates the file and records the choice.
 2. **Tooling pins.** `.nvmrc` pins Node 22 — the LTS ADR-021 already records.
    `.gitignore` gains the planned stack's build, store, cache, and log rules.
    `.gitattributes` gains `*.ts`, `*.tsx`, `*.vue`, `*.js`, `*.cjs`, `*.sql`, and
@@ -6312,4 +6315,55 @@ line-ending rules, and a check that runs on commit instead of on discipline. The
 check covers four invariants it could not see before and reports clean with the
 index ending at ADR-086 and every live range string reading `ADR-001 … ADR-086`.
 The licensing gap is visible and owned instead of implicit. This entry is the
+durable record.
+
+---
+
+## ADR-087 — The project's licence: proprietary, all rights reserved
+
+**Status**: Accepted — 2026-10-09
+**Owning directory**: repository root, `ROADMAP.md`, `docs/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** ADR-086 recorded that no rule and no slice owned the project's own
+licence, and reserved the decision to the repository owner. The repository carried
+no `LICENSE` file, so it granted nothing: neither a contributor, nor a dependency
+auditor, nor the owner's own future workspace could read what the project permits.
+The first slice that self-hosts a permissively-licensed icon set and fonts into
+the repository would have been doing so under an undefined grant.
+
+**Decision.** Wafar is **proprietary; all rights reserved**. A `LICENSE` file at
+the repository root states the grant explicitly: the repository is the copyright
+holder's own, no licence is granted by its publication, and no patent, trademark,
+or trade-secret licence is granted either. Third-party components stay governed by
+their own licences, recorded as Dependency Governance requires, and nothing in the
+notice overrides them. The notice names the project as the copyright holder; when
+a legal entity is registered it replaces the project name on that line, and that
+substitution is a change to this record's subject rather than a new decision.
+
+**What deliberately did not change.** No principle, entity, page, feature, Usage
+Limit, module, or slice changed; no slice's `Depends on` edge changed. No
+constitutional text is touched, so the constitution stays **2.28.5** and
+`version.json` does not move. The `ROADMAP.md` obligation row ADR-086 added stays
+in place: it named the owner and the gap, and the gap is now closed by a decision
+rather than by the row being removed.
+
+**Alternatives considered.**
+- *MIT.* Rejected: the product is a commercial platform built for Libyan
+  merchants. A permissive grant would license away rights the owner did not intend
+  to give, and it is not required to satisfy the licence of an icon set or a font
+  the project bundles.
+- *Apache-2.0.* Rejected for the same reason, and because its express patent grant
+  answers a risk a proprietary, unpublished repository does not carry.
+- *Defer the decision and leave the repository unlicensed.* Rejected: deferral is
+  what ADR-086 already did, and it leaves the repository granting nothing while R1
+  prepares to vendor third-party assets into it. The gap is closed by deciding,
+  not by waiting.
+- *Name no copyright holder, or leave a placeholder.* Rejected: a notice carrying
+  a placeholder is not a notice. The project name is the only holder identifier the
+  repository has; the legal entity replaces it when one exists.
+
+**Consequences.** The repository states its grant, and a contributor or an auditor
+can read it. Every live `ADR-001 … ADR-0NN` range string moves to **ADR-087**, and
+`Project-Technologies.txt`'s header ADR list gains ADR-087. This entry is the
 durable record.
