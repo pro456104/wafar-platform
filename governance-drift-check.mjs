@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * governance-drift-check.mjs — Wafar governance drift check
- * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086)
+ * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088)
  * -------------------------------------------------------------------
  * Read-only. Dependency-free. Runs on the pinned Node runtime.
  *
@@ -34,6 +34,9 @@
  *      caught
  *   H. `wafar.single.css` declares its own version and its module count in its
  *      header
+ *   I. the integration topology agrees across `integration.json`,
+ *      `init-options.json`, the integration directories in the tree, and the
+ *      bundled workflow's nesting
  *
  * Usage:  node governance-drift-check.mjs
  * Exit:   0 = clean, 1 = drift found.
@@ -540,6 +543,65 @@ if (!cssVersion) {
   failures.push('H: wafar.single.css carries no "الإصدار: X.Y.Z" header line');
 } else {
   notes.push(`H: wafar.single.css declares version ${cssVersion[1]}`);
+
+/* ---- I. the integration topology is consistent (ADR-088) ------------------ */
+// Four files state the same fact and nothing compared them: integration.json
+// lists the installed integrations, the default, and their settings; each
+// integration owns a command directory in the tree; init-options.json names the
+// integration the scaffold was built for; and the bundled workflow declares its
+// required integrations. The workflow's list is an advisory, non-exhaustive
+// compatibility hint by its own comment, so only its NESTING is checked here and
+// never its contents against the registry.
+const integrationJson = JSON.parse(read('.specify/integration.json'));
+const initOptions = JSON.parse(read('.specify/init-options.json'));
+const installedIntegrations = Array.isArray(integrationJson.installed_integrations)
+  ? integrationJson.installed_integrations
+  : [];
+if (installedIntegrations.length === 0) {
+  failures.push('I: integration.json lists no installed integration');
+}
+if (!installedIntegrations.includes(integrationJson.default_integration)) {
+  failures.push(
+    `I: integration.json's default "${integrationJson.default_integration}" is not among the installed integrations`,
+  );
+}
+if (initOptions.integration && !installedIntegrations.includes(initOptions.integration)) {
+  failures.push(
+    `I: init-options.json names the integration "${initOptions.integration}", which integration.json does not list`,
+  );
+}
+for (const name of Object.keys(integrationJson.integration_settings || {})) {
+  if (!installedIntegrations.includes(name)) {
+    failures.push(
+      `I: integration.json carries settings for "${name}", which it does not list as installed`,
+    );
+  }
+}
+for (const name of installedIntegrations) {
+  if (!existsSync(join(ROOT, `.${name}`))) {
+    failures.push(`I: integration.json lists "${name}" but .${name}/ is absent from the tree`);
+  }
+}
+for (const entry of readdirSync(ROOT)) {
+  if (!entry.startsWith('.') || !existsSync(join(ROOT, entry, 'commands'))) continue;
+  const bare = entry.slice(1);
+  if (!installedIntegrations.includes(bare)) {
+    failures.push(`I: ${entry}/commands/ exists but integration.json does not list "${bare}"`);
+  }
+}
+const workflowText = read('.specify/workflows/speckit/workflow.yml');
+if (
+  !/^requires:\s*$/m.test(workflowText) ||
+  !/^\s{2}integrations:\s*$/m.test(workflowText) ||
+  !/^\s{4}any:\s*$/m.test(workflowText)
+) {
+  failures.push(
+    'I: the bundled workflow no longer nests "requires.integrations.any" as ADR-072 fixed it',
+  );
+}
+notes.push(
+  `I: integration topology consistent (${installedIntegrations.join(', ')}; default ${integrationJson.default_integration})`,
+);
 }
 const cssModules = cssHeader.match(/الوحدات\s*الـ?\s*([0-9]+)/);
 if (!cssModules) {
@@ -551,7 +613,7 @@ if (!cssModules) {
 }
 
 /* ---- report --------------------------------------------------------------- */
-console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086)');
+console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088)');
 console.log('=====================================');
 for (const n of notes) console.log(`  ok   ${n}`);
 if (failures.length === 0) {

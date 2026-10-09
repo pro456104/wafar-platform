@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-087; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-088; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -143,11 +143,11 @@ key), so a `specify` upgrade may replace it; the project copy is the one to keep
 and its `requires.integrations.any` list must stay correctly nested under
 `integrations:` (ADR-072).
 
-**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086).** `governance-drift-check.mjs`
+**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088).** `governance-drift-check.mjs`
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-087` range string — in the required files, under `docs/`, in
+live `ADR-001 … ADR-088` range string — in the required files, under `docs/`, in
 the two Arabic mirrors, and in the template overrides — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading, and
 every heading against the index; every `ADR-NNN` reference against the index; the
@@ -163,8 +163,10 @@ constitution's Design System Standards names against `wafar.single.css`; the
 structural counts the governance text states in prose — slices, exception rows,
 principles, data entities, design-system modules, binding sections, API modules,
 pages, and product features — against the lists that enumerate them, with the
-binding-section set derived from the constitution's own headings; and
-`wafar.single.css`'s own declared version and module count. Run it with
+binding-section set derived from the constitution's own headings;
+`wafar.single.css`'s own declared version and module count; and the integration
+topology across `integration.json`, `init-options.json`, the integration
+directories in the tree, and the bundled workflow's nesting. Run it with
 `node governance-drift-check.mjs`; it exits non-zero on drift. It is wired into a
 committed `pre-commit` hook (`.githooks/`, enabled per clone with
 `git config core.hooksPath .githooks`), and the slice that introduces the test
@@ -210,6 +212,21 @@ runner (R1) wires it into continuous integration.
   with the integration, but no product requirement names it; adopting it later
   requires recording the owner and the requirement it serves. It is reserved,
   not an open gap.
+
+- **Twenty-three decision records carry no `Alternatives considered` section.**
+  Documentation requires every non-trivial technical decision to record the
+  alternatives considered. Most of the twenty-three are amendment records, for
+  which that field is not the right shape, and their reasoning was never captured
+  — so writing the sections now would be the reconstruction ADR-050 refused to
+  present as contemporaneous. The debt is deliberately kept open, and is recorded
+  here so a reader meets it without reading `docs/DECISIONS.md` → ADR-054's
+  annotation (ADR-088).
+
+- **The constitution's stamp-site list has not been moved out of the
+  constitution.** ADR-064 deferred it — "That list is the paragraph that governs
+  itself, and moving it is a Governance amendment in its own right" — so it is an
+  owned, unscheduled amendment rather than a defect. It is recorded here so it is
+  not lost (ADR-088).
 
 ## 7. Before reporting a change complete
 

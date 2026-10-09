@@ -123,6 +123,7 @@ from the index rather than edited in its own words.
 | [ADR-085](#adr-085--roadmap-slice-description-precision-fix-set) | Roadmap slice-description precision fix set | 2026-10-08 | 2.28.4 (unchanged) |
 | [ADR-086](#adr-086--deep-audit-fix-set-licensing-ownership-drift-check-coverage-and-tooling-pins) | Deep-audit fix set: licensing ownership, drift-check coverage, and tooling pins | 2026-10-09 | 2.28.5 |
 | [ADR-087](#adr-087--the-projects-licence-proprietary-all-rights-reserved) | The project's licence: proprietary, all rights reserved | 2026-10-09 | 2.28.5 (unchanged) |
+| [ADR-088](#adr-088--governance-debt-status-and-the-integration-topology-check) | Governance-debt status, and the integration-topology check | 2026-10-09 | 2.28.6 |
 
 ---
 
@@ -3128,7 +3129,7 @@ destination per gap. The design-system register describes the file that exists.
 This entry is the durable record.
 
 **Annotation (2026-10-06, ADR-058).** Two of the four deferred items above are
-discharged and one is still open, verified against the working tree rather than
+discharged and **two remain open**, verified against the working tree rather than
 inferred. `docs/architecture.md`'s omission of the nine fixed internal locations
 is closed: it now carries an Internal layout table of nine rows at
 `docs/architecture.md` §1.1, which ADR-055 recorded. `Core-Project.txt`'s
@@ -3137,6 +3138,20 @@ token at all, so ADR-019's fix stands again. The twenty-three ADR fields remain
 open, and the mirror's gap coverage remains as ADR-057 left it. This record is
 annotated rather than rewritten, so a reader of it alone sees the debt as it was
 recorded and can read this paragraph for its present state.
+
+**Annotation (2026-10-09).** The fourth deferred item above is re-examined against
+the working tree, so its three parts are no longer one undifferentiated debt. The
+manifest coverage of the exception register is **closed**: the register is
+recorded in `speckit.manifest.json` and excluded from the hash comparison by the
+project-owned path rule ADR-074 added, which is the deliberate treatment that part
+was waiting for. The `.ps1` line endings are **consistent**: `.gitattributes`
+declares `*.ps1 text eol=crlf`, and every script is stored as LF and checked out
+as CRLF, which is exactly what that attribute means — there is nothing left to
+correct. The twenty-three ADR fields **remain open, deliberately**: the records
+are amendment records whose reasoning was never captured, and writing the sections
+now would be the reconstruction ADR-050 refused to present as contemporaneous. The
+debt stays recorded rather than discharged, and it is now also named at the entry
+point, in `AGENTS.md` §6, so a reader meets it without reading this file.
 
 ---
 
@@ -6367,3 +6382,99 @@ rather than by the row being removed.
 can read it. Every live `ADR-001 … ADR-0NN` range string moves to **ADR-087**, and
 `Project-Technologies.txt`'s header ADR list gains ADR-087. This entry is the
 durable record.
+
+---
+
+## ADR-088 — Governance-debt status, and the integration-topology check
+
+**Status**: Accepted — 2026-10-09
+**Owning directory**: `governance-drift-check.mjs`, `docs/`, `AGENTS.md`, `README.md`, `.specify/memory/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A complete inventory of the governance set's open questions on
+2026-10-09 found ninety-six of them. Most are owned by a slice and deferred by
+decision, and the inventory names them so they are not re-discovered. Fourteen
+were recorded as actionable, and two of those turned out to be **record defects
+rather than open questions**:
+
+1. **ADR-054's deferred-status annotation miscounted.** ADR-058's annotation on
+   ADR-054 read "Two of the four deferred items above are discharged and one is
+   still open", and then named two open items — the twenty-three ADR fields and
+   the mirror's gap coverage. The count was wrong: two remain open.
+2. **ADR-054's fourth item was one undifferentiated debt of three parts**, none of
+   which had been re-examined since it was recorded.
+3. **Nothing compared the integration topology.** `integration.json`,
+   `init-options.json`, the integration directories in the tree, and the bundled
+   workflow's nesting all state the same fact, and no gate read any of them. A
+   removed integration, a stale default, or a broken `requires.integrations.any`
+   nesting would have passed silently.
+
+**Decision.**
+
+1. **ADR-058's annotation on ADR-054 is corrected in place** — "one is still open"
+   becomes "two remain open" — on ADR-084's precedent that a record's own wrong
+   claim is corrected rather than annotated.
+2. **ADR-054's fourth item is reported part by part** in a new annotation. The
+   manifest coverage of the exception register is **closed** by ADR-074's
+   project-owned path rule. The `.ps1` line endings are **consistent** with
+   ADR-039's policy: `*.ps1 text eol=crlf` stores LF and checks out CRLF, which is
+   what the attribute means. The twenty-three ADR fields **remain open**, and are
+   recorded as deliberately open rather than fixable: writing the missing
+   `Alternatives considered` sections now would be the reconstruction ADR-050
+   refused to present as contemporaneous.
+3. **The two debts that remain open are named at the entry point.** `AGENTS.md` §6
+   gains an entry for the twenty-three ADR fields, and one for the Governance
+   amendment ADR-064 deferred — moving the eleven stamp-site references out of the
+   constitution, which ADR-064 recorded as "a Governance amendment in its own
+   right". Neither is closed here; both are made findable.
+4. **The drift check gains gate I, the integration topology.** It fails when
+   `integration.json` lists an integration with no directory in the tree, when a
+   `.‹name›/commands/` directory exists that the registry does not list, when the
+   default or `init-options.json`'s integration is not among the installed set,
+   when settings exist for an uninstalled integration, or when the bundled
+   workflow no longer nests `requires.integrations.any` as ADR-072 fixed it. The
+   workflow's list itself is deliberately **not** compared to the registry: its
+   own comment states it is an advisory, non-exhaustive compatibility hint and not
+   a closed set, so comparing it would fail on a correct tree.
+5. **Every live `ADR-001 … ADR-0NN` range string moves to ADR-088**;
+   `Project-Technologies.txt`'s header ADR list gains ADR-088; and the five
+   citation sites that name the ADRs shaping the check gain ADR-088, which moves
+   the constitution to **2.28.6** (PATCH), on ADR-084's and ADR-086's precedent
+   for a citation change.
+
+**What deliberately did not change.** No principle, entity, page, feature, Usage
+Limit, module, or slice changed; no slice was added, removed, renumbered, or
+reordered; no slice's `Depends on` edge changed. No register gap, unresolved
+product fact, deferred area, or mandated value is decided here. No
+`Alternatives considered` section is written for any record: that is the
+reconstruction ADR-050 refused. The constitution's own stamp-site paragraph is not
+moved: ADR-064 deferred that to a Governance amendment of its own, and this record
+only makes the deferral findable. The README's Setup, Testing, and Deployment
+sections stay placeholders, because the first workspace feature owns them.
+
+**Alternatives considered.**
+- *Write the missing `Alternatives considered` sections for the twenty-three
+  records.* Rejected: ADR-050 already refused to present reconstruction as
+  contemporaneous reasoning, and those records' alternatives were never captured.
+- *Close the twenty-three-field debt by declaring amendment records exempt from the
+  field.* Rejected as out of scope: Documentation's rule binds every non-trivial
+  technical decision, and narrowing it is an amendment to a binding rule, not a
+  status correction.
+- *Move the constitution's stamp-site list out of the constitution in this
+  change.* Rejected: ADR-064 deferred it as a Governance amendment in its own
+  right, and folding it into a status-and-tooling record is the bundling this
+  repository's amendment procedure separates.
+- *Compare the workflow's `requires.integrations.any` list to `integration.json`.*
+  Rejected after reading it: the list is an advisory compatibility hint by its own
+  comment, so the comparison would fail on a correct tree. Only its nesting is
+  checked.
+- *Leave ADR-058's miscount to stand, since a reader can reconcile it from the
+  following sentence.* Rejected: a wrong count in a durable record is the defect
+  ADR-084 corrected in ADR-083, and reconciling it is work the record should not
+  impose.
+
+**Consequences.** The record of ADR-054's deferral now matches the tree, the two
+debts that remain open are findable from the entry point, and four files that state
+one fact are compared by a gate instead of by discipline. The check reports clean
+with the index ending at ADR-088 and every live range string reading
+`ADR-001 … ADR-088`. This entry is the durable record.
