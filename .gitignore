@@ -7,6 +7,19 @@ build/
 .output/
 .nuxt/
 .next/
+.turbo/
+coverage/
+*.tsbuildinfo
+
+# Package manager store
+.pnpm-store/
+
+# Linter caches
+.eslintcache
+.stylelintcache
+
+# Logs
+*.log
 
 # Environment and secrets
 .env

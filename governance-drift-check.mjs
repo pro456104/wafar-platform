@@ -1,32 +1,39 @@
 #!/usr/bin/env node
 /*
  * governance-drift-check.mjs — Wafar governance drift check
- * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083)
+ * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086)
  * -------------------------------------------------------------------
  * Read-only. Dependency-free. Runs on the pinned Node runtime.
  *
  * It verifies the invariants the governance set cannot verify by discipline:
- *   A. the constitution footer version equals `.specify/memory/version.json`
+ *   A. the constitution footer version AND last-amended date equal
+ *      `.specify/memory/version.json`
  *   B. every live `ADR-001 … ADR-0NN` range string, in every governance
- *      markdown file under `docs/` and the template overrides, equals the last
- *      ADR row in `docs/DECISIONS.md`'s index; every index row's anchor resolves
- *      to its heading; and every `ADR-NNN` reference in the governance set
- *      resolves to an ADR the index carries
+ *      markdown file under `docs/`, the two Arabic mirrors, and the template
+ *      overrides, equals the last ADR row in `docs/DECISIONS.md`'s index; every
+ *      index row's anchor resolves to its heading; no heading is orphaned; and
+ *      every `ADR-NNN` reference in the governance set resolves to an ADR the
+ *      index carries
  *   F. the ADR list in `Project-Technologies.txt`'s header ends at that row
  *   C. every `speckit.manifest.json` hash for an *upstream-owned* file matches
- *      the working tree; project-owned files are excluded by a path rule
+ *      the working tree, and no upstream-owned file is absent from it;
+ *      project-owned files are excluded by a path rule
  *      (`.specify/templates/overrides/**`, `.specify/.gitignore`,
  *      `.specify/templates/exception-register.md`)
  *   D. `.codebuddy/commands/*` and `.opencode/commands/*` are byte-identical
  *   D2. each integration manifest (`.specify/integrations/codebuddy.manifest.json`,
  *      `.specify/integrations/opencode.manifest.json`) matches the tree it
- *      records
+ *      records, and covers that integration's whole command directory
  *   E. every token named in the constitution's Design System Standards section
  *      is defined in `wafar.single.css`
  *   G. the structural counts the governance text states in prose — slices,
  *      exception rows, principles, data entities, design-system modules,
  *      binding sections, API modules, pages, and product features — match the
- *      lists that enumerate them
+ *      lists that enumerate them. G6 derives its set from the constitution's
+ *      own `##` headings, so a binding section ADDED to the constitution is
+ *      caught
+ *   H. `wafar.single.css` declares its own version and its module count in its
+ *      header
  *
  * Usage:  node governance-drift-check.mjs
  * Exit:   0 = clean, 1 = drift found.
@@ -49,14 +56,23 @@ const sha256 = (rel) =>
 const constitution = read('.specify/memory/constitution.md');
 const versionJson = JSON.parse(read('.specify/memory/version.json'));
 const footer = constitution.match(/\*\*Version\*\*:\s*([0-9]+\.[0-9]+\.[0-9]+)/);
+const footerDate = constitution.match(/\*\*Last Amended\*\*:\s*([0-9]{4}-[0-9]{2}-[0-9]{2})/);
 if (!footer) {
   failures.push('A: the constitution carries no "**Version**: X.Y.Z" footer');
 } else if (footer[1] !== versionJson.constitution_version) {
   failures.push(
     `A: constitution footer ${footer[1]} != version.json ${versionJson.constitution_version}`,
   );
+} else if (!footerDate) {
+  failures.push('A: the constitution carries no "**Last Amended**: YYYY-MM-DD" footer');
+} else if (footerDate[1] !== versionJson.last_amended) {
+  // ADR-086: only the semver was compared, so the version could move without
+  // the recorded date of the move moving with it.
+  failures.push(
+    `A: constitution last-amended ${footerDate[1]} != version.json ${versionJson.last_amended}`,
+  );
 } else {
-  notes.push(`A: version sources agree at ${footer[1]}`);
+  notes.push(`A: version sources agree at ${footer[1]}, last amended ${footerDate[1]}`);
 }
 
 /* ---- B. live ADR range strings equal the index's last ADR ----------------- */
@@ -90,6 +106,11 @@ for (const dir of ['docs', '.specify/templates/overrides']) {
   }
 }
 scannedRangeFiles.delete('docs/DECISIONS.md');
+// ADR-086: the two Arabic mirrors are bound sources too. Neither is required to
+// carry a live range string, so REQUIRED_RANGE_FILES above is unchanged; but a
+// range string added to either is now checked instead of passing unseen.
+scannedRangeFiles.add('Core-Project.txt');
+scannedRangeFiles.add('Project-Technologies.txt');
 
 if (expected === null) {
   failures.push('B: no ADR index rows found in docs/DECISIONS.md');
@@ -132,6 +153,16 @@ if (expected === null) {
       failures.push(`B: ADR-${n} index anchor #${anchor} != heading anchor #${expectedAnchor}`);
     }
     anchorsChecked++;
+  }
+  // The reverse direction (ADR-086): a heading the index does not carry. The
+  // loop above only caught an index row with no heading.
+  const indexRows = new Set(
+    [...decisions.matchAll(/^\| \[ADR-(\d{3})\]\(#/gm)].map((m) => m[1]),
+  );
+  for (const n of headingAnchors.keys()) {
+    if (!indexRows.has(n)) {
+      failures.push(`B: ADR-${n} has a "## ADR-${n} — …" heading but no index row`);
+    }
   }
   notes.push(`B: index ends at ADR-${expected}; ${scannedRangeFiles.size} markdown files scanned`);
   notes.push(`B: ${anchorsChecked} ADR index anchors resolved against their headings`);
@@ -212,6 +243,21 @@ for (const [file, hash] of Object.entries(manifest.files)) {
   }
   checked++;
 }
+// The reverse direction (ADR-086): an upstream-owned file the manifest does not
+// record. Only the two directories the manifest governs are scanned, so the
+// project-owned overrides and the exception register stay out of scope by
+// construction rather than by an exclusion list.
+const manifestKeys = new Set(Object.keys(manifest.files));
+for (const dir of ['.specify/scripts/powershell', '.specify/templates']) {
+  if (!existsSync(join(ROOT, dir))) continue;
+  for (const name of readdirSync(join(ROOT, dir))) {
+    if (!name.endsWith('.ps1') && !name.endsWith('.md')) continue;
+    const rel = `${dir}/${name}`;
+    if (!manifestKeys.has(rel)) {
+      failures.push(`C: ${rel} is in the tree but absent from speckit.manifest.json`);
+    }
+  }
+}
 notes.push(`C: ${checked} upstream-owned manifest entries checked, ${skipped} project-owned skipped`);
 
 /* ---- D. the two integrations are byte-identical --------------------------- */
@@ -254,6 +300,23 @@ for (const manifestRel of [
       failures.push(`D2: ${file} hash != the value recorded in ${manifestRel}`);
     }
     d2checked++;
+  }
+  // Coverage (ADR-086): the manifest must record the integration's WHOLE
+  // command directory. Before this check the two manifests recorded only the
+  // ten core commands, so the thirteen extension commands were installed,
+  // byte-compared against the other integration, and never hashed at all.
+  const cmdDir = `.${integrationManifest.integration}/commands`;
+  if (existsSync(join(ROOT, cmdDir))) {
+    const inManifest = new Set(
+      Object.keys(integrationManifest.files)
+        .filter((f) => f.startsWith(`${cmdDir}/`))
+        .map((f) => f.slice(cmdDir.length + 1)),
+    );
+    for (const name of readdirSync(join(ROOT, cmdDir))) {
+      if (!inManifest.has(name)) {
+        failures.push(`D2: ${cmdDir}/${name} is in the tree but absent from ${manifestRel}`);
+      }
+    }
   }
   notes.push(`D2: ${d2checked} command files match ${manifestRel}`);
 }
@@ -310,15 +373,20 @@ if (!dsSection) {
 }
 
 /* ---- G. structural counts the governance text states in prose ------------- */
-// The constitution, the roadmap, the exception register, and the architecture
-// state countable facts ("fifteen slices", "six exception rows", "ten
-// principles", "twelve entities", "fourteen modules", "nineteen binding
-// sections", "ten API modules", "twenty-six pages", "sixteen product
-// features"). None was machine-checked before ADR-075, so
-// any of them could drift silently. Each row counts an enumerable list and
-// compares it to the number the governance text states. Anchors are line-start
-// and lists are sliced by heading, never by line number, so a renamed heading
-// fails loudly instead of passing silently.
+// The governance text states countable facts ("fifteen slices", "six exception
+// rows", "ten principles", "twelve entities", "fourteen modules", "nineteen
+// binding sections", "ten API modules", "twenty-six pages", "sixteen product
+// features"). None was machine-checked before ADR-075.
+//
+// Each row below counts an enumerable list and compares it to a constant
+// recorded here. That constant is NOT parsed out of the prose, so for G1-G5 and
+// G7-G9 the prose count is verified only in the direction where the list
+// changes: a list that grows fails, while prose edited on its own does not.
+// G6 is the exception — it derives its expected set from the constitution's own
+// `##` headings and cross-checks the count the binding template states in
+// words, so a binding section ADDED to the constitution is caught (ADR-086).
+// Anchors are line-start and lists are sliced by heading, never by line number,
+// so a renamed heading fails loudly instead of passing silently.
 const sliceBetween = (text, from, to) => {
   const start = text.indexOf(from);
   if (start < 0) return null;
@@ -352,6 +420,53 @@ const GOV_BINDING_SECTIONS = [
   'Product Fact Clarifications',
 ];
 
+// G6's expected set is DERIVED, not assumed (ADR-086). It used to be the
+// hardcoded list above compared against the Authority paragraph alone, which
+// meant a section added to the constitution AND to that paragraph passed
+// silently. The set now comes from the constitution's own `##` headings, the
+// three headings that are deliberately not binding are excluded by name, and
+// the count the binding template states in words is parsed and compared.
+const NON_BINDING_SECTIONS = ['Core Principles', 'References', 'Governance'];
+const headingSections = [...constitution.matchAll(/^## (.+)$/gm)].map((m) => m[1].trim());
+const derivedBindingSections = headingSections.filter(
+  (h) => !NON_BINDING_SECTIONS.includes(h),
+);
+for (const h of derivedBindingSections) {
+  if (!GOV_BINDING_SECTIONS.includes(h)) {
+    failures.push(
+      `G: the constitution carries the binding section "${h}", which the drift check's list does not name`,
+    );
+  }
+}
+for (const n of GOV_BINDING_SECTIONS) {
+  if (!derivedBindingSections.includes(n)) {
+    failures.push(
+      `G: the drift check names the binding section "${n}" but the constitution carries no such "## " heading`,
+    );
+  }
+}
+const authorityParagraph = sliceBetween(constitution, '**Authority.**', '\n\n') || '';
+const flatAuthorityParagraph = authorityParagraph.replace(/\s+/g, ' ');
+for (const n of derivedBindingSections) {
+  if (!flatAuthorityParagraph.includes(n)) {
+    failures.push(`G: the Authority paragraph does not name the binding section "${n}"`);
+  }
+}
+const NUMBER_WORDS = {
+  ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15,
+  sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20,
+  'twenty-one': 21, 'twenty-two': 22, 'twenty-three': 23,
+};
+const templateText = read('.specify/templates/overrides/constitution-template.md');
+const proseCount = templateText.match(/its ([a-z-]+) binding sections/);
+if (!proseCount) {
+  failures.push('G: the constitution template no longer states its binding-section count in words');
+} else if (NUMBER_WORDS[proseCount[1]] !== derivedBindingSections.length) {
+  failures.push(
+    `G: the template says "${proseCount[1]}" binding sections but the constitution carries ${derivedBindingSections.length}`,
+  );
+}
+
 const structuralCounts = [
   { id: 'G1', label: 'slices (R1–R15)', want: 15, file: 'ROADMAP.md',
     got: () => countMatches(read('ROADMAP.md'), /^\| R\d+ \|/gm) },
@@ -375,14 +490,9 @@ const structuralCounts = [
     } },
   { id: 'G6', label: 'binding sections', want: 19,
     file: '.specify/memory/constitution.md',
-    got: () => {
-      const s = sliceBetween(constitution, '**Authority.**', '\n\n');
-      if (s === null) return -1;
-      // The enumeration wraps across lines, so a name can straddle a newline;
-      // collapse whitespace before matching.
-      const flat = s.replace(/\s+/g, ' ');
-      return GOV_BINDING_SECTIONS.filter((n) => flat.includes(n)).length;
-    } },
+    // Derived from the constitution's own `##` headings above, so a binding
+    // section added to the document fails here instead of passing silently.
+    got: () => derivedBindingSections.length },
   { id: 'G7', label: 'API modules', want: 10,
     file: 'docs/architecture.md',
     got: () => {
@@ -420,8 +530,28 @@ for (const c of structuralCounts) {
 }
 notes.push(`G: ${structuralCounts.length} structural counts checked`);
 
+/* ---- H. the design system's own header (ADR-086) -------------------------- */
+// Design System Standards requires wafar.single.css to declare its own version,
+// and the register states the file holds fourteen modules. Neither the version
+// nor the module count was checked against the file itself.
+const cssHeader = read('wafar.single.css').split('\n').slice(0, 40).join('\n');
+const cssVersion = cssHeader.match(/الإصدار:\s*([0-9]+\.[0-9]+\.[0-9]+)/);
+if (!cssVersion) {
+  failures.push('H: wafar.single.css carries no "الإصدار: X.Y.Z" header line');
+} else {
+  notes.push(`H: wafar.single.css declares version ${cssVersion[1]}`);
+}
+const cssModules = cssHeader.match(/الوحدات\s*الـ?\s*([0-9]+)/);
+if (!cssModules) {
+  failures.push('H: wafar.single.css no longer states its module count in its header');
+} else if (Number(cssModules[1]) !== 14) {
+  failures.push(
+    `H: wafar.single.css header states ${cssModules[1]} modules; the register states 14`,
+  );
+}
+
 /* ---- report --------------------------------------------------------------- */
-console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083)');
+console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086)');
 console.log('=====================================');
 for (const n of notes) console.log(`  ok   ${n}`);
 if (failures.length === 0) {

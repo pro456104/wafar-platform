@@ -1,0 +1,10 @@
+#!/bin/sh
+# Wafar governance drift check — see docs/DECISIONS.md -> ADR-086.
+#
+# Enable once per clone:
+#   git config core.hooksPath .githooks
+#
+# It runs the committed, dependency-free drift check and blocks the commit when
+# governance has drifted. Bypass deliberately with `git commit --no-verify`;
+# the real enforcement point is the CI provider R1 wires this into.
+node governance-drift-check.mjs || exit 1

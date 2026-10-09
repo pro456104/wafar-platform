@@ -35,7 +35,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system (tokens, components) | `.specify/memory/constitution.md` (Design System Standards); `wafar.single.css` holds the values |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-085) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-086) |
 
 A slice named "Architecture", "Design System", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -72,6 +72,7 @@ an owner.
 
 | Duty | Owning slice | Constitution reference |
 |---|---|---|
+| The project's own `LICENSE` file and the licence it carries — no rule and no slice owned it before ADR-086 | Repository owner (the licence decision); R1 (commits it with the workspace) | No constitutional rule names it; ADR-086 records the gap and its owner |
 | The workspace, `packages/config`, and the shared tooling | R1 | Technology Standards → repository topology; `docs/architecture.md` |
 | The eight API modules R1 does not create, each with its `apps/api/src/modules/<module>/` directory: `catalogs` (R2), `parts` and `suppliers` (R3), `bookmarks` (R8), `notifications` (R9), `messages` (R10), `support` (R11), and `admin` (R11 creates its `PlatformSetting` read surface; R13 extends it) | R2, R3, R8, R9, R10, R11, R13 | Principle X (the module list); Technology Standards → Internal layout; Project Structure and Debt Control (one owning feature per directory) |
 | The `packages/db/schema/<module>.ts` file each module first writes — R1 writes `users.ts` and `auth.ts`, R2 `catalogs.ts`, R3 `parts.ts` and `suppliers.ts`, R8 `bookmarks.ts`, R9 `notifications.ts`, R10 `messages.ts`, R11 `support.ts` and `admin.ts`, and R13 extends the `admin` module — with the overlaps named: `packages/db/schema/admin.ts` and the `admin` module's read surface are created by R11 for `PlatformSetting`, while R13 extends the same module with the administrator's write surface (ADR-077), and R4 extends the `catalogs` module R2 creates | R1, R2, R3, R8, R9, R10, R11, R13 | Technology Standards → Internal layout (Database ownership); Schema and Migration Control |
@@ -119,7 +120,7 @@ an owner.
 | Arabic analyzer configuration and verification: choice recorded in the plan's Complexity Tracking table with an ADR | R5 | Technology Standards → Register gaps |
 | SBOM generator: the tool that produces the per-build SBOM, recorded with an ADR (the scans themselves are already registered) | R1 | Technology Standards → Register gaps; Deployment and Observability (supply-chain controls) |
 | Load-test tool: the tool that performs the pre-release load test, recorded with an ADR | R12 | Technology Standards → Register gaps; Performance Budgets and Verification |
-| A committed read-only governance drift check that verifies the constitution's version footer against `.specify/memory/version.json`, every live `ADR-001 … ADR-0NN` range string, every ADR index row's anchor against its heading, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes, the two integrations' byte-identity (their command directories and their two integration manifests), the design system's token register against `wafar.single.css`, and the structural counts the governance text states in prose | R1 — **delivered 2026-10-08 by ADR-071** (`governance-drift-check.mjs`); R1 only wires it into CI | Governance (version sources, amendment procedure); Documentation (records that drift after the author moves on); ADR-061 |
+| A committed read-only governance drift check that verifies the constitution's version footer and amended date against `.specify/memory/version.json`, every live `ADR-001 … ADR-0NN` range string, every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the design system's token register against `wafar.single.css` and that file's own declared version and module count, and the structural counts the governance text states in prose | R1 — **delivered 2026-10-08 by ADR-071** (`governance-drift-check.mjs`); extended by ADR-086; R1 only wires it into CI | Governance (version sources, amendment procedure); Documentation (records that drift after the author moves on); ADR-061 |
 | The same check names no external tool: it runs from the repository and adds no dependency, and a slice that wants one records the choice with an ADR | R1 | Technology Standards → Register gaps (naming a library before its ADR is prohibited) |
 
 ## Defects in the slice order, and the slice that closes each

@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-085; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-086; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -113,7 +113,11 @@ hooks are registered but disabled by default.
 Two integrations are installed: `codebuddy` (WorkBuddy AI) is the default, and
 `opencode` is the second. Each owns a private command directory
 (`.codebuddy/commands/`, `.opencode/commands/`) whose files are byte-identical
-to each other and to the upstream Spec Kit commands; both read the same
+to each other. Their ten core commands mirror the upstream Spec Kit commands,
+while their thirteen extension commands are **derived** from
+`.specify/extensions/*/commands/` by placeholder resolution, a provenance
+comment, and front-matter normalisation, so they are not byte-identical to that
+source (ADR-086). Both read the same
 `.specify/` tree (templates, extensions, hooks, scripts, workflow), so either
 environment runs the same cycle with the same command spelling (`/speckit.*`).
 `.specify/integration.json` lists both and keeps `codebuddy` as the default.
@@ -139,25 +143,32 @@ key), so a `specify` upgrade may replace it; the project copy is the one to keep
 and its `requires.integrations.any` list must stay correctly nested under
 `integrations:` (ADR-072).
 
-**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083).** `governance-drift-check.mjs`
+**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086).** `governance-drift-check.mjs`
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
-footer against `.specify/memory/version.json`; every live `ADR-001 … ADR-085`
-range string against the last row of `docs/DECISIONS.md`'s index; every ADR index
-row's anchor against its heading; every `ADR-NNN` reference against the index; the
-ADR list in
-`Project-Technologies.txt`'s header against the same row; every
-`speckit.manifest.json` hash for an upstream-owned file against the working tree
-(the project-owned `templates/overrides/*` files, `.specify/.gitignore`, and
+footer's version and amended date against `.specify/memory/version.json`; every
+live `ADR-001 … ADR-086` range string — in the required files, under `docs/`, in
+the two Arabic mirrors, and in the template overrides — against the last row of
+`docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading, and
+every heading against the index; every `ADR-NNN` reference against the index; the
+ADR list in `Project-Technologies.txt`'s header against the same row; every
+`speckit.manifest.json` hash for an upstream-owned file against the working tree,
+and every upstream-owned file in the tree against the manifest (the project-owned
+`templates/overrides/*` files, `.specify/.gitignore`, and
 `.specify/templates/exception-register.md` are excluded, because the project
 edits them by design); the byte-identity of `.codebuddy/commands/` and
-`.opencode/commands/` and their two integration manifests; and every design token
-the constitution's Design System Standards names against `wafar.single.css`; and
-the structural counts the governance text states in prose — slices, exception
-rows, principles, data entities, design-system modules, binding sections, API
-modules, pages, and product features — against the lists that enumerate them. Run
-it with `node governance-drift-check.mjs`; it exits non-zero on drift. The slice
-that introduces the test runner (R1) wires it into continuous integration.
+`.opencode/commands/`; each integration manifest against the tree it records and
+against that integration's whole command directory; every design token the
+constitution's Design System Standards names against `wafar.single.css`; the
+structural counts the governance text states in prose — slices, exception rows,
+principles, data entities, design-system modules, binding sections, API modules,
+pages, and product features — against the lists that enumerate them, with the
+binding-section set derived from the constitution's own headings; and
+`wafar.single.css`'s own declared version and module count. Run it with
+`node governance-drift-check.mjs`; it exits non-zero on drift. It is wired into a
+committed `pre-commit` hook (`.githooks/`, enabled per clone with
+`git config core.hooksPath .githooks`), and the slice that introduces the test
+runner (R1) wires it into continuous integration.
 
 ## 6. Known gaps
 

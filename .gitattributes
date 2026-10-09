@@ -17,6 +17,21 @@
 *.mjs   text eol=lf
 *.sh    text eol=lf
 
+# Planned-stack sources: same rule, applied before the workspaces exist so a
+# Windows checkout cannot introduce CRLF into them later.
+*.ts    text eol=lf
+*.tsx   text eol=lf
+*.vue   text eol=lf
+*.js    text eol=lf
+*.cjs   text eol=lf
+*.sql   text eol=lf
+*.svg   text eol=lf
+
+# Git hooks and the runtime pin: LF, because a CRLF shebang breaks the hook and
+# a CRLF version file is read back with a trailing carriage return.
+.githooks/**  text eol=lf
+.nvmrc        text eol=lf
+
 # PowerShell is a Windows-first runtime: keep CRLF.
 *.ps1   text eol=crlf
 

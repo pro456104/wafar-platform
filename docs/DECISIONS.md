@@ -121,6 +121,7 @@ from the index rather than edited in its own words.
 | [ADR-083](#adr-083--every-adr-reference-resolved-against-the-index) | Every ADR reference resolved against the index | 2026-10-08 | 2.28.3 |
 | [ADR-084](#adr-084--the-drift-checks-adr-citations-unified) | The drift check's ADR citations unified | 2026-10-08 | 2.28.4 |
 | [ADR-085](#adr-085--roadmap-slice-description-precision-fix-set) | Roadmap slice-description precision fix set | 2026-10-08 | 2.28.4 (unchanged) |
+| [ADR-086](#adr-086--deep-audit-fix-set-licensing-ownership-drift-check-coverage-and-tooling-pins) | Deep-audit fix set: licensing ownership, drift-check coverage, and tooling pins | 2026-10-09 | 2.28.5 |
 
 ---
 
@@ -6181,4 +6182,134 @@ its own decision.
 and the two cross-slice handoffs (the notification control and the four static
 routes) are explicit. The drift check reports clean with the index ending at
 ADR-085 and every live range string reading `ADR-001 … ADR-085`. This entry is the
+durable record.
+
+---
+
+## ADR-086 — Deep-audit fix set: licensing ownership, drift-check coverage, and tooling pins
+
+**Status**: Accepted — 2026-10-09
+**Owning directory**: `docs/`, `ROADMAP.md`, `AGENTS.md`, `README.md`, `.specify/`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A deep audit of the governance set on 2026-10-09 found **no drift**:
+the committed check reported clean, every ADR anchor resolved, and every `ADR-NNN`
+reference resolved against the index. The audit was looking for the class of
+defect the check cannot see, and it found four:
+
+1. **An ownership gap.** No rule and no slice owned the project's own licence.
+   `ROADMAP.md` mentioned "licence" once, inside R1's shell duty and only for the
+   icon set; `Dependency Governance` governs the licences of *dependencies*; the
+   register's "Icon set" row governs the *icon set's* licence. A repository with
+   no `LICENSE` grants nothing, and the first slice that self-hosts a
+   permissively-licensed icon set and fonts into it would be doing so under an
+   undefined grant.
+2. **An automation gap.** The check was never executed automatically. It had no
+   git hook, no CI configuration, and no root script; it ran when a person
+   remembered to run it, while the last ten ADRs were largely repairs to drift
+   the check then found.
+3. **Coverage gaps in the check itself.** Four invariants were invisible to it:
+   the footer's amended date, the two Arabic mirrors, an index heading with no
+   row, an upstream file absent from the manifest, the thirteen extension
+   commands that no manifest hashed, a binding section *added* to the
+   constitution, and the design system's own header.
+4. **An imprecise claim.** `AGENTS.md` stated that both command directories are
+   byte-identical "to the upstream Spec Kit commands". Inspection showed that the
+   thirteen extension commands are a derived artefact, so the claim is false as
+   written for those files.
+
+**Decision.**
+
+1. **Licensing ownership is recorded and the decision is reserved to the owner.**
+   `ROADMAP.md` → "First obligations" gains a row assigning the project's own
+   `LICENSE` file and the licence it carries to the repository owner (the
+   decision) and to R1 (it is committed with the workspace). No `LICENSE` file is
+   created by this record: the grant a project makes is the owner's decision, not
+   an engineering choice.
+2. **Tooling pins.** `.nvmrc` pins Node 22 — the LTS ADR-021 already records.
+   `.gitignore` gains the planned stack's build, store, cache, and log rules.
+   `.gitattributes` gains `*.ts`, `*.tsx`, `*.vue`, `*.js`, `*.cjs`, `*.sql`, and
+   `*.svg` as `text eol=lf`, extending ADR-039's rule to the planned stack before
+   the workspaces exist so a Windows checkout cannot introduce CRLF into them.
+3. **The check runs on commit.** `.githooks/pre-commit` is committed and enabled
+   per clone with `git config core.hooksPath .githooks`; it runs the check and
+   blocks a drifting commit. It is deliberately bypassable with `--no-verify`,
+   and the CI provider R1 wires the check into remains the real enforcement
+   point.
+4. **Gate A checks the date.** The footer's `**Last Amended**` date is compared
+   to `version.json`'s `last_amended`, not the semver alone.
+5. **Gate B covers the mirrors and the index in both directions.**
+   `Core-Project.txt` and `Project-Technologies.txt` join the scanned set, though
+   neither is required to carry a range string; and a `## ADR-NNN — …` heading
+   with no index row now fails, the reverse of the check ADR-082 added.
+6. **Gate C runs in both directions.** An upstream-owned file present in the tree
+   but absent from `speckit.manifest.json` now fails.
+7. **Gate D2 covers each integration's whole command directory.** The two
+   integration manifests recorded only the ten core commands, so the thirteen
+   extension commands were installed, byte-compared against the other
+   integration, and never hashed. The manifests now record all twenty-three, and
+   D2 fails when a command in the directory has no manifest entry.
+8. **Gate G6 derives its set instead of assuming it.** The binding-section set is
+   derived from the constitution's own `##` headings, excluding the three
+   headings that are deliberately not binding (`Core Principles`, `References`,
+   `Governance`); the Authority paragraph must name each derived section; and the
+   count the binding template states in words is parsed and compared. A binding
+   section added to the constitution now fails instead of passing silently. The
+   G section's own comment is corrected in the same change: the other eight
+   counts are constants recorded in the check, not values parsed from the prose.
+9. **Gate H checks the design system's header.** `wafar.single.css`'s declared
+   `الإصدار` and its stated module count are read from its header and checked.
+10. **`AGENTS.md`'s byte-identity claim is narrowed** to what holds: the two
+    integrations' files are byte-identical to each other, the ten core commands
+    mirror upstream, and the thirteen extension commands are derived from
+    `.specify/extensions/*/commands/`.
+11. **Every live `ADR-001 … ADR-0NN` range string moves to ADR-086**, and
+    `Project-Technologies.txt`'s header ADR list gains ADR-086.
+12. **The five citation sites that name the ADRs shaping the check gain
+    ADR-086** — the script's header and its printed banner, `AGENTS.md` §5,
+    `README.md`, and the constitution's References row — so the one list ADR-084
+    unified stays one list. Naming it in the constitution's References row moves
+    the constitution to **2.28.5** (PATCH), on ADR-084's precedent for a citation
+    change.
+
+**What deliberately did not change.** No principle, entity, page, feature, Usage
+Limit, module, or slice changed; no slice was added, removed, renumbered, or
+reordered; no slice's `Depends on` edge changed. No constitutional rule,
+register, or count changes: the only constitutional text this record touches is
+the References row's citation list, so the move to **2.28.5** is PATCH, on
+ADR-084's precedent for a citation change. The audit's structural observations
+are recorded rather than acted on: the size of R1 (N-06) is a planning risk whose
+split is a scope change with its own decision; the share of the decision log that
+repairs earlier governance is a health metric, not a defect; ADR-020, ADR-021,
+and ADR-022 stay marked as reconstructed until an original copy surfaces; and the
+six tools that appear both as register rows and as exception rows remain so,
+deliberately and cross-referenced.
+
+**Alternatives considered.**
+- *Create the `LICENSE` file in this change.* Rejected: the grant a project makes
+  is the owner's decision. Recording the ownership gap is a governance act;
+  choosing MIT over Apache-2.0 over a proprietary grant is not.
+- *Leave the constitution's References row alone, so the version stays 2.28.4.*
+  Rejected: ADR-084 made that citation list one list in five places, and a list
+  that omits the ADR which amended the check is exactly the drift that record
+  closed.
+- *Require a live range string in `Core-Project.txt`.* Rejected:
+  Single-Reference Sufficiency keeps the mirrors minimal, and scanning a string
+  if one appears catches the drift without mandating a new statement in a mirror.
+- *Compare the integration commands byte-for-byte against
+  `.specify/extensions/*/commands/`.* Rejected after inspection: the installed
+  files are a derived artefact — placeholder resolution, a provenance comment,
+  and front-matter normalisation — so the comparison would fail on a correct
+  tree.
+- *Add a root `package.json` to host the check.* Rejected: R1 creates the pnpm
+  workspace manifest, and a second one at the root would collide with it.
+- *Add a CI configuration now.* Rejected: the continuous-integration provider is
+  a register gap R1 owns, and naming one here would be exactly the unvetted
+  choice Dependency Governance prohibits.
+
+**Consequences.** The repository has a runtime pin, stack-aware ignore and
+line-ending rules, and a check that runs on commit instead of on discipline. The
+check covers four invariants it could not see before and reports clean with the
+index ending at ADR-086 and every live range string reading `ADR-001 … ADR-086`.
+The licensing gap is visible and owned instead of implicit. This entry is the
 durable record.

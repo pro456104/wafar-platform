@@ -1883,7 +1883,7 @@ however obviously the concept belongs to the entity.
 | `.specify/extensions.yml` | The installed extensions and the hook registry every Spec Kit command reads before and after it runs. | `.specify/`. |
 | `.specify/workflows/speckit/workflow.yml` | The bundled workflow that runs the binding cycle in order, with its human review gates. | `.specify/workflows/speckit/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
-| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083): the two version sources, every live ADR range string, every ADR index row's anchor against its heading, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes, the two integrations' byte-identity (their command directories and their two integration manifests), the design system's token register, and the structural counts the governance text states in prose. Read-only and dependency-free; exits non-zero on drift. | Repository root. |
+| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086): the two version sources including the amended date, every live ADR range string, every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the design system's token register, that file's own declared version and module count, and the structural counts the governance text states in prose. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
 
 ## Artifact Workflow and Traceability
 
@@ -2147,4 +2147,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.28.4 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-08
+**Version**: 2.28.5 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-09
