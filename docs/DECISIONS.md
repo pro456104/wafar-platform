@@ -6209,7 +6209,7 @@ defect the check cannot see, and it found four:
    git hook, no CI configuration, and no root script; it ran when a person
    remembered to run it, while the last ten ADRs were largely repairs to drift
    the check then found.
-3. **Coverage gaps in the check itself.** Four invariants were invisible to it:
+3. **Coverage gaps in the check itself.** Seven invariants were invisible to it:
    the footer's amended date, the two Arabic mirrors, an index heading with no
    row, an upstream file absent from the manifest, the thirteen extension
    commands that no manifest hashed, a binding section *added* to the
@@ -6312,7 +6312,7 @@ deliberately and cross-referenced.
 
 **Consequences.** The repository has a runtime pin, stack-aware ignore and
 line-ending rules, and a check that runs on commit instead of on discipline. The
-check covers four invariants it could not see before and reports clean with the
+check covers seven invariants it could not see before and reports clean with the
 index ending at ADR-086 and every live range string reading `ADR-001 … ADR-086`.
 The licensing gap is visible and owned instead of implicit. This entry is the
 durable record.

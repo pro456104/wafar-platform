@@ -24,7 +24,8 @@ not sell, buy, process payment, or host user-to-user chat.
 
 ## Prerequisites
 
-- Node.js and pnpm (the monorepo is pnpm workspaces + Turborepo).
+- Node.js — the version `.nvmrc` pins (Node 22 LTS) — and pnpm (the monorepo is
+  pnpm workspaces + Turborepo).
 - The Spec Kit CLI (`specify`), which drives the specification workflow.
 - Docker is optional and used only for staging parity.
 
