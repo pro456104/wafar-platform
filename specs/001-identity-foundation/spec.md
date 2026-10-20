@@ -87,7 +87,7 @@
 - Q: When the holder of a blocked account tries to sign in, does the refusal stay uniform — revealing neither the block nor the account's existence — and does the enumeration criterion cover a blocked account as it covers a locked one? → A: The refusal stays uniform — the same text, the same status, and the same response path as every other failed sign-in — and nothing at any step tells the person the account is blocked or that it exists; SC-004 is extended to cover an attempt against a blocked account as it already covers a locked one, and no exception to FR-008 is recorded.
 - Q: When the fifteen minutes elapse, does the count of consecutive failed attempts clear, and do refusals made while the account is locked count as further failed attempts? → A: The lock is a time bound alone — at its expiry the count clears, so a single later failure does not re-lock the account, and an attempt refused while the lock is in force is not counted as a further failed attempt and never extends the lock; AC-010 and SC-007 assert both.
 - Q: In the password-recovery flow, is the indistinguishability rule bounded to the request and the code dispatch — as in sign-up — given that a number with no account has nothing to reset? → A: Bounded the same way — after the correct code is entered, ownership of the number is proven and the platform states explicitly that no account exists for it, rather than continuing as though a reset had occurred; FR-015 and AC-017 carry the bound, and SC-004 bounds the recovery flow as it bounds sign-up.
-- Q: Is the set of valid Libyan mobile prefixes on +218 fixed in this slice as reference data named in a decision record — as the city list was — or left to the plan? → A: Fixed here, once — recorded as one reference dataset of the merchant-account module and named in a decision record alongside the city list; the platform decides whether a +218 number is a mobile number from that dataset rather than from a rule of its own, so FR-003 and AC-003 are testable without judgement.
+- Q: Is the set of valid Libyan mobile prefixes on +218 fixed in this slice as reference data named in a decision record — as the city list was — or left to the plan? → A: Fixed here, once — recorded as one reference dataset for accounts and named in a decision record alongside the city list; the platform decides whether a +218 number is a mobile number from that dataset rather than from a rule of its own, so FR-003 and AC-003 are testable without judgement.
 - Q: Does this slice choose and build the surface that carries the static-page links and record the decision, or deliver the four routes only and defer the surface? → A: This slice chooses the surface, builds it inside the frame, and records the decision as a decision record — revising the earlier deferral, because the frame is delivered whole and ROADMAP assigns the choice and its record to R1; FR-024, AC-026, US5, and the matching Assumptions bullet are revised accordingly.
 - Q: At the administrator's first sign-in, is the sign-in accepted and the account then restricted to the password change, or is the sign-in itself refused until the password is changed? → A: The first sign-in is accepted and the account is restricted so that no action other than the password change is permitted until the change is made; the sign-in itself is never refused, so FR-028 and AC-030 are reworded and the earlier "a first sign-in is refused" reading is removed.
 - Q: When the holder of a blocked account resets the password through the recovery flow, does the reset complete while the block stands, or is the request refused because the account is blocked? → A: The reset completes — a new password is set and every existing session ends — but the account's block stands, so no access is granted; the outcome is stated only after ownership of the number is proven, and FR-014 and the matching edge case carry the rule.
@@ -579,8 +579,8 @@ Acceptance Criteria section.
   code is presented (decided 2026-10-11, Clarifications).
 - **FR-003**: System MUST reject a number that is not a Libyan mobile number on
   +218, and MUST create no account for it. The set of valid Libyan mobile
-  prefixes is fixed here, once, as one reference dataset of the merchant-account
-  module and named in a decision record alongside the city list; the platform
+  prefixes is fixed here, once, as one reference dataset for accounts and named
+  in a decision record alongside the city list; the platform
   MUST decide whether a +218 number is a mobile number against that dataset
   rather than against a rule of its own, and a later slice reads the dataset
   instead of writing one.
@@ -1240,8 +1240,8 @@ Acceptance Criteria section.
   and sent on no other event — in particular not when the operator's provisioning
   action sets the administrator's initial password, which sets a first password
   rather than changing one already held (decided 2026-10-11, Clarifications).
-- **Integration tests (module contracts)**: Requested — the merchant-account
-  module and the authentication module together: account creation and the
+- **Integration tests (module contracts)**: Requested — the account area
+  and the authentication surface together: account creation and the
   one-time-code verification, sign-in and sign-out, the recovery flow —
   including the refusal of a reset for a mobile number whose account holds the
   administrator role, which this slice delivers with no administrator surface
@@ -1333,8 +1333,8 @@ runtime scan and keyboard-only pass belong to the slice that ships the first
   Clarifications).
 
 The fixed Libyan city list is reference data this feature fixes once, not an
-entity: the constitution names it as one dataset the merchant-account module
-holds, and every later slice reads it rather than writing its own.
+entity: the constitution names it as one dataset held for accounts, and every
+later slice reads it rather than writing its own.
 
 No third entity is introduced (decided 2026-10-10, Clarifications). The pending
 sign-up data and the one-time codes are transient verification state, held in an
@@ -1934,15 +1934,14 @@ code dispatch results, because the server-side uniqueness rule remains the
   vulnerability scan the register requires; this specification names no set,
   because naming a library in this file would breach Principle VII.
 - **The Libyan city list is fixed here, once.** It is recorded as one reference
-  list of the merchant-account module and named in a decision record; every later
-  slice reads it rather than writing a list of its own, and changing the list is
-  an amendment to that record rather than an edit made inside a feature.
+  list for accounts and named in a decision record; every later slice reads it
+  rather than writing a list of its own, and changing the list is an amendment
+  to that record rather than an edit made inside a feature.
 - **The Libyan mobile-prefix set is fixed here, once.** It is recorded as one
-  reference dataset of the merchant-account module and named in a decision record
-  alongside the city list; the platform decides whether a +218 number is a mobile
-  number from that dataset rather than from a rule of its own, and changing the
-  dataset is an amendment to that record rather than an edit made inside a
-  feature.
+  reference dataset for accounts and named in a decision record alongside the
+  city list; the platform decides whether a +218 number is a mobile number from
+  that dataset rather than from a rule of its own, and changing the dataset is an
+  amendment to that record rather than an edit made inside a feature.
 - **The administrator account is created out of band.** The operator provisions
   it outside the public flow, and the account is a user holding the
   administrator role rather than a separate kind of account. The provisioning
@@ -1981,8 +1980,8 @@ code dispatch results, because the server-side uniqueness rule remains the
   administrator account (decided 2026-10-11, Clarifications). The administrator's separate login
   belongs to the slice that ships the administrator application.
 - **The base project is established by this slice.** The repository workspaces,
-  the shared configuration, the test runner, the merchant-account and
-  authentication modules, and the supporting infrastructure the rules require
+  the shared configuration, the test runner, the account and authentication
+  capabilities, and the supporting infrastructure the rules require
   (including the SMS channel that carries the one-time codes) are created here;
   their technical composition is fixed in the plan, not in this specification.
 - **SMS delivery time is outside the platform's control** and is excluded from
@@ -2035,8 +2034,8 @@ code dispatch results, because the server-side uniqueness rule remains the
   delivered here, and the tests reach the blocked state directly. The acts that
   change the status — setting an account to blocked and returning it to active —
   are administrator operations, and every administrator operation must
-  be recorded in the audit log, whose record belongs to the module the
-  administrator application's slice creates; both acts therefore arrive with the
+  be recorded in the audit log, whose record is delivered by the
+  administrator application's slice; both acts therefore arrive with the
   administrator's Users page, and US4's Independent Test is narrowed to that
   boundary. This slice defines no reverse transition of its own (decided
   2026-10-11, Clarifications).

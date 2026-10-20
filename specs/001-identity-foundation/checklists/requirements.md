@@ -2,6 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-10-10
+**Refreshed**: 2026-10-20 — after ADR-094 and ADR-096
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -47,3 +48,10 @@
 - The spec names only entities registered in `docs/domain-model.md` (`User`,
   `Session`). The fixed Libyan city list is treated as reference data, not an
   entity, because no entity is registered for it.
+- Refreshed 2026-10-20: ADR-094 aligned the guest header rule, and ADR-096
+  added the three Constitution Mandated Values (password policy, one-time-code
+  limits, and field lengths) and bound the frame's static-page link surface,
+  which this specification records as a footer band (FR-024). The three boundary
+  clarifications above remain the only clarifications; no new
+  `[NEEDS CLARIFICATION]` marker was raised, and the requirement and criterion
+  counts are unchanged.

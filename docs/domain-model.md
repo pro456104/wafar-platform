@@ -105,8 +105,8 @@ administrator a role on `User` (ADR-067), and the audit record's administrator
 party follows from that role decision, so it carries no separate open fact and
 drawing it would add nothing. The administrator side of `Conversation` is a
 different case: whether it carries a reference, a role, or nothing is
-unresolved fact #2 below, owned by **R10**, so the conversation edge is not
-drawn.
+unresolved fact #2 below, owned by **R10**, so the administrator side of that
+edge is not drawn.
 
 A dashed line is not used, because "related but undecided" is not a relationship
 the schema can express, and drawing one would read as a decision.

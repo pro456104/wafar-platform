@@ -3013,6 +3013,13 @@ moves to 2.18.9 across every site the Governance amendment procedure names, and
 the manifest hashes are regenerated as the last step. This entry is the durable
 record.
 
+**Annotation (2026-10-20, ADR-096).** The Context's "the shell has no footer
+component" and the rejected "Register a footer component" alternative describe
+the state before ADR-096. ADR-096 records the shell's static-page link surface
+in Product Scope and leaves the surface to the first shell-building slice; R1
+records it as a footer band (FR-024). The reachability decision stands, and the
+premise that no rule asks for the surface is superseded.
+
 ---
 
 ## ADR-054 — Constitution 2.19.0: the register names its four gates, and the amendment procedure names its own stamp sites
