@@ -25,13 +25,13 @@ and a feature artifact references it rather than restating it.
 | How the system is built (layout, module map, data flow) | `docs/architecture.md` |
 | The data model (entities, relationships, invariants, owning module) | `docs/domain-model.md` |
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
-| Design system — the register, and the only source of values | `.specify/memory/constitution.md` (Design System Standards) + `wafar.single.css` (the only permitted source of design values) |
+| UI foundation — component library and the project layer | `.specify/memory/constitution.md` → Principle IX; R1's plan fixes the Wafar UI layer's path |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-091; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-096; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
-example "020-design-system" or "019-architecture"). That is a classification
+example "020-ui-foundation" or "019-architecture"). That is a classification
 error — it makes the agent treat a project-wide rule as work, and later features
 re-invent what already exists. See `docs/DECISIONS.md` → ADR-007.
 
@@ -45,26 +45,29 @@ end for a feature command.
   Limits, Glossary), `Core-Project.txt`, `docs/domain-model.md`, and
   `docs/DECISIONS.md`. **Not** the
   technical sources: a specification stays technology-agnostic (Principle VII).
-- `/speckit.plan` → the constitution's registers (Technology Standards, Design
-  System Standards, Product Register) plus `docs/architecture.md`,
-  `docs/domain-model.md`, `Project-Technologies.txt`, `Core-Project.txt`,
-  `wafar.single.css`, and `docs/DECISIONS.md`. The plan is the only artifact
-  that carries technical detail, and its Ownership Map must
-  match `docs/architecture.md`.
-- `/speckit.tasks` → `plan.md`, plus `.specify/memory/constitution.md`,
-  `docs/architecture.md`, `docs/domain-model.md`,
-  and `docs/DECISIONS.md`. Every path a task touches must appear in the plan's
-  ownership map.
-- `/speckit.checklist` → the constitution, `Core-Project.txt`,
+- `/speckit.plan` → the constitution's registers (Technology Standards,
+  Product Register) plus `docs/architecture.md`, `docs/domain-model.md`,
+  `Project-Technologies.txt`, `Core-Project.txt`, and `docs/DECISIONS.md`.
+  The plan is the only artifact that carries technical detail, and its
+  Ownership Map must match `docs/architecture.md`.
+- `/speckit.tasks` → `plan.md`, plus the constitution (Product Register,
+  Single-Reference Sufficiency, and Artifact Workflow and Traceability),
+  `docs/architecture.md`, `docs/domain-model.md`, and `docs/DECISIONS.md`.
+  Every path a task touches must appear in the plan's ownership map.
+- `/speckit.checklist` → the constitution (Product Scope, Product Register,
+  and the binding sections its checklist names), `Core-Project.txt`,
   `docs/domain-model.md`, and `docs/DECISIONS.md`.
-- `/speckit.implement` → `plan.md`, `tasks.md`, and the constitution.
-- `/speckit.analyze` → `spec.md`, `plan.md`, `tasks.md`, and the constitution;
-  it also reads `docs/DECISIONS.md` and `docs/domain-model.md` for the
-  consistency pass, because a conflict with an accepted ADR or a model invariant
-  is a blocking finding (Artifact Workflow and Traceability).
-- `/speckit.converge` → `spec.md`, `plan.md`, `tasks.md`, and the constitution;
-  it appends its convergence tasks to `tasks.md` and reports Converged only when
-  the implementation satisfies all three artifacts.
+- `/speckit.implement` → `plan.md`, `tasks.md`, and the constitution sections
+  its plan's Constitution Check cites.
+- `/speckit.analyze` → `spec.md`, `plan.md`, `tasks.md`, and the constitution
+  sections the artifacts under review cite; it also reads `docs/DECISIONS.md`
+  and `docs/domain-model.md` for the consistency pass, because a conflict with
+  an accepted ADR or a model invariant is a blocking finding (Artifact Workflow
+  and Traceability).
+- `/speckit.converge` → `spec.md`, `plan.md`, `tasks.md`, and the constitution
+  sections the artifacts under review cite; it appends its convergence tasks to
+  `tasks.md` and reports Converged only when the implementation satisfies all
+  three artifacts.
 
 The feature templates in `.specify/templates/overrides/` carry this duty as
 binding text. They resolve as the top layer with `strategy: replace`; do not
@@ -74,10 +77,23 @@ replace them with the core templates.
 
 - User-facing text: Arabic, `<html dir="rtl" lang="ar">` on every page.
 - Code identifiers, code comments, commits, and governance text: English. The
-  only exceptions are `wafar.single.css` comments (Arabic), the two Arabic
-  mirrors (`Core-Project.txt`, `Project-Technologies.txt`), and Arabic strings
-  quoted as the subject of a rule (for example an Arabic-Indic numeral example).
+  only exceptions are the two Arabic mirrors (`Core-Project.txt`,
+  `Project-Technologies.txt`) and Arabic strings quoted as the subject of a rule
+  (for example an Arabic-Indic numeral example).
 - Numerals rendered to the user: Latin (1234567890), never Arabic-Indic.
+- Conversation with the operator: Arabic. Every question, option, table,
+  recommendation, report, and summary the assistant writes into the chat is
+  Arabic, including while a `/speckit.*` command is running — a command file
+  does not override this rule. Files on disk keep the language the rule above
+  gives them (governance English, product text Arabic), and the literal tokens
+  a command requires stay exactly as that command spells them: command names,
+  paths, file names, identifiers (`FR-###`, `AC-###`, `ADR-###`), technical
+  terms with no settled Arabic rendering, code, and the markers a command names
+  literally (`EXECUTE_COMMAND:`, `**Question:**`, `**Recommended:**`,
+  `**Suggested:**`). Numerals and symbols stay Latin: `1234567890`, `%`, `≤`,
+  `/`, `-`, `:`, and the like are never converted to Arabic-Indic or to an
+  Arabic look-alike. The user's own language is the one to answer in if it
+  differs from this rule.
 - Logical CSS properties only (`margin-inline-start`, not `margin-left`).
 - No emoji in anything a person reads inside the platform: every screen,
   including the administrator application, and the body of every SMS
@@ -110,8 +126,8 @@ prompting to normalize a raw idea into an intake note before specification
 cycle. Hook states are read from `.specify/extensions.yml`; the `git` commit
 hooks are registered but disabled by default.
 
-Two integrations are installed: `codebuddy` (WorkBuddy AI) is the default, and
-`opencode` is the second. Each owns a private command directory
+Two integrations are installed: `opencode` is the default, and `codebuddy`
+(WorkBuddy AI) is the second. Each owns a private command directory
 (`.codebuddy/commands/`, `.opencode/commands/`) whose files are byte-identical
 to each other. Their ten core commands mirror the upstream Spec Kit commands,
 while their thirteen extension commands are **derived** from
@@ -120,7 +136,7 @@ comment, and front-matter normalisation, so they are not byte-identical to that
 source (ADR-086). Both read the same
 `.specify/` tree (templates, extensions, hooks, scripts, workflow), so either
 environment runs the same cycle with the same command spelling (`/speckit.*`).
-`.specify/integration.json` lists both and keeps `codebuddy` as the default.
+`.specify/integration.json` lists both and keeps `opencode` as the default.
 
 Templates resolve from `.specify/templates/overrides/` first, then
 presets, then extensions, then core. The `speckit.taskstoissues` command is a
@@ -143,12 +159,13 @@ key), so a `specify` upgrade may replace it; the project copy is the one to keep
 and its `requires.integrations.any` list must stay correctly nested under
 `integrations:` (ADR-072).
 
-**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088).** `governance-drift-check.mjs`
+**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096).** `governance-drift-check.mjs`
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-091` range string — in the required files, under `docs/`, in
-the two Arabic mirrors, and in the template overrides — against the last row of
+live `ADR-001 … ADR-096` range string — in the required files, under `docs/`, in
+the two Arabic mirrors, in the template overrides, and in the feature
+specifications — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading, and
 every heading against the index; every `ADR-NNN` reference against the index; the
 ADR list in `Project-Technologies.txt`'s header against the same row; every
@@ -158,17 +175,15 @@ and every upstream-owned file in the tree against the manifest (the project-owne
 `.specify/templates/exception-register.md` are excluded, because the project
 edits them by design); the byte-identity of `.codebuddy/commands/` and
 `.opencode/commands/`; each integration manifest against the tree it records and
-against that integration's whole command directory; every design token the
-constitution's Design System Standards names against `wafar.single.css`; the
-structural counts the governance text states in prose — slices, exception rows,
-principles, data entities, design-system modules, binding sections, API modules,
+against that integration's whole command directory; the absence of the removed
+stylesheet and its constitution section; the structural counts the governance
+text states in prose — slices, exception rows, principles, data entities, binding sections, API modules,
 pages, and product features — against the lists that enumerate them, with the
-binding-section set derived from the constitution's own headings;
-`wafar.single.css`'s own declared version and module count; and the integration
-topology across `integration.json`, `init-options.json`, the integration
-directories in the tree, and the bundled workflow's nesting. Run it with
-`node governance-drift-check.mjs`; it exits non-zero on drift. It is wired into a
-committed `pre-commit` hook (`.githooks/`, enabled per clone with
+binding-section set derived from the constitution's own headings; and the
+integration topology across `integration.json`, `init-options.json`, the
+integration directories in the tree, and the bundled workflow's nesting. Run it
+with `node governance-drift-check.mjs`; it exits non-zero on drift. It is wired
+into a committed `pre-commit` hook (`.githooks/`, enabled per clone with
 `git config core.hooksPath .githooks`), and the slice that introduces the test
 runner (R1) wires it into continuous integration.
 
@@ -187,8 +202,8 @@ runner (R1) wires it into continuous integration.
   repo-enforced.
 
 - **`.specify/memory/.constitution-template.json` is ignored and untracked (gap
-  closed 2026-10-08, ADR-074).** It is the CLI's record of which constitution
-  template it scaffolded from — machine state of the same class as
+  closed 2026-10-08, ADR-074).** When present, it is the CLI's record of which
+  constitution template it scaffolded from — machine state of the same class as
   `memory/.resolved-template.json`, `extensions/.cache/`, and
   `integrations/.cache/`. It was tracked until 2026-10-08, so it was removed from
   the index and added to `.specify/.gitignore` in the same change. Its `source`

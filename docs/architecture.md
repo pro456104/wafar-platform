@@ -2,7 +2,7 @@
 
 This document records the repository layout, the API module map, and the data
 flow. Its sources of authority are `.specify/memory/constitution.md` (current version: its footer or `.specify/memory/version.json`),
-whose Technology Standards and Design System Standards are the registers, and
+whose Technology Standards section is the register, and
 `Project-Technologies.txt`; where this document and the constitution disagree,
 the constitution wins. The data model's entities and their owning modules are
 stated in `docs/domain-model.md`, which this document does not restate.
@@ -124,7 +124,7 @@ The canonical chain is **web → api → PostgreSQL for the system of record; la
 ```text
 ┌─────────────────────────────────────────────────────────────┐
 │ Surfaces                                                    │
-│  apps/web  (public site + merchant area, RTL, dark default) │
+│  apps/web  (public site + merchant area, RTL)               │
 │  apps/admin (separate application, separate login)          │
 └───────────────────────────┬─────────────────────────────────┘
                             │ HTTPS, schema-validated JSON contracts
@@ -226,7 +226,7 @@ Read/write notes:
 | `packages/shared` | Validation schemas, types, and contracts shared between frontend and backend. | Single source of the two contracts (Principle II); promoted code only after a second consumer exists. |
 | `packages/db` | Database schema and migrations. | One migration tool only; every migration a single reversible step; destructive changes split into expand/backfill/contract (Schema and Migration Control). |
 | `packages/search` | Search client and index mappings. | Arabic analyzer; OpenSearch Index State Management (ISM) on the index, with the per-catalog 90-day deletion enforced by the retention job (R15); one mapping owner per index. |
-| `packages/config` | ESLint, Stylelint, Prettier, TypeScript configuration shared by all workspaces. | Dependency and tooling changes follow Dependency Governance. Stylelint + ESLint fail the build on physical direction properties and on any colour, radius, shadow, duration, or z-index value that does not reference a declared token in `wafar.single.css` — enforced by the committed configuration, not a review comment (Design System Standards). |
+| `packages/config` | ESLint, Stylelint, Prettier, TypeScript configuration shared by all workspaces. | Dependency and tooling changes follow Dependency Governance. Stylelint + ESLint fail the build on physical direction properties and on any colour, spacing, radius, shadow, duration, or z-index value that is not supplied by the Wafar UI layer — enforced by the committed configuration, not a review comment (Principle IX). |
 
 ## 5. Environments and operations
 
@@ -261,12 +261,13 @@ Read/write notes:
   `.specify/memory/version.json`) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-091; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-096; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.
-- Design system: `wafar.single.css` (single source of truth, fourteen modules).
+- UI foundation: Nuxt UI v4 is the component library; the Wafar UI layer is
+  built by R1 and its path is fixed by that plan (Principle IX).
 - Technology stack: `Project-Technologies.txt`; product scope and roles:
   `Core-Project.txt`.
 - Deferred areas that touch this architecture: extraction algorithm; file

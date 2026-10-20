@@ -8,7 +8,7 @@
   and uses it as the REQUIRED STRUCTURE, then applies the existing project values
   and amendments to that scaffold. Without this override the core scaffold governs
   (5 principle slots and two generic sections), so a `/constitution` run could
-  collapse this project's ten principles and its nineteen binding sections (the
+  collapse this project's ten principles and its eighteen binding sections (the
   count Governance enumerates).
 
   Rule: keep the heading names and their order in step with
@@ -41,7 +41,7 @@
 ### VI. Catalog-Only Scope (NON-NEGOTIABLE)
 ### VII. Specification-First and Documentation Separation (NON-NEGOTIABLE)
 ### VIII. User Story Independence (NON-NEGOTIABLE)
-### IX. Design System Fidelity (NON-NEGOTIABLE)
+### IX. UI Foundation Fidelity (NON-NEGOTIABLE)
 ### X. Modular Monolith Architecture
 
 <!-- Each principle keeps its binding rules and its rationale. Preserve the
@@ -87,21 +87,6 @@
 ### Version-change rule
 ### Register gaps a slice MUST close
 ### Licence treatment for infrastructure services
-
-## Design System Standards
-
-### Module map
-### Token families
-### Breakpoints
-### Component inventory
-### Decision values (binding)
-### Interface State Matrix
-### State map
-### Components the product requires and the design system does not yet provide
-### Invariants
-### Fonts and the framework bridge
-### Extension procedure and design-system version
-### Honoured media and capability states
 
 ## Glossary
 

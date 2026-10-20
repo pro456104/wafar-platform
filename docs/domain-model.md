@@ -25,7 +25,7 @@ The distinction is the whole point of this document, so it is stated first.
 
 **No column type, no SQL, and no table definition appears in this document.**
 The constitution forbids a table definition inside the constitution
-(Single-Reference Sufficiency: "a design value, a token, a class, a line of
+(Single-Reference Sufficiency: "a UI value, a token, a class, a line of
 code, or a table definition MUST NOT be copied"), and the same reasoning
 applies here: a column list copied into a document is a second source that will
 disagree with the migration.
@@ -101,14 +101,12 @@ PlatformSetting                (platform-wide; no user)
 ```
 
 `AuditLog` is deliberately absent from this diagram. The register makes an
-administrator a role on `User`, while the conversation and the audit record both
-treat an administrator as a party of its own; drawing the relationship either way
-would settle a question the register records as open. The same holds for the
-administrator side of `Conversation`: how it is represented is unresolved fact
-#2 below, and that fact is owned by **R10**. The audit record's administrator
-party carries no separate open fact — it follows from the register's role
-decision (ADR-067, the administrator is a `User` holding the administrator
-role) — so only the conversation side is recorded as unresolved.
+administrator a role on `User` (ADR-067), and the audit record's administrator
+party follows from that role decision, so it carries no separate open fact and
+drawing it would add nothing. The administrator side of `Conversation` is a
+different case: whether it carries a reference, a role, or nothing is
+unresolved fact #2 below, owned by **R10**, so the conversation edge is not
+drawn.
 
 A dashed line is not used, because "related but undecided" is not a relationship
 the schema can express, and drawing one would read as a decision.

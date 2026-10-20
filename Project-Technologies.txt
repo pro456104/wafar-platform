@@ -1,8 +1,8 @@
 # Project-Technologies.txt — the detail of the technology register
 
 **Constitution**: `.specify/memory/constitution.md` (current version: its footer
-or `.specify/memory/version.json`; last amended 2026-10-09,
-ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064/065/066/067/068/069/070/071/072/073/074/075/076/077/078/079/080/081/082/083/084/085/086/087/088/089/090/091). On any conflict with this file, the constitution
+or `.specify/memory/version.json`; last amended 2026-10-20,
+ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064/065/066/067/068/069/070/071/072/073/074/075/076/077/078/079/080/081/082/083/084/085/086/087/088/089/090/091/092/093/094/095/096). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -214,7 +214,7 @@ apps/worker/src/
 |---|---|---|
 | **ESLint** | اكتشاف الأخطاء | قواعد صارمة لمنع `any` والـ double assertions. |
 | **Prettier** | تنسيق الكود | تنسيق موحد عبر المشروع. |
-| **Stylelint** | بوابة CSS الثابتة | يُفشل البناء على خصائص الاتجاه الفيزيائي وعلى أي قيمة لون/نصف قطر/ظل/مدة/z-index لا تشير إلى رمز معرّف في `wafar.single.css` (ADR-024). |
+| **Stylelint** | بوابة CSS الثابتة | يُفشل البناء على خصائص الاتجاه الفيزيائي وعلى أي قيمة لون/تباعد/نصف قطر/ظل/مدة/z-index لا تأتي من طبقة واجهة Wafar (ADR-024، معدّل بـ ADR-093). |
 
 ---
 

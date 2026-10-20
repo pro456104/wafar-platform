@@ -10,7 +10,10 @@ dominate a mirror whose job is the exact version of each approved technology.
 amendment at the time it landed; where one of them and the current
 `.specify/memory/constitution.md` disagree, the constitution wins and this file
 is corrected. The technology register is the constitution's Technology
-Standards; its detail is `Project-Technologies.txt`.
+Standards; its detail is `Project-Technologies.txt`. On 2026-10-20 ADR-093
+removed the custom design system: `wafar.single.css` and
+`Design System Standards` no longer exist, and the design-system blocks below
+are history only.
 
 ---
 

@@ -35,7 +35,6 @@ shapes. See Deferred areas.
 - Documentation
 - Deployment and Observability
 - Technology Standards
-- Design System Standards
 - Glossary
 - References
 - Artifact Workflow and Traceability
@@ -46,8 +45,8 @@ shapes. See Deferred areas.
 of it. It MUST NOT be read end to end for a feature command. Read the sections
 the command in hand names, and only those, mirroring `AGENTS.md` §3:
 `/speckit.specify` reads Product Scope, Product Register, Usage Limits, and
-Glossary; `/speckit.plan` reads Technology Standards, Design System Standards,
-and Product Register; `/speckit.tasks` reads Product Register, Single-Reference
+Glossary; `/speckit.plan` reads Technology Standards and Product Register;
+`/speckit.tasks` reads Product Register, Single-Reference
 Sufficiency, and Artifact Workflow and Traceability; `/speckit.checklist` reads
 Product Scope, Product Register, and the binding sections its checklist names;
 `/speckit.implement` reads the sections its plan's Constitution Check cites;
@@ -152,9 +151,8 @@ point is a wish, not a gate.
 - A change of state that a sighted user would perceive MUST be announced to
   assistive technology, and focus MUST NOT be left on a removed element.
 - Focus indication MUST be provided via `:focus-visible` on every interactive
-  element, at the size and colour defined by the design system.
-- Touch targets MUST meet the minimum size defined by the design system
-  (`--touch-floor`, 44px on mobile).
+  element and MUST meet the WCAG 2.2 focus-appearance contrast requirement.
+- Touch targets MUST be at least 44px on mobile.
 - Every interactive surface MUST expose its state to assistive technology
   (loading, empty, error, success, disabled), not only its success state.
 - Verification MUST include an automated accessibility scan and a manual
@@ -175,11 +173,10 @@ surface.
 - `<html dir="rtl" lang="ar">` MUST be set on every page, without exception.
 - Code identifiers, code comments, and governance documents MUST be English.
   Technical names that do not translate (PDF, Excel, OEM, SKU) MAY appear in
-  user-facing text. Three exceptions are named here so that the rule is read
-  with them rather than against them: `wafar.single.css` carries its explanatory
-  comments in Arabic, and the two mirrors `Core-Project.txt` and
-  `Project-Technologies.txt` are Arabic documents. Their identifiers, tokens,
-  rules, and structure are English; the prose a reader reads is Arabic. An
+  user-facing text. Two exceptions are named here so that the rule is read with
+  them rather than against them: the two mirrors `Core-Project.txt` and
+  `Project-Technologies.txt` are Arabic documents. Their identifiers, rules,
+  and structure are English; the prose a reader reads is Arabic. An
   Arabic string quoted as the subject of a rule — an Arabic-Indic numeral, an
   Arabic search example — is an illustration of that rule, not a violation of
   it.
@@ -195,7 +192,11 @@ surface.
   user or an administrator reads and nothing else: governance documents, code
   identifiers, and code comments are outside it.
 - Arabic text MUST NOT carry positive `letter-spacing`. Negative tracking is
-  permitted only on large headings and only within the design system's scale.
+  permitted only on large headings and only within the type scale recorded by
+  the Wafar UI layer.
+- The typeface MUST be an Arabic-first family, self-hosted, and used under a
+  recorded licence. The family is recorded by the Wafar UI layer; a typeface
+  outside that record MUST NOT be used.
 - Search MUST resolve Arabic word roots (طرمبة → طرمبات) through the
   designated Arabic analyzer. A search that matches only surface forms does
   not satisfy this rule.
@@ -321,72 +322,34 @@ deliverable as an increment of value.
 **Rationale:** Independence enables incremental delivery, parallel
 development, and shipping a partial MVP without waiting for the full scope.
 
-### IX. Design System Fidelity (NON-NEGOTIABLE)
+### IX. UI Foundation Fidelity (NON-NEGOTIABLE)
 
-The design system is defined in a single file: `wafar.single.css`. Every
-design value in the project comes from that file. Inventing new values is
-prohibited.
+The product uses one component foundation and one project-specific UI layer; a
+parallel design system is prohibited.
 
-- **Single source of truth**: `wafar.single.css`, composed of fourteen
-  modules.
-- **Default mode is dark.** Every page renders in dark mode unless the user
-  has explicitly chosen light. The mode toggle sits in the header, adjacent
-  to the notifications icon.
-- **Primary colour**: `#2563eb` (`--brand-600`). **Accent colour**:
-  `#0ea5e9` (`--accent-500`).
-- **Type**: Tajawal (Variable, SIL OFL 1.1) for all text. JetBrains Mono for
-  technical numerals and part codes. Noto Sans Arabic is permitted only as the
-  fallback in the font stack declared by `wafar.single.css`.
-- **Tables only** for data display. The exceptions are the statistical cards
-  on the home page.
-- **Shell scope**: the application shell (header plus sidebar) renders on the
-  public pages and the authenticated merchant area. The authentication pages
-  (sign-in, sign-up, forgot-password), the 404 page, and the static
-  policy/FAQ/contact pages use a bare layout with no header and no sidebar.
-  The administrator application carries its own independent shell.
-- **Sidebar** (`19rem` / `304px`) is visible on desktop (≥1024px) at all times.
-  It does not hide and it does not slide off-screen. The header's collapse
-  control narrows it on desktop to an icon rail: the sidebar stays on screen at
-  a narrow width, carrying each page's icon without its name, and the control
-  restores the full width. On mobile the sidebar is a drawer, and the same
-  control opens and closes it.
-- **Header** (`4.25rem` / `68px`): the sidebar header carries the platform
-  logo; the header carries the account, notifications, and theme-toggle icons
-  plus the sidebar collapse control, which is the desktop rail toggle and the
-  mobile drawer toggle.
-- **Existing components first**: a new interface MUST be composed from the
-  design system's existing components. A new Button, Input, Table, or Modal
-  MUST NOT be created when an existing component performs that function. A
-  component that is genuinely missing MUST be added to the design system
-  (`wafar.single.css`) as part of the same change, never created ad hoc
-  inside a feature.
-- **State completeness**: every interactive surface MUST define and render
-  every applicable state: loading, empty, error, success, and disabled. A
-  component that renders only its success state is incomplete. Responsive
-  behaviour and accessibility are required by this principle and by
-  Principle IV.
-- **RTL by construction**: every new surface is right-to-left by default and
-  follows Principle V; no component may be introduced that assumes
-  left-to-right ordering.
-- **Z-index layers**: every layer takes a value from the defined scale.
-  Direct use of `z-10`, `z-20`, or `z-50` is prohibited.
-- **Motion**: durations are limited to the defined scale (`--duration-instant` /
-  `0ms`, `--duration-fast` / `200ms`, `--duration-base` / `300ms`, `--duration-slow`
-  / `400ms`, `--duration-slower` / `600ms`, `--duration-deliberate` / `700ms`, the
-  last reserved for cinematic transitions). `prefers-reduced-motion` MUST be
-  honoured; the reduction is mandatory, not optional.
-- **Prohibited without exception**:
-  - Raw Tailwind colours (`bg-blue-500`, `text-gray-700`) in application code.
-  - Any `#hex` or `rgb()` outside `wafar.single.css`.
-  - `ml-`, `mr-`, `pl-`, `pr-`, `left`, `right`.
-  - Direct `z-10`, `z-20`, `z-50`.
-  - Arabic-Indic numerals (٠١٢٣).
-  - Positive `letter-spacing` on Arabic text.
-  - Typefaces other than Tajawal, Noto Sans Arabic, or JetBrains Mono.
+- **Component source.** Nuxt UI v4 is the only UI component library. A second
+  component library MUST NOT be introduced.
+- **Project values.** Project-specific UI values, theme configuration, wrappers,
+  and patterns live in the Wafar UI layer built by R1 through SpecKit; that plan
+  fixes the path. This constitution does not restate those values and does not
+  create a package.
+- **Existing components first.** A new interface MUST use the existing Nuxt UI
+  components and the Wafar UI layer. A missing component is added to that layer
+  in the same change, never created ad hoc inside a feature.
+- **No parallel design system.** A second component CSS library, token file, or
+  component inventory MUST NOT be added outside the Wafar UI layer.
+- **State completeness and motion.** Every interactive surface MUST render every
+  applicable state: loading, empty, error, success, and disabled.
+  `prefers-reduced-motion` MUST be honoured.
+- **No raw values.** Raw Tailwind colours, `#hex` or `rgb()` values outside the
+  Wafar UI layer, direct `z-10`/`z-20`/`z-50` values, and arbitrary spacing,
+  radius, shadow, or duration values MUST NOT appear in application code.
+- **RTL and accessibility.** Responsive behaviour, RTL construction, and
+  accessibility remain required by Principles IV and V.
 
-**Rationale:** The design system is the visual identity of the product. A
-drift is not a stylistic preference; it is a break of consistency that makes
-maintenance and visual review impossible at scale.
+**Rationale:** One component source and one project layer prevent the drift and
+maintenance cost a second design system creates. The values themselves are
+implementation detail and belong to the layer, not to this constitution.
 
 ### X. Modular Monolith Architecture
 
@@ -421,6 +384,21 @@ The pages below are the complete set required by the current scope. Adding a
 page outside this list requires both an amendment to the Product Register
 (below) and a specification that records the addition under the plan's
 Complexity Tracking table.
+
+The product's shared shell is a header, a sidebar, and the surface that carries
+the links to the static pages; that surface is recorded by the first slice that
+builds a shell page. It appears on the public site and the merchant's
+authenticated area; the authentication pages, the 404 page, and the static
+policy/FAQ/contact pages are bare, with no header, no sidebar, and no footer;
+the administrator application carries its own shell.
+The sidebar is full on a wide screen, collapses to an icon-only rail, and becomes
+a drawer on a narrow screen. The header carries the account control, the
+notifications control, the theme switch, and the sidebar collapse control. The
+default appearance is not fixed by this constitution; the Wafar UI layer
+records it. The theme switch itself is part of the frame.
+
+Every data view is a table; the only exception is the four statistical cards on
+the Home page.
 
 ### Public Site (Guest Accessible)
 
@@ -634,7 +612,7 @@ bounds the answer; that is not an assertion of the answer.
 | How a printed price that carries more than one separator is read (for example `1.250.000`), and how a file that separates thousands rather than decimals is read | File Processing Rules (price denomination); the price examples in `Core-Project.txt`; the source files themselves | R3 |
 
 **Resolved conflict (2026-10-03).** The sidebar conflict is resolved: the
-sidebar is required on desktop and must not hide or slide (Principle IX);
+sidebar is required on desktop and must not hide or slide (Product Scope);
 `Core-Project.txt` now defines the shell including the sidebar; authentication,
 404, static, and administrator pages are exempt from the shell. Recorded in
 `docs/DECISIONS.md` (ADR-017).
@@ -751,9 +729,10 @@ A MUST in them is resolved, reviewed, and excepted by the same procedure.
 A feature MUST NOT need a source outside this constitution for any rule it must
 obey. Every project-level source is named in References, and this constitution
 carries the register of each: the repository's structure and the approved stack
-in Technology Standards, the design system's structure in Design System
-Standards, the product's roles, pages, and facts in Product Scope and Product
-Register, and the data model's entities and their ownership in the Data entities table.
+in Technology Standards, the product's roles, pages, and facts in Product Scope
+and Product Register, and the data model's entities and their ownership in the
+Data entities table. UI values are implementation detail and live in the Wafar
+UI layer, not in a constitutional register.
 
 - Detail lives in the referenced sources; the register lives here. A rule that
   cannot be discharged without reading a referenced source MUST name that source
@@ -761,16 +740,14 @@ Register, and the data model's entities and their ownership in the Data entities
 - A value a referenced source leaves open, or defers, MUST be given a binding
   value under Constitution Mandated Values by the first plan that needs it, and
   the choice MUST be recorded in `docs/DECISIONS.md` as an ADR.
-- A technology, token, component, page, feature, role, or entity that is absent
+- A technology, component, page, feature, role, or entity that is absent
   from the registers above is not approved. Finding it in a referenced source
   does not approve it; the register MUST be amended first.
-- A register is a map, not a copy: a design value, a token, a class, a line of
-  code, or a table definition MUST NOT be copied into this constitution. A
-  register that duplicates its source is a drift defect, because the two copies
-  will disagree. The single exception is the design values a rule depends on —
-  those in Design System Standards → Decision values (binding) and those named in
-  Principles IV and IX — which are restatements of `wafar.single.css` and MUST
-  move with it.
+- A register is a map, not a copy: a UI value, a token, a class, a line of code,
+  or a table definition MUST NOT be copied into this constitution. A register
+  that duplicates its source is a drift defect, because the two copies will
+  disagree. The accessibility values named in Principle IV are the only values
+  restated here.
 - A register row MUST name a value its source actually defines. A register that
   names a token, entity, or field the source does not contain is the same
   defect read in the other direction, and it is corrected by amending the
@@ -1069,10 +1046,14 @@ the two ways a dependency base rots without a decision ever being made.
   cost factor; the authentication rate limits; the session timeout and token
   lifetime; the dependency budget; the performance budget percentiles and
   the maximum query execution time; the Recovery Time Objective and Recovery
-  Point Objective; the runtime version; the design-system version; the icon set;
+  Point Objective; the runtime version; the icon set;
   the extraction libraries; the transactional SMS transport; the
   continuous-integration provider; the decoded-size cap that rejects a
-  zip-bomb upload; and the supported-browser statement. A value written in the
+  zip-bomb upload; the supported-browser statement; the password policy
+  parameters (the minimum length and the common-or-breached-password source);
+  the one-time-code lifetime, its re-request limit, and the incorrect-entry
+  bound; and the profile field maximum lengths (the full name and the shop
+  name). A value written in the
   body of the plan but not
   under that heading does not satisfy the rule that names it, and a plan
   with no such heading has not discharged any of them. The list is closed: a
@@ -1375,7 +1356,7 @@ for the other:
 | TLS certificate management | Identity, Authentication, and Session Policy | R12 (the first deploying slice) |
 | Backup and restore tooling | Deployment and Observability | R1 (the slice that introduces persistent storage) |
 | Log pipeline | Deployment and Observability | R12 (the first deploying slice) |
-| Icon set used by the interface: an open-source set under a permissive licence (MIT, Apache-2.0, ISC, or BSD), self-hosted as SVG, with no emoji standing in for an icon | Product Scope; Design System Standards; Principle V | R1 |
+| Icon set used by the interface: an open-source set under a permissive licence (MIT, Apache-2.0, ISC, or BSD), self-hosted as SVG, with no emoji standing in for an icon | Product Scope; Principle V; the Wafar UI layer | R1 |
 | Redis client library | Files register row (BullMQ, Redis); Deployment and Observability's worker-durability rules | R3 |
 | OpenSearch client library | Search register row; `packages/search`; the worker's index-write path (R3 indexes the parts, so R3 is the first slice to need the client) | R3 |
 | Automated accessibility checker | Principle IV's verification MUST | R1 |
@@ -1390,425 +1371,6 @@ linked into, a merchant's browser or device. A network service consumed over a
 connection (Redis, PgDog) is not shipped code; a plan using one MUST
 nevertheless record the obligation its licence imposes, the operational coupling
 it creates, and a review date.
-
-## Design System Standards
-
-The full design system is implemented in `wafar.single.css`, which is the only
-permitted source of design values. This section is its register: what the file
-contains, and the rules that keep it single. A value, family, class, or component
-absent from this register is not part of the design system and MUST NOT be used.
-A design value MUST NOT appear in this constitution — the register maps, the CSS
-holds the values, and a copy here would be a second source that drifts. The one
-exception is the set of values a rule in this constitution depends on: the
-Decision values below, and the values Principles IV and IX name. Those are the
-register's reading of `wafar.single.css` rather than a second copy of it, which
-is why the file stays the source and a change to it MUST move them in the same
-change. No other value belongs here: not a token step, not a class, not a
-spacing or colour rung.
-
-### Module map
-
-The file is composed of fourteen modules, in this order. A value or component is
-added to the module that owns its concern, and this map is updated in the same
-change.
-
-| # | Module | Owns | # | Module | Owns |
-|---|---|---|---|---|---|
-| 01 | core | reset, RTL root, accessibility baseline, numeral handling | 08 | motion | durations, easings, transitions, keyframes |
-| 02 | colors | eleven colour families and the semantic aliases | 09 | zindex | the z-index layer scale |
-| 03 | typography | families, sizes, leading, tracking, weights | 10 | glass | glass, gradients, tints, glow |
-| 04 | opacity | opacity and alpha steps | 11 | forms | buttons, fields, badges, dots, progress, control and field heights, select chevron image tokens |
-| 05 | spacing | space scale, gutters, containers, screens (except `--screen-tiny`, which module 14 owns), touch floors, navbar and sidebar | 12 | components | semantic layers: shell, page, card, table, empty |
-| 06 | radii | the radius ladder and the named radii | 13 | loaders | the six loader designs and their tokens |
-| 07 | shadows | the shadow ladder and the named shadows | 14 | modes | media queries and responsive utilities |
-
-### Token families
-
-- Colour families, each 50-950: `brand`, `accent`, `primary`, `neutral`, `gray`,
-  `zinc`, `surface`, `success`, `warning`, `error`, `info`, plus the semantic
-  aliases (`--background-*`, `--text-*`, `--border-*`, `--surface-*`,
-  `--ring-*`, `--scrim`, `--control-solid`). `--ring-*` holds the validation
-  halos only (`--ring-brand`, `--ring-brand-strong`, `--ring-error`,
-  `--ring-error-strong`, `--ring-success`); the focus halo is not among them and
-  is carried by `--border-focus-ring` and applied through `--shadow-focus`.
-  `--scrim` is the backdrop dimmer, and `--control-solid` the
-  fill of a control that stays the same colour in both modes.
-  `gray` and `zinc` are re-pointed at the neutral ladder, and `info` is a synonym
-  of `brand`; both are deliberate decisions, recorded in `docs/DECISIONS.md`.
-- Typography: `--text-4xs` … `--text-6xl`, the matching `--leading-*`, the
-  `--tracking-*` set, the `--font-weight-*` set, and `--font-sans`,
-  `--font-display`, `--font-mono`. Four aliases name a size role rather than a
-  step, and each is named here because none of them follows a step pattern:
-  `--text-body-line-height`, `--text-heading-line-height`,
-  `--text-body-letter-spacing`, and `--text-heading-letter-spacing`. One size
-  token also sits outside the step ladder and is named here for the same reason:
-  `--text-2xs-tight`. The line-wrap
-  set `--wrap-normal`, `--wrap-tight`, and `--wrap-loose`
-  is the `text-wrap` family and belongs to this row rather than to motion, because
-  each value names a wrapping behaviour and not a duration. A one-off token whose
-  name no pattern covers MUST be written out in full in the row that owns it; a
-  family described in prose is not registered, because a checker cannot resolve it.
-  A prefix glob (`--tracking-*`) or a range with named endpoints (`--space-0` …
-  `--space-32`, `--text-4xs` … `--text-6xl`) **is** a pattern and a checker can
-  resolve it, so a row may use one; the test is whether the row yields the
-  token's exact name, not whether the row reads as a list.
-- Opacity and alpha: the opacity steps `--opacity-0`, `--opacity-2`,
-  `--opacity-3`, `--opacity-4`, `--opacity-5`, `--opacity-6`, `--opacity-8`,
-  `--opacity-10`, `--opacity-12`, `--opacity-15`, `--opacity-20`, `--opacity-25`,
-  `--opacity-30`, `--opacity-40`, `--opacity-50`, `--opacity-60`, `--opacity-70`,
-  `--opacity-75`, `--opacity-80`, `--opacity-90`, `--opacity-95`, and
-  `--opacity-100`, and the named alpha values `--alpha-imperceptible`,
-  `--alpha-faint`, `--alpha-wash`, `--alpha-hint`, `--alpha-ghost`,
-  `--alpha-soft`, `--alpha-muted`, `--alpha-dimmed`, `--alpha-half`,
-  `--alpha-scrim`, and `--alpha-veil`. The tint values are not in this row:
-  `--ds-tint-base` and `--ds-tint-alpha` belong to the glass and gradients row,
-  which owns module 10.
-- Spacing: `--space-0` … `--space-32`; the gutters `--gutter`, `--gutter-sm`,
-  and `--gutter-md`; the container widths `--container-max`,
-  `--container-narrow`, and `--container-form`; the screen widths
-  `--screen-xs` … `--screen-3xl`; the touch floors `--touch-floor`,
-  `--touch-floor-sm`, `--touch-floor-lg`, and `--touch-floor-xs`;
-  `--navbar-height` and `--sidebar-width`; the bottom-navigation tokens
-  `--bottom-nav-height`, `--bottom-nav-height-compact`, `--bottom-nav-fab-size`,
-  `--bottom-nav-fab-size-compact`, `--bottom-nav-fab-breakout`, and
-  `--bottom-nav-fab-breakout-compact`; the safe-area tokens `--safe-top`,
-  `--safe-right`, `--safe-bottom`, `--safe-left`, `--safe-gutter-x`, and
-  `--safe-bottom-padding`; and the vertical rhythm pair `--section-gap` and
-  `--section-gap-desktop`. `--screen-tiny` is the one exception to this row's
-  ownership: it sits in module 14, beside the `max-width: 359px` case it
-  exists to express.
-- Radii: the ladder `--radius-none`, `--radius-xs`, `--radius-sm`,
-  `--radius-md`, `--radius-lg`, `--radius-xl`, `--radius-2xl`,
-  `--radius-3xl`, and `--radius-full`, plus the named radii `--radius-shell`,
-  `--radius-canvas`, `--radius-sheet`, `--radius-overlay`, `--radius-media`,
-  `--radius-control`, `--radius-pill`, and `--radius-card`.
-- Shadows: the size ladder (`--shadow-xs`, `--shadow-sm`, `--shadow-md`,
-  `--shadow-lg`, `--shadow-xl`, `--shadow-2xl`) plus the named shadows `card`,
-  `card-raised`, `cinematic`, `cinematic-hover`, `cinematic-panel`, `control`,
-  `focus`, `glass`, `hairline`, `hairline-soft`, `inner`, `navbar`, `none`,
-  `overlay`, `panel`, `glow-brand`, `ring-error`, `ring-error-strong`, and
-  `ring-success`, plus the brand tints `brand-sm`,
-  `brand-md`, and `brand-lg`. The brand tints are a
-  three-step sub-ladder and not a single `brand` shadow; a `brand` shadow does
-  not exist and MUST NOT be used.
-- Motion: the duration steps — `--duration-instant` (0ms), `--duration-fast`
-  (200ms), `--duration-base` (300ms), `--duration-slow` (400ms), `--duration-slower`
-  (600ms), `--duration-deliberate` (700ms, reserved for cinematic transitions) —
-  plus one duration outside that scale, `--duration-reduced` (120ms), which the
-  `prefers-reduced-motion` block uses and nothing else. `instant` and
-  `deliberate` are the two ends of the ladder and are named here because
-  Principle IX's motion rule states the scale; every other transition duration a
-  rule names is one of these six. The file carries two further duration families
-  that are periods rather than transition durations and are therefore not on the
-  scale: the infinite-loop periods `--motion-loop-{pulse,spin,slow,float,badge,gradient,shimmer}`,
-  and the stagger ladder `--motion-stagger-1` … `--motion-stagger-5`
-  (100–500 ms) behind `.ds-delay-1` … `.ds-delay-5`. One further duration sits
-  outside both families and is named here so the file's inventory is complete:
-  `--motion-stagger-step` (50 ms), a declared-but-unused gap between sequential
-  items, which no rule names and no slice may rely on until a surface consumes
-  it. Easings are
-`--ease-standard`,
-  `--ease-smooth`, `--ease-bounce`, `--ease-cinematic`,
-  `--ease-linear`, `--ease-default`, `--ease-loop`, and `--ease-pulse`.
-  The file also carries the transition shorthands `--transition-fast`,
-  `--transition-base`, `--transition-slow`, `--transition-slower`,
-  `--transition-smooth`, `--transition-bounce`, and `--transition-cinematic`,
-  each a duration paired with the easing its role implies, and four transform
-  tokens used as motion values rather than as durations:
-  `--motion-hover-lift`, `--motion-press-scale`, `--motion-slide-near`, and
-  `--motion-slide-far`. Naming them here completes the motion row's inventory;
-  a token absent from it may not be added to this row by a slice without the
-  amendment that names it.
-- Z-index: the layer scale `--z-base`, `--z-raised`, `--z-sticky`, `--z-header`,
-  `--z-nav`, `--z-backdrop`, `--z-dropdown`, `--z-sidebar-backdrop`,
-  `--z-sidebar`, `--z-widget`, `--z-popover`, `--z-modal`, `--z-drawer`,
-  `--z-loader`, `--z-toast`, `--z-tooltip`, and `--z-boot`, plus the five
-  floating layers `--z-float-1`, `--z-float-2`, `--z-float-3`, `--z-float-modal`,
-  and `--z-float-drawer`, each derived from the scale by a fixed offset. Every
-  layer takes a value from this scale or from one of those derived layers.
-- Glass and gradients: the glass surfaces `--glass-surface`,
-  `--glass-brand-surface`, `--glass-dark-surface`, `--card-glass-surface`, and
-  `--backdrop-glass`; their borders and shadows `--glass-border`,
-  `--glass-dark-border`, `--card-glass-border`, `--glass-shadow`,
-  `--glass-brand-shadow`, and `--glass-dark-shadow`; the tints `--ds-tint-base`
-  and `--ds-tint-alpha`; the glows `--glow-brand-soft`, `--glow-brand-strong`,
-  `--glow-accent-soft`, `--glow-accent-strong`, `--glow-violet-soft`, and
-  `--glow-violet-strong`; the shimmer inks `--shimmer-edge` and `--shimmer-ink`;
-  and the decorative overlay inks `--vignette-ink` and `--scanline-ink`. The
-  gradient utilities are registered as components in the Component inventory row
-  and carry no token of their own. `--shadow-glass` and `--shadow-glow-brand`
-  are registered in the shadows row, and `--loader-glow` in the loaders row, so
-  they belong to those rows and not to this one.
-- Form metrics: the control heights `--control-height-xs`,
-  `--control-height-sm`, `--control-height-md`, `--control-height-lg`, and
-  `--control-height-xl`; the field heights `--field-height-sm`,
-  `--field-height-md`, and `--field-height-lg`; the desktop-parallel values
-  `--control-height-sm-desktop`, `--control-height-md-desktop`,
-  `--control-height-lg-desktop`, `--control-height-xl-desktop`,
-  `--field-height-sm-desktop`, `--field-height-md-desktop`, and
-  `--field-height-lg-desktop`; and the select chevron's two image tokens,
-  `--select-chevron` and `--select-chevron-dark`, written out for the reason the
-  Typography row gives. The eight base tokens hold the mobile-first value and
-  each `-desktop` sibling holds the desktop one, so a surface reads the sibling
-  its breakpoint calls for. `--control-height-xs` is the one height the file
-  gives no `-desktop` sibling, and this row therefore names none: a register
-  row names only what its source defines, and a correction is made by amending
-  the register rather than by inventing the value (Single-Reference
-  Sufficiency). Adding the missing sibling is a decision about the design
-  system, taken under Extension procedure and design-system version, and it
-  enters this row in the same change. On the narrow axis the
-  `max-width: 359px` block re-declares `--control-height-xs` from `36px` to
-  `32px`; that is a cascade override on a registered token rather than a
-  separate token, and it is named here so the override is checkable against the
-  file. These belong to module 11. An image token's own pixels are outside the
-  token rule by the exemption "Inside the design system file" gives an embedded
-  data URI; naming the pair here, and in the rule that declares them, is what
-  makes the correspondence checkable and so keeps the file's inventory
-  complete.
-- Loaders: the six loader designs named in the Component inventory row, and their
-  tokens - sizes `--loader-size-xs`, `--loader-size-sm`, `--loader-size-md`,
-  `--loader-size-lg`, `--loader-size-xl`, and `--loader-size-2xl`; strokes
-  `--loader-stroke-xs`, `--loader-stroke-sm`, `--loader-stroke-md`,
-  `--loader-stroke-lg`, and `--loader-stroke-xl`; gaps `--loader-gap-xs`,
-  `--loader-gap-sm`, `--loader-gap-md`, `--loader-gap-lg`, and `--loader-gap-xl`;
-  speeds `--loader-speed-slow`, `--loader-speed-normal`, and
-  `--loader-speed-fast`; the radar's dots `--loader-dot-xs`, `--loader-dot-sm`,
-  `--loader-dot-md`, `--loader-dot-lg`, and `--loader-dot-xl`; and the colours
-  `--loader-track`, `--loader-main`, `--loader-strong`, `--loader-soft`,
-  `--loader-accent`, `--loader-on-solid`, `--loader-on-solid-soft`,
-  `--loader-radar-ink`, and `--loader-glow`.
-### Breakpoints
-
-The media queries use 640, 768, 1024, 1280, 1536, and 1920 px as minimum widths,
-plus the `max-width` cases at 359, 639, and 1023 px and the 768–1023 px tablet
-band. The token ladder names them, and the mapping below is binding:
-
-| Token | Value | Mirrored by a hardcoded media-query value? |
-|---|---|---|
-| `--screen-tiny` | 360px | yes, as `max-width: 359px` |
-| `--screen-xs` | 480px | no |
-| `--screen-sm` | 640px | yes |
-| `--screen-md` | 768px | yes |
-| `--screen-lg` | 1024px | yes |
-| `--screen-xl` | 1280px | yes |
-| `--screen-2xl` | 1536px | yes |
-| `--screen-3xl` | 1920px | yes |
-
-The stylesheet contains no `var(--screen-*)` reference: every token in the ladder
-is declared-but-unused, so none of them MAY be relied on as a wired value until
-the module that owns it wires it to a media query. The same holds for
-`--sidebar-width`, `--navbar-height`, and `--touch-floor` (and its `-sm`/`-lg`/`-xs`
-siblings): their values are fixed by Decision values and by Principle IX, but a
-surface MUST NOT assume the token is already consumed by a media query or a
-layout rule.
-
-The shadow ladder is **not** in that state, and this paragraph does not claim it
-is. The size ladder `--shadow-xs` through `--shadow-2xl` and the named shadows
-`--shadow-card`, `--shadow-card-raised`, `--shadow-focus`, `--shadow-hairline`,
-`--shadow-hairline-soft`, `--shadow-navbar`, `--shadow-glow-brand`,
-`--shadow-ring-error`, `--shadow-ring-error-strong`, and `--shadow-ring-success`
-are declared **and already consumed** by `wafar.single.css`; they are in force.
-The remaining nine named shadows — `--shadow-cinematic`,
-`--shadow-cinematic-hover`, `--shadow-cinematic-panel`, `--shadow-control`,
-`--shadow-glass`, `--shadow-inner`, `--shadow-none`, `--shadow-overlay`, and
-`--shadow-panel` — and the `brand-sm`, `brand-md`, `brand-lg` triple are
-declared-but-unused, and no slice MAY rely on one until the surface that needs it
-consumes it. The two groups account for the whole file: twenty-eight shadow
-tokens, being the six-step size ladder, nineteen named shadows (ten consumed,
-nine not), and the brand triple. A register row naming a value MUST match what the source actually does
-(Single-Reference Sufficiency); this paragraph distinguishes the two states
-because the two groups are not uniform.
-
-A responsive change MUST name the breakpoint it changes at, and the first
-surface that wires a token MUST delete the tokens it leaves unused (Project
-Structure and Debt Control).
-
-### Component inventory
-
-Button; field; select; checkbox; radio; switch; card; table, with its density
-classes and column-width scale; badge; avatar; dot; progress; skeleton;
-shimmer; empty; divider; dropdown; popover; tooltip; backdrop; drawer; overlay
-container; the glass, gradient, tint, and glow utilities; shell; page; panel;
-grid; stack; container; the six loaders; and the animation utilities.
-
-This row is an inventory of **components and component parts**, not of every
-class the file defines. The utility classes — the accessibility helpers, the
-layout and typography helpers, the z-index and overflow helpers — are named in
-no row here, and that is deliberate: a register is a map and not a copy
-(Single-Reference Sufficiency), so their names stay in the file, where the module
-map assigns each to an owning module and where the file's own module banners
-record that ownership. A component added to this row is binding; a utility class
-is not, and a slice that needs a component absent from this row MUST amend it
-rather than treat a utility class as the component.
-
-### Decision values (binding)
-
-The values below are decisions of the system, not of the ladder, and the listed
-rule depends on each one.
-
-- **Dark mode (default)**: background `#0a0a0a`, surface `#121416`, primary
-  text `#fafafa`.
-- **Light mode (opt-in)**: background `#fafafa`, surface `#ffffff`, primary
-  text `#0a0a0a`.
-- **Card**: `--radius-card` (1.5rem), `--shadow-card`, border
-  `--border-slate-subtle`.
-- **Table**: striped rows (`nth-child(even)`), hover. Density classes:
-  `ds-table-density-compact`, `ds-table-density-normal`,
-  `ds-table-density-comfortable`. A sticky header is required but the design
-  system does not yet provide it (see the missing-components list below).
-- **Motion**: `--duration-fast` (200ms) for micro-interactions,
-  `--duration-base` (300ms) for transitions, `--duration-slow` (400ms) for
-  the theme toggle, `--duration-slower` (600ms) for long transitions,
-  `--duration-deliberate` (700ms) for cinematic transitions, and
-  `--duration-instant` (0ms) where a transition must not animate.
-- **Sidebar**: `--sidebar-width` (19rem / 304px), full width or icon rail on
-  desktop, drawer on mobile. The rail's width is not fixed here; it is a token
-  the slice that first needs it MUST add to `wafar.single.css`.
-- **Header**: `--navbar-height` (4.25rem / 68px).
-- **Accessibility**: `:focus-visible` (2px `--brand-500`), touch targets
-  ≥44px on mobile, contrast at least AA.
-
-### Interface State Matrix
-
-Every new surface MUST handle each applicable state below. A state that does
-not apply MUST be justified in the feature's plan, not silently omitted.
-
-| State | Requirement |
-|---|---|
-| loading | A visible, non-blocking loading state for any asynchronous data. |
-| empty | A meaningful empty state when there is no data to display. |
-| error | A user-facing error state with a recovery action where one exists. |
-| success | The normal rendered state, verified against the design system. |
-| disabled | A disabled state for every control that can be unavailable. |
-| responsive | Layout at the design system's breakpoints (sidebar at full width or as an icon rail on desktop, drawer on mobile). |
-| accessibility | WCAG 2.2 AA, keyboard operable, `:focus-visible`, touch targets ≥ --touch-floor (Principle IV). |
-
-### State map
-
-| State | Class or attribute that renders it |
-|---|---|
-| loading | `ds-loader-arc`, `ds-loader-dots`, `ds-loader-dual-ring`, `ds-loader-bars`, `ds-loader-orbit`, `ds-loader-radar`; `ds-skeleton`, `ds-shimmer`, `ds-progress-*` |
-| empty | `ds-empty`, `ds-empty-icon`, `ds-empty-title`, `ds-empty-description`, `ds-empty-action` |
-| error | `ds-field-error`, `ds-hint-error`, `ds-badge-error`, `ds-dot-error` |
-| success | `ds-field-success`, `ds-badge-success`, `ds-dot-success` |
-| disabled | `:disabled` and `[aria-disabled="true"]` on the control |
-
-A control that has no disabled state MUST NOT be shipped. The completeness rule
-for a surface is Principle IX's (State completeness); this table only maps the
-states to the classes that render them.
-
-### Components the product requires and the design system does not yet provide
-
-The product's pages and features require the following, and `wafar.single.css`
-does not provide them today: pagination (numbered buttons plus the 20/50/100
-page-size selector); a column sort indicator; the filters toolbar; the
-multi-select control the Parts filters require (several distinct values chosen
-at once, with no selection meaning every value — the register's single-select
-field and dropdown do not provide it); the price-range control (a minimum and a
-maximum); file upload
-with progress; a confirmation overlay (the overlay Principle IX names "Modal" —
-the system has `ds-overlay-root`, `ds-backdrop`, and `ds-drawer-panel`, but no
-modal); a toast; the message-thread surface; the cart add/remove toggle; the
-notification bell with its counter; the theme toggle; the icon set; the
-collapsed sidebar rail (its width token, and the rail's rendering beside the
-full sidebar); and the sticky table header (the system ships `ds-sticky-top`,
-but `.ds-table thead` does not use it).
-
-Each MUST be added to `wafar.single.css`, in the module that owns its concern,
-by the slice that first needs it, in that slice's change. It MUST NOT be created
-ad hoc inside a feature, and it MUST NOT be defined in this constitution.
-
-### Invariants
-
-- Dark mode is the default and is class-based: the `dark` class on `<html>`,
-  together with `color-scheme`. `prefers-color-scheme` MUST NOT choose the mode;
-  it serves only elements that do not read the class. The chosen mode MUST be
-  applied before first paint, and the toggle sits in the header.
-- Tables are the only data-display form. The exceptions are the home page's
-  statistical cards.
-- RTL by construction: `<html dir="rtl" lang="ar">` on every page, the physical
-  direction rule as Principle V states it, and Latin numerals only (`ds-numeric`,
-  `ds-tabular`).
-- **A directional value in `wafar.single.css` MUST record which kind it is.**
-  The rule that declares it states whether the direction is derived from the
-  writing mode or is a fixed angle, because Principle V's test cannot be applied
-  to a bare declaration whose purpose is not otherwise visible. A physical
-  direction keyword in this file is a defect on the same footing as a raw
-  colour.
-- Prohibited: raw Tailwind colours; any `#hex` or `rgb()` outside
-  `wafar.single.css`; `ml-`, `mr-`, `pl-`, `pr-`, `left`, `right`; direct
-  `z-10`, `z-20`, `z-50`; Arabic-Indic numerals; positive `letter-spacing` on
-  Arabic text; and any typeface other than Tajawal, Noto Sans Arabic, or
-  JetBrains Mono.
-- **Supported browsers.** The two latest major versions of Chrome, Edge,
-  Firefox, and Safari MUST be supported; no browser may be dropped without an
-  ADR. Support MUST be stated in the plan's Constitution Mandated Values.
-- Every z-index value comes from the defined layer scale, and every duration
-  comes from the defined motion scale.
-- A design value MUST NOT appear anywhere but `wafar.single.css`: not in a second
-  stylesheet, not in a Vue SFC colour, not in an inline style value, and not as a
-  Tailwind colour utility.
-- **Static enforcement.** Stylelint and ESLint MUST fail the build on both
-  forms of the physical-direction rule Principle V states, and on any colour,
-  radius, shadow, duration, or z-index value **outside `wafar.single.css`**
-  that does not reference a declared token. Enforcement MUST be a committed
-  configuration, not a review comment, and it MUST cover the value form and not
-  only the property form. The scope
-  is named because it is the only reading under which the rule is satisfiable:
-  `wafar.single.css` is the source of the tokens, so a rule that forbade a
-  literal there would forbid the file from defining anything.
-- **Inside the design system file.** A colour, radius, shadow, duration, or
-  z-index in `wafar.single.css` MUST be either a token definition or a reference
-  to one, and the same rule applies to a shadow's own parts — a `box-shadow` that
-  combines a token with a literal offset or alpha is a token reference and a
-  literal, and it is the literal half that is the defect. Three cases are exempt
-  because the value is not a rendered design value: a `mask` or `-webkit-mask`
-  image, whose luminance mask must be literal to mask at all; the print rules,
-  whose job is to override user-agent styling that the tokens do not control; and
-  a `prefers-color-scheme` rule, whose values must deliberately differ from the
-  mode class because it exists only to serve elements that do not read the class
-  (the first rule of this section: the mode is class-based). A fourth case is an image asset
-  embedded as a data URI, whose internal pixels belong to the asset rather than
-  to a rendered property — a CSS variable cannot be read inside a `url()`, so the
-  asset's colour cannot become a reference. Such a token is exempt only when the
-  rule that declares it names the token whose value its colour matches, so the
-  correspondence is checkable and a later palette change has something to update.
-  A raw value anywhere else in the
-  file is a defect, and a slice that edits the rule containing it converts it in
-  the same change rather than reading around it. A directional value is exempt
-  from the token rule only in one of Principle V's two permitted forms: a
-  logical keyword or function where the direction is derived from the writing
-  mode, and an explicit degree angle where it is not. A physical keyword in
-  either case is a defect in this file on the same footing as a raw colour.
-
-### Fonts and the framework bridge
-
-- The system declares no `@font-face`. Delivering the fonts is the application's
-  duty: Tajawal Variable (weights 300-800) and JetBrains Mono, self-hosted,
-  Arabic-subset, with `font-display` stated and a recorded metrics fallback.
-- Tailwind's default palette MUST be disabled, `@theme` MUST resolve every
-  utility to a design token, and Nuxt UI's theme MUST be mapped onto these
-  tokens. A utility or component colour that is not a token is a Principle IX
-  violation. No bridge exists yet; it MUST exist before the first surface that
-  uses a Tailwind or Nuxt UI colour.
-
-### Extension procedure and design-system version
-
-- A new value or component MUST be added to `wafar.single.css` in the module that
-  owns its concern, and the module map above MUST be updated in the same change.
-  The module count and order MUST stay in step with the file.
-- `wafar.single.css` MUST declare its own version in its header. The plan records
-  that version under Constitution Mandated Values, which is the single place a
-  value the plan must record is named (Module Discipline and Development
-  Workflow). A second stylesheet MUST NOT be introduced.
-
-### Honoured media and capability states
-
-Print (`ds-print-hide`, `ds-print-only`, `ds-print-block`, `ds-print-link`),
-reduced motion (all animation MUST stop), high contrast, short landscape,
-pointer and hover capability (`ds-touch-optimized`), screens below 360px
-(`ds-tiny-hide`, `ds-text-shrink`), safe-area insets, and scroll locking
-(`ds-scroll-locked`) MUST be honoured. This is a MUST, not an option.
 
 ## Glossary
 
@@ -1877,7 +1439,6 @@ however obviously the concept belongs to the entity.
 | `docs/CHANGELOG-mirror.md` | The mirror's historical "Constitution X additions" blocks, split out of `Project-Technologies.txt` (ADR-075). History, not a source of rules. | `docs/`. |
 | `Core-Project.txt` | The product's detail: pages, roles, and the acceptance criteria the product already states. Mirrors Product Register and Product Scope, which win on conflict. | Repository root. |
 | `docs/domain-model.md` | The data model's source of truth: entities, relationships, cardinality, invariants, and the owning module of each. Mirrors the Data entities table, which holds the map. | `docs/`. |
-| `wafar.single.css` | The design system's values — the only permitted source of design values, composed of fourteen modules. Mirrors Design System Standards, which holds the register. | Repository root. |
 | `docs/DECISIONS.md` | The record of design decisions and the reasoning behind them. | `docs/`. |
 | `docs/architecture.md` | The repository layout, module map, and data-flow descriptions. | `docs/`. |
 | `.specify/templates/exception-register.md` | The exception register required by Governance. | `.specify/templates/`. |
@@ -1889,7 +1450,7 @@ however obviously the concept belongs to the entity.
 | `.specify/extensions.yml` | The installed extensions and the hook registry every Spec Kit command reads before and after it runs. | `.specify/`. |
 | `.specify/workflows/speckit/workflow.yml` | The bundled workflow that runs the binding cycle in order, with its human review gates. | `.specify/workflows/speckit/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
-| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088): the two version sources including the amended date, every live ADR range string, every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the design system's token register, that file's own declared version and module count, and the structural counts the governance text states in prose. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
+| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096): the two version sources including the amended date, every live ADR range string (in the required files, under `docs/`, in the two Arabic mirrors, in the template overrides, and in the feature specifications), every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the structural counts the governance text states in prose, and the absence of the removed stylesheet and its constitution section. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
 
 ## Artifact Workflow and Traceability
 
@@ -1976,11 +1537,13 @@ the same force as the principles above.
 - Every page header in the shell MUST carry the account, notifications,
   theme-toggle, and sidebar-collapse controls for an authenticated user. The
   sidebar-collapse control narrows the sidebar to its icon rail on desktop and
-  opens and closes the drawer on mobile. A guest MUST see a login action instead
-  of those controls. The platform logo
+  opens and closes the drawer on mobile. A guest MUST see a login action in
+  place of the account and notifications controls; the theme switch and the
+  sidebar-collapse control remain available to the guest. The platform logo
   sits in the sidebar header, and the quick search field lives on the Home
-  page (see Product Scope). Pages without the shell — authentication, 404,
-  static, and administrator pages — carry no header. The four bare-layout static
+  page (see Product Scope). Pages without the product's shared shell —
+  authentication, 404, and static pages — carry no header; the administrator
+  application carries its own shell and header. The four bare-layout static
   pages — Contact, Privacy Policy, Terms of Use, and FAQ — are reached the same
   way: by a direct link or by an action on a page that carries one, and none of
   them is a sidebar item. The shell has no footer component today, so the surface
@@ -2011,14 +1574,14 @@ same procedure: Query Safety and Secrets, Schema and Migration Control,
 Identity, Authentication, and Session Policy, Authorization and Access Control,
 Performance Budgets and Verification, Dependency Governance, Module Discipline
 and Development Workflow, Project Structure and Debt Control, Documentation,
-Deployment and Observability, Technology Standards, Design System Standards,
+Deployment and Observability, Technology Standards,
 Glossary, Product Scope, Product Register, Single-Reference Sufficiency, File
 Processing Overview, Artifact Workflow and Traceability, and Product Fact
 Clarifications. This adjudication spans all ten principles — I. Evident,
 Traceable Change; II. Strict Type Safety; III. Measured Test Coverage; IV.
 Accessible User Interfaces; V. Arabic-First and RTL Interfaces; VI.
 Catalog-Only Scope; VII. Specification-First and Documentation Separation;
-VIII. User Story Independence; IX. Design System Fidelity; X. Modular
+VIII. User Story Independence; IX. UI Foundation Fidelity; X. Modular
 Monolith Architecture — and every binding section named above. A SHOULD is
 advisory and MUST NOT
 be reported as a critical
@@ -2153,4 +1716,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 2.29.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-09
+**Version**: 3.2.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-20

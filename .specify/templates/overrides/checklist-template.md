@@ -20,7 +20,7 @@
      - `.specify/memory/constitution.md` — principles and governance.
      - `Core-Project.txt` — the product definition: roles, pages, file
        processing, and acceptance criteria.
-      - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-091).
+     - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-096).
        An item that contradicts one is a blocking defect.
      - `docs/domain-model.md` — the entities a checklist may reference,
        and the invariants it MUST NOT contradict.
@@ -28,8 +28,8 @@
      the records this feature touches, not the whole file (ADR-071, Reading
      protocol).
      The technical sources (`docs/architecture.md`,
-     `Project-Technologies.txt`, `wafar.single.css`) belong to the plan
-     template's binding block, NOT here.
+     `Project-Technologies.txt`) belong to the plan template's binding block,
+     NOT here.
   4. Items hard to verify become open questions, never passed marks.
 -->
 

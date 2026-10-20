@@ -20,17 +20,17 @@
     technical detail, so it MUST be written against the project-level sources
     rather than from the feature spec alone — `.specify/memory/constitution.md`,
     `docs/architecture.md` (the layout), the constitution's registers
-    (Technology Standards, Design System Standards, Product Register),
+    (Technology Standards, Product Register),
     `docs/domain-model.md` (the entities, their relationships, and their
     invariants, which the plan's Phase 1 `data-model.md` MUST NOT contradict),
-    `Project-Technologies.txt` (a mirror), `wafar.single.css` (the design values),
+    `Project-Technologies.txt` (a mirror),
     `Core-Project.txt`, `docs/DECISIONS.md`. Read the sections named; for
     `docs/DECISIONS.md` read its index and the records this feature touches,
     not the whole file (ADR-071, Reading protocol). A plan that contradicts an
     accepted ADR (docs/DECISIONS.md) or the Technology Standards is an ERROR,
     not a preference. The Ownership Map MUST record paths that match
     `docs/architecture.md`, and a project-level concern (architecture, data
-    model, design system, technology stack, conventions) MUST NOT be turned into
+    model, UI foundation, technology stack, conventions) MUST NOT be turned into
     a feature.
   - A plan that resolves an entity, a relationship, an invariant, or an open
     product fact MUST amend `docs/domain-model.md` and record an ADR in the same
@@ -53,7 +53,7 @@
 **Primary Dependencies**: [The minimum stack defined by the constitution's Technology Standards register (`Project-Technologies.txt` mirrors it); any addition MUST clear Dependency Governance: justification, licence obligation recorded, vulnerability scan]
 **Storage**: [PostgreSQL through packages/db / OpenSearch through packages/search / SeaweedFS object storage — as applicable to this feature]
 **Testing**: [Per the spec's Test Coverage Request — Vitest for unit/integration, Playwright for end-to-end]
-**Target Platform**: [e.g., Linux VPS, modern browsers per the design system breakpoints]
+**Target Platform**: [e.g., Linux VPS, modern browsers per the supported-browser statement]
 **Project Type**: Monorepo — apps/ (web, admin, api, worker) + packages/ (shared, db, search, config); see docs/architecture.md
 **Performance Goals**: [p50 and p95 for the request path, under the load condition named below]
 **Constraints**: [numeric budgets and product limits from the Usage Limits table: max file size, upload counts, cart cap, search p95 < 1 s, cart-add < 200 ms, file processing < 5 min — those that apply]
@@ -71,13 +71,14 @@
   in the spec's Success Criteria (Query Safety and Secrets).
 
   Row numbering and the constitution's closed list: the constitution enumerates
-  fifteen values, and this table has seventeen rows because two of its items are
+  seventeen values, and this table has nineteen rows because two of its items are
   split so each half can be answered on its own. Rows 6 and 7 are the two halves
   of constitution item 6 (the performance budget percentiles AND the maximum
   query execution time); rows 8 and 9 are the two halves of constitution item 7
-  (the RTO AND the RPO). Rows 1-5 and 10-17 map one-to-one onto constitution
-  items 1-5 and 8-15. The constitution's list is closed: a MUST that names a new
-  value adds it there first, and the matching row is added here in the same change.
+  (the RTO AND the RPO). Rows 1-5 and 10-16 map one-to-one onto constitution
+  items 1-5 and 8-14; rows 17-19 map one-to-one onto constitution items 15-17.
+  The constitution's list is closed: a MUST that names a new value adds it there
+  first, and the matching row is added here in the same change.
 -->
 
 | # | Value | This plan records |
@@ -92,13 +93,15 @@
 | 8 | Recovery Time Objective (RTO) | [number, or "not introduced — no persistent storage"] |
 | 9 | Recovery Point Objective (RPO) | [number, or "not introduced — no persistent storage"] |
 | 10 | Runtime version | [pinned version, or "not introduced — no runtime surface"] |
-| 11 | Design-system version | [version from wafar.single.css header, or "not introduced — no UI change"] |
-| 12 | Icon set | [the approved set, or "not introduced — no icon surface"] |
-| 13 | Extraction libraries | [the approved libraries, or "not introduced — no extraction surface"] |
-| 14 | Transactional SMS transport | [the approved transport, or "not introduced — no SMS surface"] |
-| 15 | Continuous-integration provider | [the approved provider, or "not introduced — CI unchanged"] |
-| 16 | Decoded-size cap that rejects a zip-bomb upload | [the recorded cap, or "not introduced — no upload surface"] |
-| 17 | Supported-browser statement | [the stated browser set, or "not introduced — no UI change"] |
+| 11 | Icon set | [the approved set, or "not introduced — no icon surface"] |
+| 12 | Extraction libraries | [the approved libraries, or "not introduced — no extraction surface"] |
+| 13 | Transactional SMS transport | [the approved transport, or "not introduced — no SMS surface"] |
+| 14 | Continuous-integration provider | [the approved provider, or "not introduced — CI unchanged"] |
+| 15 | Decoded-size cap that rejects a zip-bomb upload | [the recorded cap, or "not introduced — no upload surface"] |
+| 16 | Supported-browser statement | [the stated browser set, or "not introduced — no UI change"] |
+| 17 | Password policy parameters (minimum length and the common-or-breached-password source) | [the minimum length and the source the platform holds, or "not introduced — no password surface"] |
+| 18 | One-time-code lifetime, re-request limit, and incorrect-entry bound | [numbers, or "not introduced — no one-time-code surface"] |
+| 19 | Profile field maximum lengths (full name, shop name) | [numbers, or "not introduced — no profile field"] |
 
 ### Verification Notes *(required where applicable)*
 
@@ -125,12 +128,12 @@
 | I. Evident, Traceable Change *(NON-NEGOTIABLE)* | | [FR/AC identifiers assigned in spec.md; every task will end with `(implements FR-###, AC-###)`; commits and PRs will reference spec + task identifiers] |
 | II. Strict Type Safety | | [strict mode flags; no `any`; no double assertions; validation schemas shared in packages/shared] |
 | III. Measured Test Coverage | | [spec Test Coverage Request answered; 80% of changed lines; the enforcement point for the coverage gate] |
-| IV. Accessible User Interfaces | | [WCAG 2.2 AA; keyboard operable; state changes announced; `:focus-visible`; touch targets ≥ --touch-floor] |
+| IV. Accessible User Interfaces | | [WCAG 2.2 AA; keyboard operable; state changes announced; `:focus-visible`; touch targets ≥ 44px] |
 | V. Arabic-First and RTL Interfaces *(NON-NEGOTIABLE)* | | [`<html dir="rtl" lang="ar">`; logical CSS properties only; Latin numerals; Arabic root-aware search through the designated analyzer] |
 | VI. Catalog-Only Scope *(NON-NEGOTIABLE)* | | [no payment/purchase/RFQ/wallet; cart is a bookmark list carrying no price or quantity; single admin conversation thread only] |
 | VII. Specification-First and Documentation Separation *(NON-NEGOTIABLE)* | | [spec.md reviewed for absence of technical detail; this plan holds the technical detail] |
 | VIII. User Story Independence *(NON-NEGOTIABLE)* | | [priorities assigned; the P1 set forms the shippable MVP; no circular story dependencies] |
-| IX. Design System Fidelity *(NON-NEGOTIABLE)* | | [all design values from wafar.single.css; dark mode default; no invented tokens, raw colours, or direct z-index values] |
+| IX. UI Foundation Fidelity *(NON-NEGOTIABLE)* | | [Nuxt UI v4 is the only component library; project values live in the Wafar UI layer; no second component library, no custom design system, no raw values or direct z-index values; every state rendered] |
 | X. Modular Monolith Architecture | | [owning module named per change; one responsibility per module; no direct cross-module imports — communication through the shared package] |
 
 *Every row is filled. A principle that does not apply is marked "not applicable" with a reason; never left blank.*
@@ -155,12 +158,11 @@
 | Documentation | | [ADR for every non-trivial decision (alternatives + rationale); affected docs updated in the same change; every ADR first named by this plan reaffirmed here] |
 | Deployment and Observability | | [dev/staging/production; staging parity; health checks per used dependency; structured logs + correlation id; error tracker; backups; RTO/RPO in CMV] |
 | Technology Standards | | [stack unchanged from the constitution's Technology Standards register; the paths match the repository topology and the internal layout; no unregistered technology; a MAJOR substitution would require a constitutional amendment] |
-| Design System Standards | | [dark default; tables for data; motion scale; z-index scale; AA contrast] |
 | Glossary | | [every term the feature uses is the Glossary's term, not a synonym; no entity, field, or column name is invented outside the register] |
 | Product Scope | | [pages and features stay inside the defined list; an addition is recorded in Complexity Tracking] |
 | File Processing Overview | | [single pipeline sequence; status enum exactly uploaded/processing/completed/failed; validation before storage; duplicate rejected] |
 | Product Register | | [roles respected; no page outside the twenty-six; no feature outside the sixteen; every unresolved product fact handled or recorded — the register's open facts are listed in `docs/domain-model.md` → Unresolved facts, and the slice named MUST resolve the ones this feature touches] |
-| Single-Reference Sufficiency | | [no rule discharged from an unregistered source; every open value recorded under Constitution Mandated Values and as an ADR; no register copied into this plan; no column, entity field, or design value copied out of its source into this plan instead of referenced] |
+| Single-Reference Sufficiency | | [no rule discharged from an unregistered source; every open value recorded under Constitution Mandated Values and as an ADR; no register copied into this plan; no column, entity field, or UI value copied out of its source into this plan instead of referenced] |
 | Artifact Workflow and Traceability | | [stable `FR-###`/`AC-###`/`SC-###` identifiers, never renumbered or reused; at most three unresolved `NEEDS CLARIFICATION` items in spec.md; the spec's Test Coverage Request answered; every ADR first named here reaffirmed; at most three unresolved clarifications remaining before tasks] |
 | Product Fact Clarifications | | [the product facts this feature touches are stated as requirements, not restated: contact-form fields exactly name/phone/body; the platform stays free to merchants; the 99-part cart notice; no CAPTCHA; no PWA; the shell's per-page controls] |
 

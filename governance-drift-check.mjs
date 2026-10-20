@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * governance-drift-check.mjs — Wafar governance drift check
- * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088)
+ * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096)
  * -------------------------------------------------------------------
  * Read-only. Dependency-free. Runs on the pinned Node runtime.
  *
@@ -9,8 +9,9 @@
  *   A. the constitution footer version AND last-amended date equal
  *      `.specify/memory/version.json`
  *   B. every live `ADR-001 … ADR-0NN` range string, in every governance
- *      markdown file under `docs/`, the two Arabic mirrors, and the template
- *      overrides, equals the last ADR row in `docs/DECISIONS.md`'s index; every
+ *      markdown file under `docs/`, the two Arabic mirrors, the template
+ *      overrides, and the feature specifications, equals the last ADR row in
+ *      `docs/DECISIONS.md`'s index; every
  *      index row's anchor resolves to its heading; no heading is orphaned; and
  *      every `ADR-NNN` reference in the governance set resolves to an ADR the
  *      index carries
@@ -24,16 +25,14 @@
  *   D2. each integration manifest (`.specify/integrations/codebuddy.manifest.json`,
  *      `.specify/integrations/opencode.manifest.json`) matches the tree it
  *      records, and covers that integration's whole command directory
- *   E. every token named in the constitution's Design System Standards section
- *      is defined in `wafar.single.css`
+ *   E. the removed design system is absent: `wafar.single.css` no longer
+ *      exists, and the constitution carries no "## Design System Standards"
+ *      heading
  *   G. the structural counts the governance text states in prose — slices,
- *      exception rows, principles, data entities, design-system modules,
- *      binding sections, API modules, pages, and product features — match the
- *      lists that enumerate them. G6 derives its set from the constitution's
- *      own `##` headings, so a binding section ADDED to the constitution is
- *      caught
- *   H. `wafar.single.css` declares its own version and its module count in its
- *      header
+ *      exception rows, principles, data entities, binding sections, API
+ *      modules, pages, and product features — match the lists that enumerate
+ *      them. G6 derives its set from the constitution's own `##` headings, so
+ *      a binding section ADDED to the constitution is caught
  *   I. the integration topology agrees across `integration.json`,
  *      `init-options.json`, the integration directories in the tree, and the
  *      bundled workflow's nesting
@@ -108,6 +107,18 @@ for (const dir of ['docs', '.specify/templates/overrides']) {
     if (name.endsWith('.md')) scannedRangeFiles.add(`${dir}/${name}`);
   }
 }
+// ADR-096: feature specifications carry the live range string too, so a spec
+// written at one ADR and left behind by the next is caught rather than passing
+// unseen.
+const walkSpecs = (dir) => {
+  if (!existsSync(join(ROOT, dir))) return;
+  for (const entry of readdirSync(join(ROOT, dir), { withFileTypes: true })) {
+    const rel = `${dir}/${entry.name}`;
+    if (entry.isDirectory()) walkSpecs(rel);
+    else if (entry.name.endsWith('.md')) scannedRangeFiles.add(rel);
+  }
+};
+walkSpecs('specs');
 scannedRangeFiles.delete('docs/DECISIONS.md');
 // ADR-086: the two Arabic mirrors are bound sources too. Neither is required to
 // carry a live range string, so REQUIRED_RANGE_FILES above is unchanged; but a
@@ -324,65 +335,26 @@ for (const manifestRel of [
   notes.push(`D2: ${d2checked} command files match ${manifestRel}`);
 }
 
-/* ---- E. design-system tokens named in the register exist in the stylesheet - */
-const dsStart = constitution.indexOf('## Design System Standards');
-const dsEnd = constitution.indexOf('\n## Glossary');
-const dsSection = dsStart >= 0 && dsEnd > dsStart ? constitution.slice(dsStart, dsEnd) : '';
-if (!dsSection) {
-  failures.push('E: could not locate the Design System Standards section');
-} else {
-  const css = read('wafar.single.css');
-  const defined = new Set(
-    [...css.matchAll(/(--[a-z0-9]+(?:-[a-z0-9]+)*)\s*:/g)].map((m) => m[1]),
-  );
-
-  // A row may name a token exactly, a family as a prefix glob (`--text-*`), a
-  // brace expansion (`--motion-loop-{pulse,spin}`), or a range with named
-  // endpoints (`--space-0` … `--space-32`). Every glob form is resolved first so
-  // its prefix is not read as a token of its own.
-  const GLOB_STAR = /--[a-z0-9]+(?:-[a-z0-9]+)*-\*/g;
-  const GLOB_BRACE = /(--[a-z0-9]+(?:-[a-z0-9]+)*)-\{([a-z0-9,\s-]+)\}/g;
-
-  const globPrefixes = new Set(
-    [...dsSection.matchAll(GLOB_STAR)].map((m) => m[0].slice(0, -1)),
-  );
-  const braceNames = new Set();
-  for (const m of dsSection.matchAll(GLOB_BRACE)) {
-    for (const part of m[2].split(',')) {
-      const p = part.trim();
-      if (p) braceNames.add(`${m[1]}-${p}`);
-    }
-  }
-
-  const withoutGlobs = dsSection.replace(GLOB_STAR, ' ').replace(GLOB_BRACE, ' ');
-  const named = new Set(
-    [...withoutGlobs.matchAll(/--[a-z0-9]+(?:-[a-z0-9]+)*/g)].map((m) => m[0]),
-  );
-  for (const t of braceNames) named.add(t);
-
-  for (const t of [...named].sort()) {
-    if (!defined.has(t)) {
-      failures.push(`E: ${t} is named in Design System Standards but not defined in wafar.single.css`);
-    }
-  }
-  for (const p of [...globPrefixes].sort()) {
-    if (![...defined].some((d) => d.startsWith(p))) {
-      failures.push(`E: the family ${p}* is named in Design System Standards but no matching token is defined in wafar.single.css`);
-    }
-  }
-  notes.push(
-    `E: ${named.size} exact tokens + ${globPrefixes.size} families named in the register; ${defined.size} defined in the stylesheet`,
-  );
+/* ---- E. the removed design system is absent (ADR-093) ---------------------- */
+// The bespoke design system was removed by ADR-093: the stylesheet is gone, and
+// the constitution no longer carries a Design System Standards section. Either
+// reappearing is drift.
+if (existsSync(join(ROOT, 'wafar.single.css'))) {
+  failures.push('E: wafar.single.css still exists; ADR-093 removed the design system');
 }
+if (constitution.includes('## Design System Standards')) {
+  failures.push('E: the constitution still carries a Design System Standards section');
+}
+notes.push('E: wafar.single.css is absent and the constitution carries no Design System Standards section');
 
 /* ---- G. structural counts the governance text states in prose ------------- */
 // The governance text states countable facts ("fifteen slices", "six exception
-// rows", "ten principles", "twelve entities", "fourteen modules", "nineteen
+// rows", "ten principles", "twelve entities", "eighteen
 // binding sections", "ten API modules", "twenty-six pages", "sixteen product
 // features"). None was machine-checked before ADR-075.
 //
 // Each row below counts an enumerable list and compares it to a constant
-// recorded here. That constant is NOT parsed out of the prose, so for G1-G5 and
+// recorded here. That constant is NOT parsed out of the prose, so for G1-G4 and
 // G7-G9 the prose count is verified only in the direction where the list
 // changes: a list that grows fails, while prose edited on its own does not.
 // G6 is the exception — it derives its expected set from the constitution's own
@@ -398,7 +370,7 @@ const sliceBetween = (text, from, to) => {
 };
 const countMatches = (text, re) => [...text.matchAll(re)].length;
 
-// The nineteen binding sections Governance enumerates in its Authority
+// The eighteen binding sections Governance enumerates in its Authority
 // paragraph. A section renamed in the constitution drops out of the paragraph
 // and is caught here.
 const GOV_BINDING_SECTIONS = [
@@ -413,7 +385,6 @@ const GOV_BINDING_SECTIONS = [
   'Documentation',
   'Deployment and Observability',
   'Technology Standards',
-  'Design System Standards',
   'Glossary',
   'Product Scope',
   'Product Register',
@@ -485,13 +456,7 @@ const structuralCounts = [
       const s = sliceBetween(constitution, '### Data entities', '\n### ');
       return s === null ? -1 : countMatches(s, /^\| `\w+` \| `\w+` \|/gm);
     } },
-  { id: 'G5', label: 'design-system modules', want: 14,
-    file: '.specify/memory/constitution.md',
-    got: () => {
-      const s = sliceBetween(constitution, '### Module map', '\n### ');
-      return s === null ? -1 : countMatches(s, /\| \d{2} \| [a-z]+ \|/g);
-    } },
-  { id: 'G6', label: 'binding sections', want: 19,
+  { id: 'G6', label: 'binding sections', want: 18,
     file: '.specify/memory/constitution.md',
     // Derived from the constitution's own `##` headings above, so a binding
     // section added to the document fails here instead of passing silently.
@@ -532,17 +497,6 @@ for (const c of structuralCounts) {
   }
 }
 notes.push(`G: ${structuralCounts.length} structural counts checked`);
-
-/* ---- H. the design system's own header (ADR-086) -------------------------- */
-// Design System Standards requires wafar.single.css to declare its own version,
-// and the register states the file holds fourteen modules. Neither the version
-// nor the module count was checked against the file itself.
-const cssHeader = read('wafar.single.css').split('\n').slice(0, 40).join('\n');
-const cssVersion = cssHeader.match(/الإصدار:\s*([0-9]+\.[0-9]+\.[0-9]+)/);
-if (!cssVersion) {
-  failures.push('H: wafar.single.css carries no "الإصدار: X.Y.Z" header line');
-} else {
-  notes.push(`H: wafar.single.css declares version ${cssVersion[1]}`);
 
 /* ---- I. the integration topology is consistent (ADR-088) ------------------ */
 // Four files state the same fact and nothing compared them: integration.json
@@ -602,18 +556,9 @@ if (
 notes.push(
   `I: integration topology consistent (${installedIntegrations.join(', ')}; default ${integrationJson.default_integration})`,
 );
-}
-const cssModules = cssHeader.match(/الوحدات\s*الـ?\s*([0-9]+)/);
-if (!cssModules) {
-  failures.push('H: wafar.single.css no longer states its module count in its header');
-} else if (Number(cssModules[1]) !== 14) {
-  failures.push(
-    `H: wafar.single.css header states ${cssModules[1]} modules; the register states 14`,
-  );
-}
 
 /* ---- report --------------------------------------------------------------- */
-console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088)');
+console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096)');
 console.log('=====================================');
 for (const n of notes) console.log(`  ok   ${n}`);
 if (failures.length === 0) {

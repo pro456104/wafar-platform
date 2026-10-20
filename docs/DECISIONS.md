@@ -1,9 +1,9 @@
 # Decisions — Wafar
 
 This file records design decisions with their alternatives and the reasoning
-behind them. The constitution names it in References and in Design System
-Standards, and Documentation requires every non-trivial decision to record
-what was considered and why the chosen option won.
+behind them. The constitution names it in References, and Documentation requires
+every non-trivial decision to record what was considered and why the chosen
+option won.
 
 **Record duties (Documentation rule).** Every record below names the directory
 that owns the decision and the feature that owns the work, per the Documentation
@@ -127,6 +127,16 @@ from the index rather than edited in its own words.
 | [ADR-089](#adr-089--roadmap-defect-table-precision-fix-set) | Roadmap defect-table precision fix set | 2026-10-09 | 2.28.6 (unchanged) |
 | [ADR-090](#adr-090--the-documentation-rule-reaches-technical-decisions) | The Documentation rule reaches technical decisions | 2026-10-09 | 2.29.0 |
 | [ADR-091](#adr-091--the-stamp-site-list-stays-in-the-constitution) | The stamp-site list stays in the constitution | 2026-10-09 | 2.29.0 (unchanged) |
+| [ADR-092](#adr-092--the-integration-topology-gate-made-unconditional) | The integration-topology gate made unconditional | 2026-10-10 | 2.29.1 |
+| [ADR-093](#adr-093--remove-the-custom-design-system-and-establish-the-ui-foundation) | Remove the custom design system and establish the UI foundation | 2026-10-20 | 3.0.0 |
+| [ADR-094](#adr-094--guest-header-controls-and-the-administrator-shell) | Guest header controls and the administrator shell | 2026-10-20 | 3.1.0 |
+| [ADR-095](#adr-095--make-opencode-the-default-integration-keep-codebuddy-installed) | Make opencode the default integration; keep codebuddy installed | 2026-10-20 | 3.1.0 (unchanged) |
+| [ADR-096](#adr-096--the-r1-pre-planning-fix-set-the-cmv-values-the-shells-link-surface-the-sidebar-list-and-the-spec-scan) | The R1 pre-planning fix set: the CMV values, the shell's link surface, the sidebar list, and the spec scan | 2026-10-20 | 3.2.0 |
+
+**Design-system note (ADR-093).** Every provision of the removed custom design
+system in an earlier record is superseded by ADR-093. Their other provisions,
+including the non-visual shell rules and the icon set, remain in force. The
+records themselves are not rewritten.
 
 ---
 
@@ -4498,6 +4508,11 @@ spelling (`/speckit.*`). A `specify` refresh no longer leaves an unmanaged
 environment behind, and `Core-Project.txt` agrees with the register again. This
 entry is the durable record.
 
+**Annotation (2026-10-20, ADR-095).** Decision item 1 above says the installed
+integrations are "`codebuddy` (default) and `opencode`". ADR-095 made
+`opencode` the default and kept `codebuddy` installed, so the parenthetical is
+superseded; the rest of the item stands.
+
 ---
 
 ## ADR-069 — Cross-artifact consistency fix set
@@ -6674,3 +6689,347 @@ dependency changed.
 `AGENTS.md` §6 records the decision, the constitution stays 2.29.0, and the check
 reports clean with the index ending at ADR-091 and every live range string reading
 `ADR-001 … ADR-091`. This entry is the durable record.
+
+---
+
+## ADR-092 — The integration-topology gate made unconditional
+
+**Status**: Accepted — 2026-10-10
+**Owning directory**: `governance-drift-check.mjs`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `.specify/templates/overrides/`, `.specify/memory/`, `Project-Technologies.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A deep audit of the governance set on 2026-10-10 found one
+structural defect inside `governance-drift-check.mjs` itself. Gate **I** (the
+integration topology, ADR-088) had been written inside the `else` branch that
+belongs to gate **H** (the design-system header, ADR-086): the `} else {` opened
+for H's version check closed only after gate I's whole block, so I ran only when
+H's version check succeeded. Every gate is meant to be independent — the script's
+own header lists A, B, F, C, D, D2, E, G, H, and I as separate checks. The defect
+was latent rather than active: gate H's version check passes on the current tree,
+so gate I ran and the check reported clean. But the two gates were coupled, so
+had `wafar.single.css` ever lost its `الإصدار:` header line, gate H would fail and
+gate I would be skipped entirely — a missing integration, a stale default, or a
+broken `requires.integrations.any` nesting could then have passed unobserved at
+the very moment another gate was already failing.
+
+**Decision.**
+
+1. The `}` that closed gate H's `else` branch is moved to sit immediately after
+   H's version note, so gate H closes where it opens and gate I (the integration
+   topology) runs at the top level as its own check, unconditionally, as ADR-088
+   intended. No gate's logic, message, or coverage changes; only the brace
+   placement does. The module-count half of gate H is unaffected and continues to
+   run unconditionally.
+2. Every live `ADR-001 … ADR-0NN` range string moves to **ADR-092**.
+3. `Project-Technologies.txt`'s header ADR list gains ADR-092, and its "last
+   amended" date moves to 2026-10-10 to agree with the two version sources.
+4. The five citation sites that name the ADRs shaping the check gain ADR-092 —
+   the script's header comment and its printed banner, `AGENTS.md` §5,
+   `README.md`, and the constitution's References row — so the one list ADR-084
+   unified stays one list. Naming it in the constitution's References row moves
+   the constitution to **2.29.1** (PATCH), on ADR-084's, ADR-086's, and ADR-088's
+   precedent for a citation change.
+
+**What deliberately did not change.** No principle, section heading, register
+row, Product Scope item, entity, page, feature, Usage Limit, module-map row,
+design value, slice, or slice dependency changed. No gate was added, removed, or
+re-scoped: the check verifies exactly what its four descriptions already state,
+and this record only makes gate I run when gate H fails. The constitution's only
+text change is the References row's citation list, so the move to **2.29.1** is
+PATCH, on ADR-084's precedent for a citation change.
+
+**Consequences.** Gate H and gate I are now independent, so a failure in one no
+longer suppresses the other. The check reports clean with the index ending at
+ADR-092 and every live range string reading `ADR-001 … ADR-092`. This entry is
+the durable record.
+
+---
+
+## ADR-093 — Remove the custom design system and establish the UI foundation
+
+**Status**: Accepted — 2026-10-20
+**Owning directory**: `.specify/memory/constitution.md`, `.specify/templates/overrides/`, `governance-drift-check.mjs`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `Project-Technologies.txt`, `Core-Project.txt`, `wafar.single.css` (deleted)
+**Owning feature**: none — governance decision; ratified by the repository owner. R1 implements the Wafar UI layer.
+
+**Context.** The project carried a bespoke frontend design system: `wafar.single.css`
+(4,459 lines, 480 custom properties, 290 `.ds-*` classes, 14 modules), a
+419-line `Design System Standards` register, Principle IX, three drift-check
+gates, and references across the governance set. The system duplicated Nuxt UI
+v4, required its own component inventory, token families, state matrix, fonts,
+motion scale, z-index scale, breakpoints, and shell measurements, and blocked R1
+before any application code existed. The repository owner rejected the old
+colours and the old frontend design in full.
+
+**Decision.**
+
+1. Delete `wafar.single.css` and remove every old visual value from the binding
+   text: the brand/accent palette, the dark-mode default, Tajawal and JetBrains
+   Mono, the 19rem sidebar and 68px header, and the spacing, radius, shadow,
+   motion, z-index, and breakpoint scales.
+2. Remove `Design System Standards` and all twelve subsections. Replace
+   Principle IX with `IX. UI Foundation Fidelity`: Nuxt UI v4 is the only UI
+   component library; the Wafar UI layer is the only source of project-specific
+   values; a second component library, a parallel token file, or a custom
+   component CSS library is prohibited. Keep the principle count at ten and
+   reduce the binding-section count from nineteen to eighteen.
+3. Keep every approved technology. Nuxt 4, Vue 3, TypeScript, Tailwind CSS v4,
+   Nuxt UI v4, Pinia, TanStack Query, Hono, OpenAPI, Zod, PostgreSQL, Drizzle,
+   PgDog, OpenSearch, SeaweedFS, BullMQ, Redis, better-auth, Vitest, Playwright,
+   ESLint, Prettier, Stylelint, Lighthouse CI, Semgrep OSS, osv-scanner, ClamAV,
+   Prometheus, Grafana, pnpm, and Turborepo remain registered. Stylelint remains;
+   its rule now points at the Wafar UI layer instead of `wafar.single.css`.
+4. Preserve the non-visual product rules: the shared shell, its bare-page
+   exemptions, the sidebar's full/rail/drawer behaviour, the theme switch, the
+   table rule for data views, Arabic-first RTL, Latin numerals, no emoji,
+   accessibility, and the 44px touch target.
+5. Do not add `packages/ui` or any other package to the constitution. R1's plan
+   fixes the Wafar UI layer's path and builds it through SpecKit. The
+   constitution names the layer, not its directory.
+6. Move the constitution to **3.0.0** (MAJOR): a principle is redefined and a
+   binding section is removed. Update `version.json`, the template overrides,
+   the drift check, the governance documents, the two Arabic mirrors, and the
+   live ADR range strings in the same change.
+
+**What deliberately did not change.** No technology was removed or downgraded.
+No entity, page, product feature, role, usage limit, or security rule changed.
+The table rule remains in Product Scope. The icon set remains an open register
+gap owned by R1. No application code, package, design lab, or website was
+created. The old ADR records were not rewritten; their design-system provisions
+are superseded by this record and the note in the index.
+
+**Alternatives considered.**
+
+- *Keep and trim the old design system.* Rejected: it duplicates Nuxt UI v4 and
+  preserves the maintenance cost the owner rejected.
+- *Use Nuxt UI defaults without a project layer.* Rejected: Arabic typography,
+  RTL behaviour, the product's identity, and a small set of Wafar patterns still
+  need one recorded source.
+- *Add `packages/ui` to the constitution now.* Rejected: the owner required
+  SpecKit to choose and build the code; the constitution must not pre-empt the
+  plan or add a package before the plan exists.
+- *Delete the old ADRs.* Rejected: they are the historical record and the index
+  and cross-references depend on them. A supersession note preserves
+  traceability without rewriting history.
+
+**Consequences and migration/backfill.** The constitution is 3.0.0 with ten
+principles and eighteen binding sections. `wafar.single.css` is deleted and no
+live file may depend on it as a source of design values. The drift check stops reading the old file, removes
+gates G5 and H, turns E into an absence check (the stylesheet and the removed
+constitution section must not reappear), and sets the binding-section count to
+eighteen. The four template overrides lose their design-system references: the
+constitution template loses the removed section; the plan template loses its
+register row, CMV row, and Gate 2 row; and the spec and checklist templates lose
+the stylesheet source. Feature artifacts written
+under 2.x are re-read against Principle IX: any old token, class, font, or shell
+measurement is invalid. R1's plan records the Wafar UI layer's path and builds
+it; the visual direction remains a separate decision. This entry is the durable
+record.
+
+---
+
+## ADR-094 — Guest header controls and the administrator shell
+
+**Status**: Accepted — 2026-10-20
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `Project-Technologies.txt`, `Core-Project.txt`, `specs/001-identity-foundation/`
+**Owning feature**: none — product correction ratified by the repository owner; R1 builds the frame.
+
+**Context.** The Product Fact Clarifications bullet said a guest sees a login
+action "instead of those controls", after naming the account, notifications,
+theme-toggle, and sidebar-collapse controls. Read literally, it removed the
+theme switch and the sidebar-collapse control from the guest header. The feature
+specification for R1 (FR-023 and AC-025) had already decided that the login
+action replaces the account and notifications controls only, because the
+appearance and the sidebar belong to the frame rather than to an account; on a
+narrow screen the collapse control is the only affordance that opens the
+sidebar drawer. The same bullet also said that administrator pages "carry no
+header", which contradicted Product Scope's statement that the administrator
+application carries its own shell. The specification recorded that both texts
+had to be corrected in the same change.
+
+**Decision.**
+
+1. A guest sees a login action in place of the account and notifications
+   controls only. The theme switch and the sidebar-collapse control remain
+   available to the guest.
+2. Pages without the product's shared shell — authentication, 404, and static
+   pages — carry no header. The administrator application carries its own shell
+   and header; it is not covered by the shared-shell exemption.
+3. The specification's FR-023 and AC-025 stand unchanged; this record removes
+   the contradiction at its source rather than narrowing the feature.
+4. The footer question is not decided here. The link surface remains the choice
+   of the slice that first builds a shell page; R1's existing FR-024 records the
+   footer-band choice, and its plan supplies the decision record.
+
+**What deliberately did not change.** The three surfaces remain: the public
+site, the merchant area, and the separate administrator application with its own
+login. The shared shell remains the public/merchant frame; the administrator
+shell remains separate. No page, role, entity, feature, usage limit, security
+rule, or technology changed. No footer is added to the constitution by this
+record. No application code or package is created.
+
+**Alternatives considered.**
+
+- *Apply "instead of those controls" literally.* Rejected: it removes the only
+  sidebar-drawer affordance on a narrow screen and forces a new control that
+  the rule did not name.
+- *Hide the sidebar from guests.* Rejected: guests need the public navigation,
+  and the Product Scope's frame is not role-scoped in that way.
+- *Add a separate menu button for guests.* Rejected: it preserves the literal
+  wording at the cost of an extra control and a second way to open the same
+  drawer.
+- *Treat the administrator application as a no-header page.* Rejected: it
+  contradicts Product Scope and the separate-shell architecture.
+
+**Consequences and migration/backfill.** The constitution moves to **3.1.0**
+(MINOR): the guest's visible header rule changes, so this is not a PATCH.
+`version.json`, the ADR ranges, `Project-Technologies.txt`'s header, and the
+specification's source block move to ADR-094 in the same change. R1 implements
+the frame under FR-023/AC-025 and builds the footer band under FR-024; the
+footer's constitutional status is unchanged. This entry is the durable record.
+
+---
+
+## ADR-095 — Make opencode the default integration; keep codebuddy installed
+
+**Status**: Accepted — 2026-10-20
+**Owning directory**: `.specify/`, `.specify/templates/overrides/`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `Project-Technologies.txt`, `specs/001-identity-foundation/`
+**Owning feature**: none — governance decision; ratified by the repository owner.
+
+**Context.** The project supports two Spec Kit integrations, `codebuddy`
+(WorkBuddy AI) and `opencode`. Both command directories are installed and
+byte-identical, and both manifests are committed. The project was initialised
+with `codebuddy` as the default, but the repository owner uses `opencode` and
+may still use more than one environment. Deleting `codebuddy` would remove a
+supported environment and force a broad governance change; leaving `codebuddy`
+as the default would keep the working default out of step with actual use.
+
+**Decision.**
+
+1. Keep both integrations installed and keep `.codebuddy/` and `.opencode/`
+   with their manifests and byte-identical command sets.
+2. Make `opencode` the default in `.specify/integration.json` and
+   `.specify/init-options.json`.
+3. Keep `codebuddy` available as the second integration; no command file,
+   manifest, workflow integration entry, or extension-registry entry is
+   removed.
+4. Record the default change here; the constitution is not amended and its
+   version stays **3.1.0**.
+
+**What deliberately did not change.** No product rule, page, role, entity,
+feature, usage limit, security rule, technology, UI foundation rule, or
+deployment rule changed. No integration was removed. No application code or
+package was created. The workflow's advisory `requires.integrations.any` list
+still names both integrations.
+
+**Alternatives considered.**
+
+- *Remove `codebuddy` and keep only `opencode`.* Rejected: the owner may use
+  more than one environment, and removal would delete a supported integration
+  and its manifest for no product benefit.
+- *Keep `codebuddy` as the default.* Rejected: it would keep the default out of
+  step with the environment the owner actually uses.
+- *Change the default without recording it.* Rejected: integration topology is
+  committed state and a non-trivial governance change; the durable record is
+  required.
+
+**Consequences and migration/backfill.** `opencode` is the default for a
+command that does not name an integration; `codebuddy` remains available and
+byte-identical. The constitution stays at 3.1.0 because no constitutional text
+changes. `docs/DECISIONS.md` gains this record and its index row; the live ADR
+ranges move to ADR-095 and `Project-Technologies.txt`'s header gains ADR-095 in
+the same change. The drift check remains clean. This entry is the durable
+record.
+
+---
+
+## ADR-096 — The R1 pre-planning fix set: the CMV values, the shell's link surface, the sidebar list, and the spec scan
+
+**Status**: Accepted — 2026-10-20
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `docs/`, `Core-Project.txt`, `Project-Technologies.txt`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `specs/001-identity-foundation/`, `governance-drift-check.mjs`, `.githooks/`
+**Owning feature**: R1 (the first feature that needs the three CMV values and builds the shell's link surface); the governance changes are ratified by the repository owner.
+
+**Context.** A pre-planning audit of the constitution, the two Arabic mirrors,
+the roadmap, the architecture, the domain model, the binding templates, the
+drift check, and `specs/001-identity-foundation/` found three blocking
+cross-artifact defects. First, the specification directs three families of
+values to `Constitution Mandated Values` — the full-name and shop-name maximum
+lengths (FR-001), the password policy parameters (FR-035), and the one-time
+code's lifetime, re-request limit, and incorrect-entry bound (FR-034) — but
+Module Discipline's list is closed and did not name them, so a plan could
+neither omit them nor record them lawfully. Second, `Core-Project.txt` said the
+sidebar's item list was "by role", while the specification fixed one list of
+eight items shown identically to a guest and to a signed-in merchant in four
+places (FR-039, AC-042, the Assumptions, and the Test Coverage Request).
+Third, Product Scope defined the shell as "a header and a sidebar", while the
+specification's FR-024, AC-022, and AC-026 place the static pages' link surface
+in a footer band that is part of the frame. Four consistency defects were found
+in the same audit: a stale "token" in Single-Reference Sufficiency after the
+token register was removed; `AGENTS.md` §3 claiming to mirror the constitution's
+Reading protocol while naming the whole constitution for five commands; no
+annotation on ADR-068 after ADR-095 changed its stated default; and the drift
+check not scanning feature specifications for the live ADR range string, which
+the R1 specification already carries.
+
+**Decision.**
+
+1. The closed `Constitution Mandated Values` list gains three values, appended
+   as items 15-17: the password policy parameters (the minimum length and the
+   common-or-breached-password source); the one-time-code lifetime, its
+   re-request limit, and the incorrect-entry bound; and the profile field
+   maximum lengths (the full name and the shop name).
+2. Product Scope's shell definition becomes a header, a sidebar, and the surface
+   that carries the links to the static pages, with that surface recorded by the
+   first slice that builds a shell page. R1 records it as the footer band its
+   specification already fixes.
+3. `Core-Project.txt`'s sidebar bullet becomes the eight approved pages shown
+   identically to a guest and to a signed-in merchant, with no item added,
+   removed, or disabled by role. The specification stands unchanged.
+4. The drift check scans `specs/**/*.md` for the live `ADR-001 … ADR-0NN` range
+   string, alongside the files it already scans. The R1 specification's range
+   string is checked from this change on.
+5. The consistency defects are corrected: "token" leaves the approval list in
+   Single-Reference Sufficiency (tokens are approved by the Wafar UI layer, not
+   by a constitutional register); `AGENTS.md` §3 names the same sections as the
+   constitution's Reading protocol; ADR-068 gains an annotation for ADR-095;
+   and the specification's stale cross-reference and two spacing typos are
+   corrected.
+
+**What deliberately did not change.** No principle was added, removed, renamed,
+or redefined. No entity, page, product feature, role, usage limit, module, or
+slice number changed. The eight sidebar items themselves, the four static pages,
+and the three bare pages this slice ships are unchanged; only the role qualifier
+on the sidebar list and the shell's link surface are fixed. No technology was
+removed or downgraded. The twenty-six pages are untouched.
+
+**Alternatives considered.**
+
+- *Point the three specification values at the plan's Complexity Tracking table
+  instead of the closed CMV list.* Rejected: Module Discipline requires a MUST
+  that names a value to enter the CMV list first, and a value recorded anywhere
+  else does not satisfy the rule that names it.
+- *Change the specification's sidebar list to a role-dependent list.* Rejected:
+  the specification fixes one composition in four places, and a role-dependent
+  list would reopen FR-039, AC-042, the Assumptions, and the Test Coverage
+  Request; the product mirror carried the older, ambiguous wording.
+- *Record the footer band as a Complexity Tracking deviation instead of amending
+  Product Scope.* Rejected: the specification commits to the footer band in
+  three places, and a permanent deviation would leave the shell's definition
+  inaccurate in the register.
+- *Leave feature specifications out of the drift check.* Rejected: the range
+  string is live in the specification, so a later ADR would leave it stale with
+  no failure; the check exists to catch exactly that.
+- *Split this fix set into one ADR per finding.* Rejected: the findings share
+  one cause — artifacts written at different times against different states of
+  the register — and one record keeps the reconciliation traceable, as ADR-085,
+  ADR-086, and ADR-089 did for their fix sets.
+
+**Consequences and migration/backfill.** The constitution moves to **3.2.0**
+(MINOR): the closed CMV list gains three values and the shell's definition
+gains its link surface. The plan template's CMV table gains rows 17-19 and its
+row-number note moves from fourteen values/sixteen rows to seventeen/nineteen.
+`Core-Project.txt`, `Project-Technologies.txt`, the templates, the governance
+documents, and the specification's live range string move to ADR-096 in the
+same change. R1's plan can now record the three value families under
+`Constitution Mandated Values` without an exception. The drift check reports
+clean with the index ending at ADR-096 and every live range string reading
+`ADR-001 … ADR-096`. This entry is the durable record.
