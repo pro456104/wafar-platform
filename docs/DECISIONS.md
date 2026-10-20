@@ -4509,9 +4509,11 @@ environment behind, and `Core-Project.txt` agrees with the register again. This
 entry is the durable record.
 
 **Annotation (2026-10-20, ADR-095).** Decision item 1 above says the installed
-integrations are "`codebuddy` (default) and `opencode`". ADR-095 made
-`opencode` the default and kept `codebuddy` installed, so the parenthetical is
-superseded; the rest of the item stands.
+integrations are "`codebuddy` (default) and `opencode`", and that `integration`
+and `default_integration` stay `codebuddy`. ADR-095 made `opencode` the default
+in both fields and kept `codebuddy` installed, so the parenthetical and the
+two-field sentence are superseded; the rest of the item — both integrations
+installed, `agy` retired, and the registry carrying no `agy` entry — stands.
 
 ---
 
