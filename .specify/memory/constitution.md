@@ -1242,7 +1242,11 @@ without an amendment to this constitution.
 `docs/architecture.md` is the source of truth for layout, the API module map,
 and data flow, and a plan's Ownership Map MUST match it. An application MUST NOT
 be added to `apps/`, and a package MUST NOT be added to `packages/`, without an
-amendment to this section.
+amendment to this section. The Wafar UI layer is the one exception to the
+package-row rule: its path is fixed by ADR-097 and `docs/architecture.md` under
+Principle IX, it is not a row of this topology, and no other package may be
+added without an amendment to this section. No feature may create a parallel UI
+layer.
 
 ### Internal layout
 
@@ -1252,14 +1256,18 @@ amendment to this section.
 | Worker | `apps/worker/src/processors/{extract-parts,normalize,deduplicate,index-parts}.ts`, `apps/worker/src/queues/file-processing.ts`. |
 | Database | `packages/db/schema/<module>.ts`, `packages/db/migrations/`. |
 | Search | `packages/search/client.ts`, `packages/search/mappings/`. |
-| Frontend | `apps/web/{pages,components,composables,stores,layouts}`. |
+| Frontend | `apps/web/app/{pages,components,composables,stores,layouts,assets}`, `apps/web/app/app.config.ts`, `apps/web/app/app.vue`; `apps/web/public/` and `apps/web/shared/` at the app root. |
 | Web server routes | `apps/web/server/` — optional Nitro server routes (Nitro is part of Nuxt 4; it is named here in Internal layout and is deliberately not a row of the Approved register); created only by the feature that declares them in its Ownership Map. |
-| Administrator frontend | `apps/admin/{pages,components,composables,stores,layouts}`. |
+| Administrator frontend | `apps/admin/app/{pages,components,composables,stores,layouts,assets}`, `apps/admin/app/app.config.ts`, `apps/admin/app/app.vue`; `apps/admin/public/` and `apps/admin/shared/` at the app root. |
+| Administrator server routes | `apps/admin/server/` — optional Nitro server routes; created only by the feature that declares them in its Ownership Map. |
 | Validation | `packages/shared` only; a second local schema MUST NOT be created. |
 | Database ownership | `packages/db/schema/<module>.ts` — one file per module named in Principle X; the table it declares belongs to that module. |
 
 A feature MUST NOT create a parallel location for an artifact whose location is
-fixed above.
+fixed above. The Wafar UI layer's path is fixed by ADR-097 and
+`docs/architecture.md` under Principle IX; it is not a row of this table and
+this section does not create its package. A feature MUST NOT create a parallel
+UI layer.
 
 ### Approved register
 
@@ -1450,7 +1458,7 @@ however obviously the concept belongs to the entity.
 | `.specify/extensions.yml` | The installed extensions and the hook registry every Spec Kit command reads before and after it runs. | `.specify/`. |
 | `.specify/workflows/speckit/workflow.yml` | The bundled workflow that runs the binding cycle in order, with its human review gates. | `.specify/workflows/speckit/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
-| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096): the two version sources including the amended date, every live ADR range string (in the required files, under `docs/`, in the two Arabic mirrors, in the template overrides, and in the feature specifications), every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the structural counts the governance text states in prose, and the absence of the removed stylesheet and its constitution section. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
+| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098): the two version sources including the amended date, every live ADR range string (in the required files, under `docs/`, in the two Arabic mirrors, in the template overrides, and in the feature specifications), every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the structural counts the governance text states in prose, and the absence of the removed stylesheet and its constitution section. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
 
 ## Artifact Workflow and Traceability
 
@@ -1716,4 +1724,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 3.2.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-20
+**Version**: 3.3.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-21

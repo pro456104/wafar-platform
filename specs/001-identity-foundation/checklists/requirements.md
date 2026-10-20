@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-10-10
-**Refreshed**: 2026-10-20 — after ADR-094 and ADR-096
+**Refreshed**: 2026-10-21 — after ADR-097 and ADR-098
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -55,3 +55,8 @@
   clarifications above remain the only clarifications; no new
   `[NEEDS CLARIFICATION]` marker was raised, and the requirement and criterion
   counts are unchanged.
+- Refreshed 2026-10-21: ADR-097 fixed the Wafar UI layer path at `packages/ui`,
+  moved the frontend layout to Nuxt 4 `app/`, and amended the constitution to
+  3.3.0; ADR-098 recorded IconPark (vendored), IBM Plex Sans Arabic, the light
+  default, and the marine/sand palette. The spec remains product-level; the R1
+  plan records the technical choices and fills CMV row 11.

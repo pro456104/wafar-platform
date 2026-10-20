@@ -25,9 +25,9 @@ and a feature artifact references it rather than restating it.
 | How the system is built (layout, module map, data flow) | `docs/architecture.md` |
 | The data model (entities, relationships, invariants, owning module) | `docs/domain-model.md` |
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
-| UI foundation — component library and the project layer | `.specify/memory/constitution.md` → Principle IX; R1's plan fixes the Wafar UI layer's path |
+| UI foundation — component library and the project layer | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1's plan consumes it |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-096; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-098; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -159,11 +159,11 @@ key), so a `specify` upgrade may replace it; the project copy is the one to keep
 and its `requires.integrations.any` list must stay correctly nested under
 `integrations:` (ADR-072).
 
-**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096).** `governance-drift-check.mjs`
+**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098).** `governance-drift-check.mjs`
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-096` range string — in the required files, under `docs/`, in
+live `ADR-001 … ADR-098` range string — in the required files, under `docs/`, in
 the two Arabic mirrors, in the template overrides, and in the feature
 specifications — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading, and
@@ -188,6 +188,12 @@ into a committed `pre-commit` hook (`.githooks/`, enabled per clone with
 runner (R1) wires it into continuous integration.
 
 ## 6. Known gaps
+
+- **IconPark's upstream is archived (decided 2026-10-21, ADR-098).** The icon
+  set is to be vendored under `packages/ui/vendor` and pinned by the pre-R1
+  foundation (W1), and the project will own the copy; the Apache-2.0 licence is
+  perpetual. No new upstream icons arrive, so a missing icon is added by ADR.
+  This is a maintenance limitation, not an availability risk.
 
 - **No standalone `/speckit.constitution-check` command.** The constitution check
   gate is carried inside `plan-template.md` (Gates 1–3), evaluated before Phase 0

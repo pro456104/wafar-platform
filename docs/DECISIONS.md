@@ -132,6 +132,8 @@ from the index rather than edited in its own words.
 | [ADR-094](#adr-094--guest-header-controls-and-the-administrator-shell) | Guest header controls and the administrator shell | 2026-10-20 | 3.1.0 |
 | [ADR-095](#adr-095--make-opencode-the-default-integration-keep-codebuddy-installed) | Make opencode the default integration; keep codebuddy installed | 2026-10-20 | 3.1.0 (unchanged) |
 | [ADR-096](#adr-096--the-r1-pre-planning-fix-set-the-cmv-values-the-shells-link-surface-the-sidebar-list-and-the-spec-scan) | The R1 pre-planning fix set: the CMV values, the shell's link surface, the sidebar list, and the spec scan | 2026-10-20 | 3.2.0 |
+| [ADR-097](#adr-097--the-wafar-ui-layer-and-the-nuxt-4-app-layout) | The Wafar UI layer and the Nuxt 4 app layout | 2026-10-21 | 3.3.0 |
+| [ADR-098](#adr-098--the-wafar-visual-foundation-iconpark-ibm-plex-sans-arabic-light-default-and-the-marine-palette) | The Wafar visual foundation: IconPark, IBM Plex Sans Arabic, light default, and the marine palette | 2026-10-21 | 3.3.0 |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -6834,6 +6836,14 @@ measurement is invalid. R1's plan records the Wafar UI layer's path and builds
 it; the visual direction remains a separate decision. This entry is the durable
 record.
 
+**Annotation (2026-10-21, ADR-097/098).** Decision 5 assigned the Wafar UI
+layer's path to R1's plan. ADR-097, recorded ahead of R1 to close the pre-R1
+foundation gap, fixes the path as `packages/ui` under Principle IX and leaves it
+outside the constitution's topology and Internal layout rows. R1's plan consumes
+the path. The icon set that decision 5 left to R1 is fixed by ADR-098; the
+constitution's register gap remains the requirement, and R1's plan fills CMV
+row 11.
+
 ---
 
 ## ADR-094 — Guest header controls and the administrator shell
@@ -7042,3 +7052,179 @@ same change. R1's plan can now record the three value families under
 `Constitution Mandated Values` without an exception. The drift check reports
 clean with the index ending at ADR-096 and every live range string reading
 `ADR-001 … ADR-096`. This entry is the durable record.
+
+**Annotation (2026-10-21, ADR-097/098).** The index now ends at ADR-098, and
+every live range string reads `ADR-001 … ADR-098`. The closing paragraph above
+records the state at ADR-096's acceptance; the substance of this record is
+unchanged.
+
+---
+
+## ADR-097 — The Wafar UI layer and the Nuxt 4 app layout
+
+**Status**: Accepted — 2026-10-21
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `docs/`, `governance-drift-check.mjs`, `.githooks/pre-commit`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `Project-Technologies.txt`, `specs/001-identity-foundation/`
+**Owning feature**: none — governance decision; ratified by the repository owner. R1's plan consumes the path and builds the shell.
+
+**Context.** The 3.2.0 pre-R1 audit found the UI foundation named in Principle IX
+but not fixed in the repository. There was no application code, no `packages/ui`,
+and no R1 `plan.md` or `tasks.md`. The constitution's Principle IX says the
+Wafar UI layer is built by R1 through SpecKit and that R1's plan fixes its path;
+ADR-093 assigned that decision to R1's plan and explicitly forbade adding
+`packages/ui` or any other package to the constitution. At the same time, the
+constitution's Repository topology rule says a package MUST NOT be added to
+`packages/` without an amendment, its Internal layout fixes the frontend
+locations in Nuxt 3-style paths, and the tasks template forbids an `app/`
+segment. Nuxt 4, however, defaults to `app/`. The R1 specification is Draft and
+cannot enter planning while those artifacts disagree. The operator approved the
+pre-R1 remediation and the recommended defaults on 2026-10-21, including
+`packages/ui` and Nuxt 4 `app/`.
+
+**Decision.**
+
+1. The Wafar UI layer path is `packages/ui`, a private Nuxt 4 layer shared by
+   `apps/web` and `apps/admin`. The layer owns design tokens, theme
+   configuration, IconPark icons, IBM Plex Sans Arabic, and shared primitives.
+   App-specific pages, components, composables, and stores stay in each app; the
+   layer is not a second application and holds no product pages.
+2. `packages/ui` is not added to the constitution's Repository topology or
+   Internal layout as a package row (ADR-093). The 3.3.0 amendment adds one
+   narrow exception note to each table: the Wafar UI layer's path is fixed by
+   this record and `docs/architecture.md` under Principle IX, it is not a row of
+   either table, and no feature may create a parallel UI layer. No other package
+   may be added without a constitutional amendment.
+3. Nuxt 4's default `app/` layout is fixed for both frontends:
+   `apps/web/app/{pages,components,composables,stores,layouts,assets}`,
+   `apps/web/app/app.config.ts`, and `apps/web/app/app.vue`, with
+   `apps/web/server/`, `apps/web/shared/`, and `apps/web/public/` at the app
+   root; the same layout for `apps/admin`. `docs/architecture.md`,
+   `Project-Technologies.txt`, and the tasks template are corrected to match.
+4. The constitution moves to **3.3.0** (MINOR): the frontend paths and the two
+   exception notes are normative. `version.json` records this ADR, and the
+   footer date becomes 2026-10-21.
+5. R1's plan records `packages/ui` and the `app/` paths in its Ownership Map and
+   Gate IX. The R1 specification remains product-level. No numbered UI
+   Foundation feature is created (ADR-007).
+6. The live range moves to `ADR-001 … ADR-098` because ADR-098 is accepted in
+   the same change; the index ends at ADR-098.
+
+**What deliberately did not change.** No principle, product scope item, page,
+role, entity, product feature, usage limit, security rule, approved technology,
+component library, or visual value changed by this record. No application code,
+package, CSS, or app directory was created by this record. The icon set,
+typeface, default appearance, and palette are ADR-098; this record fixes only
+the layer path and the layout.
+
+**Alternatives considered.**
+
+- *Keep the Nuxt 3-style paths and set `srcDir: '.'`.* Rejected: Nuxt 4 defaults
+  to `app/`, no application code exists, and adopting the default now is the
+  cheapest point to correct the register; `srcDir: '.'` would preserve a
+  compatibility layer that every later task must remember.
+- *Use two layers, one per app.* Rejected: it duplicates tokens, icons, fonts,
+  and primitives and recreates the drift the one-layer rule exists to prevent.
+- *Keep app-local design-system components.* Rejected: it makes each app a
+  second design system and contradicts Principle IX.
+- *Add `packages/ui` as a constitution topology row.* Rejected: ADR-093's
+  decision stands; the constitution names the layer, not its directory, and the
+  architecture and this record fix the path.
+- *Defer both decisions to R1's plan.* Rejected: the R1 plan cannot start while
+  the constitution, architecture, and tasks template disagree with the Nuxt 4
+  layout; the pre-R1 gap would block the first slice.
+
+**Consequences and migration/backfill.** The constitution is 3.3.0 with the
+Nuxt 4 frontend paths and the two layer-exception notes. `version.json`,
+`docs/architecture.md`, `Project-Technologies.txt`, the plan and tasks
+templates, `AGENTS.md`, `README.md`, `ROADMAP.md`, the R1 checklist, and the
+specification's live range string move in the same change. The drift check must
+report clean at 3.3.0 / ADR-098. The pre-R1 foundation scaffolds the layer;
+R1's plan records it and builds the shell; this record creates no code. Review
+date: 2026-11-20. This
+entry is the durable record.
+
+---
+
+## ADR-098 — The Wafar visual foundation: IconPark, IBM Plex Sans Arabic, light default, and the marine palette
+
+**Status**: Accepted — 2026-10-21
+**Owning directory**: `docs/`, `.specify/templates/overrides/`, `Project-Technologies.txt`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `specs/001-identity-foundation/`, `packages/ui` (planned by the pre-R1 foundation; R1 consumes it)
+**Owning feature**: R1 (the shell and the first icon/typeface/theme consumer); none — visual foundation ratified by the repository owner.
+
+**Context.** The constitution leaves the icon set as an open register gap and
+delegates the typeface, default appearance, and visual direction to the Wafar UI
+layer. The operator required icons that are colored, beautiful, official, free,
+global, open source, strong, and not temporary. The audit compared the active
+options. Phosphor Duotone was rejected by the operator after its preview read
+gray/2D: the duotone is opacity-based, not true color. Fluent Color is active,
+MIT, and official, but has 890 icons and is missing core UI icons (search, cart,
+filter, upload, download, delete, menu, chevron, folder, and close), so the main
+navigation would be partly monochrome. Streamline Color is active and true
+color, but its 2,000 icons are CC BY 4.0, outside the constitution's permissive
+list, and would need an exception and attribution. IconPark is the only
+complete, true-multicolour, permissive, general-UI set (2,658 colour + 2,658
+outline, Apache-2.0, ByteDance), but its upstream repository is archived. The
+operator approved IconPark on 2026-10-21 on the condition that the set is
+vendored and owned inside the repository. The same approval fixed IBM Plex Sans
+Arabic, the light default, and the marine/sand palette.
+
+**Decision.**
+
+1. The icon set is IconPark (multicolor) plus IconPark Outline from the same
+   family, Apache-2.0, 2,658 icons each. It is installed through
+   `@iconify-json/icon-park` and `@iconify-json/icon-park-outline`, **vendored**
+   under `packages/ui/vendor` with the Apache-2.0 licence and NOTICE, pinned by
+   SHA-256 and source commit, and loaded locally. No runtime Iconify API and no
+   dependency on the archived upstream at build or runtime. The project owns the
+   copy; a future missing icon is added by ADR. The CMV row 11 records the set.
+2. `WfIcon` is the only icon surface. It uses the colour set by default and the
+   outline set for dense tables, micro-icons, and the dark theme where colour
+   contrast is weak. The Nuxt UI internal icon keys map to IconPark Outline; no
+   second icon family, no direct `i-*` classes in app code, and no emoji.
+3. The typeface is IBM Plex Sans Arabic, OFL, self-hosted WOFF2 at weights
+   400/500/600/700 with `font-display: swap`, Arabic and Latin subsets, and
+   `Noto Sans Arabic` / `Segoe UI` / `Tahoma` fallbacks. No Google Fonts CDN.
+   Latin numerals are used for all rendered numbers.
+4. The default appearance is light; dark mode remains available through the
+   color-mode module with no flash, an accessible toggle, and the dark palette.
+5. The visual direction is a deep marine/petrol primary, a warm sand neutral,
+   the IconPark blue/cyan accent, and semantic success/warning/error/info
+   colours. Tokens are the only raw values; contrast targets WCAG AA; the dark
+   theme uses the navy surface set. The palette harmonizes with IconPark's
+   blue/cyan palette.
+6. The icon set, typeface, default appearance, and palette are Wafar UI layer
+   values, not constitutional text; no constitution amendment is made by this
+   record. The licence and vulnerability scan, the vendoring, and the icon
+   checks are recorded in the plan's Complexity Tracking and executed by R1.
+
+**What deliberately did not change.** No component library, Nuxt UI Pro, second
+icon family, product scope, page, role, entity, product feature, usage limit,
+security rule, or constitution version changed by this record; ADR-097 moves the
+constitution to 3.3.0. The constitution's icon-set register gap remains the
+requirement; the R1 plan fills CMV row 11. No application code, package, CSS, or
+font file was created by this record.
+
+**Alternatives considered.**
+
+- *Phosphor Duotone.* Rejected by the operator: the preview reads gray/2D
+  because the duotone is opacity-based, not true color, although the set is
+  active, MIT, and complete.
+- *Fluent Color.* Rejected as the primary: active, MIT, and official, but 890
+  icons and missing search/cart/filter/upload/download/delete/menu/chevron/
+  folder/close; the main navigation would be partly monochrome.
+- *Streamline Color.* Rejected: 2,000 true-colour icons but CC BY 4.0, outside
+  the constitution's permissive list; it would need an ADR exception and an
+  attribution page.
+- *Lucide / Tabler / Heroicons / Material Symbols.* Rejected: active, permissive,
+  and complete, but monochrome; the operator requires colour.
+- *IconPark without vendoring.* Rejected: the upstream is archived; vendoring
+  makes the copy permanent and removes the availability risk.
+- *A second icon family for the missing pieces.* Rejected: the one-family rule;
+  the outline theme supplies the monochrome and dense contexts.
+
+**Consequences and migration/backfill.** The Wafar UI layer later owns the
+vendored IconPark JSON, the IBM Plex Sans Arabic font files, the tokens, the
+theme, and `WfIcon`. The R1 plan fills CMV row 11, the Ownership Map, Gate IX,
+and the Complexity Tracking rows; the icon check verifies every semantic key and
+the Nuxt UI mapping. The archive is a maintenance limitation, not an
+availability risk: the vendored copy and the Apache-2.0 licence are perpetual.
+Review date: 2026-11-20. This entry is the durable record.

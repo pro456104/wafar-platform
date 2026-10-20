@@ -54,7 +54,7 @@
 **Storage**: [PostgreSQL through packages/db / OpenSearch through packages/search / SeaweedFS object storage — as applicable to this feature]
 **Testing**: [Per the spec's Test Coverage Request — Vitest for unit/integration, Playwright for end-to-end]
 **Target Platform**: [e.g., Linux VPS, modern browsers per the supported-browser statement]
-**Project Type**: Monorepo — apps/ (web, admin, api, worker) + packages/ (shared, db, search, config); see docs/architecture.md
+**Project Type**: Monorepo — apps/ (web, admin, api, worker) + packages/ (shared, db, search, ui, config); see docs/architecture.md
 **Performance Goals**: [p50 and p95 for the request path, under the load condition named below]
 **Constraints**: [numeric budgets and product limits from the Usage Limits table: max file size, upload counts, cart cap, search p95 < 1 s, cart-add < 200 ms, file processing < 5 min — those that apply]
 **Scale/Scope**: [the volume and load this plan's budgets are measured against]
@@ -93,7 +93,7 @@
 | 8 | Recovery Time Objective (RTO) | [number, or "not introduced — no persistent storage"] |
 | 9 | Recovery Point Objective (RPO) | [number, or "not introduced — no persistent storage"] |
 | 10 | Runtime version | [pinned version, or "not introduced — no runtime surface"] |
-| 11 | Icon set | [the approved set, or "not introduced — no icon surface"] |
+| 11 | Icon set | [IconPark (multicolor + IconPark Outline), Apache-2.0, vendored under `packages/ui/vendor`, no emoji, licence and vulnerability scan; or "not introduced — no icon surface"] |
 | 12 | Extraction libraries | [the approved libraries, or "not introduced — no extraction surface"] |
 | 13 | Transactional SMS transport | [the approved transport, or "not introduced — no SMS surface"] |
 | 14 | Continuous-integration provider | [the approved provider, or "not introduced — CI unchanged"] |
@@ -133,7 +133,7 @@
 | VI. Catalog-Only Scope *(NON-NEGOTIABLE)* | | [no payment/purchase/RFQ/wallet; cart is a bookmark list carrying no price or quantity; single admin conversation thread only] |
 | VII. Specification-First and Documentation Separation *(NON-NEGOTIABLE)* | | [spec.md reviewed for absence of technical detail; this plan holds the technical detail] |
 | VIII. User Story Independence *(NON-NEGOTIABLE)* | | [priorities assigned; the P1 set forms the shippable MVP; no circular story dependencies] |
-| IX. UI Foundation Fidelity *(NON-NEGOTIABLE)* | | [Nuxt UI v4 is the only component library; project values live in the Wafar UI layer; no second component library, no custom design system, no raw values or direct z-index values; every state rendered] |
+| IX. UI Foundation Fidelity *(NON-NEGOTIABLE)* | | [Nuxt UI v4 is the only component library; the Wafar UI layer is `packages/ui`; project values, IconPark (colour + outline), IBM Plex Sans Arabic, and tokens live there; no second component library, no custom design system, no raw values or direct z-index values; no emoji; every state rendered; the apps' `app/` paths appear in the Ownership Map] |
 | X. Modular Monolith Architecture | | [owning module named per change; one responsibility per module; no direct cross-module imports — communication through the shared package] |
 
 *Every row is filled. A principle that does not apply is marked "not applicable" with a reason; never left blank.*
@@ -157,7 +157,7 @@
 | Project Structure and Debt Control | | [ownership map below; import boundaries mechanically enforced; shared code promoted only after a second consumer exists] |
 | Documentation | | [ADR for every non-trivial decision (alternatives + rationale); affected docs updated in the same change; every ADR first named by this plan reaffirmed here] |
 | Deployment and Observability | | [dev/staging/production; staging parity; health checks per used dependency; structured logs + correlation id; error tracker; backups; RTO/RPO in CMV] |
-| Technology Standards | | [stack unchanged from the constitution's Technology Standards register; the paths match the repository topology and the internal layout; no unregistered technology; a MAJOR substitution would require a constitutional amendment] |
+| Technology Standards | | [stack unchanged from the constitution's Technology Standards register; the paths match the repository topology and the internal layout, with the Wafar UI layer path fixed by ADR-097 outside the constitution's package rows; no unregistered technology; a MAJOR substitution would require a constitutional amendment] |
 | Glossary | | [every term the feature uses is the Glossary's term, not a synonym; no entity, field, or column name is invented outside the register] |
 | Product Scope | | [pages and features stay inside the defined list; an addition is recorded in Complexity Tracking] |
 | File Processing Overview | | [single pipeline sequence; status enum exactly uploaded/processing/completed/failed; validation before storage; duplicate rejected] |
@@ -213,12 +213,14 @@ specs/[###-feature]/
 
 <!-- Replace with the concrete paths for this feature and delete the rest.
      This repository is a Monorepo: apps/ (web, admin, api, worker) and
-     packages/ (shared, db, search, config). -->
+     packages/ (shared, db, search, ui, config). -->
 
 ```text
 apps/
 ├── web/
+│   └── app/
 ├── admin/
+│   └── app/
 ├── api/
 │   └── src/modules/[owning-module]/
 └── worker/
@@ -226,6 +228,7 @@ packages/
 ├── shared/
 ├── db/
 ├── search/
+├── ui/
 └── config/
 ```
 
@@ -235,12 +238,14 @@ packages/
   Project Structure and Debt Control: every directory holding production code
   MUST have exactly one owning feature named here, and MUST NOT be written by
   two features at once. Shared code is promoted out of a feature only after a
-  second consumer exists.
+  second consumer exists. The Wafar UI layer is `packages/ui` (ADR-097); every
+  plan MUST record it, and app-specific code stays under `apps/*/app/`.
 -->
 
 | Path (directory or file) | Owning feature | Written by this feature? | Exclusive to it? |
 |---|---|---|---|
 | [apps/... or packages/...] | [###-feature-name] | [yes / no] | [yes = no other feature may touch it] |
+| [packages/ui/... when the layer is touched] | [###-feature-name] | [yes / no] | [yes = no other feature may touch it] |
 
 **Structure Decision**: [The real paths selected for this feature and why; reference the ownership table above.]
 
@@ -253,6 +258,9 @@ packages/
   exceedance with the restore-by date; staging-parity defects; production
   changes without a staging run; query-budget exceptions (query, measured
   time, reason); measured regressions above 10%. Rows stay until closed.
+  Include the Wafar UI layer path (`packages/ui`), the IconPark vendoring and
+  archive risk, the IBM Plex Sans Arabic licence, and the light/dark default
+  when this feature touches them.
 -->
 
 | Item | Type | Why needed | Simpler alternative rejected because | Owner | Review / restore-by date |

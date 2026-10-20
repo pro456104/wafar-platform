@@ -8,8 +8,8 @@ the constitution wins. The data model's entities and their owning modules are
 stated in `docs/domain-model.md`, which this document does not restate.
 
 **Status**: baseline for a repository where production code does not exist yet.
-Directories are created by the first feature that owns them, and every
-directory holding production code is registered in that feature's plan under
+Directories are created by the first feature or the pre-R1 foundation that owns
+them, and every directory holding production code is registered in that plan's
 Project Structure > Ownership Map (Project Structure and Debt Control).
 
 ## 1. Repository layout (Monorepo)
@@ -17,14 +17,15 @@ Project Structure > Ownership Map (Project Structure and Debt Control).
 ```text
 wafar/
 ├── apps/
-│   ├── web/              # Public site + merchant's authenticated area (Nuxt 4); layouts: shell vs bare (auth, 404, static, and contact pages); the admin app carries its own independent shell
-│   ├── admin/            # Administrator's separate application, separate login (Nuxt 4)
+│   ├── web/              # Public site + merchant's authenticated area (Nuxt 4); app/ source, server/, shared/, public/; layouts: shell vs bare (auth, 404, static, and contact pages); the admin app carries its own independent shell
+│   ├── admin/            # Administrator's separate application, separate login (Nuxt 4); app/ source, server/, shared/, public/
 │   ├── api/              # The API server (Hono, Modular Monolith)
 │   └── worker/           # File-processing worker (BullMQ processors)
 ├── packages/
 │   ├── shared/           # Validation schemas + types + contracts (Zod) shared by frontend and backend
 │   ├── db/               # Database schema + migrations (Drizzle), single migration mechanism
 │   ├── search/           # Search client + index mappings (OpenSearch)
+│   ├── ui/               # Wafar UI layer: tokens, theme, IconPark icons, IBM Plex Sans Arabic, shared primitives (ADR-097, ADR-098)
 │   └── config/           # ESLint + Stylelint + Prettier + TypeScript shared configuration
 ├── pnpm-workspace.yaml
 ├── turbo.json
@@ -51,7 +52,9 @@ The top-level tree above is the topology. The paths **inside** each workspace
 are fixed too, and a plan's Ownership Map MUST record them from this table
 rather than inventing them. The register these paths come from is
 `.specify/memory/constitution.md` → Technology Standards → Internal layout;
-where the two disagree, the constitution wins and this table is corrected.
+where the two disagree, the constitution wins and this table is corrected,
+except for the Wafar UI layer path fixed by ADR-097 and recorded here under
+Principle IX (ADR-093 keeps that path out of the constitution's package rows).
 
 | Concern | Fixed location |
 |---|---|
@@ -60,14 +63,19 @@ where the two disagree, the constitution wins and this table is corrected.
 | Worker queue | `apps/worker/src/queues/file-processing.ts` |
 | Database | `packages/db/schema/<module>.ts`, `packages/db/migrations/` |
 | Search | `packages/search/client.ts`, `packages/search/mappings/` |
-| Frontend | `apps/web/{pages,components,composables,stores,layouts}` |
+| Frontend | `apps/web/app/{pages,components,composables,stores,layouts,assets}`, `apps/web/app/app.config.ts`, `apps/web/app/app.vue`; `apps/web/public/` and `apps/web/shared/` at the app root |
 | Web server routes | `apps/web/server/` — optional Nitro server routes (Nitro is part of Nuxt 4 and is deliberately not a row of the Approved register); created only by the feature that declares them in its Ownership Map |
-| Administrator frontend | `apps/admin/{pages,components,composables,stores,layouts}` |
+| Administrator frontend | `apps/admin/app/{pages,components,composables,stores,layouts,assets}`, `apps/admin/app/app.config.ts`, `apps/admin/app/app.vue`; `apps/admin/public/` and `apps/admin/shared/` at the app root |
+| Administrator server routes | `apps/admin/server/` — optional Nitro server routes; created only by the feature that declares them in its Ownership Map |
+| Wafar UI layer | `packages/ui/{app/components,app/composables,app/utils,app/assets,app/app.config.ts,nuxt.config.ts}` — fixed by ADR-097 under Principle IX; not a row of the constitution's Internal layout (ADR-093) |
 | Validation | `packages/shared` only; a second local schema MUST NOT be created |
 | Database ownership | `packages/db/schema/<module>.ts` — one file per module named in Principle X; the table it declares belongs to that module |
 
 A feature MUST NOT create a parallel location for an artifact whose location
-is fixed above.
+is fixed above. The Wafar UI layer is the one path fixed here under Principle IX
+by ADR-097; it is not a row of the constitution's Internal layout (ADR-093), and
+this table is where a plan's Ownership Map reads it. No feature may create a
+parallel UI layer.
 
 ## 2. Module map — `apps/api`
 
@@ -226,6 +234,7 @@ Read/write notes:
 | `packages/shared` | Validation schemas, types, and contracts shared between frontend and backend. | Single source of the two contracts (Principle II); promoted code only after a second consumer exists. |
 | `packages/db` | Database schema and migrations. | One migration tool only; every migration a single reversible step; destructive changes split into expand/backfill/contract (Schema and Migration Control). |
 | `packages/search` | Search client and index mappings. | Arabic analyzer; OpenSearch Index State Management (ISM) on the index, with the per-catalog 90-day deletion enforced by the retention job (R15); one mapping owner per index. |
+| `packages/ui` | The Wafar UI layer: design tokens, theme, IconPark icons, IBM Plex Sans Arabic, and shared primitives. | Nuxt UI v4 only; IconPark colour + outline, vendored and pinned; IBM Plex Sans Arabic; no app pages; app-specific components stay in the apps; ADR-097/098. |
 | `packages/config` | ESLint, Stylelint, Prettier, TypeScript configuration shared by all workspaces. | Dependency and tooling changes follow Dependency Governance. Stylelint + ESLint fail the build on physical direction properties and on any colour, spacing, radius, shadow, duration, or z-index value that is not supplied by the Wafar UI layer — enforced by the committed configuration, not a review comment (Principle IX). |
 
 ## 5. Environments and operations
@@ -261,13 +270,15 @@ Read/write notes:
   `.specify/memory/version.json`) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-096; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-098; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.
 - UI foundation: Nuxt UI v4 is the component library; the Wafar UI layer is
-  built by R1 and its path is fixed by that plan (Principle IX).
+  `packages/ui`, fixed by ADR-097 (Principle IX), and R1's plan consumes it.
+  ADR-098 records IconPark, IBM Plex Sans Arabic, the light default, and the
+  marine/sand palette.
 - Technology stack: `Project-Technologies.txt`; product scope and roles:
   `Core-Project.txt`.
 - Deferred areas that touch this architecture: extraction algorithm; file

@@ -1,8 +1,8 @@
 # Project-Technologies.txt — the detail of the technology register
 
 **Constitution**: `.specify/memory/constitution.md` (current version: its footer
-or `.specify/memory/version.json`; last amended 2026-10-20,
-ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064/065/066/067/068/069/070/071/072/073/074/075/076/077/078/079/080/081/082/083/084/085/086/087/088/089/090/091/092/093/094/095/096). On any conflict with this file, the constitution
+or `.specify/memory/version.json`; last amended 2026-10-21,
+ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064/065/066/067/068/069/070/071/072/073/074/075/076/077/078/079/080/081/082/083/084/085/086/087/088/089/090/091/092/093/094/095/096/097/098). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -24,7 +24,7 @@ and the way it may restate them — are the register's, stated there and not her
 
 | التقنية | الدور | التفاصيل |
 |---|---|---|
-| **Monorepo** | مستودع واحد يجمع كل التطبيقات والحزم | يضم: `apps/web`، `apps/admin`، `apps/api`، `apps/worker` + `packages/shared`، `packages/db`، `packages/search`، `packages/config`. يسهّل مشاركة الكود والأنواع بين الواجهة والخادم. |
+| **Monorepo** | مستودع واحد يجمع كل التطبيقات والحزم | يضم: `apps/web`، `apps/admin`، `apps/api`، `apps/worker` + `packages/shared`، `packages/db`، `packages/search`، `packages/ui`، `packages/config`. يسهّل مشاركة الكود والأنواع بين الواجهة والخادم. |
 | **Node.js** | بيئة التشغيل | **22 LTS** مثبّتة ومتوثّقة عبر ADR وسجل Constitution Mandated Values؛ لا يختار المطوّر نسخة مختلفة بين البيئات. |
 | **pnpm** | مدير الحزم | أسرع من npm/yarn، يوفر مساحة القرص عبر الروابط الصلبة (Hard Links). يدعم **pnpm Catalogs** لإدارة الإصدارات المركزية في Monorepo. ملف القفل (lockfile) مُودَع في المستودع، ولا يُولَّد إلا بعملية تحديث التبعيات أو بخطة صريحة. |
 | **Turborepo** | منسق المهام والبناء | يشغّل `build`، `test`، `lint` عبر كل الحزم بأمر واحد. يخزّن النتائج مؤقتاً (Caching) فلا يعيد البناء إن لم يتغير شيء. يبني الحزم بالترتيب الصحيح (shared ← web). الإصدار من سلسلة v2 (الدستور يثبّت v2؛ لا رقم دقيق منفرد). ملف القفل (lockfile) مُودَع في المستودع. |
@@ -34,14 +34,15 @@ and the way it may restate them — are the register's, stated there and not her
 ```
 wafar/
 ├── apps/
-│   ├── web/              # الموقع العام (Nuxt 4)
-│   ├── admin/            # لوحة الأدمن (Nuxt 4) — البنية الداخلية الثابتة: apps/admin/{pages,components,composables,stores,layouts}
+│   ├── web/              # الموقع العام (Nuxt 4) — app/ + server/ + shared/ + public/
+│   ├── admin/            # لوحة الأدمن (Nuxt 4) — app/ + server/ + shared/ + public/؛ البنية الداخلية: apps/admin/app/{pages,components,composables,stores,layouts,assets}
 │   ├── api/              # الخادم (Hono)
 │   └── worker/           # معالج الملفات (BullMQ)
 ├── packages/
 │   ├── shared/           # Zod schemas + الأنواع + العقود
 │   ├── db/               # Drizzle schema + migrations
 │   ├── search/           # OpenSearch client + mappings
+│   ├── ui/               # Wafar UI layer: tokens + theme + IconPark + IBM Plex Sans Arabic + primitives (ADR-097/098)
 │   └── config/           # ESLint + Stylelint + Prettier + TS config
 ├── pnpm-workspace.yaml
 ├── turbo.json
@@ -87,7 +88,7 @@ apps/api/src/
 | **Vue 3** | لغة بناء الواجهات | Composition API + `<script setup>`. |
 | **TypeScript** | لغة البرمجة | strict mode إلزامي. |
 | **Tailwind CSS** | تنسيق التصميم | الإصدار v4.2 مع خيارات ألوان محايدة جديدة. |
-| **Nuxt UI** | مكتبة مكونات جاهزة | الإصدار **v4.11.2** (سبتمبر 2026). مئات المكونات والقوالب وحزمة Figma. مجاني بالكامل. |
+| **Nuxt UI** | مكتبة مكونات جاهزة | الإصدار **v4.11.2** (سبتمبر 2026). مئات المكونات والقوالب وحزمة Figma. مجاني بالكامل. الأيقونات عبر IconPark (ADR-098). يتضمن حزم Nuxt 4: `@nuxt/ui` 4.11.2، `@nuxt/icon`، `@nuxtjs/color-mode`، `@nuxt/eslint`؛ تُثبَّت الإصدارات الدقيقة في lockfile. |
 | **Pinia** | إدارة الحالة المحلية | الإصدار المعتمد **v4.0** (يوليو 2026)؛ وv3.0.4 (يناير 2026) هو ما قبله لا خيار مفتوح. المكتبة الرسمية لـ Vue. |
 | **TanStack Query** | إدارة بيانات الخادم | الإصدار v5. يُستخدم مُلَفَّق Vue منه. يدعم `useQueries`، `useQuery`، التخزين المؤقت، التحديثات التلقائية، Infinite Scroll، Optimistic Updates. |
 | **Zod** | التحقق من صحة البيانات | (مذكور في الخادم) — يُستخدم أيضاً في الواجهة. |
@@ -96,23 +97,53 @@ apps/api/src/
 
 ```
 apps/web/
-├── pages/              # الصفحات
-│   ├── index.vue       # الرئيسية
-│   ├── parts/          # قطع الغيار
-│   ├── catalogs/       # الكتالوج
-│   ├── contact.vue     # اتصل بنا
-│   ├── auth/           # تسجيل الدخول / إنشاء حساب
-│   ├── my-files/       # ملفاتي
-│   ├── cart/           # سلة المشتريات
-│   ├── notifications/  # الإشعارات
-│   ├── messages/       # المراسلة
-│   └── profile/        # الملف الشخصي
-├── components/         # مكونات Vue
-├── composables/        # دوال قابلة لإعادة الاستخدام
-├── stores/             # Pinia stores
-├── layouts/            # تخطيطات الصفحات (هيكل الموقع / مجرد للمصادقة)
-└── server/             # Nitro server routes (اختياري)
+├── app/
+│   ├── app.vue         # جذر التطبيق
+│   ├── app.config.ts   # إعدادات Nuxt UI والأيقونات
+│   ├── pages/          # الصفحات
+│   │   ├── index.vue   # الرئيسية
+│   │   ├── parts/      # قطع الغيار
+│   │   ├── catalogs/   # الكتالوج
+│   │   ├── contact.vue # اتصل بنا
+│   │   ├── auth/       # تسجيل الدخول / إنشاء حساب
+│   │   ├── my-files/   # ملفاتي
+│   │   ├── cart/       # سلة المشتريات
+│   │   ├── notifications/  # الإشعارات
+│   │   ├── messages/   # المراسلة
+│   │   └── profile/    # الملف الشخصي
+│   ├── components/     # مكونات Vue
+│   ├── composables/    # دوال قابلة لإعادة الاستخدام
+│   ├── stores/         # Pinia stores
+│   ├── layouts/        # تخطيطات الصفحات (هيكل الموقع / مجرد للمصادقة)
+│   └── assets/         # CSS والخطوط والأصول
+├── server/             # Nitro server routes (اختياري)
+├── shared/             # كود مشترك بين app و server (Nuxt 4)
+└── public/             # الأصول العامة
 ```
+
+```
+apps/admin/
+├── app/
+│   ├── app.vue
+│   ├── app.config.ts
+│   ├── pages/
+│   ├── components/
+│   ├── composables/
+│   ├── stores/
+│   ├── layouts/
+│   └── assets/
+├── server/
+├── shared/
+└── public/
+```
+
+### 🎨 أصول التصميم (Design assets — قيم Wafar UI layer، ليست تقنيات في السجل المعتمد)
+
+| الأصل | التفاصيل |
+|---|---|
+| **IconPark** | مجموعتا `icon-park` (ملوّنة) و`icon-park-outline` (أحادية)، 2,658 أيقونة لكل منهما؛ Apache-2.0 من ByteDance؛ تُضمَّن داخل `packages/ui/vendor` وتُثبَّت بـ SHA-256؛ ADR-098. |
+| **IBM Plex Sans Arabic** | OFL؛ self-hosted WOFF2 بأوزان 400/500/600/700؛ `font-display: swap`؛ ADR-098. |
+| **Nuxt UI icons** | `@iconify-json/icon-park` و`@iconify-json/icon-park-outline`؛ ربط داخلي في `app.config.ts`؛ لا Iconify API وقت التشغيل. |
 
 ---
 

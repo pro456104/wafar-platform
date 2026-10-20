@@ -53,8 +53,8 @@ Every task MUST strictly follow this format:
 4. **[US#]**: required for user-story-phase tasks (`[US1]`, `[US2]`, ...); omit in Setup, Foundational, and Polish phases.
 5. **Description**: the action with the exact file path.
 6. **Reference tail — constitution Principle I, mandatory**: every task description MUST end with `(implements FR-###, AC-###)`, naming every requirement and acceptance criterion the task satisfies. Examples:
-   - `- [ ] T012 [P] [US1] Build the parts table component in apps/web/components/PartsTable.vue (implements FR-004, AC-002)`
-   - `- [ ] T014 [US1] Wire the pagination states in apps/web/components/parts/Pagination.vue (implements FR-006, FR-007, AC-004)`
+   - `- [ ] T012 [P] [US1] Build the parts table component in apps/web/app/components/PartsTable.vue (implements FR-004, AC-002)`
+   - `- [ ] T014 [US1] Wire the pagination states in apps/web/app/components/parts/Pagination.vue (implements FR-006, FR-007, AC-004)`
 7. **Reference rule for work that implements no requirement**: use a direct FR/AC reference whenever the task's outcome is genuinely described by a requirement (for example, a migration whose table a story requires). When no requirement genuinely applies — an infrastructure scaffold, a refactor, a dependency or tooling change, a security fix, a spike — the tail is `(implements Complexity Tracking: <row>)`, and the named row MUST already exist in plan.md's Complexity Tracking table. Never cite an FR/AC the task does not implement.
 8. **Coverage check when generating tasks**: every FR-### and every AC-### in spec.md is referenced by at least one task; when tests are requested, every AC is exercised by at least one test task.
 
@@ -62,7 +62,7 @@ Every task MUST strictly follow this format:
 
 Paths come from plan.md's Project Structure (this repository is a Monorepo: apps/, packages/). Every task carries the exact path it touches, and touched paths MUST appear in the plan's ownership map.
 
-The frontend locations are fixed by the constitution's Technology Standards → Internal layout and MUST NOT be re-derived: `apps/web/{pages,components,composables,stores,layouts}` and `apps/admin/{pages,components,composables,stores,layouts}`. There is no `app/` segment — the examples in this template use the fixed paths, and a path that adds one contradicts the register. If a frontend framework defaults to a different source directory, the deciding slice records that in an ADR and amends the register; until then the fixed path above is what a task uses.
+The frontend locations are fixed by the constitution's Technology Standards → Internal layout and MUST NOT be re-derived: `apps/web/app/{pages,components,composables,stores,layouts,assets}` and `apps/admin/app/{pages,components,composables,stores,layouts,assets}`, with `server/`, `shared/`, and `public/` at each app root, plus `app/app.config.ts` and `app/app.vue`. The Wafar UI layer is `packages/ui` (ADR-097); every task that touches it names the path, and the path MUST appear in the plan's ownership map. A path that adds a different source directory contradicts the register. Icon and token checks are required: a task that renders an icon names the semantic `WfIcon` key (never a raw `i-*` class or an emoji), and a task that adds a visual value names the token it uses (never a raw colour, spacing, radius, shadow, duration, or z-index value).
 
 ## Phase 1: Setup (Shared Infrastructure)
 
