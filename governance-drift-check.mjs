@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * governance-drift-check.mjs — Wafar governance drift check
- * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101)
+ * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102)
  * -------------------------------------------------------------------
  * Read-only. Dependency-free. Runs on the pinned Node runtime.
  *
@@ -195,9 +195,13 @@ if (expected === null) {
     '.specify/templates/overrides/checklist-template.md',
     '.specify/templates/overrides/constitution-template.md',
   ];
+  // ADR-102: the reference pass runs over the same file set as the range pass,
+  // so a feature specification's `ADR-NNN` reference is resolved instead of
+  // passing unseen while `AGENTS.md` §5 states that every reference is checked.
+  const referenceFiles = new Set([...REFERENCE_FILES, ...scannedRangeFiles]);
   const knownAdr = new Set(indexNumbers.map((n) => String(n).padStart(3, '0')));
   let referencesChecked = 0;
-  for (const file of REFERENCE_FILES) {
+  for (const file of [...referenceFiles].sort()) {
     if (!existsSync(join(ROOT, file))) {
       failures.push(`B: ${file} is missing`);
       continue;
@@ -209,7 +213,7 @@ if (expected === null) {
       referencesChecked++;
     }
   }
-  notes.push(`B: ${referencesChecked} distinct ADR references resolved across ${REFERENCE_FILES.length} files`);
+  notes.push(`B: ${referencesChecked} distinct ADR references resolved across ${referenceFiles.size} files`);
 }
 
 /* ---- F. the Project-Technologies.txt header ADR list ends at the index ----- */
@@ -558,7 +562,7 @@ notes.push(
 );
 
 /* ---- report --------------------------------------------------------------- */
-console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101)');
+console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102)');
 console.log('=====================================');
 for (const n of notes) console.log(`  ok   ${n}`);
 if (failures.length === 0) {

@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | UI foundation — component library and the project layer | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1's plan consumes it |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-101; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-102; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -159,11 +159,11 @@ key), so a `specify` upgrade may replace it; the project copy is the one to keep
 and its `requires.integrations.any` list must stay correctly nested under
 `integrations:` (ADR-072).
 
-**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101).** `governance-drift-check.mjs`
+**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102).** `governance-drift-check.mjs`
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-101` range string — in the required files, under `docs/`, in
+live `ADR-001 … ADR-102` range string — in the required files, under `docs/`, in
 the two Arabic mirrors, in the template overrides, and in the feature
 specifications — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading, and
@@ -191,9 +191,10 @@ runner (R1) wires it into continuous integration.
 
 - **IconPark's upstream is archived (decided 2026-10-21, ADR-098).** The icon
   set is to be vendored under `packages/ui/vendor` and pinned by the pre-R1
-  foundation (W1), and the project will own the copy; the Apache-2.0 licence is
-  perpetual. No new upstream icons arrive, so a missing icon is added by ADR.
-  This is a maintenance limitation, not an availability risk.
+  foundation (ADR-097, ADR-098), and the project will own the copy; the
+  Apache-2.0 licence is perpetual. No new upstream icons arrive, so a missing
+  icon is added by ADR. This is a maintenance limitation, not an availability
+  risk.
 
 - **No standalone `/speckit.constitution-check` command.** The constitution check
   gate is carried inside `plan-template.md` (Gates 1–3), evaluated before Phase 0
@@ -234,14 +235,16 @@ runner (R1) wires it into continuous integration.
   requires recording the owner and the requirement it serves. It is reserved,
   not an open gap.
 
-- **Twenty-three decision records carry no `Alternatives considered` section
+- **Twenty-four decision records carry no `Alternatives considered` section
   (closed 2026-10-09, ADR-090).** The Documentation rule now states its own
   subject: the field reaches a non-trivial technical decision, and a governance
   record — one whose subject is the constitution's own text, a register, the
-  process, or the governance tooling — is outside its reach. The twenty-three
+  process, or the governance tooling — is outside its reach. The twenty-four
   are governance records, so the field never reached them and no section is
-  reconstructed; the debt is closed. The entry is kept so a reader meets the
-  closure without reading `docs/DECISIONS.md` → ADR-090.
+  reconstructed; the debt is closed. ADR-092, recorded after ADR-090, is the
+  twenty-fourth and falls under the same reading, which ADR-090's annotation
+  records (ADR-102). The entry is kept so a reader meets the closure without
+  reading `docs/DECISIONS.md` → ADR-090.
 
 - **The constitution's stamp-site list stays in the constitution (decided
   2026-10-09, ADR-091).** ADR-064 deferred moving it as "a Governance amendment

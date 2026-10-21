@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-10-10
-**Refreshed**: 2026-10-21 — after ADR-097, ADR-098, and ADR-099
+**Refreshed**: 2026-10-21 — after ADR-097, ADR-098, ADR-099, and ADR-102
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -67,6 +67,13 @@
   control sit in the sidebar, and «إعدادات» is a section inside the Profile page.
   FR-047 and AC-051 were added; the frame's checks now assert the new
   composition.
+- Refreshed 2026-10-21 (fifth time): ADR-102 moved the theme switch out of the
+  sidebar and into the header, immediately beside a notifications control that
+  carries the unread count, and restored the crescent glyph of the registered
+  IconPark set for the switch. FR-020, FR-023, FR-025, FR-039, AC-022, AC-025,
+  AC-027, and AC-042 now assert the new header composition; the default
+  appearance stays light (ADR-098), and no `[NEEDS CLARIFICATION]` marker was
+  raised, and the requirement and criterion counts are unchanged.
 - Refreshed 2026-10-21 (third time): the `/speckit.clarify` session answered five
   questions and ADR-100 recorded the answers — the two landing points of the
   account items, the sign-out-everywhere action in the Profile page's settings

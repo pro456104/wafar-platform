@@ -264,7 +264,8 @@ service layer re-checks the ones a constraint cannot express.
 ### Notification
 
 - **A notification has a read state and an unread count.** The count in the
-  header is the number of the user's unread notifications.
+  header's notifications control is the number of the user's unread
+  notifications (ADR-102).
 - **Retention is undecided** and is recorded as an unresolved product fact
   owned by R9.
 

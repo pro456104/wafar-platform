@@ -137,6 +137,7 @@ from the index rather than edited in its own words.
 | [ADR-099](#adr-099--shared-shell-header-and-the-account-menu) | Shared-shell header and the account menu | 2026-10-21 | 3.4.0 |
 | [ADR-100](#adr-100--the-account-menus-destinations-and-the-frames-boundaries) | The account menu's destinations and the frame's boundaries | 2026-10-21 | 3.5.0 |
 | [ADR-101](#adr-101--the-account-menus-behaviour-and-the-appearances-ownership) | The account menu's behaviour and the appearance's ownership | 2026-10-21 | 3.5.0 (unchanged) |
+| [ADR-102](#adr-102--the-headers-theme-switch-and-the-notifications-bell) | The header's theme switch and the notifications bell | 2026-10-21 | 3.6.0 |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -383,6 +384,24 @@ system's accessibility rules.
 **Consequences.** Every page must default to dark on first render; the
 mechanism that remembers the explicit choice is decided by the implementing
 feature's plan and must stay inside the design system's rules.
+
+**Annotation (2026-10-21, ADR-098 and ADR-102).** Two provisions above are
+superseded, and neither is rewritten:
+
+1. **The default is light, not dark.** ADR-098 (2026-10-21) fixed the default
+   appearance as light and recorded it as a Wafar UI layer value; the dark-first
+   rationale this record gives is not the platform's visual direction, which is
+   the marine/sand palette ADR-098 fixed. The mechanism that remembers the
+   explicit choice is still the implementing slice's, and the choice is still the
+   user's explicit act rather than the device's preference.
+2. **The toggle's place is the header, beside the notifications control.**
+   ADR-099 (2026-10-21) moved the toggle into the sidebar; ADR-102 (2026-10-21)
+   moved it back to the header, immediately beside the notifications control,
+   with the crescent glyph of the registered IconPark set. The Decision's
+   placement sentence therefore reads as the header's rule again.
+
+The decision this record made — that the appearance is the user's explicit
+choice and that both modes exist — is unchanged.
 
 ---
 
@@ -877,6 +896,11 @@ slice that first needs it, and the module map is updated in the same change.
 but its place is the sidebar; the header no longer carries it. The icon-set duty
 is unchanged.
 
+**Annotation (2026-10-21, ADR-102).** The theme toggle remains an R1 shell duty,
+and its place is the header once more: ADR-102 moved it out of the sidebar and
+into the header, immediately beside the notifications control, drawn with the
+crescent glyph of the registered IconPark set. The icon-set duty is unchanged.
+
 
 ---
 
@@ -903,6 +927,15 @@ is unchanged.
    controls, and the theme switch and the sidebar-collapse control sit in the
    sidebar. The scoping decision — which surfaces carry the shell, and that the
    sidebar is always present on desktop — is unchanged.
+
+   **Annotation (2026-10-21, ADR-102).** The header's control composition
+   changed again: it now carries the notifications control and the theme switch
+   beside it, in addition to the logo/home control and the account control, so
+   the header carries the theme toggle this record's Decision named. The
+   sidebar-collapse control stays in the sidebar, where ADR-099 put it and where
+   it belongs beside the thing it collapses. The scoping decision — which
+   surfaces carry the shell, and that the sidebar is always present on desktop —
+   is unchanged.
 
 **Consequences.** Every browser-facing slice composes this shell; none rebuilds it, and none places it on auth or admin screens. R1 implements the shell and the auth pages without it.
 
@@ -6659,6 +6692,13 @@ the closure, the constitution moves to 2.29.0, and the check reports clean with
 the index ending at ADR-090 and every live range string reading
 `ADR-001 … ADR-090`. This entry is the durable record.
 
+**Annotation (2026-10-21, ADR-102).** The count of records this rule leaves
+outside its reach is **twenty-four**, not twenty-three: ADR-092, recorded the day
+after this record, is a governance record of the same class and carries no
+`Alternatives considered` section. Decision 2's reasoning reaches it unchanged,
+and the list in the Context stays as written — it is this record's own count at
+its own date. `AGENTS.md` §6 states the corrected count.
+
 ---
 
 ## ADR-091 — The stamp-site list stays in the constitution
@@ -6891,6 +6931,12 @@ had to be corrected in the same change.
 4. The footer question is not decided here. The link surface remains the choice
    of the slice that first builds a shell page; R1's existing FR-024 records the
    footer-band choice, and its plan supplies the decision record.
+
+**Annotation (2026-10-21, ADR-102).** Decision 1's wording reads correctly
+again: the header carries a notifications control once more, so a guest's
+sign-in action replaces the account and notifications controls, and the guest
+keeps the theme switch, which now sits in the header beside them rather than in
+the sidebar. The decision this record made is unchanged.
 
 **What deliberately did not change.** The three surfaces remain: the public
 site, the merchant area, and the separate administrator application with its own
@@ -7344,6 +7390,27 @@ share the one Profile route the frame's decision record fixes. Decision 5 is
 read with that distinction, and ADR-100 records the clarification session's
 answers. No other provision of this record changes.
 
+**Annotation (2026-10-21, ADR-102).** Two provisions of this record are
+superseded, and neither is rewritten:
+
+1. **Decision 1's header composition.** The header now carries the
+   notifications control and the theme switch beside it, in addition to the
+   logo/home control and the account control. The header still carries no
+   page-navigation link and no sidebar-collapse control, and the account
+   control keeps the inline-end edge.
+2. **Decision 7's counter.** Decision 7 reads: "The notification counter moves
+   from the header to the Notifications sidebar item (or its page). No header
+   bell is built." The notifications control returns to the header and carries
+   the unread count, and the Notifications sidebar item carries no count, so the
+   count has one surface. The decision no longer stands.
+
+Decision 4's placement of the theme switch in the sidebar is likewise
+superseded: the switch is in the header, and the sidebar keeps the navigation
+item list and the sidebar-collapse control. Decisions 2, 3, 5, 6, and 8 — the
+account menu's three items, the guest's sign-in action, «إعدادات» as a section
+of the Profile page, the sidebar's widths and position, the administrator
+application's own shell, and the counter's not being built here — are unchanged.
+
 ---
 
 ## ADR-100 — The account menu's destinations and the frame's boundaries
@@ -7492,3 +7559,145 @@ ranges move to ADR-101 in the same change. The requirement and criterion counts
 are unchanged at 50 FR and 54 AC. R4 verifies the menu's behaviour at runtime,
 and R7 delivers the Profile page's summary and settings section. Review date:
 2026-11-20. This entry is the durable record.
+
+---
+
+## ADR-102 — The header's theme switch and the notifications bell
+
+**Status**: Accepted — 2026-10-21
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `Project-Technologies.txt`, `Core-Project.txt`, `specs/001-identity-foundation/`, `governance-drift-check.mjs`, `.githooks/`
+**Owning feature**: none — product correction ratified by the repository owner; R1 builds the frame.
+
+**Context.** ADR-099 (2026-10-21) made the header a brand-and-account band: the
+platform's logo/home control at its inline-start edge and the account control at
+its inline-end edge, with the theme switch and the sidebar-collapse control in
+the sidebar and no notifications control in the header at all — the unread count
+moved to the Notifications sidebar item, and the header bell was not built. The
+operator has now decided the header carries the appearance control again, beside
+a notifications control, drawn with the crescent glyph of the registered icon
+set.
+
+Three sources already pointed at that arrangement, and ADR-099 moved past them:
+
+- **ADR-006** (2026-10-01) decided that "the mode toggle sits in the header,
+  adjacent to the notifications icon". That placement was never annotated after
+  ADR-099 moved the toggle into the sidebar, so the record still reads as the
+  header's rule.
+- **`Core-Project.txt`** states that the notifications "تظهر في أيقونة الجرس مع
+  عداد" — a bell with a counter — while its header section says the header
+  carries no notifications icon.
+- **`docs/domain-model.md`** states that "the count in the header is the number
+  of the user's unread notifications". ADR-099 did not amend that file, so the
+  invariant it states was left naming a header count that the header no longer
+  carried.
+
+The default appearance is a separate question and is unchanged: ADR-098 fixed
+light as the Wafar UI layer's default, and ADR-006's "dark mode by default" was
+never annotated as superseded by it. ADR-102 closes that gap as well.
+
+**Decision.**
+
+1. The header carries four controls. At its inline-start edge sits the
+   platform's logo/home control. At its inline-end edge, reading from
+   inline-start to inline-end, sit the notifications control, the theme switch,
+   and the account control — so the theme switch is immediately beside the
+   notifications control, and the account control keeps the inline-end edge.
+   The header carries no page-navigation link.
+2. The theme switch leaves the sidebar. The sidebar carries the platform's
+   navigation item list and the sidebar-collapse control, and nothing else
+   changes about it — its position at the inline-start edge, its full and
+   icon-rail and drawer widths, and the collapse control's behaviour all stand.
+3. The notifications control returns to the header and carries the unread count.
+   The Notifications sidebar item carries no count, so the count has one source
+   and one surface. This reverses ADR-099's seventh decision.
+4. The theme switch's icon is the crescent moon of the registered IconPark set,
+   drawn through `WfIcon` alone: `icon-park:moon` in the colour set and
+   `icon-park-outline:moon` in the outline set. Which of the two the Wafar UI
+   layer uses follows ADR-098's rule; there is no emoji and no second icon
+   family. The switch's current state is carried by its accessible name and its
+   pressed state, not by a second glyph.
+5. The default appearance is unchanged: light (ADR-098), remembered in the
+   browser the person is using, per device, applied before the page is painted
+   so the other appearance never flashes, and never stored on the account.
+   ADR-006's dark default is not restored.
+6. A guest sees the sign-in action in place of the account control and the
+   notifications control — ADR-094's rule, which reads correctly again now that
+   the header carries a notifications control — and keeps the theme switch,
+   which now sits in the header.
+7. R1 builds the header's composition, including the notifications control as a
+   link to the route R1's own decision record already fixes for the
+   Notifications destination; no route is added. The unread count and the
+   Notifications page arrive with R9, which also adds the counter component to
+   the Wafar UI layer. No page, route, entity, role, product feature, or usage
+   limit is added, and the Product Register stays at twenty-six pages.
+
+**What deliberately did not change.** The three surfaces — the public site, the
+merchant area, and the administrator's separate application — and the bare
+scope; the administrator application's own shell and header; the sidebar's item
+list, its eight destinations, and the collapse control; the account menu's three
+items and the sign-out confirmation; the appearance's ownership, which remains
+the Wafar UI layer's and not a product setting (ADR-101); the default
+appearance's being light (ADR-098); the icon set, the typeface, and the palette
+as Wafar UI layer values (ADR-098); the twenty-six pages, the twelve entities,
+the three roles, the sixteen product features, and every usage limit; every
+technology in the register. No application code, package, CSS, or font file is
+created by this record.
+
+**Bookkeeping corrected in the same change.** Three statements had drifted from
+the record, and the files that carry them are in this record's owning set.
+`AGENTS.md` §6 counted twenty-three decision records without an
+`Alternatives considered` section where the true count is twenty-four: ADR-092,
+recorded after ADR-090, is the twenty-fourth, and ADR-090 now carries the
+annotation that says so. The same section named the pre-R1 foundation as `W1`,
+an identifier no file defines and no decision record introduces; it now cites
+ADR-097 and ADR-098, the way the roadmap names the foundation. `ROADMAP.md`'s R1 row moves to
+`in-progress` with `specs/001-identity-foundation/` in its `Sub-spec` column,
+because that sub-spec exists and opens with the required `**Input**:` line; no
+other slice row changes.
+
+One promise the drift check made was also unkept: its reference pass resolved
+`ADR-NNN` over a fixed list of fifteen files, although `AGENTS.md` §5 and
+`README.md` both state that every reference is resolved. The feature
+specifications were outside that list. The pass now runs over the same file set
+as the range pass, which ADR-096 had already extended to `specs/`, so a
+specification's reference is resolved instead of passing unseen. No verdict
+changed: every reference the wider pass reaches already resolved.
+
+**Alternatives considered.**
+
+- *Keep the switch in the sidebar and add the bell to the header.* Rejected: two
+  controls for one appearance, and the sidebar is the navigation's home, not the
+  appearance's.
+- *Restore ADR-006's dark default together with the header switch.* Rejected:
+  ADR-098 fixed light and the operator did not revisit it; the placement is
+  restored, the default is not.
+- *Give the header a bell without a count and leave the count on the sidebar
+  item.* Rejected: one number shown on two surfaces invites a disagreement
+  between them, and the count belongs on the bell the product mirror already
+  names.
+- *Show the guest an empty bell.* Rejected: a guest has no notifications, and
+  ADR-094 already fixes the sign-in action in place of the account and
+  notifications controls.
+- *Swap the glyph between a moon and a sun to show the current appearance.*
+  Rejected: the control's meaning then depends on a second glyph and on the
+  direction of the swap; the crescent marks the control and the accessible name
+  and the pressed state carry the state.
+
+**Consequences and migration/backfill.** The constitution moves to **3.6.0**
+(MINOR): the shared shell's header composition changes, so this is not a PATCH.
+Both places the constitution states that composition — the Product Scope
+shell paragraph and the Product Fact Clarifications bullet — move together, so
+the document states one rule once. `version.json`, the live ADR ranges, `Project-Technologies.txt`'s header ADR
+list, the R1 specification (FR-020, FR-023, FR-025, FR-039, AC-022, AC-025,
+AC-027, AC-042, and the clarifications they carry), the R1 checklist,
+`Core-Project.txt`'s header, sidebar, and Notifications sections,
+`docs/domain-model.md`'s
+Notification invariant, the ROADMAP's R1, R9, and first-obligations rows, the
+drift check's own citation list, and the pre-commit hook's citation line move
+in the same change. ADR-006, ADR-016, ADR-017, ADR-090, ADR-094, and ADR-099
+carry annotations; their decisions are not rewritten. The drift check's
+reference pass now runs over the same file set as its range pass, so an
+`ADR-NNN` reference in a feature specification or in one of the two Arabic
+mirrors is resolved instead of passing unseen; `AGENTS.md` §5 states that every
+reference is checked, and the file set it named was the narrower one. Review
+date: 2026-11-20. This entry is the durable record.
