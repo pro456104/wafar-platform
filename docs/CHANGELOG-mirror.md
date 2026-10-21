@@ -28,7 +28,7 @@ Sufficiency).
 | Technology | The section that governs it |
 |---|---|
 | **ClamAV** | File Processing Rules (content safety); Deployment and Observability (upload transport) |
-| **Stylelint** + **ESLint** | Design System Standards → Invariants (static enforcement) |
+| **Stylelint** + **ESLint** | Design System Standards → Invariants (static enforcement) — the section's name as it stood on 2026-10-03; it is now Principle IX and Technology Standards, and the file that held the values (`wafar.single.css`) is gone (ADR-093) |
 | **Lighthouse CI** | Performance Budgets and Verification (lightweight budget) |
 | **Semgrep OSS** | Deployment and Observability (supply-chain controls) |
 | **osv-scanner** | Deployment and Observability (supply-chain controls) |
@@ -40,8 +40,8 @@ Sufficiency).
 | **Session store** | Identity, Authentication, and Session Policy; Deployment and Observability (session revocation) |
 | **Anti-spam controls** | Identity, Authentication, and Session Policy (account enumeration, lockout, anti-spam) |
 | **Merchant-isolation test** | Deployment and Observability (merchant isolation verification); Schema and Migration Control (tenant scoping) |
-| **Supported browsers** | Design System Standards → Invariants (supported browsers); recorded under Constitution Mandated Values |
-| **Design-system tokens** | `wafar.single.css` holds the values; the constitution's Design System Standards registers them |
+| **Supported browsers** | Design System Standards → Invariants (supported browsers) as it stood on 2026-10-03; the statement is now recorded under Constitution Mandated Values and named in `docs/architecture.md` |
+| **Design-system tokens** | `wafar.single.css` held the values and the constitution's Design System Standards registered them, as they stood on 2026-10-03; both are gone (ADR-093), and the values now belong to the Wafar UI layer (ADR-097, ADR-098) |
 
 Content-safety ordering, the decoded-size cap's rule, the CAPTCHA prohibition,
 the account lockout figures, the deprecation notice period, the LCP/INP/CLS

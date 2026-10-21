@@ -343,7 +343,48 @@ service layer re-checks the ones a constraint cannot express.
 - **Blocking a merchant does not remove their public contributions.** Their
   catalogs and the parts extracted from them stay visible, because the catalog
   is public and other merchants search it.
+- **The account carries three sign-in state fields, and each is a field the
+  Product Register names.** They are the consecutive failed sign-in attempt
+  count, the sign-in lock's expiry, and the requirement to change the password
+  at first sign-in. R1 adds them; the register's `User` row names them, so they
+  are registered fields rather than schema inventions.
+  - **The attempt count is consecutive, and only a failed password
+    verification increments it.** A refusal produced by a rate limit, by a value
+    that is not a valid Libyan mobile number, or by a blocked account MUST NOT
+    increment it, so the count measures exactly what its name says. A successful
+    sign-in clears it to zero.
+  - **The lock is a time bound alone.** It is applied after five consecutive
+    failed attempts, runs for fifteen minutes, ends nothing else, and at its
+    expiry the count clears. An attempt refused while the lock is in force is not
+    counted as a further failed attempt and never extends the lock.
+  - **The forced-password-change requirement is cleared by that change and by no
+    other path.** An account that carries it is restricted to the password change
+    and nothing else; the sign-in that reveals it is accepted, never refused.
 - **Deletion is soft** for users and catalogs; see Soft deletion below.
+
+## Transient verification state (not an entity)
+
+The one-time codes and the pending sign-up or password-reset request are
+**transient verification state, not an entity**. They carry a per-number
+identity, an expiry, a replacement rule, and a bound on incorrect entries, and
+they live in an expiring store outside the entity register rather than as a
+thirteenth entity. The `users` module owns the store.
+
+- **One pending request is live per mobile number.** A new sign-up or recovery
+  request for a number that already has a live pending request replaces it, and
+  the previous code stops being valid at once.
+- **Exactly one code is valid at any moment.** Requesting a new code invalidates
+  the previous one and does not reset the count of incorrect entries.
+- **The pending request ends when the bound on incorrect entries is reached**,
+  and the person starts a fresh request, which begins a new verification with
+  the count at zero.
+- **A pending request expires.** The expiry, the re-request limit, and the
+  incorrect-entry bound are numbers the plan records under Constitution
+  Mandated Values; this section fixes the rules, not the numbers.
+- **Nothing here is an account.** No `User` row exists until the correct code is
+  entered, so `User.status` stays the closed two-value set and the register's
+  twelve entities stay twelve. The store's rows carry no merchant identity and
+  are read by the `users` module alone.
 
 ## Soft deletion
 
@@ -413,6 +454,29 @@ its owner are not in doubt, only what the entity carries. Row 12 is a reading
 rule rather than a field, and binds the extraction pipeline the same way. Each is
 decided by the slice named, recorded as an ADR, and added to this document and
 the constitution's register in the same change.
+
+**Rows 1 and 2 are schema decisions rather than registered product facts, and
+the distinction matters when the slice that owns them records its answer.** A
+registered product fact is one the constitution's Product Register states — an
+entity, a relationship, an invariant, a role, a page, a feature, or a usage
+limit — and changing one requires a constitution amendment to the register
+besides the ADR and this document. Rows 1 and 2 are not of that kind: the
+concepts are already fixed, and only their **representation** is open. The
+register already names one sender on a `Message` and already describes a
+`Conversation` as the single thread between a merchant and the administrator;
+what is undecided is whether that sender is a role, a reference, or a
+discriminated column, and whether the administrator side of the thread is
+carried as a reference, a role, or nothing at all. Neither answer changes what
+the product does, so neither requires the constitution's register to be amended.
+R10 therefore records each answer as an ADR and as a change to this document,
+and the slice's `data-model.md` states the shape it chose. A slice that finds
+either answer needs a product fact the register does not carry must amend the
+register in the same change, as the register's own rule requires.
+
+The same distinction separates rows 1 and 2 from rows 3, 4, 9, 10, and 11, which
+**are** registered facts: a retention period, a trigger point, and a field on a
+registered entity are decisions the constitution's register owns, and each
+requires the register amended in the same change as the decision.
 
 ## What this document deliberately does not contain
 

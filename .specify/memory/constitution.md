@@ -543,7 +543,7 @@ registered, and prose is not a field list.
 
 | Entity | Owning module | One-line meaning |
 |---|---|---|
-| `User` | `users` | A registered merchant: full name, Libyan mobile number (E.164, unique, always +218), city, optional shop name, role, and status (`active` or `blocked`). |
+| `User` | `users` | A registered merchant: full name, Libyan mobile number (E.164, unique, always +218), city, optional shop name, role, status (`active` or `blocked`), the consecutive failed sign-in attempt count, the sign-in lock's expiry, and the requirement to change the password at first sign-in. |
 | `Supplier` | `suppliers` | The company named on a catalog's first page. |
 | `Catalog` | `catalogs` | An uploaded supplier file, its metadata, its status, and its stored bytes. |
 | `Part` | `parts` | One row extracted from a catalog, representing one car part. |
@@ -1468,7 +1468,7 @@ however obviously the concept belongs to the entity.
 | `.specify/extensions.yml` | The installed extensions and the hook registry every Spec Kit command reads before and after it runs. | `.specify/`. |
 | `.specify/workflows/speckit/workflow.yml` | The bundled workflow that runs the binding cycle in order, with its human review gates. | `.specify/workflows/speckit/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
-| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102): the two version sources including the amended date, every live ADR range string (in the required files, under `docs/`, in the two Arabic mirrors, in the template overrides, and in the feature specifications), every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the structural counts the governance text states in prose, and the absence of the removed stylesheet and its constitution section. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
+| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105): the two version sources including the amended date, every live ADR range string (in the required files, under `docs/`, in the two Arabic mirrors, in the template overrides, and in the feature specifications), every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header and its contiguity, every ADR enumeration in the governance set against the canonical one the check's own header carries, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the structural counts the governance text states in prose, the Constitution Mandated Values count the plan template states, every entity's owning module in `docs/domain-model.md` against the Data entities table above, the ADR index's constitution-version column against the footer's version, and the absence of the removed stylesheet and its constitution section. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
 
 ## Artifact Workflow and Traceability
 
@@ -1597,22 +1597,24 @@ the same force as the principles above.
 **Authority.** This constitution supersedes ad-hoc convention and any other
 written project instruction where they conflict. Precedence is: this
 constitution, then agent instruction files, then the readme, then any other
-guidance. Every principle and every MUST in the sections above is binding
-with the same force and is resolved, reviewed, and excepted by exactly the
-same procedure: Query Safety and Secrets, Schema and Migration Control,
+guidance. Every principle and every MUST in the sections above is binding with
+the same force, and is resolved, reviewed, and excepted by exactly the same
+procedure. That procedure is the one every binding section above shares, and
+it is named in this paragraph rather than restated by each section: Query
+Safety and Secrets, Schema and Migration Control,
 Identity, Authentication, and Session Policy, Authorization and Access Control,
 Performance Budgets and Verification, Dependency Governance, Module Discipline
 and Development Workflow, Project Structure and Debt Control, Documentation,
 Deployment and Observability, Technology Standards,
 Glossary, Product Scope, Product Register, Single-Reference Sufficiency, File
 Processing Overview, Artifact Workflow and Traceability, and Product Fact
-Clarifications. This adjudication spans all ten principles — I. Evident,
-Traceable Change; II. Strict Type Safety; III. Measured Test Coverage; IV.
-Accessible User Interfaces; V. Arabic-First and RTL Interfaces; VI.
-Catalog-Only Scope; VII. Specification-First and Documentation Separation;
-VIII. User Story Independence; IX. UI Foundation Fidelity; X. Modular
-Monolith Architecture — and every binding section named above. A SHOULD is
-advisory and MUST NOT
+Clarifications. The adjudication spans all ten principles as well — I.
+Evident, Traceable Change; II. Strict Type Safety; III. Measured Test
+Coverage; IV. Accessible User Interfaces; V. Arabic-First and RTL Interfaces;
+VI. Catalog-Only Scope; VII. Specification-First and Documentation
+Separation; VIII. User Story Independence; IX. UI Foundation Fidelity; X.
+Modular Monolith Architecture — and every binding section named above. A SHOULD
+is advisory and MUST NOT
 be reported as a critical
 finding; an unmet SHOULD MUST still be recorded in the plan's Complexity
 Tracking table with its reason.
@@ -1648,7 +1650,7 @@ than governing it, and it restates MUSTs the document already states. The
 durable record of an amendment is an entry in `docs/DECISIONS.md` naming the
 version, what changed, and what deliberately did not.
 
-On every amendment the version lives in exactly two places, which MUST agree,
+On every amendment the version lives in exactly three places, which MUST agree,
 and the amendment is recorded once:
 
 1. `.specify/memory/constitution.md` — the version footer, the human-readable
@@ -1656,7 +1658,9 @@ and the amendment is recorded once:
 2. `.specify/memory/version.json` — the machine-readable value, whose
    `constitution_version` field MUST equal the footer's version.
 3. `docs/DECISIONS.md` — the ADR index row and the ADR the amendment records,
-   which is the durable record of what changed.
+   which are the durable record of what changed. The index row's constitution
+   version column names the version this ADR produced, so the version is
+   recorded in that column as well as in the two sources above.
 
 This paragraph is the single authority for those sources; no other document may
 restate them, and a document that carries a copy is corrected from here rather
@@ -1664,9 +1668,9 @@ than edited in its own words.
 
 A document that needs to name the governing constitution names
 `.specify/memory/constitution.md` and reads the version from one of the two
-sources above; it MUST NOT hard-code a version string of its own, because a
-copied version is a second source that drifts from the first. The feature
-templates' binding blocks, `docs/architecture.md`, `docs/domain-model.md`,
+version sources above; it MUST NOT hard-code a version string of its own,
+because a copied version is a second source that drifts from the first. The
+feature templates' binding blocks, `docs/architecture.md`, `docs/domain-model.md`,
 `ROADMAP.md`, and `Project-Technologies.txt` therefore carry a pointer rather
 than a literal version.
 
@@ -1745,4 +1749,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 3.6.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-21
+**Version**: 3.7.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-21

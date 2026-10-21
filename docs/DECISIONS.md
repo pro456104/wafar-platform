@@ -138,6 +138,9 @@ from the index rather than edited in its own words.
 | [ADR-100](#adr-100--the-account-menus-destinations-and-the-frames-boundaries) | The account menu's destinations and the frame's boundaries | 2026-10-21 | 3.5.0 |
 | [ADR-101](#adr-101--the-account-menus-behaviour-and-the-appearances-ownership) | The account menu's behaviour and the appearance's ownership | 2026-10-21 | 3.5.0 (unchanged) |
 | [ADR-102](#adr-102--the-headers-theme-switch-and-the-notifications-bell) | The header's theme switch and the notifications bell | 2026-10-21 | 3.6.0 |
+| [ADR-103](#adr-103--the-amendment-procedures-version-sources-and-the-index-column-the-check-verifies) | The amendment procedure's version sources, and the index column the check verifies | 2026-10-21 | 3.6.1 |
+| [ADR-104](#adr-104--the-audit-fix-set-the-governance-wording-the-mirror-corrections-and-the-r1-concentration) | The audit fix set: the governance wording, the mirror corrections, and the R1 concentration | 2026-10-21 | 3.6.2 |
+| [ADR-105](#adr-105--the-second-audit-fix-set-the-copied-adr-lists-the-r1-register-amendment-and-four-new-check-coverage-rules) | The second audit fix set: the copied ADR lists, the R1 register amendment, and four new check-coverage rules | 2026-10-21 | 3.7.0 |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -7701,3 +7704,343 @@ reference pass now runs over the same file set as its range pass, so an
 mirrors is resolved instead of passing unseen; `AGENTS.md` §5 states that every
 reference is checked, and the file set it named was the narrower one. Review
 date: 2026-11-20. This entry is the durable record.
+
+---
+
+## ADR-103 — The amendment procedure's version sources, and the index column the check verifies
+
+**Status**: Accepted — 2026-10-21
+**Owning directory**: `.specify/memory/`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `governance-drift-check.mjs`
+**Owning feature**: none — governance record ratified by the repository owner; the check it adds is wired into the committed `pre-commit` hook and into R1's continuous integration.
+
+**Context.** A review of the constitution's amendment procedure found two defects
+in the same clause. The clause opens "On every amendment the version lives in
+exactly two places" and then lists three numbered sources, the third being the
+ADR index row and the ADR the amendment records. The count and the list
+contradicted each other, and the sentence that follows the list — "reads the
+version from one of the two sources above" — pointed at two again. The second
+defect sat behind the first: the ADR index's `Constitution version` column
+records the version each ADR produced, so the version was in fact written in a
+third place, and the drift check compared the constitution's footer with
+`.specify/memory/version.json` without ever looking at that column. A version
+that moved in the footer while the index column stayed behind was therefore
+invisible to the check, and the column could claim a version the constitution
+never reached.
+
+**Decision.**
+
+1. The amendment procedure's clause is corrected: the version lives in exactly
+   **three** places, and the list says so. The three are the constitution's
+   version footer, `.specify/memory/version.json`, and the ADR index row with
+   the ADR the amendment records. The ADR index row's constitution-version
+   column names the version that ADR produced, and the clause now says so
+   explicitly.
+2. The sentence that follows the list is corrected with it: a document names
+   the constitution and reads the version from one of the **two version
+   sources** — the footer and `version.json` — which is what it meant, since
+   the third source is the durable record of the amendment rather than a
+   source a document reads its version from.
+3. The drift check gains a check **J**, which verifies that the ADR index's
+   constitution-version column agrees with the footer's version: no cell may
+   claim a version the constitution never reached; the column may never move
+   backwards down the table, because an ADR ratified later cannot claim a
+   version older than the one before it; and the last index row must name the
+   footer's version. A cell that is neither a version nor the em dash the
+   bootstrap-era records use is a defect.
+4. This record is a **governance record**, not a technical decision: its
+   subject is the constitution's own text and the governance tooling, which is
+   outside the reach of the `Alternatives considered` field (ADR-090), so that
+   section is not written for it.
+5. The constitution moves to **3.6.1** (PATCH): the clause is a correction of a
+   count and a wording, and no principle, section, register, or rule changes
+   meaning, so this is not a MINOR. `version.json` moves with it.
+
+**What deliberately did not change.** The amendment procedure's substance: the
+requirement that an amendment be explicitly ratified, bump the version, and
+record itself durably; the stamp sites; the precedence rule; the exception
+register; the review trigger; every principle, binding section, register, page,
+feature, entity, role, and usage limit; the technology register; and every
+decision record already ratified. The drift check's existing checks A through
+I are untouched, and the check remains read-only and dependency-free.
+
+**Consequences and migration/backfill.** `version.json` moves to 3.6.1 and
+names this record as the one that moved it. The live `ADR-001 … ADR-102` range
+strings become `ADR-001 … ADR-103` in the same change, because the range
+string's authority is the index's last row. The drift check's own header, its
+report line, and the constitution's `References` row for the check are updated
+to name ADR-103 and check J, and `AGENTS.md` §5 and `README.md` state the new
+coverage, because those documents enumerate what the check verifies and a
+description that omits a check is a description that drifts. No migration or
+backfill is required: a PATCH carries no schema, and the column the check reads
+was already populated for every index row.
+
+**Follow-ups.** The check reports the column's state but does not write it, so
+the column stays a record a human maintains at the moment an ADR is written;
+the next amendment that touches a version column should confirm the column
+remains the only place the version is written outside the two sources.
+Review date: 2026-11-20. This entry is the durable record.
+
+---
+
+## ADR-104 — The audit fix set: the governance wording, the mirror corrections, and the R1 concentration
+
+**Status**: Accepted — 2026-10-21
+**Owning directory**: `.specify/memory/`, `docs/`, `AGENTS.md`, `ROADMAP.md`, `Core-Project.txt`, `docs/CHANGELOG-mirror.md`, `specs/001-identity-foundation/`
+**Owning feature**: none — governance record ratified by the repository owner; the corrections below are carried by the documents that own them.
+
+**Context.** A deep review of the constitution, the two Arabic mirrors, the
+architecture and domain-model documents, the roadmap, and the R1 specification
+found the governance set sound in substance and a set of defects in wording,
+placement, and internal consistency. The review found no leak of a reserved
+fact, no breach of the specification's technology-agnosticism beyond two
+residuals, and no defect in the drift check's coverage of the version sources.
+The defects it did find fell into three groups: a sentence in the constitution's
+Governance section that named the binding sections as if they were the
+procedure they share; three documents that carried a claim the register had
+already superseded or had never stated; and two roadmap gaps that the slice
+order left open between a slice and the slice that owns the half of the work it
+triggers. A fourth group was a structural mis-grouping in the R1
+specification's acceptance criteria, and a fifth was a concentration of duties
+in R1 that the roadmap described in two ways at once.
+
+**Decision.**
+
+1. **The Governance paragraph is reworded, not changed.** The paragraph that
+   says every principle and every MUST in the sections above is binding with
+   the same force and is "resolved, reviewed, and excepted by exactly the same
+   procedure: Query Safety and Secrets, Schema and Migration Control, …" read
+   as if those section names were the procedure. They are not: they are the
+   sections the procedure applies to. The paragraph now says that the
+   procedure is the one every binding section shares and is named in that
+   paragraph rather than restated by each section, and it then names the
+   sections and the ten principles. No principle, section, register, page,
+   feature, entity, role, or usage limit changes, and the binding set is
+   identical before and after.
+2. **`AGENTS.md` §3 names the section the constitution actually has.** The
+   reading protocol for `/speckit.specify` named "Usage Limits" as a section.
+   The constitution's Usage Limits is a table inside Performance Budgets and
+   Verification, and the constitution's own reading protocol names it the same
+   way. The agent instruction file now names the table and the section it
+   lives in, so the two protocols agree on what a reader opens.
+3. **The product mirror's soft-deletion note no longer reads as if a block
+   deleted a user's rows.** `Core-Project.txt` recorded that "deletion is soft
+   for files and users" and that blocking a merchant does not delete their
+   public files. Read together, the two clauses could be taken to say that a
+   block removes a user's rows, which the register forbids: blocking withdraws
+   access and removes nothing. The note now says so explicitly, and the
+   sentence that tied the mirror's note to the register is preserved.
+4. **The product mirror's admin-application page table says why its numbering
+   restarts.** The mirror numbers the platform's twenty-six pages 1 to 26 and
+   then numbers the administrator application's ten pages 1 to 10, which reads
+   as a contradiction in a single document. The administrator table now
+   carries a note that the first numbering counts the platform's pages and the
+   second counts the administrator application's own, and that the register is
+   the authority for the total.
+5. **The mirror changelog's dead references are marked as historical.** The
+   changelog's 2026-10-03 block names the constitution's "Design System
+   Standards" section and the file `wafar.single.css`, both removed by ADR-093.
+   The changelog is history, but a reference to a section that no longer exists
+   reads as a live pointer, so each affected row now carries the section's
+   name as it stood on 2026-10-03 and the record that removed it.
+6. **The domain model distinguishes a schema decision from a registered
+   product fact.** Two of its unresolved facts — how a message's sender is
+   represented, and whether a conversation carries an administrator reference
+   — were described beside the others as facts the constitution's register owns.
+   They are not: the concepts are already fixed by the register, and only their
+   representation is open, so the answer changes no product fact and requires no
+   register amendment. The document now says so, names the rows that are
+   registered facts instead, and states the consequence for R10 — an ADR and a
+   change to the domain model, and a register amendment only if the answer
+   turns out to need a product fact the register does not carry.
+7. **R1's concentration is declared, with a remedy, instead of being
+   restructured.** The roadmap's "First obligations" table assigns R1 more than
+   half its rows, because the constitution names a duty by the milestone that
+   first triggers it and R1 triggers most of them at once. Moving a duty would
+   break the milestone the constitution names, and creating a slice for the
+   remainder would be the classification error ADR-007 prohibits — the
+   foundation is project-level work, not a feature. The roadmap now records the
+   concentration as a declared risk with its procedural mitigation — R1's plan
+   sequences the foundation in a foundation phase, records the concentration in
+   its Complexity Tracking table, and carries a review date of 2026-10-21 — and
+   states that the pre-R1 foundation named in R1's row is that phase, not a
+   numbered slice and not a second feature. The remedy if the slice cannot be
+   sequenced into reviewable increments is a decision recorded as an ADR.
+8. **Two roadmap gaps are recorded as defects with the slice that closes
+   them.** The Parts table renders the cart control while the cart action and
+   the `bookmarks` module are R8's, so the window between the two slices is
+   now defect 17; and the catalog-delete cascade's bookmark leg belongs to a
+   module that does not exist when the routine is written, so the two halves of
+   one rule live in two slices, now defect 18. R5's and R8's rows name the
+   defects they carry.
+9. **The R1 specification's acceptance criteria are grouped by the user story
+   they actually serve.** Four criteria — the account menu, the guest's
+   redirection, the ended-session state, and the administrator application's
+   header — sat under the user story that resists automated abuse, because
+   three later clarification sessions appended them to the end of the
+   specification's last section. They are frame criteria and administrator
+   criteria, and they now sit under the stories they serve; the ordinals were
+   renumbered in document order, the seven "Acceptance Scenarios" lines were
+   rewritten from the actual grouping, and no identifier was renumbered,
+   reused, or withdrawn. The specification also states that its requirements
+   are grouped by subject rather than by identifier, so a reader does not
+   mistake the order for a numbering, and it now describes the session's
+   browser-held reference in terms that match the constitution's rule that a
+   session is never recoverable from browser storage.
+10. **This record is a governance record**, not a technical decision: its
+    subject is the constitution's own text, the mirrors, and the process, which
+    is outside the reach of the `Alternatives considered` field (ADR-090), so
+    that section is not written for it.
+11. The constitution moves to **3.6.2** (PATCH): the Governance paragraph is
+    reworded, and no rule changes meaning, so this is not a MINOR.
+    `version.json` moves with it.
+
+**What deliberately did not change.** Every principle and binding section; every
+register — the pages, the features, the entities, the roles, the usage limits,
+the product features, and the unresolved product facts; the product scope; the
+technology register and its gaps; the Wafar UI layer's path and visual
+foundation; the slice count, the slice order, and the slice identifiers; the
+exception register; the amendment procedure and the versioning policy as
+amended by ADR-103; the drift check's checks A through I; and every decision
+record already ratified. **No slice is added, removed, renumbered, or
+reordered**, and no product behaviour changes: the corrections are to wording,
+to placement, and to the record of a gap.
+
+**Consequences and migration/backfill.** `version.json` moves to 3.6.2 and names
+this record as the one that moved it. The live `ADR-001 … ADR-103` range strings
+become `ADR-001 … ADR-104` in the same change, because the range string's
+authority is the index's last row, and the drift check verifies them. The
+specification's corrections carry no identifier change, so no task, criterion,
+or requirement reference outside the specification is affected. No migration or
+backfill is required: a PATCH carries no schema, and every correction above is
+to a document's wording or to a document's own placement.
+
+**Follow-ups.** Two items from the same review were checked and found already
+correct, and are recorded here so a later reader does not re-open them: the
+technology mirror's PgDog row already binds the AGPL-3.0 licence to the
+constitution's licence treatment for infrastructure services, with its fallback
+and its review date, and the R1 specification's identifier set was already
+contiguous and free of dangling references. The review's one remaining
+structural observation — that R1's own specification is a large artifact — is
+recorded in that specification's checklist rather than here, because the
+constitution's own rules govern it and no rule is broken by its size.
+Review date: 2026-11-20. This entry is the durable record.
+
+---
+
+## ADR-105 — The second audit fix set: the copied ADR lists, the R1 register amendment, and four new check-coverage rules
+
+**Status**: Accepted - 2026-10-21
+**Owning directory**: `.specify/memory/`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `.githooks/`, `Project-Technologies.txt`, `Core-Project.txt`, `governance-drift-check.mjs`
+**Owning feature**: none - governance record ratified by the repository owner; the register amendment in decision 3 is the amendment R1's own clarification of 2026-10-21 promised, and its content is exactly what that clarification named.
+
+**Context.** A second deep audit of the constitution and the governance set,
+run against the uncommitted ADR-103/ADR-104 working tree, found the set sound in
+substance - no reserved fact asserted anywhere, no identifier gap or dangling
+reference in the R1 specification, every structural count correct, and the drift
+check clean - and found nine defects of three kinds.
+
+The first kind was **copied enumerations that had drifted**. The list of ADRs
+that built and extended the drift check is one fact, and it was written out in
+full in four places. Only one of them was right: `ROADMAP.md` named thirteen of
+the twenty-one ADRs, and `.githooks/pre-commit` named ten and stopped at
+ADR-102, two amendments behind the check it runs. `Project-Technologies.txt`'s
+header had been edited from `.../101/102` to `.../101/104`, which ends at the
+right number and silently drops ADR-102 and ADR-103.
+
+The second kind was a **promised register amendment that had not been made**.
+The R1 specification (lines 1536-1539 and 2307-2309) and its checklist (lines
+70-75) both state that the transient verification store and the three
+account-level sign-in fields are recorded in `docs/domain-model.md`, and that
+the Product Register's `User` row is amended in the same change. ADR-104 was
+that change and did neither, so both documents asserted a record that did not
+exist - and the checklist marked the item satisfied.
+
+The third kind was **wording and provenance**: a stale `apps/web/layouts` path
+in the roadmap, a "binding section below" that contradicted "the sections above"
+two sentences earlier, a defect table that claimed all its rows came from auditing
+the thirteen-slice order when two had been added against the fifteen-slice order,
+and a mitigation review date set to the day it was written.
+
+**Decision.**
+
+1. **The ADR enumeration has one authority: the check's own header.** The check
+   gains check **K**, which reads the list from its own header line and requires
+   every run of five or more comma-separated ADR numbers in `README.md`,
+   `AGENTS.md`, `ROADMAP.md`, the constitution, `.githooks/pre-commit`, and
+   itself to equal that list as a set. `ROADMAP.md` and `.githooks/pre-commit`
+   stop carrying a copy and point at the header instead, because a pointer
+   cannot drift while a copy will. A short inline citation such as `(ADR-040)`
+   is untouched, so ordinary citation stays free.
+2. **`Project-Technologies.txt`'s header list is made contiguous and checked for
+   contiguity.** ADR-102 and ADR-103 are restored, and check **F** now compares
+   the whole `040..N` sequence rather than only its last entry, because a list
+   that ends correctly and skips two entries is still wrong.
+3. **The R1 register amendment is made, and the version moves at MINOR.** The
+   Product Register's `User` row now names the three account-level sign-in
+   fields - the consecutive failed sign-in attempt count, the sign-in lock's
+   expiry, and the requirement to change the password at first sign-in - and
+   `docs/domain-model.md` gains the invariants over them plus a **Transient
+   verification state** section that records the one-time codes and the pending
+   request as non-entity state owned by the `users` module, so the register
+   stays at twelve entities. This is the amendment the R1 clarification of
+   2026-10-21 promised; it adds no field the clarification did not name, decides
+   no reserved fact, and adds no entity. Because it expands a register, the
+   constitution moves to **3.7.0** (MINOR), and `version.json` moves with it.
+   The R1 specification and its checklist are left as they stand, because the
+   record they assert now exists.
+4. **Check G11 binds the entity map to the register.** Every entity's owning
+   module must agree across the constitution's Data entities table and
+   `docs/domain-model.md`'s Entity map, in both directions. The two tables
+   agreed by discipline before; nothing compared them, and the drift check does
+   not otherwise read the domain model.
+5. **Check G10 binds the Constitution Mandated Values count to the template.**
+   The constitution's list is closed and the plan template must gain a matching
+   row in the same change, but the template states both numbers only in prose.
+   The check reads the constitution's list, the template's row count, and the two
+   numbers the template's own sentence states, and requires all four to agree.
+6. **Four wording and provenance corrections.** `ROADMAP.md`'s structure-
+   registers note names `apps/web/app/layouts`, the location the constitution and
+   `docs/architecture.md` actually fix, instead of a parallel `apps/web/layouts`
+   that no other document carries; the governance paragraph's "binding section
+   below" reads "above", matching "the sections above" two sentences earlier and
+   the position of every binding section in the document; the defect table states
+   which audit each group of defects came from; and R1's declared concentration
+   review date moves to **2026-12-01** rather than the date the note was written,
+   because a checkpoint that is due on the day it is created is not a checkpoint.
+7. **This record is a governance record**, not a technical decision: its subject
+   is the constitution's own text, the mirrors, and the governance tooling, which
+   is outside the reach of the `Alternatives considered` field (ADR-090), so that
+   section is not written for it.
+
+**What deliberately did not change.** Every principle and every binding section
+other than the wording in decision 6; the page, feature, role, and usage-limit
+registers; the product scope; the technology register and its gaps; the Wafar UI
+layer's path and visual foundation; the slice count, order, and identifiers; the
+unresolved product facts and their owners; the exception register; the
+amendment procedure and the versioning policy as ADR-103 amended them; and every
+decision record already ratified. **No slice is added, removed, renumbered, or
+reordered**, and no product behaviour changes. The three fields decision 3
+registers were already decided by R1's clarification; this record makes the
+register say so rather than deciding anything new. Checks A through J and the
+earlier checks B through I are untouched in what they verify.
+
+**Consequences and migration/backfill.** `version.json` moves to 3.7.0 and names
+this record as the one that moved it. The live `ADR-001 . ADR-104` range strings
+become `ADR-001 . ADR-105` in the same change, because the range string's
+authority is the index's last row. `Project-Technologies.txt`'s header list
+becomes `040..105`, contiguous, and the check now enforces that. `AGENTS.md`,
+`README.md`, and the constitution's `References` row gain check K, check G10,
+and check G11 to the coverage they describe. No migration or backfill is
+required: the register change is one row's prose, the model change is
+documentation, and the tooling change reads files it already read.
+
+**Follow-ups.** Three observations from the same audit are recorded here rather
+than fixed, because each is a decision about a slice rather than a defect in a
+document: R10 exercises the administrator's reply path before R13 owns the audit
+log, which leaves an administrator operation unrecorded between the two slices;
+`first_page_metadata_incomplete` is a registered product fact with no slice in
+`ROADMAP.md` that names setting it, and R3 is its natural owner; and the
+constitution's Unresolved product facts table cites the Product Register for a
+`Message` sender and a `Conversation` administrator reference the register's
+one-line meanings do not state, which R10 resolves whichever way it decides.
+Review date: 2026-12-15. This entry is the durable record.

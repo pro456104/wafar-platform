@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * governance-drift-check.mjs — Wafar governance drift check
- * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102)
+ * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105)
  * -------------------------------------------------------------------
  * Read-only. Dependency-free. Runs on the pinned Node runtime.
  *
@@ -15,7 +15,11 @@
  *      index row's anchor resolves to its heading; no heading is orphaned; and
  *      every `ADR-NNN` reference in the governance set resolves to an ADR the
  *      index carries
- *   F. the ADR list in `Project-Technologies.txt`'s header ends at that row
+ *   F. the ADR list in `Project-Technologies.txt`'s header ends at that row and
+ *      is contiguous from ADR-040 to it
+ *   K. every enumeration of five or more ADR numbers in the governance set
+ *      equals the list this header carries, so the check has one authority for
+ *      "which ADRs built the check" instead of a copy per document
  *   C. every `speckit.manifest.json` hash for an *upstream-owned* file matches
  *      the working tree, and no upstream-owned file is absent from it;
  *      project-owned files are excluded by a path rule
@@ -36,6 +40,16 @@
  *   I. the integration topology agrees across `integration.json`,
  *      `init-options.json`, the integration directories in the tree, and the
  *      bundled workflow's nesting
+ *   J. the ADR index's constitution-version column agrees with the footer's
+ *      version — no cell claims a version the constitution never reached, the
+ *      column never moves backwards down the table, and the last row names the
+ *      footer's version
+ *   G10. the Constitution Mandated Values count the constitution states equals
+ *      the count the plan template's prose states, and its table's row count
+ *      equals the row count that prose states
+ *   G11. every entity's owning module agrees across the constitution's Data
+ *      entities table and `docs/domain-model.md`'s Entity map, in both
+ *      directions
  *
  * Usage:  node governance-drift-check.mjs
  * Exit:   0 = clean, 1 = drift found.
@@ -229,8 +243,74 @@ if (!ptRun) {
       `F: Project-Technologies.txt ADR list ends at ${lastPt}, index ends at ${expected}`,
     );
   } else {
-    notes.push(`F: Project-Technologies.txt ADR list ends at ${lastPt}`);
+    // ADR-105: "ends at the index" was not enough. An edit that moved the tail
+    // from 101/102 to 101/104 ends at the index and silently drops two ADRs, so
+    // the list is also required to be CONTIGUOUS from 040 to the last row.
+    // The capture above begins after "ADR-040", so 040 is prepended back.
+    const want = [];
+    for (let n = 40; n <= Number(expected); n++) want.push(String(n).padStart(3, '0'));
+    const listed = ['040', ...nums];
+    const missing = want.filter((n) => !listed.includes(n));
+    const extra = listed.filter((n) => !want.includes(n));
+    if (missing.length > 0 || extra.length > 0 || listed.join(',') !== want.join(',')) {
+      failures.push(
+        `F: Project-Technologies.txt ADR list is not contiguous 040..${expected}` +
+          (missing.length > 0 ? `; missing ${missing.join(', ')}` : '') +
+          (extra.length > 0 ? `; unexpected ${extra.join(', ')}` : '') +
+          (missing.length === 0 && extra.length === 0 ? '; entries out of order' : ''),
+      );
+    } else {
+      notes.push(`F: Project-Technologies.txt ADR list is contiguous 040..${lastPt}`);
+    }
   }
+}
+
+/* ---- K. every ADR enumeration agrees with the check's own header (ADR-105) - */
+// ADR-071 onward is enumerated in prose in several places: the check's header,
+// the constitution's References row, README.md, AGENTS.md and ROADMAP.md. Each
+// copy drifted at least once (ROADMAP.md named 13 of 21; the pre-commit hook
+// named 10 and stopped two amendments behind). The check's own header is the
+// single authority; every run of FIVE OR MORE comma-separated ADR numbers in
+// the governance set must equal it as a set. A short inline citation such as
+// "(ADR-040)" or "(ADR-097, ADR-098)" is untouched, so ordinary citation stays
+// free and the check does not fire on prose that names two neighbours.
+const selfText = read('governance-drift-check.mjs');
+const headerLine = selfText
+  .split(/\r?\n/)
+  .find((l) => (l.match(/ADR-\d{3}/g) || []).length >= 5);
+const canonicalAdrs = headerLine
+  ? [...new Set([...headerLine.matchAll(/ADR-(\d{3})/g)].map((m) => m[1]))].sort()
+  : [];
+if (canonicalAdrs.length === 0) {
+  failures.push('K: the check\u2019s own header carries no ADR list of five or more entries');
+} else {
+  const ENUM_FILES = [
+    'README.md', 'AGENTS.md', 'ROADMAP.md',
+    '.specify/memory/constitution.md', '.githooks/pre-commit',
+    'governance-drift-check.mjs',
+  ];
+  let enumerationsChecked = 0;
+  for (const file of ENUM_FILES) {
+    if (!existsSync(join(ROOT, file))) {
+      failures.push(`K: ${file} is missing`);
+      continue;
+    }
+    const text = read(file);
+    for (const m of text.matchAll(/ADR-\d{3}(?:\s*,\s*(?:and\s+)?ADR-\d{3}){4,}/g)) {
+      const got = [...new Set([...m[0].matchAll(/ADR-(\d{3})/g)].map((x) => x[1]))].sort();
+      if (got.join(',') !== canonicalAdrs.join(',')) {
+        const missing = canonicalAdrs.filter((n) => !got.includes(n));
+        const extra = got.filter((n) => !canonicalAdrs.includes(n));
+        failures.push(
+          `K: ${file} enumerates ${got.length} ADRs that disagree with the check\u2019s header (${canonicalAdrs.length})` +
+            (missing.length > 0 ? `; missing ${missing.join(', ')}` : '') +
+            (extra.length > 0 ? `; unexpected ${extra.join(', ')}` : ''),
+        );
+      }
+      enumerationsChecked++;
+    }
+  }
+  notes.push(`K: ${enumerationsChecked} ADR enumerations checked against the header's ${canonicalAdrs.length}`);
 }
 
 /* ---- C. manifest hashes for upstream-owned files -------------------------- */
@@ -502,6 +582,81 @@ for (const c of structuralCounts) {
 }
 notes.push(`G: ${structuralCounts.length} structural counts checked`);
 
+/* ---- G10. the Constitution Mandated Values count the template states (ADR-105) */
+// Module Discipline and Development Workflow calls its list CLOSED and requires
+// the plan template's table to gain a matching row in the same change. The plan
+// template states both numbers in prose ("the constitution enumerates seventeen
+// values, and this table has nineteen rows") with the split documented. Nothing
+// compared the three, so a value added to the constitution left the sentence
+// stale and the table short, silently.
+const cmvSpan = sliceBetween(constitution, 'The values are:', 'The list is closed:');
+const planTpl = read('.specify/templates/overrides/plan-template.md');
+const cmvProse = planTpl.match(
+  /the constitution enumerates\s+([a-z-]+)\s+values,\s+and this table has\s+([a-z-]+)\s+rows/,
+);
+if (cmvSpan === null) {
+  failures.push(
+    'G10: the constitution no longer states its Constitution Mandated Values list between "The values are:" and "The list is closed:"',
+  );
+} else if (!cmvProse) {
+  failures.push('G10: the plan template no longer states its CMV counts in prose');
+} else {
+  const cmvWanted = cmvSpan.split(';').length;
+  const tplTable = sliceBetween(planTpl, '| # | Value | This plan records |', '\n\n');
+  const cmvRows = tplTable === null ? -1 : countMatches(tplTable, /^\| \d+ \|/gm);
+  if (NUMBER_WORDS[cmvProse[1]] !== cmvWanted) {
+    failures.push(
+      `G10: the plan template says the constitution enumerates "${cmvProse[1]}" values but it enumerates ${cmvWanted}`,
+    );
+  } else if (NUMBER_WORDS[cmvProse[2]] !== cmvRows) {
+    failures.push(
+      `G10: the plan template says its table has "${cmvProse[2]}" rows but it carries ${cmvRows}`,
+    );
+  } else {
+    notes.push(`G10: ${cmvWanted} Constitution Mandated Values map to ${cmvRows} template rows`);
+  }
+}
+
+/* ---- G11. every entity's owning module agrees with the register (ADR-105) -- */
+// `docs/domain-model.md` is the entities' source of truth and the constitution's
+// Data entities table is the map; a module renamed on one side and not the other
+// was invisible because nothing compared the two tables.
+const registerEntities = new Map();
+const registerSpan = sliceBetween(constitution, '### Data entities', '\n### ');
+if (registerSpan !== null) {
+  for (const m of registerSpan.matchAll(/^\| `(\w+)` \| `(\w+)` \|/gm)) {
+    registerEntities.set(m[1], m[2]);
+  }
+}
+const modelSpan = sliceBetween(read('docs/domain-model.md'), '## Entity map', '\n## ');
+const modelEntities = new Map();
+if (modelSpan !== null) {
+  for (const m of modelSpan.matchAll(/^\| `(\w+)` \| `(\w+)` \|/gm)) {
+    modelEntities.set(m[1], m[2]);
+  }
+}
+if (registerEntities.size === 0) {
+  failures.push('G11: the constitution\u2019s Data entities table could not be read');
+} else if (modelEntities.size === 0) {
+  failures.push('G11: docs/domain-model.md\u2019s Entity map table could not be read');
+} else {
+  for (const [entity, owner] of registerEntities) {
+    if (!modelEntities.has(entity)) {
+      failures.push(`G11: ${entity} is in the register but absent from docs/domain-model.md`);
+    } else if (modelEntities.get(entity) !== owner) {
+      failures.push(
+        `G11: ${entity} is owned by ${owner} in the register and ${modelEntities.get(entity)} in docs/domain-model.md`,
+      );
+    }
+  }
+  for (const entity of modelEntities.keys()) {
+    if (!registerEntities.has(entity)) {
+      failures.push(`G11: ${entity} is in docs/domain-model.md but absent from the register`);
+    }
+  }
+  notes.push(`G11: ${registerEntities.size} entity owners agree across the register and the model`);
+}
+
 /* ---- I. the integration topology is consistent (ADR-088) ------------------ */
 // Four files state the same fact and nothing compared them: integration.json
 // lists the installed integrations, the default, and their settings; each
@@ -561,8 +716,90 @@ notes.push(
   `I: integration topology consistent (${installedIntegrations.join(', ')}; default ${integrationJson.default_integration})`,
 );
 
+/* ---- J. the ADR index's constitution-version column (ADR-103) --------------- */
+// The constitution's amendment procedure names three places the version lives:
+// the footer, `version.json`, and the ADR index row — whose constitution-version
+// column names the version each ADR produced. A, above, checks the first two
+// against each other; nothing checked the third. A version that moved in the
+// footer without the index column moving with it was therefore invisible, and
+// the column could claim a version the constitution never reached.
+const versionCell = /^(?:—|-)?(?: \((?:unchanged)\))?$/;
+const semverCell = /^(\d+\.\d+\.\d+)(?: \((?:unchanged)\))?$/;
+const cmpVersion = (a, b) => {
+  const pa = a.split('.').map(Number);
+  const pb = b.split('.').map(Number);
+  return pa[0] - pb[0] || pa[1] - pb[1] || pa[2] - pb[2];
+};
+if (footer) {
+  const indexTable = decisions.slice(
+    decisions.indexOf('## Index'),
+    decisions.indexOf('## ADR-001'),
+  );
+  const columnRows = [];
+  for (const line of indexTable.split(/\r?\n/)) {
+    if (!/^\|\s*\[ADR-\d{3}\]/.test(line)) continue;
+    const cells = line.split('|').map((s) => s.trim()).filter((s) => s.length);
+    const n = /\[ADR-(\d{3})\]/.exec(cells[0])?.[1];
+    const cell = cells[cells.length - 1] ?? '';
+    if (!n) continue;
+    const m = semverCell.exec(cell);
+    columnRows.push({ n, cell, ver: m ? m[1] : null });
+  }
+  if (columnRows.length === 0) {
+    failures.push('J: the ADR index carries no constitution-version column to check');
+  } else {
+    const current = footer[1];
+    let claimed = 0;
+    for (const row of columnRows) {
+      if (row.ver === null) {
+        if (!versionCell.test(row.cell)) {
+          failures.push(
+            `J: ADR-${row.n} constitution-version cell "${row.cell}" is neither a version nor "—"`,
+          );
+        }
+        continue;
+      }
+      claimed++;
+      if (cmpVersion(row.ver, current) > 0) {
+        failures.push(
+          `J: ADR-${row.n} claims constitution version ${row.ver}, above the footer's ${current}`,
+        );
+      }
+    }
+    // The column must never move backwards down the table: an ADR ratified
+    // later cannot claim a version older than the one before it.
+    let previous = null;
+    for (const row of columnRows) {
+      if (row.ver === null) continue;
+      if (previous && cmpVersion(row.ver, previous.ver) < 0) {
+        failures.push(
+          `J: ADR-${row.n} claims constitution version ${row.ver}, below ADR-${previous.n}'s ${previous.ver}`,
+        );
+      }
+      previous = row;
+    }
+    const last = [...columnRows].reverse().find((r) => r.ver !== null);
+    const highest = columnRows
+      .filter((r) => r.ver !== null)
+      .reduce((a, b) => (cmpVersion(b.ver, a.ver) > 0 ? b : a));
+    if (last && last.ver !== current) {
+      failures.push(
+        `J: the last index row (ADR-${last.n}) claims constitution version ${last.ver}, footer's is ${current}`,
+      );
+    }
+    if (highest.ver !== current) {
+      failures.push(
+        `J: the highest version the index claims is ${highest.ver}, footer's is ${current}`,
+      );
+    }
+    notes.push(
+      `J: ADR index constitution-version column checked (${claimed} versions, highest ${highest.ver})`,
+    );
+  }
+}
+
 /* ---- report --------------------------------------------------------------- */
-console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102)');
+console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105)');
 console.log('=====================================');
 for (const n of notes) console.log(`  ok   ${n}`);
 if (failures.length === 0) {

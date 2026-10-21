@@ -16,10 +16,10 @@ not sell, buy, process payment, or host user-to-user chat.
 | `docs/CHANGELOG-mirror.md` | The mirror's historical amendment blocks, split out of `Project-Technologies.txt` (ADR-075). History, not a source of rules. |
 | `docs/architecture.md` | Repository layout, API module map, data flow. |
 | `docs/domain-model.md` | The data model: entities, relationships, cardinality, invariants, and the module that owns each. |
-| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-102; index at the top). |
+| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-105; index at the top). |
 | `ROADMAP.md` | The MVP slice order. Names and orders slices; does not design them. |
 | `AGENTS.md` | Operating instructions for agent assistants. |
-| `governance-drift-check.mjs` | The committed read-only drift check: the two version sources, every live ADR range string, the upstream manifest hashes, the two integrations, the structural counts the governance text states in prose, and the absence of the removed stylesheet and its constitution section. Runs on commit via `.githooks/pre-commit`; run it directly with `node governance-drift-check.mjs`. |
+| `governance-drift-check.mjs` | The committed read-only drift check: the two version sources, every live ADR range string, the upstream manifest hashes, the two integrations, the structural counts the governance text states in prose, the ADR index's constitution-version column, and the absence of the removed stylesheet and its constitution section. Runs on commit via `.githooks/pre-commit`; run it directly with `node governance-drift-check.mjs`. |
 
 ## Prerequisites
 
@@ -56,7 +56,7 @@ the project's binding templates and must not be replaced with the core ones.
 
 **Governance drift check.** `node governance-drift-check.mjs` (repository root)
 verifies the invariants the governance set cannot verify by discipline: the two
-version sources including the amended date, every live `ADR-001 … ADR-102` range
+version sources including the amended date, every live `ADR-001 … ADR-105` range
 string (in the required files, under `docs/`, in the two Arabic mirrors, in the
 template overrides, and in the feature specifications), every ADR index row's
 anchor against its heading and every heading against
@@ -66,10 +66,14 @@ directions, the two integrations' byte-identity (their command directories, and
 each integration manifest against the tree it records and that integration's whole
 command directory), the absence of the removed stylesheet and its constitution
 section, the integration topology across `integration.json`, `init-options.json`, the
-integration directories and the bundled workflow, and the
-structural counts the governance text states in prose. It is read-only, adds no
+integration directories and the bundled workflow, the
+structural counts the governance text states in prose, the ADR index's
+constitution-version column against the footer's version, every ADR enumeration
+against the one the check's own header carries, the contiguity of
+`Project-Technologies.txt`'s header list, the Constitution Mandated Values count,
+and every entity's owning module across the register and the domain model. It is read-only, adds no
 dependency, and exits non-zero on
-drift (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102).
+drift (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105).
 It runs on commit through the committed `.githooks/pre-commit` hook; enable it per
 clone with `git config core.hooksPath .githooks`.
 
