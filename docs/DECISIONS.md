@@ -136,6 +136,7 @@ from the index rather than edited in its own words.
 | [ADR-098](#adr-098--the-wafar-visual-foundation-iconpark-ibm-plex-sans-arabic-light-default-and-the-marine-palette) | The Wafar visual foundation: IconPark, IBM Plex Sans Arabic, light default, and the marine palette | 2026-10-21 | 3.3.0 |
 | [ADR-099](#adr-099--shared-shell-header-and-the-account-menu) | Shared-shell header and the account menu | 2026-10-21 | 3.4.0 |
 | [ADR-100](#adr-100--the-account-menus-destinations-and-the-frames-boundaries) | The account menu's destinations and the frame's boundaries | 2026-10-21 | 3.5.0 |
+| [ADR-101](#adr-101--the-account-menus-behaviour-and-the-appearances-ownership) | The account menu's behaviour and the appearance's ownership | 2026-10-21 | 3.5.0 (unchanged) |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -7426,3 +7427,68 @@ to 50 FR and 54 AC. ADR-099 carries an annotation for the refinement of its
 decision 5. R4 verifies the frame's runtime behaviour, R7 delivers the Profile
 page's settings section, and R13 delivers the administrator application's header.
 Review date: 2026-11-20. This entry is the durable record.
+
+---
+
+## ADR-101 — The account menu's behaviour and the appearance's ownership
+
+**Status**: Accepted — 2026-10-21
+**Owning directory**: `specs/001-identity-foundation/`, `docs/`, `ROADMAP.md`, `AGENTS.md`, `README.md`, `Project-Technologies.txt`, `governance-drift-check.mjs`, `.githooks/`
+**Owning feature**: none — product clarification ratified by the repository owner; R1 binds the rules, and R4 and R7 deliver them.
+
+**Context.** A second clarification session on 2026-10-21, after ADR-099 and
+ADR-100, settled five points the R1 specification still left open: whether the
+background and its colour are a product setting, what closes the account menu,
+what «حسابي» shows, what the merchant sees after confirming the sign-out, and
+what the account control's accessible name is. None of them changes a page, an
+entity, a role, or a limit; each one removes a phrase a test could not assert.
+
+**Decision.**
+
+1. The appearance's surfaces, backgrounds, and colours are Wafar UI layer
+   values, not a product setting. Neither a merchant nor the administrator
+   chooses a background or a colour, and no such preference is stored on the
+   account or in the platform's settings. The Wafar UI layer records the values
+   and this slice's plan carries them; no requirement, entity, or slice is
+   added.
+2. The account menu closes without action when the person presses Escape,
+   activates something outside it, or moves the focus out of it, and the focus
+   returns to the account control in every case.
+3. «حسابي» shows the account's full name, its city, and its status — active or
+   blocked — and no other account field. The mobile number and the editable
+   account details belong to the settings section, so the item that opens the
+   page shows a summary and the item that opens the settings section shows and
+   changes the details.
+4. After the merchant confirms the sign-out in the account menu, the same
+   ended-session state FR-049 requires when a request is refused is shown in
+   the page they were on, so both ways a session ends lead to one outcome.
+5. The account control's accessible name is «حسابي», and the header shows the
+   icon alone with no merchant name in it; the merchant's name is available
+   inside the account menu's «حسابي» item.
+
+**What deliberately did not change.** No page, entity, role, product feature,
+usage limit, security rule, technology, or constitution version changed by this
+record; the constitution stays at 3.5.0. ADR-099's composition and ADR-100's
+answers stand, and this record only completes them. No application code,
+package, CSS, or font file was created.
+
+**Alternatives considered.**
+
+- *A background or colour a merchant or an administrator chooses.* Rejected: it
+  would add a preference, an entity, and a slice, while the appearance's values
+  already belong to the Wafar UI layer (ADR-098).
+- *Closing the menu with Escape alone.* Rejected: it leaves the pointer path
+  undefined and the menu open by accident.
+- *Showing the mobile number and the session list in «حسابي».* Rejected: the
+  number is the identifier and belongs with the editable details, and the
+  sessions list belongs with the action that ends them.
+- *A dedicated signed-out page after the sign-out.* Rejected: the ended-session
+  state the frame already shows keeps the merchant in place and tells them what
+  to do next.
+
+**Consequences and migration/backfill.** The R1 specification's FR-023, FR-025,
+FR-047, FR-049, AC-022, AC-025, AC-051, and AC-053 carry the rules, and the ADR
+ranges move to ADR-101 in the same change. The requirement and criterion counts
+are unchanged at 50 FR and 54 AC. R4 verifies the menu's behaviour at runtime,
+and R7 delivers the Profile page's summary and settings section. Review date:
+2026-11-20. This entry is the durable record.

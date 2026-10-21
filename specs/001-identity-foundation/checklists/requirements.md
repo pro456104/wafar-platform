@@ -76,3 +76,14 @@
   header. FR-048 … FR-050 and AC-052 … AC-054 were added; no
   `[NEEDS CLARIFICATION]` marker was raised, and every requirement is covered by
   at least one criterion.
+- Refreshed 2026-10-21 (fourth time): a second `/speckit.clarify` session
+  answered five more questions and ADR-101 recorded the answers — the background
+  and its colour are a fixed Wafar UI layer value and no product setting; the
+  account menu closes on Escape, on an activation outside it, or on a focus loss,
+  with the focus returning to the account control; «حسابي» shows the full name,
+  the city, and the account status and no other field; the merchant sees the
+  ended-session state after confirming the sign-out; and the account control's
+  accessible name is «حسابي». FR-023, FR-025, FR-047, FR-049, AC-022, AC-025,
+  AC-051, and AC-053 carry the rules. The constitution stays at 3.5.0, the
+  requirement and criterion counts are unchanged at 50 FR and 54 AC, and no
+  `[NEEDS CLARIFICATION]` marker was raised.

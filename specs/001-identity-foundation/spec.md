@@ -34,7 +34,7 @@
        - `Core-Project.txt` — the product definition: roles and their
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
-       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-100). A
+       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-101). A
          specification that contradicts one is a blocking defect.
        - `docs/domain-model.md` — the entities a Key Entities section may name,
          and the invariants such a specification MUST NOT contradict. A
@@ -175,6 +175,11 @@
 - Q: The sidebar's item list is the same for a guest and a signed-in merchant, so a guest can press an item that names a merchant-area destination — what does the platform show then? → A: The sign-in page: the platform takes the guest there, because the register gives a guest no cart, no upload, no message, and no merchant area; the item itself stays present and enabled, since the list is not varied by role, and the three items that name a public destination — Home, Parts, and Catalog — open their own pages as they do for a merchant. The rule adds no page, no route, and no stored state, and whether the merchant returns to the item they wanted after signing in is a decision of the slice that ships the merchant area's pages. FR-048 and AC-052 carry the rule.
 - Q: What does a merchant see when their session ends or their account is blocked while they are on a page that carries the frame? → A: An explicit state inside the frame, stating that the session has ended and offering the way to sign in again, and saying plainly that the account is blocked when that is the reason, because the person held a valid session and is no longer an unknown caller; no unrelated error is shown, and the frame stops sending requests for a session that no longer exists. The state adds no page, no route, and no entity, and it is outside the enumeration comparison SC-004 bounds. FR-049 and AC-053 carry the rule.
 - Q: What does the administrator application's header carry now that the platform's header design is fixed? → A: The administrator application keeps its own shell, and its header carries the platform's logo at the inline-start edge and an account control whose menu offers «تسجيل الخروج» only, because the administrator application has no Profile page and no merchant settings page, so the merchant menu's destinations do not exist there. This specification binds that composition for R13 and delivers nothing of it. FR-050 and AC-054 carry the rule.
+- Q: Is the background and its colour an option a merchant or the administrator chooses, or a fixed design value? → A: A fixed design value: the appearance's surfaces, backgrounds, and colours belong to the Wafar UI layer and are recorded in this slice's plan (ADR-098); neither a merchant nor the administrator chooses a background or a colour, and no such preference is stored on the account or in the platform's settings, so no requirement, entity, or slice is added. FR-025 carries the rule.
+- Q: What closes the account menu? → A: Three paths, each closing it without action: pressing Escape, activating something outside it, and moving the focus out of it; the focus returns to the account control in every case. FR-047 and AC-051 carry the rule.
+- Q: What does «حسابي» show exactly? → A: The account's full name, its city, and its status — active or blocked — and no other account field; the mobile number and the editable account details belong to the settings section, so the item that opens the page shows a summary and the item that opens the settings section shows and changes the details. FR-047 and AC-051 carry the rule.
+- Q: What does the merchant see in the page they were on after confirming the sign-out in the account menu? → A: The same ended-session state FR-049 requires when a request is refused: the page stays where it is inside the frame, states that the session has ended, and offers the way to sign in again, so both ways a session ends lead to one outcome. FR-049 and AC-053 carry the rule.
+- Q: What is the account control's accessible name in the header, and does the merchant's name appear beside it? → A: The accessible name is «حسابي», and the header shows the icon alone with no merchant name in it; the merchant's name is available inside the account menu's «حسابي» item, so the header stays a brand-and-account band and one Arabic string names the control. FR-023, AC-022, and AC-025 carry the rule.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -981,7 +986,10 @@ Acceptance Criteria section.
 - **FR-023**: The frame's header MUST carry only the platform's logo/home
   control and the account control for a signed-in merchant, and MUST carry no
   page-navigation link, no notifications control, no theme switch, and no
-  sidebar-collapse control. The account control MUST open a menu carrying
+  sidebar-collapse control. The account control MUST carry the accessible name
+  «حسابي» and MUST show the icon alone, with no merchant name in the header;
+  the merchant's name is available inside the account menu's «حسابي» item.
+  The account control MUST open a menu carrying
   «حسابي»، «إعدادات»، and «تسجيل الخروج»; the sign-out item MUST ask for a
   yes-or-no confirmation before the existing sign-out behaviour runs (decided
   2026-10-21, Clarifications; ADR-099). For a guest the header MUST show a
@@ -1000,8 +1008,12 @@ Acceptance Criteria section.
   revised 2026-10-21, Clarifications).
 - **FR-047**: The account control MUST open a menu carrying exactly three
   items — «حسابي»، «إعدادات»، and «تسجيل الخروج» — and MUST close without action
-  when the person dismisses it. «حسابي» MUST open the Profile page at its top,
-  where the account's identity and status are shown; «إعدادات» MUST open the
+  when the person dismisses it: by pressing Escape, by activating something
+  outside it, or by moving the focus out of it. The focus MUST return to the
+  account control in each of those cases. «حسابي» MUST open the Profile page at
+  its top, where the account's full name, city, and status — active or blocked —
+  are shown, and where no other account field is shown; the mobile number and
+  the editable account details belong to the settings section. «إعدادات» MUST open the
   settings section of that same page, where the account details are edited, the
   password is changed, and the action that ends every session of the account at
   once is offered; the two items share the one Profile route the frame's
@@ -1036,7 +1048,9 @@ Acceptance Criteria section.
   the account is blocked, that state MUST say so plainly, because the person
   held a valid session and is no longer an unknown caller. The platform MUST NOT
   show an unrelated error, and the frame MUST NOT keep sending requests for a
-  session that no longer exists. This state is shown only to a person who held a
+  session that no longer exists. The same state is shown after a merchant signs
+  out deliberately from the account menu, so that both ways a session ends lead
+  to one outcome. This state is shown only to a person who held a
   valid session, so it is outside the enumeration comparison SC-004 bounds, and
   it introduces no page, no route, and no entity (decided 2026-10-21,
   Clarifications; ADR-100).
@@ -1075,7 +1089,11 @@ Acceptance Criteria section.
   itself remains a frame control, sits in the sidebar, and is not offered on a
   bare page. The choice
   MUST be remembered in the browser the person is using (per device) and MUST
-  NOT be stored on the account, so no entity gains an appearance field.
+  NOT be stored on the account, so no entity gains an appearance field. The
+  appearance's surfaces, backgrounds, and colours are Wafar UI layer values, not
+  a product setting: neither a merchant nor the administrator chooses a
+  background or a colour, and no such preference is stored on the account or in
+  the platform's settings (decided 2026-10-21, Clarifications; ADR-098).
 - **FR-026**: Every page MUST be presented in Arabic and right-to-left, with
   Latin numerals, and every icon MUST come from the product's icon set and MUST
   NOT be an emoji. The body of every message the platform sends by SMS MUST
@@ -1719,7 +1737,10 @@ code dispatch results, because the server-side uniqueness rule remains the
     inspected, **Then** it carries the logo/home control and the account control
     for a signed-in merchant, and no page-navigation link, notifications
     control, theme switch, or sidebar-collapse control; the account control
-    opens a menu carrying «حسابي»، «إعدادات»، and «تسجيل الخروج»، with the
+    carries the accessible name «حسابي» and shows the icon alone, with no
+    merchant name in the header;
+    the account control opens a menu carrying «حسابي»، «إعدادات»، and
+    «تسجيل الخروج»، with the
     sign-out item asking for a yes-or-no confirmation; for a guest the header
     carries the sign-in action in place of the account control only, with no
     account menu, and the theme switch and the collapse control are found in the
@@ -1901,7 +1922,12 @@ code dispatch results, because the server-side uniqueness rule remains the
      «تسجيل الخروج» opens, each item carries an accessible name and a role, and
      the menu is keyboard-reachable; «حسابي» opens the Profile page and
      «إعدادات» opens that page's settings section, both on the one Profile route
-     the frame's decision record fixes, and no further page is reached;
+     the frame's decision record fixes, and no further page is reached; the
+     account's full name, city, and status are shown at the top of the Profile
+     page, and no other account field is shown there;
+     **And given** the menu is open, **When** the person presses Escape, activates
+     something outside it, or moves the focus out of it, **Then** the menu closes
+     without action and the focus returns to the account control;
      **And given** the «تسجيل الخروج» item is
      activated, **Then** a yes-or-no confirmation is shown, cancelling it leaves
      the session untouched, and confirming it ends the session; the composition
@@ -1924,7 +1950,9 @@ code dispatch results, because the server-side uniqueness rule remains the
      session has ended and offers the way to sign in again, and says plainly
      that the account is blocked when that is the reason; no unrelated error is
      shown, the frame sends no further requests for a session that no longer
-     exists, and the state adds no page and no route *(FR-019, FR-049)*
+     exists, and the state adds no page and no route; **And given** the merchant
+     confirms the sign-out in the account menu, **Then** that same state is shown
+     in the page they were on *(FR-019, FR-049)*
 43. **AC-054**: **Given** the administrator application, **When** its header is
      inspected, **Then** it carries the platform's logo at the inline-start edge
      and an account control whose menu offers «تسجيل الخروج» only; this slice
