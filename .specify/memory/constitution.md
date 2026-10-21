@@ -392,10 +392,16 @@ authenticated area; the authentication pages, the 404 page, and the static
 policy/FAQ/contact pages are bare, with no header, no sidebar, and no footer;
 the administrator application carries its own shell.
 The sidebar is full on a wide screen, collapses to an icon-only rail, and becomes
-a drawer on a narrow screen. The header carries the account control, the
-notifications control, the theme switch, and the sidebar collapse control. The
-default appearance is not fixed by this constitution; the Wafar UI layer
-records it. The theme switch itself is part of the frame.
+a drawer on a narrow screen; it carries the platform's navigation item list, the
+theme switch, and the sidebar-collapse control, and it sits at the inline-start
+edge, which the RTL direction resolves to the right edge of the page. The header
+carries only the platform's logo/home control at its inline-start edge and the
+account control at its inline-end edge; it carries no page-navigation link. The
+account control opens a menu carrying «حسابي»، «إعدادات»، and «تسجيل الخروج»;
+the sign-out item asks for a yes-or-no confirmation before the session ends. A
+guest sees a sign-in action in place of the account control only. The default
+appearance is not fixed by this constitution; the Wafar UI layer records it. The
+theme switch itself is part of the frame.
 
 Every data view is a table; the only exception is the four statistical cards on
 the Home page.
@@ -1458,7 +1464,7 @@ however obviously the concept belongs to the entity.
 | `.specify/extensions.yml` | The installed extensions and the hook registry every Spec Kit command reads before and after it runs. | `.specify/`. |
 | `.specify/workflows/speckit/workflow.yml` | The bundled workflow that runs the binding cycle in order, with its human review gates. | `.specify/workflows/speckit/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
-| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098): the two version sources including the amended date, every live ADR range string (in the required files, under `docs/`, in the two Arabic mirrors, in the template overrides, and in the feature specifications), every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the structural counts the governance text states in prose, and the absence of the removed stylesheet and its constitution section. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
+| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099): the two version sources including the amended date, every live ADR range string (in the required files, under `docs/`, in the two Arabic mirrors, in the template overrides, and in the feature specifications), every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the structural counts the governance text states in prose, and the absence of the removed stylesheet and its constitution section. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
 
 ## Artifact Workflow and Traceability
 
@@ -1542,14 +1548,19 @@ the same force as the principles above.
   honeypot fields, a minimum time-to-submit, and a rate limit.
 - A PWA (installable app, service worker, offline surface) MUST NOT be
   shipped. The platform is a browser catalog only.
-- Every page header in the shell MUST carry the account, notifications,
-  theme-toggle, and sidebar-collapse controls for an authenticated user. The
-  sidebar-collapse control narrows the sidebar to its icon rail on desktop and
-  opens and closes the drawer on mobile. A guest MUST see a login action in
-  place of the account and notifications controls; the theme switch and the
-  sidebar-collapse control remain available to the guest. The platform logo
-  sits in the sidebar header, and the quick search field lives on the Home
-  page (see Product Scope). Pages without the product's shared shell —
+- The shared shell's header MUST carry only the platform's logo/home control
+  and the account control for an authenticated merchant, and MUST carry no
+  page-navigation link. The account control MUST open a menu carrying «حسابي»،
+  «إعدادات»، and «تسجيل الخروج»; «تسجيل الخروج» MUST show a yes-or-no
+  confirmation before the session ends. A guest MUST see a login action in
+  place of the account control only. The theme switch and the sidebar-collapse
+  control sit in the sidebar, not the header; the sidebar-collapse control
+  narrows the sidebar to its icon rail on desktop and opens and closes the
+  drawer on mobile; the sidebar itself sits at the inline-start edge (the right
+  edge under the RTL direction), and the navigation item list, the theme switch,
+  and that control all sit inside it. The platform logo sits at the header's
+  inline-start edge, and the quick search field lives on the Home page (see
+  Product Scope). Pages without the product's shared shell —
   authentication, 404, and static pages — carry no header; the administrator
   application carries its own shell and header. The four bare-layout static
   pages — Contact, Privacy Policy, Terms of Use, and FAQ — are reached the same
@@ -1724,4 +1735,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 3.3.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-21
+**Version**: 3.4.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-21

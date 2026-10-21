@@ -134,6 +134,7 @@ from the index rather than edited in its own words.
 | [ADR-096](#adr-096--the-r1-pre-planning-fix-set-the-cmv-values-the-shells-link-surface-the-sidebar-list-and-the-spec-scan) | The R1 pre-planning fix set: the CMV values, the shell's link surface, the sidebar list, and the spec scan | 2026-10-20 | 3.2.0 |
 | [ADR-097](#adr-097--the-wafar-ui-layer-and-the-nuxt-4-app-layout) | The Wafar UI layer and the Nuxt 4 app layout | 2026-10-21 | 3.3.0 |
 | [ADR-098](#adr-098--the-wafar-visual-foundation-iconpark-ibm-plex-sans-arabic-light-default-and-the-marine-palette) | The Wafar visual foundation: IconPark, IBM Plex Sans Arabic, light default, and the marine palette | 2026-10-21 | 3.3.0 |
+| [ADR-099](#adr-099--shared-shell-header-and-the-account-menu) | Shared-shell header and the account menu | 2026-10-21 | 3.4.0 |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -870,6 +871,10 @@ JetBrains Mono delivery, the icon set, the theme toggle, and the disposal of eve
 A component genuinely missing later is still added to `wafar.single.css` by the
 slice that first needs it, and the module map is updated in the same change.
 
+**Annotation (2026-10-21, ADR-099).** The theme toggle remains an R1 shell duty,
+but its place is the sidebar; the header no longer carries it. The icon-set duty
+is unchanged.
+
 
 ---
 
@@ -890,6 +895,12 @@ slice that first needs it, and the module map is updated in the same change.
    its Sidebar decision values. The scoping decision this record made is unchanged:
    which surfaces carry the shell, and that the sidebar is always present on
    desktop rather than collapsible away. Sidebar navigation is limited to the in-scope pages per role; out-of-scope items are removed from the specification. R1 is the visual reference implementation for the shell.
+
+   **Annotation (2026-10-21, ADR-099).** The shell's control composition changed:
+   the logo sits in the header, which carries only the logo/home and account
+   controls, and the theme switch and the sidebar-collapse control sit in the
+   sidebar. The scoping decision — which surfaces carry the shell, and that the
+   sidebar is always present on desktop — is unchanged.
 
 **Consequences.** Every browser-facing slice composes this shell; none rebuilds it, and none places it on auth or admin screens. R1 implements the shell and the auth pages without it.
 
@@ -6906,6 +6917,12 @@ specification's source block move to ADR-094 in the same change. R1 implements
 the frame under FR-023/AC-025 and builds the footer band under FR-024; the
 footer's constitutional status is unchanged. This entry is the durable record.
 
+**Annotation (2026-10-21, ADR-099).** The guest rule stands — the sign-in action
+replaces the account control only, and the guest keeps the appearance and the
+sidebar — but the theme switch and the sidebar-collapse control now sit in the
+sidebar, not the header. No notifications control remains in the header for the
+guest or for the merchant.
+
 ---
 
 ## ADR-095 — Make opencode the default integration; keep codebuddy installed
@@ -7228,3 +7245,90 @@ and the Complexity Tracking rows; the icon check verifies every semantic key and
 the Nuxt UI mapping. The archive is a maintenance limitation, not an
 availability risk: the vendored copy and the Apache-2.0 licence are perpetual.
 Review date: 2026-11-20. This entry is the durable record.
+
+---
+
+## ADR-099 — Shared-shell header and the account menu
+
+**Status**: Accepted — 2026-10-21
+**Owning directory**: `.specify/memory/`, `.specify/templates/overrides/`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `Project-Technologies.txt`, `Core-Project.txt`, `specs/001-identity-foundation/`, `governance-drift-check.mjs`, `.githooks/`
+**Owning feature**: none — product correction ratified by the repository owner; R1 builds the frame.
+
+**Context.** ADR-017 fixed the shell's composition: a header carrying the
+account, notifications, theme-toggle, and sidebar-collapse controls, and a
+sidebar whose header carries the platform logo. ADR-094 kept that composition
+for a guest and only narrowed the login action to the account and notifications
+controls. The operator has since decided the header's real role: it is a brand
+and account band, not a control strip. Page navigation already lives in the
+sidebar, which carries the eight registered destinations, and the appearance
+and the sidebar's own state belong to the sidebar rather than to the header.
+Keeping the 2026-10-03 composition would leave the header carrying a
+notification bell whose list is a sidebar destination, a theme switch beside the
+navigation it belongs to, and a collapse control physically separated from the
+thing it collapses.
+
+**Decision.**
+
+1. The header carries only the platform's logo/home control at the inline-start
+   edge and the account control at the inline-end edge. It carries no
+   page-navigation link, no notifications control, no theme switch, and no
+   sidebar-collapse control.
+2. The account control opens a menu with three items: «حسابي», which opens the
+   Profile page; «إعدادات», which opens the settings section inside the Profile
+   page; and «تسجيل الخروج», which shows a yes-or-no confirmation before the
+   session ends.
+3. A guest sees a sign-in action in place of the account control only; the guest
+   has no account menu. The appearance and the sidebar remain available to the
+   guest, through the sidebar's own controls.
+4. The sidebar carries the eight registered navigation items unchanged, plus the
+   theme switch and the sidebar-collapse control. It is full on a wide screen,
+   an icon-only rail when collapsed (no names), and a drawer on a narrow screen.
+   Its position is stated logically (`inline-start`, the right edge under the RTL
+   direction); no physical right or left is written, per Principle V.
+5. «إعدادات» is a section inside the Profile page. No page is added and the
+   Product Register stays at twenty-six pages. «حسابي» and «إعدادات» point at the
+   Profile route already fixed among the eight sidebar destinations, with the
+   settings section identified by an anchor; «تسجيل الخروج» adds no route.
+6. R1 builds the frame's composition and verifies it structurally, including the
+   menu's three items and the confirmation markup, because R1 ships no page that
+   renders the frame. The runtime behaviour of the header, the menu, and the
+   sidebar lands with R4 (My Files), the first page that carries the frame; the
+   menu's destinations land with R7 (Profile).
+7. The notification counter moves from the header to the Notifications sidebar
+   item (or to its page). No header bell is built.
+8. The administrator application keeps its own shell and header; this record does
+   not change it.
+
+**What deliberately did not change.** The three surfaces (public site, merchant
+area, administrator application); the bare scope (authentication, 404, and the
+four static pages); the eight sidebar items and their routes; the footer band and
+the four static routes; the twenty-six-page Product Register; every entity,
+role, product feature, usage limit, and security rule; the technology register;
+the Wafar UI layer path and the visual foundation (ADR-097, ADR-098). No
+application code, package, CSS, or font file is created by this record.
+
+**Alternatives considered.**
+
+- *Keep the 2026-10-03 header composition.* Rejected: the operator's product
+  decision fixes the header as a brand-and-account band; the notification bell
+  duplicates a sidebar destination, and the theme and collapse controls belong
+  with the sidebar they act on.
+- *Put the account menu in the sidebar.* Rejected: the account belongs to the
+  person, not to navigation, and a role-varying sidebar would break the rule that
+  the item list is identical for a guest and a signed-in merchant.
+- *A standalone merchant Settings page.* Rejected: it would add a page and force
+  a Product Register amendment (26 → 27); the Profile page already owns account
+  editing and the password change.
+- *Write "the sidebar on the right" and "the account on the left".* Rejected:
+  Principle V prohibits physical direction; `inline-start` and `inline-end` are
+  the binding forms, and the RTL direction resolves them to the right and left
+  edges respectively.
+
+**Consequences and migration/backfill.** The constitution moves to **3.4.0**
+(MINOR): the shell's header and sidebar composition changes, so this is not a
+PATCH. `version.json`, the ADR ranges, `Project-Technologies.txt`'s header, the
+R1 specification (FR-020, FR-022 … FR-025, FR-039, FR-047, AC-022, AC-024,
+AC-025, AC-027, AC-042, AC-051), the R1 checklist, and the ROADMAP's shell and
+notification rows move in the same change. ADR-016, ADR-017, and ADR-094 carry
+annotations; their decisions are not rewritten. Review date: 2026-11-20. This
+entry is the durable record.

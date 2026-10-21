@@ -34,7 +34,7 @@
        - `Core-Project.txt` — the product definition: roles and their
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
-       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-098). A
+       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-099). A
          specification that contradicts one is a blocking defect.
        - `docs/domain-model.md` — the entities a Key Entities section may name,
          and the invariants such a specification MUST NOT contradict. A
@@ -66,13 +66,13 @@
 - Q: Is the chosen appearance (dark or light) stored on the account or only in the browser? → A: In the browser only, per device; no appearance preference is stored on the account, so no entity gains a field. The default appearance on a first visit is not fixed by this specification.
 - Q: For the pages this slice does not ship (the error page and the four static pages), does this slice verify the frame's absence, or is that deferred? → A: Deferred — AC-023 and SC-005 are narrowed to the pages this slice ships (sign-up, sign-in, password recovery); the error and static pages stay bound and are verified by the slice that ships them, and this slice creates no placeholder page.
 - Q: Does this slice deliver the administrator's sign-in surface and the forced password change, or only the provisioning action with the rule enforced without a page? → A: Only the provisioning action and the enforcement — the slice creates the administrator account through an operator-run provisioning action and records the forced-password-change requirement and its state on the account, verified at the behaviour level rather than through a shipped page; the administrator's separate sign-in surface arrives with a later slice, and AC-030 is narrowed to that boundary.
-- Q: Does this slice build the frame's controls that later slices own — the notifications control, the account control, and the means of reaching the static pages? → A: Yes, the frame is delivered whole: its four header controls and its means of reaching the static pages are built and verified structurally, while each control's behaviour and data are owned by the slice that owns its destination (the profile page, the notifications list); the decision on which surface carries the static-page links is recorded as an ADR by the slice that ships the first page carrying the frame, not here (revised 2026-10-11: this slice chooses and builds that surface and records the decision here — see Session 2026-10-11).
+- Q: Does this slice build the frame's controls that later slices own — the account control and its menu, and the means of reaching the static pages? → A: Yes, the frame is delivered whole: its header controls — the logo/home and account controls and the account menu — and its means of reaching the static pages are built and verified structurally, while each destination's behaviour and data are owned by the slice that owns it (the Profile page, the Notifications page); the decision on which surface carries the static-page links is recorded as an ADR by the slice that ships the first page carrying the frame, not here (revised 2026-10-11: this slice chooses and builds that surface and records the decision here — see Session 2026-10-11).
 - Q: When the sign-up form is submitted with a number that already has an account, does the flow continue to the code step, and is the submitted password ever applied to the existing account? → A: The flow continues identically and the code is sent to the number whether or not an account exists, so every step's response is the same; when the correct code is entered for a number that already has an account, no second account is created and the submitted password is not applied, and the person is directed to sign in or to recover the password.
 - Q: Does this slice introduce a registered entity for the pending sign-up verification state, the one-time codes, and the lock state, or keep them outside the twelve-entity register? → A: No third entity — the pending sign-up data and the one-time codes are transient verification state held in an expiring store outside the entity register; the consecutive-failed-attempt count, the lock, and the forced-password-change requirement are account properties added as fields on `User`, through a Product Register amendment and a decision record in this slice.
 - Q: What happens when the one-time code cannot be sent — a messaging-channel failure or an undeliverable number — and does the failed attempt count against the limit on re-requesting a code? → A: The person sees an explicit, retryable failure state; the pending sign-up stays valid until its own expiry; and a failed send does not count against the limit on re-requesting a code.
 - Q: After the one-time code is verified at sign-up, is the merchant signed in automatically, or directed to sign in separately? → A: The merchant is signed in automatically — entering the correct code creates the session and the account becomes usable in place, with no separate sign-in step.
 - Q: When a merchant resets a forgotten password through the recovery flow, does that end every existing session of the account, the way a password change does? → A: Yes — a reset counts as a password change: every existing session of the account ends, and the merchant signs in with the new password.
-- Q: This slice ships no page that carries the shared frame, yet it requires a merchant to be able to sign out, including from every device. Where is that action offered in this slice? → A: Nowhere in this slice — sign-out and sign-out-of-every-device are delivered as behaviour and verified by the integration tests, and the control arrives with the slice that owns the account control's destination; the US2 end-to-end journey in the Test Coverage Request is narrowed to sign-in.
+- Q: This slice ships no page that carries the shared frame, yet it requires a merchant to be able to sign out, including from every device. Where is that action offered in this slice? → A: Nowhere as a rendered surface in this slice — sign-out and sign-out-of-every-device are delivered as behaviour and verified by the integration tests, and the control arrives as the third item of the account menu, which is part of the frame's composition and is verified structurally here; because no page renders the frame yet, the menu is exercised at runtime by the slice that ships the first page carrying it; the US2 end-to-end journey in the Test Coverage Request is narrowed to sign-in.
 - Q: During password recovery, when the submitted number has no account, is the one-time code actually sent to that number as it is at sign-up, or is the response merely uniform with no message dispatched? → A: The code is sent whether or not the number has an account — the same rule sign-up follows — so the response and the behaviour are both indistinguishable, and the dispatch stays bounded by the rate limit on authentication operations.
 - Q: Does the appearance a person chose (dark or light) apply to the bare pages this slice ships — sign-up, sign-in, and password recovery — or do those pages always render in the default appearance? → A: It applies to every page, bare pages included, and is applied before the page is painted; the switch itself stays a frame control and is not offered on a bare page. The default appearance on a first visit is not fixed by this specification.
 - Q: How should the platform express the fifteen-minute lock after five consecutive failed sign-in attempts, so that a sign-in response still does not reveal whether the number has an account? → A: The refusal stays uniform — an attempt made while the account is locked is refused with the same response text, the same status, and the same response path as any other failed sign-in, and no message, timing difference, or other signal distinguishes a locked account from a wrong password or an unknown number; the lock withholds acceptance only, so FR-008 and SC-004 stay unqualified and no documented exception is recorded.
@@ -94,10 +94,10 @@
 - Q: Does this slice deliver the act of blocking an account — the action that sets the status to blocked — or does it deliver the status and everything that follows from it, with the act arriving with the slice that ships the administrator's Users page? → A: The act is not delivered here: this slice delivers the status, the uniform refusal a blocked account receives, and the withdrawal of the sessions the account already held, and its tests reach the blocked state directly; the act of blocking arrives with the administrator's Users page (R13), where the audit record every administrator operation requires also exists, and US4's Independent Test is narrowed to that boundary.
 - Q: Does this slice deliver the account's own change-password action — the action that changes the password from inside the account — or does it stay with the profile page (R7) so that session revocation is exercised through the recovery flow alone? → A: The action is delivered here as behaviour, with no page, and is verified by the integration tests; the profile page that offers it arrives with a later slice. Both halves of FR-013 therefore stay testable in this slice — the change made from inside the account and the change made through the recovery flow — and FR-013, US2, and its Independent Test carry the boundary.
 - Q: Does the specification bind the body of the one-time-code message — its language, its numerals, and the no-emoji rule — and is that body covered by an acceptance criterion? → A: Yes — the message body is user-facing text and follows the same language, numeral, and no-emoji rules a page follows, even though it carries no icons; FR-026 and SC-008 are extended to cover it, so the criterion's scan of user-facing strings reaches the message templates rather than the screens alone.
-- Q: Does the frame's composition include the platform's logo in the sidebar header, and is the logo delivered as a wordmark rather than as a new image asset? → A: The logo is part of the frame's composition, and it is delivered as a wordmark set in the product's typography, adding no image asset and no new design value, with the form it takes recorded in the plan; FR-020, AC-022, and US5 are extended to name it.
+- Q: Does the frame's composition include the platform's logo, and is the logo delivered as a wordmark rather than as a new image asset? → A: The logo is part of the frame's composition, and it is delivered as a wordmark set in the product's typography, adding no image asset and no new design value, with the form it takes recorded in the plan; it sits in the header at its inline-start edge, not in the sidebar (revised 2026-10-21, ADR-099); FR-020, AC-022, and US5 name it.
 - Q: Must the mobile-number field accept a number typed with Arabic-Indic numerals (for example ٠٩١…) and normalize it to the same canonical form, or is such a number refused as invalid? → A: It is accepted and read as the same digits — the field is tolerant on input while every numeral the platform renders stays Latin — so the number reaches the same normalized form and never becomes a second account; FR-031 and AC-007 are extended to name the form, and the matching edge case carries it.
 - Q: When the operator's provisioning action creates the administrator account, is the administrator's mobile number verified by a one-time code the way a merchant's is, or is the account created directly — and does the invariant that an account exists only after the mobile number is verified bind the administrator too? → A: The account is created directly by the provisioning action, with no one-time code and no verification step, because the operator who runs the action already controls the platform and the constitution creates this account outside the public registration flow; the verification invariant is bounded to accounts created through public sign-up, the provisioning action sets the account's identity details (full name, Libyan mobile number, and city) in the same change, and Key Entities, FR-028, AC-030, the administrator Assumption, and the matching edge case carry the bound.
-- Q: When a guest opens a page that carries the frame, what does the header show — does the sign-in action replace all four signed-in controls, or only some of them? → A: It replaces the account control and the notifications control only; the guest keeps the theme switch and the sidebar collapse control, because the appearance and the sidebar belong to the frame rather than to an account, so a guest can still change the appearance and open or close the sidebar. FR-023, AC-025, US5, and the matching edge case carry the rule.
+- Q: When a guest opens a page that carries the frame, what does the header show — does the sign-in action replace all the signed-in header's controls, or only some of them? → A: It replaces the account control only; the header carries no notifications control any longer, and the guest keeps the theme switch and the sidebar collapse control because they sit in the sidebar, not the header, so a guest can still change the appearance and open or close the sidebar (revised 2026-10-21, ADR-099). FR-023, AC-025, US5, and the matching edge case carry the rule.
 - Q: This slice ships no page that renders the frame, yet AC-024 asserts the sidebar's behaviour at two screen widths and US5's Independent Test calls that behaviour verifiable — on what surface is it exercised? → A: Neither is exercised at runtime here: the sidebar's two-width behaviour and the header controls' behaviour are verified by the slice that ships the first page carrying the frame, and this slice verifies the frame's composition, the presence of its controls, and the frame's absence from the three bare pages it ships. US5's Independent Test, AC-024, the end-to-end journey list, and SC-005 are narrowed to that boundary, and no preview route and no placeholder page is added.
 - Q: FR-034's send-failure rule speaks of the "pending sign-up" alone — do the expiry, the re-request limit, and the failed-send rule govern a one-time code sent for password recovery the same way? → A: One rule governs both code paths: the pending request — whether it is a sign-up or a password reset — stays valid until its own expiry, and a code that cannot be sent produces the same explicit, retryable failure state and does not count against the limit on requesting a new code. FR-034, AC-036, and the matching edge case are reworded from "the pending sign-up" to "the pending request".
 - Q: Two sign-up attempts for the same mobile number, or two entries of its one-time code, can arrive at the same moment — what does the platform guarantee then, and does the one-number-one-account rule still hold? → A: Uniqueness is enforced at the moment the account is created rather than by a check made before it, so two simultaneous attempts for one number produce at most one account and the attempt that does not create it receives the uniform outcome and the same direction FR-006 requires, leaving no partial account and no second session. FR-031, the `User` entity, the matching edge case, and the integration-test request carry the rule.
@@ -121,9 +121,9 @@
 - Q: The sign-up form carries a limit of its own (FR-029) and account creation is one of the three rate-limited authentication operations (FR-033) — are those one budget or two? → A: One and the same budget: the sign-up form's limit is the account-creation operation's limit, so one per-origin budget governs account creation and the form carries no second, overlapping budget; the hidden field and the minimum time-to-submit stay form-level protections and are not budgets. FR-033 and AC-035 carry the rule.
 - Q: Must the one-time-code field accept a code typed with Arabic-Indic numerals and read it as the same digits, the way the mobile-number field does (FR-031)? → A: Yes — the same tolerance governs the code field: a code typed as Arabic-Indic numerals is read as the same digits and verifies identically, while every numeral the platform renders stays Latin, so FR-026's rule is unchanged and a correct code is neither refused nor silently mis-read. FR-031 and AC-007 carry the rule.
 - Q: Does the account's own change-password action — the change made from inside the account, delivered here as behaviour — require the current password, or does a signed-in merchant set a new password without proving the old one? → A: The action requires the current password: a signed-in merchant MUST supply it, and a change submitted without it, or with a wrong one, is refused and ends no session; the recovery flow is the only path that sets a password without the current one, because it proves ownership of the number with the one-time code instead. FR-013, AC-014, and the Test Coverage Request carry the rule.
-- Q: The frame is delivered whole, yet the specification never says what the sidebar's navigation list carries — given that none of the pages such a list would reach ships in this slice — so what does the sidebar carry here, and what does its verification assert? → A: The sidebar ships with its navigation item list as part of the frame's composition: each item names a registered destination, an item whose page ships later points at the route that slice provides, and this slice's structural verification asserts the item list alongside the sidebar's logo header and the collapse control, so the frame is composed once and a later slice does not extend it. FR-039, AC-042, US5, and the Test Coverage Request carry the rule. (Revised 2026-10-11: the item list is fixed in this specification and the route each item points at is fixed by this slice's decision record — see the item-list and route bullets that follow in this session.)
+- Q: The frame is delivered whole, yet the specification never says what the sidebar's navigation list carries — given that none of the pages such a list would reach ships in this slice — so what does the sidebar carry here, and what does its verification assert? → A: The sidebar ships with its navigation item list as part of the frame's composition: each item names a registered destination, an item whose page ships later points at the route that slice provides, and this slice's structural verification asserts the item list alongside the theme switch and the collapse control, so the frame is composed once and a later slice does not extend it. FR-039, AC-042, US5, and the Test Coverage Request carry the rule. (Revised 2026-10-11: the item list is fixed in this specification and the route each item points at is fixed by this slice's decision record — see the item-list and route bullets that follow in this session.)
 - Q: Between the sign-up form's submission and the arrival of the one-time code — and while the code is being verified — what does the person see, and is a repeated submission prevented from starting a second dispatch? → A: The page shows an in-progress state and disables the submit control while a request is in flight, so a repeated submission cannot start a second dispatch or produce a second account; the guard is presentation only, and the server-side uniqueness rule FR-031 stays the authority, exactly as the concurrent-attempt case already requires. FR-040, AC-043, and the matching edge case carry the rule.
-- Q: When a signed-in person opens one of the three bare pages this slice ships — sign-up, sign-in, or password recovery — what do they see, given that this slice ships no destination page and the frame is absent from those pages? → A: The page renders exactly as it does for a guest: no redirect and no signed-in-specific surface is introduced, because the pages are public, carry no state, and carry no frame, and a sign-out control on them would contradict the rule that sign-out has no surface in this slice. FR-041, AC-044, the matching edge case, and the matching Assumption carry the rule.
+- Q: When a signed-in person opens one of the three bare pages this slice ships — sign-up, sign-in, or password recovery — what do they see, given that this slice ships no destination page and the frame is absent from those pages? → A: The page renders exactly as it does for a guest: no redirect and no signed-in-specific surface is introduced, because the pages are public, carry no state, and carry no frame, and a sign-out control on them would contradict the rule that sign-out has no rendered surface in this slice — its only control is the account menu's third item, and a bare page carries no menu. FR-041, AC-044, the matching edge case, and the matching Assumption carry the rule.
 - Q: At sign-in and in password recovery, when the submitted value is not a valid Libyan mobile number on +218 at all, is it refused with the uniform refusal FR-008 requires or with a distinct, explicit format refusal — and does the enumeration criterion cover it? → A: A distinct, explicit format refusal states that the value is not a valid Libyan mobile number; it stays outside SC-004's uniformity, because a malformed value can never have an account, so the refusal depends on the value's shape rather than on whether an account exists — exactly as the rate-limit refusal is excluded. FR-042, AC-045, SC-004, and the matching edge case carry the rule.
 - Q: SC-004 requires sign-up, sign-in, and password-recovery responses to be indistinguishable and asserts it with an automated enumeration test, yet the specification names "no timing difference" only for the refusal made while an account is locked (FR-009) — does that uniformity also bind how long a response takes, or does it cover response text and status alone? → A: The uniformity binds timing as well as text and status: every authentication response does equivalent work whether or not the account exists — a sign-in attempt against an unknown number performs the same verification work as one against an existing account, so no response's duration signals account existence — and the enumeration test asserts the response's observable shape (text, status, and timing) rather than its text alone. FR-006, FR-008, FR-015, SC-004, and the Test Coverage Request carry the rule.
 - Q: The merchant sign-in surface refuses an administrator account's credentials (FR-027), but the password-recovery flow this slice ships is not bounded the same way — what happens when that flow is used for a mobile number whose account holds the administrator role: does it set a new password on that account, or refuse after the code is verified the way it refuses a number with no account? → A: It refuses — after the correct code is entered and ownership of the number is proven, the platform states explicitly that the credential cannot be reset on this surface and sets no password and creates no session, because an administrator's credential belongs to the administrator's own surface, which arrives with a later slice; the request, the following step, and the code dispatch stay indistinguishable, exactly as FR-015 bounds them, so nothing before the code is entered signals the account's role. FR-014, FR-027, AC-016, and the matching edge case carry the rule.
@@ -131,7 +131,7 @@
 - Q: Every administrator operation must be recorded in the audit log, and FR-019 defers the act of blocking for exactly that reason — yet this slice delivers the operator's provisioning of an administrator account; is that provisioning an administrator operation that must be recorded in the audit log (and therefore owned by the slice that creates that record), or an operation outside the product's role model? → A: It is out of band — the provisioning action is run by the platform's operator outside the product's role model and outside the administrator application, so it is not an administrator operation and writes no audit-log row; the audit log records the operations an administrator performs through the administrator application, which arrives with a later slice, and this slice records the provisioning through the structured security event FR-037 already names. FR-028, FR-037, the administrator Assumption, and AC-030 carry the rule.
 - Q: The frame's sidebar is delivered whole and its navigation item list is verified structurally, yet the specification never says which destinations the items name — does this slice fix the item list, or leave it to the plan? → A: This slice fixes the item list in the specification: one item per registered destination a guest or a signed-in merchant can reach on the public site and in the merchant's area — Home, Parts, Catalog, My Files, Cart, Notifications, Messages, and Profile — and it carries no item for the three bare pages this slice ships or for the four bare-layout static pages, because the register states a static page is never a sidebar item; the structural verification asserts that exact list. FR-039, AC-042, and US5 carry the rule.
 - Q: When the sign-up form is submitted with the hidden field filled, the platform returns the same response a successful submission receives — but does that silent refusal also start a pending request and dispatch a one-time code to the submitted number? → A: No pending request is started and no one-time code is dispatched: the silence is a guarantee about the response and the following step, so the form cannot be turned into a way to send SMS to numbers the submitter does not control, and FR-006's timing rule, which binds the account-existence case, is not extended to this refusal. FR-029, AC-031, and the matching edge case carry the rule.
-- Q: The frame's links must reach destinations whose pages ship in later slices, and the frame is verified structurally — does this slice fix the route strings those links point at, or does it point at routes a later slice chooses? → A: This slice fixes them: the frame's decision record fixes the route of every destination the frame links to — the eight sidebar destinations and the four static-page routes — so every link has a definite target and a later slice ships its page at the route fixed here rather than choosing one of its own; a later slice therefore cannot move a route the frame already points at. FR-024, FR-039, AC-026, AC-042, and the matching Assumptions bullet carry the rule.
+- Q: The frame's links must reach destinations whose pages ship in later slices, and the frame is verified structurally — does this slice fix the route strings those links point at, or does it point at routes a later slice chooses? → A: This slice fixes them: the frame's decision record fixes the route of every destination the frame links to — the eight sidebar destinations, the four static-page routes, and the Profile page's settings section that «إعدادات» opens — so every link has a definite target and a later slice ships its page at the route fixed here rather than choosing one of its own; a later slice therefore cannot move a route the frame already points at. FR-024, FR-039, AC-026, AC-042, and the matching Assumptions bullet carry the rule.
 - Q: FR-006 requires the platform to direct a person whose number already has an account to sign in or to recover the password — is that direction a message on the code step carrying the two links, or a redirect to another page? → A: It is a message on the code step that names the two options and offers the link to the sign-in page and the link to the password-recovery page, which the bare pages already carry; no redirect is introduced, consistent with the rule that the three bare pages render identically for a signed-in person and for a guest. FR-006, AC-006, and the matching edge case carry the rule.
 - Q: Which refusals count toward an account's consecutive failed sign-in attempts — every refusal, or only a refusal produced by a failed password verification? → A: Only a failed password verification against an existing, active account counts: a refusal produced by a rate limit, a refusal of a value that is not a valid Libyan mobile number, and the refusal a blocked account receives MUST NOT increment the count, so the count measures exactly what a consecutive failed sign-in attempt is and the lock cannot be driven by requests that never verified a password. FR-009, FR-017, AC-010, and SC-007 carry the rule.
 - Q: What scale are this specification's success criteria and performance budget measured against? → A: A modest, explicit ceiling is stated in Assumptions — up to 10,000 registered accounts, up to 500 concurrent sessions, and a peak of no more than 10 authentication requests per second — and SC-009 and the plan's Scale/Scope are measured against it, rather than the criterion staying load-independent.
@@ -147,7 +147,7 @@
 - Q: What clears the forced-password-change requirement the operator's provisioning action places on the administrator account, and does the restriction lift when it is cleared? → A: The change made at the first sign-in clears it: performing that change ends the restriction and the account is thereafter unrestricted, and no other path clears it — the merchant recovery flow refuses a mobile number whose account holds the administrator role (FR-014) and the merchant sign-in surface refuses an administrator's credentials (FR-027), so no surface other than the administrator's own reaches that credential. FR-028, AC-030, US6, and the Key Entities note carry the rule.
 - Q: Which surface inside the frame carries the links to the four static pages, given that the register forbids a static page from being a sidebar item? → A: A footer band inside the frame, below the page's content: it is shown on every page that carries the frame and is absent from every page that does not, because the footer is part of the frame's composition exactly as the header and the sidebar are. FR-024, FR-021, AC-026, and the matching edge case carry the rule.
 - Q: Is each rate limit keyed on the network origin alone, or on the origin and on the submitted mobile number as well, given that a mobile carrier's address is shared by many people at once? → A: Two keys: each budget is keyed on the network origin and on the normalized mobile number the request submits, so exhausting either key refuses further requests on that key alone — every other origin and every other number stays unaffected — and a shared carrier address therefore cannot spend a person's budget; the refusal is the same distinct, explicit limit refusal whichever key produced it, so nothing about it signals whether an account exists. FR-029, FR-033, AC-035, the matching edge case, and the Test Coverage Request carry the rule.
-- Q: Does the accessibility criterion (SC-006) cover the shared frame itself, given that no page this slice ships renders it? → A: It covers the frame at the level of its markup: the structural verification this slice performs asserts that every frame control — the account, notifications, theme, and sidebar-collapse controls, and the footer band's links — carries an accessible name, a role, and keyboard reachability. The automated scan and the keyboard-only pass over the frame's rendered behaviour stay with the slice that ships the first page carrying the frame, exactly as its two-width behaviour does. SC-006, AC-022, and the Test Coverage Request carry the rule.
+- Q: Does the accessibility criterion (SC-006) cover the shared frame itself, given that no page this slice ships renders it? → A: It covers the frame at the level of its markup: the structural verification this slice performs asserts that every frame control — the logo/home, account, and account-menu items, the theme switch, the sidebar-collapse control, and the footer band's links — carries an accessible name, a role, and keyboard reachability. The automated scan and the keyboard-only pass over the frame's rendered behaviour stay with the slice that ships the first page carrying the frame, exactly as its two-width behaviour does. SC-006, AC-022, and the Test Coverage Request carry the rule.
 - Q: When the password changes or every session of an account is ended at once, does the platform send a notice by SMS to the registered number, or is the structured security record the only trace? → A: It sends one in both cases — on a password change and on a sign-out of every device — so the account's owner learns out of band of a change they did not make; the notice is Arabic, right-to-left, with Latin numerals and no emoji, it is dispatched best-effort so a failed send undoes nothing and blocks nothing, and it is recorded as the dispatch failure FR-037 names. No notice is sent on an ordinary sign-in or an ordinary sign-out, so the channel stays bound to those two events. FR-043, FR-037, AC-047, AC-040, and the Test Coverage Request carry the rule.
 - Q: After the one-time code is verified at sign-up, and after a successful sign-in, what does the browser show, given that this slice ships no page a signed-in merchant lands on? → A: Option A — a confirmation state rendered in place on the same page: the code step at sign-up, the sign-in form, and the new-password step in password recovery are each replaced in place by a confirmation of the outcome, with no navigation, no new route, and no new page. FR-004, FR-007, FR-014, AC-004, AC-008, AC-016, and the no-landing-page Assumption carry the rule.
 - Q: What identifies the subject of a structured security record, given that the constitution forbids personal data in a log? → A: Option A — an internal account identifier, carried only where an account exists: a record produced for a number with no account carries no account reference, and the mobile number never appears in any form. FR-037, AC-040, and the Test Coverage Request carry the rule.
@@ -159,13 +159,17 @@
 - Q: When a person signs in with a correct password, or enters the correct one-time code, but the platform unexpectedly fails to create the session, what does the person see — given that the three pages this slice ships are bare and the error page arrives with a later slice? → A: Option A — the page shows its own inline, explicit, retryable failure message, with no navigation and no separate error page, covering any failure that occurs while the page is being used; the three pages this slice ships are bare and cannot leave themselves, and the error page arrives with a later slice, so every failure they can hit must already be described on the page itself and this slice creates no placeholder error page. FR-040, AC-043, SC-005, the matching edge case, and the Test Coverage Request carry the rule.
 - Q: How long is a merchant's personal data — their full name, mobile number, and city — kept after they close their account, given that a merchant can never delete their own account? → A: Option A — this slice fixes no retention period; it records that a merchant's data lives as long as the account is registered and is removed only by an administrator action or the retention job, and that the facts this slice owns are what sign-up collects, that the mobile number is the sole identifier, and that no merchant can delete their own account. A numeric period is not stated here because the register fixes none and the retention job and the administrator operation that would act on it arrive with later slices; the Privacy Policy page's wording belongs to the slice that ships it. FR-018, AC-020, and the matching Assumption carry the rule.
 - Q: If a merchant closes their browser and opens it again later, are they still signed in? → A: Option A — the session survives closing and reopening the browser: it is held by the browser rather than by the page, so a merchant who returns before the session's absolute maximum lifetime is still signed in, and only the inactivity timeout or the absolute maximum lifetime ends it. Neither clock is shortened or extended by the browser closing, which is why the specification fixes both values numerically in the first place. FR-032, AC-015, the `Session` entity, and the Test Coverage Request carry the rule.
-- Q: When a guest opens a page that carries the frame, what does the header show — the sign-in action alone as the constitution's Product Fact Clarifications bullet and its `Core-Project.txt` mirror state, or the sign-in action replacing the account and notifications controls while the guest keeps the theme switch and the sidebar collapse control, as FR-023 decides? → A: The specification's rule stands: the sign-in action replaces the account control and the notifications control only, and the guest keeps the theme switch and the sidebar collapse control, because the appearance and the sidebar belong to the frame rather than to an account. The contradiction with the constitution's Product Fact Clarifications bullet and its mirror is resolved by ADR-094 (2026-10-20), which amended both texts to this rule, so no binding source contradicts the guest's header any longer. FR-023, AC-025, US5, and the matching edge case carry the rule.
+- Q: When a guest opens a page that carries the frame, what does the header show — the sign-in action alone as the constitution's Product Fact Clarifications bullet and its `Core-Project.txt` mirror state, or the sign-in action replacing the account and notifications controls while the guest keeps the theme switch and the sidebar collapse control, as FR-023 decides? → A: The specification's rule stands: the sign-in action replaces the account control and the notifications control only, and the guest keeps the theme switch and the sidebar collapse control, because the appearance and the sidebar belong to the frame rather than to an account. The contradiction with the constitution's Product Fact Clarifications bullet and its mirror is resolved by ADR-094 (2026-10-20), which amended both texts to this rule, so no binding source contradicts the guest's header any longer. (Revised 2026-10-21 by ADR-099: the header no longer carries a notifications control, and the theme switch and the collapse control sit in the sidebar; the guest rule itself stands.) FR-023, AC-025, US5, and the matching edge case carry the rule.
 - Q: Should the three browser-facing security controls the constitution requires of the first browser-facing feature — request-forgery protection, output encoding, and security headers — be stated as functional requirements with acceptance criteria, or left named only in the Test Coverage Request? → A: They are stated as functional requirements and acceptance criteria: FR-044 (every state-changing request issued from a browser session is protected against request forgery), FR-045 (every value a person supplies is encoded for its output context before it is rendered), and FR-046 (every response the browser surface returns carries the security headers the constitution names), with AC-048 … AC-050 asserting each, so the implementation work has a numbered requirement to cite under Principle I instead of arriving with none. FR-044, FR-045, FR-046, AC-048, AC-049, AC-050, US7, and the Test Coverage Request carry the rule.
 - Q: When a client has exhausted the limit on requesting a new one-time code for a live pending request, what refusal does it receive — the uniform response or a distinct one — and is that limit one of the three per-operation budgets FR-033 fixes or a bound of its own? → A: The refusal is distinct and explicit: it states that the limit on requesting a new code was exceeded and that the person may retry later, and it is excluded from SC-004's enumeration comparison for the same reason the per-operation rate-limit refusal is, because it depends on the pending request's own history rather than on whether the number has an account — and the pending request exists for a number with no account exactly as it does for one. The bound is its own and sits above FR-033's per-operation budgets: requesting a new code neither consumes nor is bounded by the account-creation or the recovery budget, so a merchant who mistypes a code and asks for a new one cannot spend the operation's budget. FR-034, AC-036, SC-004, and the Test Coverage Request carry the rule.
 - Q: When the account's own change-password action succeeds — the current password is correct — after failed attempts have accumulated, does the success clear the consecutive-failed-attempt count the way a successful sign-in does, and does it lift a lock already running? → A: It clears the count: the count measures a run of failures with no successful password verification in between, and the change action's own failures are counted (FR-009), so its successes end the run exactly as a successful sign-in does. It does not lift a lock already running: the lock is a time bound and keeps its full fifteen minutes whatever the password is set to, exactly as a successful reset through the recovery flow does not lift it. FR-009, AC-010, SC-007, and the Test Coverage Request carry the rule.
 - Q: FR-004, FR-007, and FR-014 require each page to render a confirmation in place after a successful action, while FR-041 and AC-044 require the same three pages to render identically for a signed-in person and for a guest with no signed-in-specific surface — how do the two rules coexist, and what does a person see if they reload the page after the confirmation? → A: The confirmation is the outcome of an action taken on the page, not a surface the page carries for a signed-in person: FR-041 governs what the page shows when it is opened, so a person who opens the sign-up, sign-in, or password-recovery page sees the page exactly as a guest does whatever their session state, and the confirmation appears only in place of the step the action was taken from. Once the action is complete — the pending request consumed at sign-up, the session created at sign-in, the password set in recovery — reloading or reopening the page returns it to its first step with no confirmation and no redirect, exactly as FR-038 already provides for a reload while the pending request is still live. FR-004, FR-007, FR-014, FR-041, AC-004, AC-008, AC-016, AC-044, and the matching Assumption carry the rule.
 - Q: Does the operator's provisioning action, which sets the administrator account's initial password, also send the security notice FR-043 requires on a password change? → A: No — FR-043 governs a change to the password of an account that already holds one, so that its owner learns out of band of a change they did not make; the provisioning action sets the account's first password rather than changing an existing one, and the operator who supplies it is the party the notice would inform. The provisioning stays recorded as the structured security event FR-037 names, so the privileged creation is not silent. FR-028, FR-037, FR-043, AC-030, AC-047, and the Test Coverage Request carry the rule.
 - Q: Do submissions refused by the sign-up form's own protections — the hidden field and the minimum time-to-submit — consume the account-creation budget FR-029 and FR-033 share, or are they outside every budget? → A: They consume it: the account-creation budget is applied to every submission that reaches the sign-up form, including one refused by the hidden field or by the minimum time-to-submit, so the honeypot cannot be turned into an unbounded entry point and a client that only fills the hidden field is still bounded; the refusals themselves are unchanged — the hidden field's stays silent and returns the same response a successful submission receives, the minimum-time refusal stays explicit and retryable, and the budget's own refusal stays the distinct, explicit limit refusal outside SC-004. FR-029, FR-033, AC-031, AC-032, AC-033, and the Test Coverage Request carry the rule.
+
+### Session 2026-10-21
+
+- Q: The operator has fixed the shared shell's composition: what does the header carry, where do the theme switch and the sidebar-collapse control live, and what happens when the account control is used? → A: The header carries only the platform's logo/home control at its inline-start edge and the account control at its inline-end edge, with no page-navigation link, no notifications control, no theme switch, and no sidebar-collapse control; the theme switch and the collapse control sit in the sidebar; the account control opens a menu carrying «حسابي»، «إعدادات»، and «تسجيل الخروج»، and the sign-out item asks for a yes-or-no confirmation. A guest sees the sign-in action in place of the account control only. «إعدادات» is a section inside the Profile page, so no page is added and the Product Register stays at twenty-six pages. The frame's composition and the menu are verified structurally here; the runtime behaviour lands with the first page that carries the frame (R4), and the destinations land with R7. FR-020, FR-022 … FR-025, FR-039, FR-047, AC-022, AC-024, AC-025, AC-027, AC-042, and AC-051 carry the rule; ADR-099 is the decision record.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -276,28 +280,33 @@ Users page (decided 2026-10-11, Clarifications).
 ### User Story 5 - Move around the platform inside the shared page frame (Priority: P2)
 
 Every page of the public site and the merchant's area is presented inside one
-shared page frame: a header, a sidebar whose header carries the platform's
-logo and which carries the platform's navigation item list — one item per
-registered destination a guest or a signed-in merchant can reach (Home, Parts,
-Catalog, My Files, Cart, Notifications, Messages, and Profile), with the bare
-pages and the four static pages carrying no item and with the same list shown
-to a guest and to a signed-in merchant — no item added, removed, or disabled by
-role — a theme switch,
-the product's icon set, and the product's typography. The
-sidebar shows in full on a wide screen and
+shared page frame: a header, a sidebar, the product's icon set, and the
+product's typography. The sidebar sits at the inline-start edge — the right
+edge under the RTL direction — and carries the platform's navigation item
+list — one item per registered destination a guest or a signed-in merchant can
+reach (Home, Parts, Catalog, My Files, Cart, Notifications, Messages, and
+Profile), with the bare pages and the four static pages carrying no item and
+with the same list shown to a guest and to a signed-in merchant — no item
+added, removed, or disabled by role — together with the theme switch and the
+sidebar-collapse control. The sidebar shows in full on a wide screen and
 narrows to an icon-only rail when collapsed; on a narrow screen it becomes a
-drawer that opens and closes. The header carries the account, notifications,
-theme, and sidebar controls for a signed-in merchant, and for a guest a sign-in
-action in place of the account and notifications controls, while the theme and
-sidebar controls remain. The frame carries the platform's way of reaching the static pages
-(Contact, Privacy Policy, Terms of Use, FAQ). The frame never appears on the
-sign-up, sign-in, password-recovery, error, or static pages, which are shown
-bare. This slice delivers the frame whole — its four header controls, its
-sidebar's navigation item list, its means
-of reaching the static pages, and the surface that carries those links — and
-verifies them structurally; the behaviour and the data behind each control
-arrive with the slice that owns its destination (decided 2026-10-10, revised
-2026-10-11, Clarifications).
+drawer that opens and closes. The header carries only the platform's
+logo/home control at its inline-start edge and the account control at its
+inline-end edge; the account control opens a menu carrying «حسابي»، «إعدادات»،
+and «تسجيل الخروج», the last asking for a yes-or-no confirmation; for a guest
+a sign-in action replaces the account control only. The frame carries the
+platform's way of reaching the static pages (Contact, Privacy Policy, Terms of
+Use, FAQ). The frame never appears on the sign-up, sign-in, password-recovery,
+error, or static pages, which are shown bare. This slice delivers the frame
+whole — its header's logo/home and account controls and the account menu, the
+sidebar's navigation item list with the theme switch and the collapse control,
+its means of reaching the static pages, and the surface that carries those
+links — and verifies them structurally; the menu's open and confirm behaviour
+and the sidebar's two-width behaviour are exercised at runtime by the slice that
+ships the first page carrying the frame, while the data behind the menu's
+destinations and the notifications destination arrives with the slice that owns
+each destination (decided 2026-10-10, revised 2026-10-11 and 2026-10-21,
+Clarifications).
 
 **Why this priority**: The frame is what every later browser-facing slice
 composes instead of rebuilding; it is delivered here so the platform is coherent
@@ -305,14 +314,17 @@ from its first page. It is secondary to the account flows, which are usable
 without it.
 
 **Independent Test**: Can be fully tested structurally: the frame's composition
-and its four header controls are verified as delivered, and the bare pages this
-slice ships are verified to carry no frame, because this slice ships no page
-that renders the frame. The sidebar's behaviour at two screen widths is not
-exercised at runtime in this slice: it is verified by the slice that ships the
-first page carrying the frame, and this slice verifies the collapse control's
-presence in the frame's composition (decided 2026-10-11, Clarifications).
+— the header's logo/home and account controls and the account menu, and the
+sidebar's navigation item list with the theme switch and the collapse control —
+is verified as delivered, and the bare pages this slice ships are verified to
+carry no frame, because this slice ships no page that renders the frame. The
+sidebar's behaviour at two screen widths and the menu's behaviour are not
+exercised at runtime in this slice: they are verified by the slice that ships
+the first page carrying the frame, and this slice verifies the controls'
+presence in the frame's composition (decided 2026-10-11; revised 2026-10-21,
+Clarifications).
 
-**Acceptance Scenarios**: covered by AC-022 – AC-028 in the Acceptance Criteria section.
+**Acceptance Scenarios**: covered by AC-022 – AC-028 and AC-051 in the Acceptance Criteria section.
 
 ---
 
@@ -474,16 +486,23 @@ Acceptance Criteria section.
 - The city field finds no match for what the person typed; they can still only
   choose a value from the fixed list (AC-005).
 - A guest opens a page that carries the frame: the header shows a sign-in action
-  in place of the account and notifications controls, while the theme switch and
-  the sidebar collapse control remain available, so a guest can still change the
-  appearance and open or close the sidebar (AC-025).
+  in place of the account control only, with no account menu, while the theme
+  switch and the sidebar collapse control remain available in the sidebar, so a
+  guest can still change the appearance and open or close the sidebar (AC-025).
+- A signed-in merchant opens the account menu and chooses «تسجيل الخروج»: a
+  yes-or-no confirmation appears; cancelling it leaves the session untouched,
+  and confirming it ends the session (AC-051).
+- A signed-in merchant opens the account menu and dismisses it without choosing
+  an item: the menu closes and nothing changes (AC-051).
 - A person who has signed in moves between pages: the appearance they chose
   (dark or light) holds, and is applied before the page is painted so it does not
   flash the other appearance (AC-027).
 - A signed-in person opens one of the three bare pages this slice ships. The
   page renders exactly as it does for a guest, with no redirect and no
   signed-in-specific surface; no sign-out control is offered there, because
-  sign-out has no surface in this slice (AC-044).
+  sign-out has no rendered surface in this slice — its only control is the
+  account menu's third item, and the page carries no menu because it carries no
+  frame (AC-044, AC-051).
 - A screen narrower than the smallest supported width still renders the frame
   without breaking the sidebar or the header (AC-024).
 - One of the three bare pages this slice ships is opened: it carries no footer,
@@ -864,11 +883,16 @@ Acceptance Criteria section.
 **The shared page frame**
 
 - **FR-020**: System MUST present the product's shared page frame — a header, a
-  sidebar whose header carries the platform's logo, a theme switch, the
-  product's icon set, and the product's typography — on the public pages and in
-  the merchant's area only. The logo is delivered as a wordmark set in the
-  product's typography: it adds no image asset and no new design value, and the
-  form it takes is recorded in the plan (decided 2026-10-11, Clarifications).
+  sidebar, the product's icon set, and the product's typography — on the public
+  pages and in the merchant's area only. The sidebar sits at the inline-start
+  edge, which the RTL direction resolves to the right edge of the page, and
+  carries the platform's navigation item list, the theme switch, and the
+  sidebar-collapse control. The header carries only the platform's logo/home
+  control at its inline-start edge and the account control at its inline-end
+  edge; it carries no page-navigation link. The logo is delivered as a wordmark
+  set in the product's typography: it adds no image asset and no new design
+  value, and the form it takes is recorded in the plan (decided 2026-10-11;
+  revised 2026-10-21, Clarifications).
   The product's icon set does not exist yet — the technology register leaves it
   an open gap owned by this slice — so this slice MUST choose it and record the
   choice once, so every later slice reads it rather than choosing its own; the
@@ -904,8 +928,9 @@ Acceptance Criteria section.
   password recovery — MUST render identically for a signed-in person and for a
   guest: no redirect is introduced and no signed-in-specific surface is shown on
   them, because the pages are public and carry no frame, and offering a sign-out
-  control there would contradict the rule that sign-out has no surface in this
-  slice. The rule governs what each page shows when it is opened: the in-place
+  control there would contradict the rule that sign-out has no rendered surface
+  in this slice — its only control is the account menu's third item, and a bare
+  page carries no menu. The rule governs what each page shows when it is opened: the in-place
   confirmation FR-004, FR-007, and FR-014 require is the outcome of an action
   taken on the page and is not a signed-in-specific surface, so a person who
   opens one of the three pages sees it exactly as a guest does whatever their
@@ -915,7 +940,9 @@ Acceptance Criteria section.
   confirmation re-shown and no redirect (decided 2026-10-11, Clarifications).
 - **FR-022**: The frame's sidebar MUST show in full on a wide screen and narrow
   to an icon-only rail when collapsed; on a narrow screen it MUST become a drawer
-  that the same control opens and closes.
+  that the same control opens and closes. The collapse control sits in the
+  sidebar itself, beside the navigation item list (decided 2026-10-21,
+  Clarifications).
 - **FR-039**: The frame MUST carry the sidebar's navigation item list as part of
   its composition, so the frame is composed once and a later slice composes it
   rather than extending it. The list is fixed here as one item per registered
@@ -935,26 +962,42 @@ Acceptance Criteria section.
   item whose destination page ships in a later slice points at the route fixed
   here and that slice ships its page at that route rather than choosing one of
   its own (decided 2026-10-11, Clarifications); this slice MUST verify the item
-  list structurally, alongside
-  the sidebar's logo header and the sidebar collapse control, because no page
-  here renders the frame (decided 2026-10-11, Clarifications).
-- **FR-023**: The frame's header MUST carry the account control, the
-  notifications control, the theme switch, and the sidebar collapse control for a
-  signed-in merchant, and MUST show a sign-in action instead for a guest — the
-  sign-in action replacing the account control and the notifications control
-  only, while the theme switch and the sidebar collapse control remain, because
-  the appearance and the sidebar belong to the frame rather than to an account
-  (decided 2026-10-11, Clarifications). The constitution's Product Fact
-  Clarifications bullet that stated a guest MUST see a login action instead of
-  the header's controls, and its mirror in `Core-Project.txt`, were amended by
-  ADR-094 on 2026-10-20 to state this rule, so no binding source contradicts the
-  guest's header any longer (decided 2026-10-11; amended 2026-10-20). This
-  slice delivers the controls as part of the frame and verifies them
-  structurally; the data and the behaviour behind the account control and the
-  notifications control belong to the slice that owns their destination. The
-  sign-in action MUST point at the sign-in page at the route the frame's
-  decision record fixes (FR-024), so the frame carries no link without a
-  definite target (decided 2026-10-11, Clarifications).
+  list structurally, alongside the sidebar's theme switch and its collapse
+  control, because no page here renders the frame; the logo is verified in the
+  header, where FR-020 places it (decided 2026-10-11; revised 2026-10-21,
+  Clarifications).
+- **FR-023**: The frame's header MUST carry only the platform's logo/home
+  control and the account control for a signed-in merchant, and MUST carry no
+  page-navigation link, no notifications control, no theme switch, and no
+  sidebar-collapse control. The account control MUST open a menu carrying
+  «حسابي»، «إعدادات»، and «تسجيل الخروج»; the sign-out item MUST ask for a
+  yes-or-no confirmation before the existing sign-out behaviour runs (decided
+  2026-10-21, Clarifications; ADR-099). For a guest the header MUST show a
+  sign-in action in place of the account control only; the guest has no account
+  menu, and the theme switch and the sidebar-collapse control remain available
+  because they sit in the sidebar, not the header. The constitution's Product
+  Fact Clarifications bullet and its mirror in `Core-Project.txt` state this
+  rule as amended by ADR-099 on 2026-10-21, so no binding source contradicts
+  the header. This slice delivers the header's controls and the menu as part of
+  the frame and verifies them structurally; the data behind the menu's
+  destinations belongs to the slice that owns each destination, while the
+  menu's own open and confirm behaviour is exercised at runtime by the slice
+  that ships the first page carrying the frame. The sign-in action MUST point
+  at the sign-in page at the route the frame's decision record fixes (FR-024),
+  so the frame carries no link without a definite target (decided 2026-10-11;
+  revised 2026-10-21, Clarifications).
+- **FR-047**: The account control MUST open a menu carrying exactly three
+  items — «حسابي»، «إعدادات»، and «تسجيل الخروج» — and MUST close without action
+  when the person dismisses it. «حسابي» MUST point at the Profile page;
+  «إعدادات» MUST point at the Profile page's settings section; «تسجيل الخروج»
+  MUST ask for a yes-or-no confirmation and MUST end the session only when the
+  person confirms, leaving it untouched when they cancel. The menu is part of
+  the frame's composition and is verified structurally in this slice, because
+  no page here renders the frame; its runtime behaviour is verified by the
+  slice that ships the first page carrying the frame, and the data behind
+  «حسابي» and «إعدادات» belongs to the Profile slice (R7). The menu MUST be
+  reachable by keyboard, and each item MUST carry an accessible name and a role
+  (decided 2026-10-21, Clarifications; ADR-099).
 - **FR-024**: The frame MUST carry the product's means of reaching the static
   pages (Contact, Privacy Policy, Terms of Use, FAQ). The surface that carries
   them is a footer band inside the frame, below the page's content, shown on
@@ -964,18 +1007,23 @@ Acceptance Criteria section.
   surface that carries them, builds it inside the frame, and records the choice
   as a decision record; that decision record also fixes the route of every
   destination the frame links to — the eight sidebar destinations, the four
-  static-page routes, and the destination of the header's guest sign-in action —
-  and the routes of the three bare pages this slice ships (sign-up, sign-in, and
-  password recovery), so every link this slice builds has a definite target and
-  the slice that ships the static pages ships them at the four routes fixed here
-  rather than choosing routes of its own (decided 2026-10-11, Clarifications).
+  static-page routes, the destination of the header's guest sign-in action, the
+  Home destination of the header's logo/home control (already one of the eight),
+  and the account menu's destinations, with «حسابي» pointing at the Profile
+  route and «إعدادات» at the Profile page's settings section (no route is added
+  for «تسجيل الخروج») — and the routes of the three bare pages this slice ships
+  (sign-up, sign-in, and password recovery), so every link this slice builds has
+  a definite target and the slice that ships the static pages ships them at the
+  four routes fixed here rather than choosing routes of its own (decided
+  2026-10-11; revised 2026-10-21, Clarifications).
 - **FR-025**: The frame MUST honour two appearances — dark and light — with a
   control that switches between them, and the chosen appearance MUST hold as a
   person moves between pages. The default appearance on a first visit is not
   fixed by this specification. The chosen appearance MUST apply to
   every page, including the bare pages that carry no frame, and MUST be applied
   before the page is painted so the other appearance never flashes; the switch
-  itself remains a frame control and is not offered on a bare page. The choice
+  itself remains a frame control, sits in the sidebar, and is not offered on a
+  bare page. The choice
   MUST be remembered in the browser the person is using (per device) and MUST
   NOT be stored on the account, so no entity gains an appearance field.
 - **FR-026**: Every page MUST be presented in Arabic and right-to-left, with
@@ -1260,11 +1308,13 @@ Acceptance Criteria section.
   controls the constitution
   requires of the first browser-facing feature (request-forgery protection,
   output encoding, and security headers, FR-044 … FR-046) are exercised here. The frame's
-  composition is also asserted structurally here — its four header controls, the
-  sidebar's navigation item list (each item naming a registered destination, and
-  the list shown identically to a guest and to a signed-in merchant),
-  the logo in the sidebar header, and the sidebar collapse control — because no
-  page in this slice renders the frame (decided 2026-10-11, Clarifications). The
+  composition is also asserted structurally here — the header's logo/home and
+  account controls and the account menu (its three items and the sign-out
+  confirmation), the sidebar's navigation item list (each item naming a
+  registered destination, and the list shown identically to a guest and to a
+  signed-in merchant), the theme switch, and the sidebar collapse control —
+  because no page in this slice renders the frame (decided 2026-10-11; revised
+  2026-10-21, Clarifications). The
   frame's accessibility is asserted at the same structural level — an accessible
   name, a role, and keyboard reachability for each of its controls — while its
 runtime scan and keyboard-only pass belong to the slice that ships the first
@@ -1589,37 +1639,43 @@ code dispatch results, because the server-side uniqueness rule remains the
 
 22. **AC-022**: **Given** the shared frame as delivered, **When** it is applied
     to a page on the public site or in the merchant's area, **Then** the frame —
-    header, sidebar with the platform's logo in its header, theme switch, the
-    product's icon set, and the product's typography — is present; in this slice
-    the scoping is verified structurally, because no public or merchant content
-    page ships until a later slice; and the icon set itself is chosen and
-    recorded in this slice, because the register fixes no set yet *(FR-020)*;
-    **And given** the frame as delivered, **When** its controls are inspected,
-    **Then** each of them — the account, notifications, theme, and
-    sidebar-collapse controls, and the footer band's links — carries an
-    accessible name, a role, and keyboard reachability, asserted structurally
-    here, while the runtime scan and keyboard pass wait for the slice that ships
-    the first page carrying the frame *(SC-006)*
+    a header carrying the logo/home control at its inline-start edge and the
+    account control at its inline-end edge, a sidebar at the inline-start edge
+    carrying the navigation item list, the theme switch, and the collapse
+    control, the product's icon set, and the product's typography — is present;
+    in this slice the scoping is verified structurally, because no public or
+    merchant content page ships until a later slice; and the icon set itself is
+    chosen and recorded in this slice, because the register fixes no set yet
+    *(FR-020)*; **And given** the frame as delivered, **When** its controls are
+    inspected, **Then** each of them — the logo/home, account, the account
+    menu's three items, the theme switch, the sidebar-collapse control, and the
+    footer band's links — carries an accessible name, a role, and keyboard
+    reachability, asserted structurally here, while the runtime scan and
+    keyboard pass wait for the slice that ships the first page carrying the
+    frame *(SC-006)*
 23. **AC-023**: **Given** any of the pages this slice ships — sign-up, sign-in,
     and password-recovery — **When** it renders, **Then** the frame is absent,
     with no header and no sidebar, while the chosen appearance still applies
     (AC-027); the error page and the four static pages stay bound by the same
     rule but are verified by the slice that ships them *(FR-021)*
-24. **AC-024**: **Given** a wide screen, **When** the sidebar collapse control is
-    used, **Then** the sidebar narrows to an icon-only rail and can be restored;
-    **And given** a narrow screen, **When** the same control is used, **Then**
-    the sidebar opens and closes as a drawer; in this slice the control is
-    verified as part of the frame's composition, and the behaviour itself is
-    verified by the slice that ships the first page carrying the frame, because
-    no page here renders it *(FR-022)*
+24. **AC-024**: **Given** a wide screen, **When** the sidebar collapse control —
+    carried in the sidebar — is used, **Then** the sidebar narrows to an
+    icon-only rail and can be restored; **And given** a narrow screen, **When**
+    the same control is used, **Then** the sidebar opens and closes as a drawer;
+    in this slice the control is verified as part of the frame's composition,
+    and the behaviour itself is verified by the slice that ships the first page
+    carrying the frame, because no page here renders it *(FR-022)*
 25. **AC-025**: **Given** the frame as delivered, **When** its header is
-    inspected, **Then** it carries the account control, the notifications
-    control, the theme switch, and the sidebar collapse control for a signed-in
-    merchant, and for a guest it carries the sign-in action in place of the
-    account and notifications controls while the theme switch and the sidebar
-    collapse control remain; the controls are
-    verified structurally, and the data behind the account and notifications
-    controls arrives with the slice that owns each destination *(FR-023)*
+    inspected, **Then** it carries the logo/home control and the account control
+    for a signed-in merchant, and no page-navigation link, notifications
+    control, theme switch, or sidebar-collapse control; the account control
+    opens a menu carrying «حسابي»، «إعدادات»، and «تسجيل الخروج»، with the
+    sign-out item asking for a yes-or-no confirmation; for a guest the header
+    carries the sign-in action in place of the account control only, with no
+    account menu, and the theme switch and the collapse control are found in the
+    sidebar; the controls are verified structurally, and the data behind the
+    menu's destinations arrives with the slice that owns each destination
+    *(FR-023, FR-047)*
 26. **AC-026**: **Given** the frame as delivered, **When** a person needs the
     static pages, **Then** the frame gives them a way to reach Contact, Privacy
     Policy, Terms of Use, and FAQ, verified structurally, and the surface that
@@ -1631,8 +1687,9 @@ code dispatch results, because the server-side uniqueness rule remains the
     of the header's guest sign-in action and the routes of the three bare pages
     this slice ships, so no link this slice builds is left without a target
     *(FR-024)*
-27. **AC-027**: **Given** the frame is present, **When** the theme switch is
-    used, **Then** the interface moves between dark and light, the
+27. **AC-027**: **Given** the frame is present, **When** the theme switch — a
+    sidebar control — is used, **Then** the interface moves between dark and
+    light, the
     chosen appearance holds as the person moves between pages — including to a
     bare page, where it is applied before the page is painted and no switch is
     offered — and it is remembered for that browser without being stored on the
@@ -1655,10 +1712,10 @@ code dispatch results, because the server-side uniqueness rule remains the
     naming a registered destination and pointing at the route this slice's
     decision record fixes, which the slice that ships that page adopts, and the
     same list is shown to a guest and to a signed-in merchant, with no item
-    added, removed, or disabled by role — alongside the platform's logo in the
-    sidebar
-    header and the sidebar collapse control, and the item list is verified
-    structurally in this slice *(FR-039)*
+    added, removed, or disabled by role — alongside the theme switch and the
+    sidebar collapse control, and the item list is verified structurally in this
+    slice; the logo is verified in the header, where FR-020 places it
+    *(FR-039)*
 31. **AC-044**: **Given** a signed-in person, **When** they open one of the three
     bare pages this slice ships — sign-up, sign-in, or password recovery —
     **Then** the page renders exactly as it does for a guest, with no redirect
@@ -1789,6 +1846,15 @@ code dispatch results, because the server-side uniqueness rule remains the
      transport-security declaration, a declaration that the browser MUST NOT guess
      a response's content type, and a frame-ancestors restriction — asserted by an
      automated test *(FR-046)*
+40. **AC-051**: **Given** the frame as delivered, **When** the account control is
+     activated, **Then** a menu carrying exactly «حسابي»، «إعدادات»، and
+     «تسجيل الخروج» opens, each item carries an accessible name and a role, and
+     the menu is keyboard-reachable; **And given** the «تسجيل الخروج» item is
+     activated, **Then** a yes-or-no confirmation is shown, cancelling it leaves
+     the session untouched, and confirming it ends the session; the composition
+     and the confirmation markup are verified structurally in this slice, while
+     the runtime pass waits for the slice that ships the first page carrying the
+     frame *(FR-047)*
 
 ## Success Criteria *(mandatory)*
 
@@ -1884,39 +1950,43 @@ code dispatch results, because the server-side uniqueness rule remains the
   acceptance verifies the frame's composition and its scoping structurally
   rather than through a shipped content page.
 - **The frame is delivered whole, and its controls are verified structurally
-  (decided 2026-10-10, revised 2026-10-11, Clarifications).** The frame's four
-  header controls, the sidebar's navigation item list, and its means of reaching
-  the four static pages are built in
-  this slice and verified as composition and as scoping, because no page here
-  renders the frame. The navigation item list is fixed here — one item per
-  registered destination a guest or a signed-in merchant can reach (Home, Parts,
-  Catalog, My Files, Cart, Notifications, Messages, and Profile), with no item
-  for the bare pages or the four static pages, and shown identically to a guest
-  and to a signed-in merchant — no item added, removed, or disabled by role —
-  and each item points at the
-  route this slice's decision record fixes, which the slice that ships that page
-  adopts, so the frame is composed once rather than extended by a later slice
-  (decided 2026-10-11, Clarifications). The data and the behaviour behind the account control and
-  the notifications control belong to the slices that own their destinations,
-  while the surface that carries the static-page links is chosen and built in
-  this slice and recorded as a decision record, and that record fixes the route
-  of every destination the frame links to — the eight sidebar destinations, the
-  four static-page routes, and the destination of the header's guest sign-in
-  action — together with the routes of the three bare pages this slice ships, so
-  a later slice ships its page at the route
-  fixed here rather than choosing one of its own (decided 2026-10-11,
-  Clarifications). The sidebar's two-width behaviour and the header controls'
+  (decided 2026-10-10, revised 2026-10-11 and 2026-10-21, Clarifications).** The
+  header's logo/home and account controls and the account menu, the sidebar's
+  navigation item list with its theme switch and collapse control, and the
+  frame's means of reaching the four static pages are built in this slice and
+  verified as composition and as scoping, because no page here renders the
+  frame. The navigation item list is fixed here — one item per registered
+  destination a guest or a signed-in merchant can reach (Home, Parts, Catalog,
+  My Files, Cart, Notifications, Messages, and Profile), with no item for the
+  bare pages or the four static pages, and shown identically to a guest and to a
+  signed-in merchant — no item added, removed, or disabled by role — and each
+  item points at the route this slice's decision record fixes, which the slice
+  that ships that page adopts, so the frame is composed once rather than
+  extended by a later slice (decided 2026-10-11, Clarifications). The data
+  behind the account menu's destinations and the notifications item belongs to
+  the slices that own them, while the menu's own open and confirm behaviour is
+  exercised by the slice that ships the first page carrying the frame; the
+  surface that carries the static-page links is chosen and built in this slice
+  and recorded as a decision record, and that record fixes the route of every
+  destination the frame links to — the eight sidebar destinations, the four
+  static-page routes, the destination of the header's guest sign-in action, the
+  Home destination of the logo/home control, and the account menu's
+  destinations (the Profile route and its settings section; no route for
+  sign-out) — together with the routes of the three bare pages this slice
+  ships, so a later slice ships its page at the route fixed here rather than
+  choosing one of its own (decided 2026-10-11; revised 2026-10-21,
+  Clarifications). The sidebar's two-width behaviour and the header's and menu's
   behaviour are not exercised at runtime here — no page renders the frame — and
   are verified by the slice that ships the first page carrying the frame, while
   this slice verifies the frame's composition and the presence of its controls
-  (decided 2026-10-11, Clarifications).
+  (decided 2026-10-11; revised 2026-10-21, Clarifications).
 - **The platform's logo is a wordmark, and it belongs to the frame (decided
-  2026-10-11, Clarifications).** The frame's sidebar header carries the
-  platform's name set in the product's typography. The slice adds no image asset
-  and no new design value for it, and the form the logo takes is recorded in the
-  plan; because the logo is part of the frame's composition, FR-020 and AC-022
-  list it alongside the header, the sidebar, the theme switch, the icon set, and
-  the typography.
+  2026-10-11; revised 2026-10-21, Clarifications).** The header carries the
+  platform's name at its inline-start edge, set in the product's typography. The
+  slice adds no image asset and no new design value for it, and the form the
+  logo takes is recorded in the plan; because the logo is part of the frame's
+  composition, FR-020, FR-023, and AC-022 list it alongside the account control,
+  the sidebar, the theme switch, the icon set, and the typography.
 - **The static and error pages arrive later.** Contact, Privacy Policy, Terms of
   Use, FAQ, and the error page are delivered by a later slice. This slice binds
   the frame's absence from them and provides the frame's means of reaching the
@@ -2022,7 +2092,7 @@ code dispatch results, because the server-side uniqueness rule remains the
   signed-in-specific surface appears on the sign-up, sign-in, or
   password-recovery page, because those pages are public and carry no frame;
   offering a sign-out control there would contradict the rule above that
-  sign-out has no surface in this slice, and this slice ships no destination page
+  sign-out has no rendered surface in this slice, and this slice ships no destination page
   for a redirect to reach. The in-place confirmation each of those pages renders
   after a successful action is the outcome of that action rather than a
   signed-in-specific surface, and once the action is complete a reload or a fresh

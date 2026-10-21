@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-10-10
-**Refreshed**: 2026-10-21 — after ADR-097 and ADR-098
+**Refreshed**: 2026-10-21 — after ADR-097, ADR-098, and ADR-099
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -41,8 +41,8 @@
   slice while this slice binds the frame's absence from them and provides the
   reachability surface, and that the base project's technical composition is a
   plan matter rather than a specification matter.
-- FR-001 … FR-046 (46 requirements) are each covered by at least one AC;
-  AC-001 … AC-050 (50 criteria) are grouped under their user stories and each
+- FR-001 … FR-047 (47 requirements) are each covered by at least one AC;
+  AC-001 … AC-051 (51 criteria) are grouped under their user stories and each
   cites its functional requirement. SC-001 … SC-009 are numeric and
   technology-agnostic.
 - The spec names only entities registered in `docs/domain-model.md` (`User`,
@@ -60,3 +60,10 @@
   3.3.0; ADR-098 recorded IconPark (vendored), IBM Plex Sans Arabic, the light
   default, and the marine/sand palette. The spec remains product-level; the R1
   plan records the technical choices and fills CMV row 11.
+- Refreshed 2026-10-21 (second time): ADR-099 fixed the shared shell's header
+  and account menu — the header carries only the logo/home and account controls,
+  the account control opens the «حسابي / إعدادات / تسجيل الخروج» menu with a
+  yes-or-no sign-out confirmation, the theme switch and the sidebar-collapse
+  control sit in the sidebar, and «إعدادات» is a section inside the Profile page.
+  FR-047 and AC-051 were added; the frame's checks now assert the new
+  composition.

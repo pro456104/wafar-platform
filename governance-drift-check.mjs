@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * governance-drift-check.mjs — Wafar governance drift check
- * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098)
+ * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099)
  * -------------------------------------------------------------------
  * Read-only. Dependency-free. Runs on the pinned Node runtime.
  *
@@ -558,7 +558,7 @@ notes.push(
 );
 
 /* ---- report --------------------------------------------------------------- */
-console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098)');
+console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099)');
 console.log('=====================================');
 for (const n of notes) console.log(`  ok   ${n}`);
 if (failures.length === 0) {
