@@ -135,6 +135,7 @@ from the index rather than edited in its own words.
 | [ADR-097](#adr-097--the-wafar-ui-layer-and-the-nuxt-4-app-layout) | The Wafar UI layer and the Nuxt 4 app layout | 2026-10-21 | 3.3.0 |
 | [ADR-098](#adr-098--the-wafar-visual-foundation-iconpark-ibm-plex-sans-arabic-light-default-and-the-marine-palette) | The Wafar visual foundation: IconPark, IBM Plex Sans Arabic, light default, and the marine palette | 2026-10-21 | 3.3.0 |
 | [ADR-099](#adr-099--shared-shell-header-and-the-account-menu) | Shared-shell header and the account menu | 2026-10-21 | 3.4.0 |
+| [ADR-100](#adr-100--the-account-menus-destinations-and-the-frames-boundaries) | The account menu's destinations and the frame's boundaries | 2026-10-21 | 3.5.0 |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -7332,3 +7333,96 @@ AC-025, AC-027, AC-042, AC-051), the R1 checklist, and the ROADMAP's shell and
 notification rows move in the same change. ADR-016, ADR-017, and ADR-094 carry
 annotations; their decisions are not rewritten. Review date: 2026-11-20. This
 entry is the durable record.
+
+**Annotation (2026-10-21, `/speckit.clarify`).** The clarification session
+recorded the two landing points: «حسابي» opens the Profile page at its top, where
+the account's identity and status are shown, and «إعدادات» opens that page's
+settings section, where the account details are edited and the password is
+changed; the two items therefore differ in the section they reach, and they
+share the one Profile route the frame's decision record fixes. Decision 5 is
+read with that distinction, and ADR-100 records the clarification session's
+answers. No other provision of this record changes.
+
+---
+
+## ADR-100 — The account menu's destinations and the frame's boundaries
+
+**Status**: Accepted — 2026-10-21
+**Owning directory**: `.specify/memory/`, `Core-Project.txt`, `docs/`, `ROADMAP.md`, `AGENTS.md`, `README.md`, `Project-Technologies.txt`, `specs/001-identity-foundation/`, `governance-drift-check.mjs`, `.githooks/`
+**Owning feature**: none — product clarification ratified by the repository owner; R1 binds the rules, and R4, R7, and R13 deliver them.
+
+**Context.** ADR-099 fixed the shared shell's header and the account menu, and
+left five points the R1 specification could not answer by itself: what the two
+account items open, where the action that ends every session of an account at
+once is offered, what a guest sees when they press a sidebar item that names a
+merchant-area destination, what a merchant sees when their session ends or their
+account is blocked, and what the administrator application's own header carries.
+A clarification session on 2026-10-21 answered all five. Two of the answers
+name a fact the register did not carry: the Profile page's content, and the
+administrator application's header.
+
+**Decision.**
+
+1. «حسابي» opens the Profile page at its top, where the account's identity and
+   status are shown. «إعدادات» opens the settings section of that same page,
+   where the account details are edited, the password is changed, and the
+   action that ends every session of the account at once is offered. Both items
+   share the one Profile route the frame's decision record fixes, and the
+   settings section is identified by an anchor. No page and no entity is added.
+2. The Profile page's content in the Product Scope now carries the action that
+   ends every session at once, and the `Core-Project.txt` mirror carries it
+   beside the account details and the password change. The constitution moves to
+   **3.5.0** (MINOR): a page's content changed, so this is not a PATCH.
+3. The account menu keeps its three items. The action that ends every session
+   is offered in the Profile page's settings section, delivered by R7.
+4. A guest who activates a sidebar item that names a merchant-area destination —
+   My Files, Cart, Notifications, Messages, or Profile — is taken to the
+   sign-in page, because the register gives a guest no cart, no upload, no
+   message, and no merchant area. The item stays present and enabled, because
+   the list is not varied by role. The three items that name a public
+   destination — Home, Parts, and Catalog — open their own pages. No page, route,
+   or stored state is added; whether the merchant returns to the wanted item
+   after signing in belongs to the slice that ships the merchant area's pages.
+5. A request refused because the session ended or the account was blocked shows
+   an explicit state inside the frame, stating that the session has ended and
+   offering the way to sign in again, and saying plainly that the account is
+   blocked when that is the reason. No unrelated error is shown, and the frame
+   stops sending requests for a session that no longer exists. The state is
+   shown only to a person who held a valid session, so it is outside the
+   enumeration comparison SC-004 bounds.
+6. The administrator application keeps its own shell, and its header carries the
+   platform's logo at the inline-start edge and an account control whose menu
+   offers «تسجيل الخروج» only, because the administrator application has no
+   Profile page and no merchant settings page. R13 builds and verifies it.
+
+**What deliberately did not change.** No page was added, no entity was added, no
+role changed, no usage limit changed, no security rule changed, and the
+technology register is untouched. ADR-099's composition stands, including the
+three account-menu items, the sidebar's eight items, and the bare scope. No
+application code, package, CSS, or font file was created by this record.
+
+**Alternatives considered.**
+
+- *A standalone merchant Settings page.* Rejected: it would add a page and force
+  a Product Register amendment; the Profile page's settings section carries the
+  same actions.
+- *A fourth account-menu item for signing out everywhere.* Rejected: the action
+  belongs with the other account actions, and the menu keeps three items.
+- *A settings view for appearance and notification preferences.* Rejected: no
+  such preference is registered, and inventing one would extend the product.
+- *Showing a guest a merchant-only section in guest form.* Rejected: the
+  register gives a guest no cart, no upload, no message, and no merchant area.
+- *Redirecting a guest to sign-in and back afterwards.* Deferred to the slice
+  that ships the merchant area's pages, because R1 ships no page a guest could
+  return to.
+- *A generic error page when the session ends.* Rejected: it tells the merchant
+  nothing about what to do next.
+
+**Consequences and migration/backfill.** The constitution moves to **3.5.0**;
+`version.json`, the ADR ranges, `Project-Technologies.txt`'s header, the drift
+check's citation lists, and the R1 specification (FR-047, FR-048, FR-049,
+FR-050, AC-051 … AC-054) move in the same change. The R1 checklist's counts move
+to 50 FR and 54 AC. ADR-099 carries an annotation for the refinement of its
+decision 5. R4 verifies the frame's runtime behaviour, R7 delivers the Profile
+page's settings section, and R13 delivers the administrator application's header.
+Review date: 2026-11-20. This entry is the durable record.

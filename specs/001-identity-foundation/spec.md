@@ -34,7 +34,7 @@
        - `Core-Project.txt` — the product definition: roles and their
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
-       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-099). A
+       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-100). A
          specification that contradicts one is a blocking defect.
        - `docs/domain-model.md` — the entities a Key Entities section may name,
          and the invariants such a specification MUST NOT contradict. A
@@ -170,6 +170,11 @@
 ### Session 2026-10-21
 
 - Q: The operator has fixed the shared shell's composition: what does the header carry, where do the theme switch and the sidebar-collapse control live, and what happens when the account control is used? → A: The header carries only the platform's logo/home control at its inline-start edge and the account control at its inline-end edge, with no page-navigation link, no notifications control, no theme switch, and no sidebar-collapse control; the theme switch and the collapse control sit in the sidebar; the account control opens a menu carrying «حسابي»، «إعدادات»، and «تسجيل الخروج»، and the sign-out item asks for a yes-or-no confirmation. A guest sees the sign-in action in place of the account control only. «إعدادات» is a section inside the Profile page, so no page is added and the Product Register stays at twenty-six pages. The frame's composition and the menu are verified structurally here; the runtime behaviour lands with the first page that carries the frame (R4), and the destinations land with R7. FR-020, FR-022 … FR-025, FR-039, FR-047, AC-022, AC-024, AC-025, AC-027, AC-042, and AC-051 carry the rule; ADR-099 is the decision record.
+- Q: What does the «إعدادات» item show, and how does it differ from «حسابي»? → A: «حسابي» opens the Profile page at its top, where the account's identity and status are shown, and «إعدادات» opens the settings section of that same page, where the account details are edited and the password is changed; the two items share the one Profile route the frame's decision record fixes, the settings section being identified by an anchor, so no page and no entity is added. FR-047 and AC-051 carry the rule.
+- Q: After the account menu settled on three items, where does a merchant trigger the action that ends every session of their account at once? → A: In the settings section of the Profile page, beside the account details and the password change, so the account menu keeps its three items; the action is delivered by the Profile slice (R7), and the Profile page's content in the constitution's Product Scope and its `Core-Project.txt` mirror carry it. FR-047 carries the rule.
+- Q: The sidebar's item list is the same for a guest and a signed-in merchant, so a guest can press an item that names a merchant-area destination — what does the platform show then? → A: The sign-in page: the platform takes the guest there, because the register gives a guest no cart, no upload, no message, and no merchant area; the item itself stays present and enabled, since the list is not varied by role, and the three items that name a public destination — Home, Parts, and Catalog — open their own pages as they do for a merchant. The rule adds no page, no route, and no stored state, and whether the merchant returns to the item they wanted after signing in is a decision of the slice that ships the merchant area's pages. FR-048 and AC-052 carry the rule.
+- Q: What does a merchant see when their session ends or their account is blocked while they are on a page that carries the frame? → A: An explicit state inside the frame, stating that the session has ended and offering the way to sign in again, and saying plainly that the account is blocked when that is the reason, because the person held a valid session and is no longer an unknown caller; no unrelated error is shown, and the frame stops sending requests for a session that no longer exists. The state adds no page, no route, and no entity, and it is outside the enumeration comparison SC-004 bounds. FR-049 and AC-053 carry the rule.
+- Q: What does the administrator application's header carry now that the platform's header design is fixed? → A: The administrator application keeps its own shell, and its header carries the platform's logo at the inline-start edge and an account control whose menu offers «تسجيل الخروج» only, because the administrator application has no Profile page and no merchant settings page, so the merchant menu's destinations do not exist there. This specification binds that composition for R13 and delivers nothing of it. FR-050 and AC-054 carry the rule.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -324,7 +329,7 @@ the first page carrying the frame, and this slice verifies the controls'
 presence in the frame's composition (decided 2026-10-11; revised 2026-10-21,
 Clarifications).
 
-**Acceptance Scenarios**: covered by AC-022 – AC-028 and AC-051 in the Acceptance Criteria section.
+**Acceptance Scenarios**: covered by AC-022 – AC-028, AC-051, AC-052, and AC-053 in the Acceptance Criteria section.
 
 ---
 
@@ -489,6 +494,13 @@ Acceptance Criteria section.
   in place of the account control only, with no account menu, while the theme
   switch and the sidebar collapse control remain available in the sidebar, so a
   guest can still change the appearance and open or close the sidebar (AC-025).
+- A guest presses a sidebar item that needs an account, such as «سلة المشتريات»
+  or «الملف الشخصي»: the sign-in page is shown, and the item itself stays
+  present and enabled because the list is not varied by role (AC-052).
+- A merchant's session ends, or their account is blocked, while they are on a
+  page that carries the frame: an explicit state inside the frame states that
+  the session has ended and offers the way to sign in again, and says plainly
+  that the account is blocked when that is the reason (AC-053).
 - A signed-in merchant opens the account menu and chooses «تسجيل الخروج»: a
   yes-or-no confirmation appears; cancelling it leaves the session untouched,
   and confirming it ends the session (AC-051).
@@ -988,16 +1000,54 @@ Acceptance Criteria section.
   revised 2026-10-21, Clarifications).
 - **FR-047**: The account control MUST open a menu carrying exactly three
   items — «حسابي»، «إعدادات»، and «تسجيل الخروج» — and MUST close without action
-  when the person dismisses it. «حسابي» MUST point at the Profile page;
-  «إعدادات» MUST point at the Profile page's settings section; «تسجيل الخروج»
+  when the person dismisses it. «حسابي» MUST open the Profile page at its top,
+  where the account's identity and status are shown; «إعدادات» MUST open the
+  settings section of that same page, where the account details are edited, the
+  password is changed, and the action that ends every session of the account at
+  once is offered; the two items share the one Profile route the frame's
+  decision record fixes, and the settings section is identified by an anchor, so
+  no page and no entity is added. «تسجيل الخروج»
   MUST ask for a yes-or-no confirmation and MUST end the session only when the
   person confirms, leaving it untouched when they cancel. The menu is part of
   the frame's composition and is verified structurally in this slice, because
   no page here renders the frame; its runtime behaviour is verified by the
   slice that ships the first page carrying the frame, and the data behind
-  «حسابي» and «إعدادات» belongs to the Profile slice (R7). The menu MUST be
+  «حسابي» and «إعدادات» belongs to the Profile slice (R7), which also delivers
+  the settings section's own actions. The menu MUST be
   reachable by keyboard, and each item MUST carry an accessible name and a role
-  (decided 2026-10-21, Clarifications; ADR-099).
+  (decided 2026-10-21, Clarifications; ADR-099, ADR-100).
+- **FR-048**: When a guest activates a sidebar item that names a merchant-area
+  destination — My Files, Cart, Notifications, Messages, or Profile — the
+  platform MUST take the guest to the sign-in page, because the register gives a
+  guest no cart, no upload, no message, and no merchant area; the item itself
+  stays present and enabled, because the frame's item list is not varied by role
+  (FR-039). The three items that name a public destination — Home, Parts, and
+  Catalog — open their own pages for a guest exactly as they do for a merchant.
+  The sign-in page is a bare page and the frame is absent from it, and this rule
+  adds no page, no route, and no stored state; whether the merchant returns to
+  the item they wanted after signing in is a decision of the slice that ships
+  the merchant area's pages. The cart control the Parts table shows follows the
+  same rule (decided 2026-10-21, Clarifications; ADR-100).
+- **FR-049**: When a request issued from a page that carries the frame is refused
+  because the session has ended — by the inactivity timeout, by the absolute
+  maximum lifetime, or by an explicit sign-out elsewhere — or because the
+  account is blocked, the platform MUST show an explicit state inside the frame,
+  stating that the session has ended and offering the way to sign in again; when
+  the account is blocked, that state MUST say so plainly, because the person
+  held a valid session and is no longer an unknown caller. The platform MUST NOT
+  show an unrelated error, and the frame MUST NOT keep sending requests for a
+  session that no longer exists. This state is shown only to a person who held a
+  valid session, so it is outside the enumeration comparison SC-004 bounds, and
+  it introduces no page, no route, and no entity (decided 2026-10-21,
+  Clarifications; ADR-100).
+- **FR-050**: The administrator application keeps its own shell, and its header
+  MUST carry the platform's logo at the inline-start edge and an account control
+  whose menu offers «تسجيل الخروج» only, because the administrator application
+  has no Profile page and no merchant settings page, so the merchant menu's
+  destinations do not exist there. This slice binds that composition for the
+  slice that ships the administrator application (R13) and delivers nothing of it
+  here, exactly as it binds the shared frame without rendering it (decided
+  2026-10-21, Clarifications; ADR-100).
 - **FR-024**: The frame MUST carry the product's means of reaching the static
   pages (Contact, Privacy Policy, Terms of Use, FAQ). The surface that carries
   them is a footer band inside the frame, below the page's content, shown on
@@ -1849,12 +1899,37 @@ code dispatch results, because the server-side uniqueness rule remains the
 40. **AC-051**: **Given** the frame as delivered, **When** the account control is
      activated, **Then** a menu carrying exactly «حسابي»، «إعدادات»، and
      «تسجيل الخروج» opens, each item carries an accessible name and a role, and
-     the menu is keyboard-reachable; **And given** the «تسجيل الخروج» item is
+     the menu is keyboard-reachable; «حسابي» opens the Profile page and
+     «إعدادات» opens that page's settings section, both on the one Profile route
+     the frame's decision record fixes, and no further page is reached;
+     **And given** the «تسجيل الخروج» item is
      activated, **Then** a yes-or-no confirmation is shown, cancelling it leaves
      the session untouched, and confirming it ends the session; the composition
      and the confirmation markup are verified structurally in this slice, while
      the runtime pass waits for the slice that ships the first page carrying the
      frame *(FR-047)*
+
+41. **AC-052**: **Given** a guest on a page that carries the frame, **When** the
+     guest activates a sidebar item that names a merchant-area destination — My
+     Files, Cart, Notifications, Messages, or Profile — **Then** the sign-in page
+     is shown, while the three items that name a public destination — Home,
+     Parts, and Catalog — open their own pages; the item list itself is
+     unchanged, with no item added, removed, or disabled by role; the rule adds
+     no page and no route, and the return to the wanted item after signing in
+     belongs to the slice that ships the merchant area's pages
+     *(FR-048, FR-039)*
+42. **AC-053**: **Given** a signed-in merchant on a page that carries the frame,
+     **When** a request is refused because the session has ended or the account
+     is blocked, **Then** an explicit state inside the frame states that the
+     session has ended and offers the way to sign in again, and says plainly
+     that the account is blocked when that is the reason; no unrelated error is
+     shown, the frame sends no further requests for a session that no longer
+     exists, and the state adds no page and no route *(FR-019, FR-049)*
+43. **AC-054**: **Given** the administrator application, **When** its header is
+     inspected, **Then** it carries the platform's logo at the inline-start edge
+     and an account control whose menu offers «تسجيل الخروج» only; this slice
+     binds that composition and delivers nothing of it, and the slice that
+     ships the administrator application builds and verifies it *(FR-050)*
 
 ## Success Criteria *(mandatory)*
 

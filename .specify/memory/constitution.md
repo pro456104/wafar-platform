@@ -439,7 +439,7 @@ another country is an amendment to this section, not a configuration change
 | Cart | Bookmarked parts, remove action. No price, no quantity, no checkout: the price lives on the part and the cart shows none of it. |
 | Notifications | Full list, mark as read. |
 | Messages | Single conversation thread with the administrator. |
-| Profile | Edit account details, change password. |
+| Profile | Edit account details, change password, end every session of the account at once. |
 
 ### Administrator's Application (Separate Login)
 
@@ -1464,7 +1464,7 @@ however obviously the concept belongs to the entity.
 | `.specify/extensions.yml` | The installed extensions and the hook registry every Spec Kit command reads before and after it runs. | `.specify/`. |
 | `.specify/workflows/speckit/workflow.yml` | The bundled workflow that runs the binding cycle in order, with its human review gates. | `.specify/workflows/speckit/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
-| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099): the two version sources including the amended date, every live ADR range string (in the required files, under `docs/`, in the two Arabic mirrors, in the template overrides, and in the feature specifications), every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the structural counts the governance text states in prose, and the absence of the removed stylesheet and its constitution section. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
+| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100): the two version sources including the amended date, every live ADR range string (in the required files, under `docs/`, in the two Arabic mirrors, in the template overrides, and in the feature specifications), every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the structural counts the governance text states in prose, and the absence of the removed stylesheet and its constitution section. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
 
 ## Artifact Workflow and Traceability
 
@@ -1562,7 +1562,10 @@ the same force as the principles above.
   inline-start edge, and the quick search field lives on the Home page (see
   Product Scope). Pages without the product's shared shell —
   authentication, 404, and static pages — carry no header; the administrator
-  application carries its own shell and header. The four bare-layout static
+  application carries its own shell and header, and that header carries the
+  platform's logo and an account control whose menu offers sign-out only,
+  because the administrator application has no profile page and no merchant
+  settings page. The four bare-layout static
   pages — Contact, Privacy Policy, Terms of Use, and FAQ — are reached the same
   way: by a direct link or by an action on a page that carries one, and none of
   them is a sidebar item. The shell has no footer component today, so the surface
@@ -1735,4 +1738,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 3.4.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-21
+**Version**: 3.5.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-21

@@ -41,8 +41,8 @@
   slice while this slice binds the frame's absence from them and provides the
   reachability surface, and that the base project's technical composition is a
   plan matter rather than a specification matter.
-- FR-001 … FR-047 (47 requirements) are each covered by at least one AC;
-  AC-001 … AC-051 (51 criteria) are grouped under their user stories and each
+- FR-001 … FR-050 (50 requirements) are each covered by at least one AC;
+  AC-001 … AC-054 (54 criteria) are grouped under their user stories and each
   cites its functional requirement. SC-001 … SC-009 are numeric and
   technology-agnostic.
 - The spec names only entities registered in `docs/domain-model.md` (`User`,
@@ -67,3 +67,12 @@
   control sit in the sidebar, and «إعدادات» is a section inside the Profile page.
   FR-047 and AC-051 were added; the frame's checks now assert the new
   composition.
+- Refreshed 2026-10-21 (third time): the `/speckit.clarify` session answered five
+  questions and ADR-100 recorded the answers — the two landing points of the
+  account items, the sign-out-everywhere action in the Profile page's settings
+  section (the constitution moved to 3.5.0), the sign-in redirect a guest gets
+  from a merchant-area sidebar item, the explicit state the frame shows when a
+  session ends or an account is blocked, and the administrator application's own
+  header. FR-048 … FR-050 and AC-052 … AC-054 were added; no
+  `[NEEDS CLARIFICATION]` marker was raised, and every requirement is covered by
+  at least one criterion.

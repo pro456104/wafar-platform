@@ -1,5 +1,5 @@
 #!/bin/sh
-# Wafar governance drift check - see docs/DECISIONS.md -> ADR-071, ADR-086, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099.
+# Wafar governance drift check - see docs/DECISIONS.md -> ADR-071, ADR-086, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100.
 #
 # Enable once per clone:
 #   git config core.hooksPath .githooks
