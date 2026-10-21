@@ -44,8 +44,8 @@ shapes. See Deferred areas.
 **Reading protocol.** This document is large, and no feature command needs all
 of it. It MUST NOT be read end to end for a feature command. Read the sections
 the command in hand names, and only those, mirroring `AGENTS.md` §3:
-`/speckit.specify` reads Product Scope, Product Register, Usage Limits, and
-Glossary; `/speckit.plan` reads Technology Standards and Product Register;
+`/speckit.specify` reads Product Scope, Product Register, the Usage Limits
+table in Performance Budgets and Verification, and Glossary; `/speckit.plan` reads Technology Standards and Product Register;
 `/speckit.tasks` reads Product Register, Single-Reference
 Sufficiency, and Artifact Workflow and Traceability; `/speckit.checklist` reads
 Product Scope, Product Register, and the binding sections its checklist names;
@@ -617,8 +617,8 @@ bounds the answer; that is not an assertion of the answer.
 |---|---|---|
 | `expires_at` is the retention deadline or the supplier's printed expiry date, and the 90-day deadline's trigger point is undecided | Usage Limits and Product Features #16 (the 90-day period) against the Glossary (the supplier's printed expiry date); no source names the point the 90 days are counted from | R15 |
 | Notification retention is undetermined | The product statement defers it ("to be determined later") | R9 |
-| A message's sender is either a merchant or an administrator, and the register names one sender | Product Register (`Message` carries a single sender); Authorization and Access Control (the administrator is a separate principal with a separate login) | R10 |
-| `Conversation` carries an administrator reference, yet every administrator account sees the same single thread | Product Register (`Conversation` carries an administrator); `Core-Project.txt` (one administrator account type, all administrators see the same conversations) | R10 |
+| A message's sender is either a merchant or an administrator, and no source fixes how that sender is represented | Authorization and Access Control (the administrator is a separate principal with a separate login); no register row states a sender field, because a one-line meaning registers a field only where the field's existence is itself a product decision | R10 |
+| The administrator's side of a `Conversation` is unrepresented, yet every administrator account sees the same single thread | `Core-Project.txt` (one administrator account type, all administrators see the same conversations); no source fixes whether that side is a reference, a role, or absent | R10 |
 | How a printed price that carries more than one separator is read (for example `1.250.000`), and how a file that separates thousands rather than decimals is read | File Processing Rules (price denomination); the price examples in `Core-Project.txt`; the source files themselves | R3 |
 
 **Resolved conflict (2026-10-03).** The sidebar conflict is resolved: the
@@ -1468,7 +1468,7 @@ however obviously the concept belongs to the entity.
 | `.specify/extensions.yml` | The installed extensions and the hook registry every Spec Kit command reads before and after it runs. | `.specify/`. |
 | `.specify/workflows/speckit/workflow.yml` | The bundled workflow that runs the binding cycle in order, with its human review gates. | `.specify/workflows/speckit/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
-| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105): the two version sources including the amended date, every live ADR range string (in the required files, under `docs/`, in the two Arabic mirrors, in the template overrides, and in the feature specifications), every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header and its contiguity, every ADR enumeration in the governance set against the canonical one the check's own header carries, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the structural counts the governance text states in prose, the Constitution Mandated Values count the plan template states, every entity's owning module in `docs/domain-model.md` against the Data entities table above, the ADR index's constitution-version column against the footer's version, and the absence of the removed stylesheet and its constitution section. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
+| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106): the two version sources including the amended date, every live ADR range string (in the required files, under `docs/`, in the two Arabic mirrors, in the template overrides, and in the feature specifications), every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header and its contiguity, every ADR enumeration in the governance set against the canonical one the check's own header carries, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the structural counts the governance text states in prose, the Constitution Mandated Values count the plan template states, every entity's owning module in `docs/domain-model.md` against the Data entities table above, the ADR index's constitution-version column against the footer's version, and the absence of the removed stylesheet and its constitution section. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
 
 ## Artifact Workflow and Traceability
 
@@ -1749,4 +1749,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 3.7.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-21
+**Version**: 3.7.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-22

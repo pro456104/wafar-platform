@@ -34,7 +34,7 @@
        - `Core-Project.txt` — the product definition: roles and their
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
-       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-105). A
+       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-106). A
          specification that contradicts one is a blocking defect.
        - `docs/domain-model.md` — the entities a Key Entities section may name,
          and the invariants such a specification MUST NOT contradict. A
@@ -194,6 +194,12 @@
 - Q: Four acceptance criteria — the account menu, the guest's redirection, the ended-session state, and the administrator application's header — sat under the user story that resists automated abuse, because three later clarification sessions appended them to the end of the specification's last section. Where do they belong? → A: Under the stories they serve: the first three are frame criteria and belong to US5, and the administrator application's header belongs to US6, the only administrator-facing story in this slice. The criteria are moved to their stories, the ordinals are renumbered in document order, and the seven "Acceptance Scenarios" lines are rewritten from the actual grouping. No identifier is renumbered, reused, or withdrawn. (Revised 2026-10-21.)
 - Q: The requirements are grouped by subject rather than by identifier, and a reader might mistake the order for a numbering. What says so? → A: A short note at the head of the Functional Requirements section: the identifier is what a task, a criterion, or a reviewer cites, it is stable for the life of the feature, and a requirement a later session revises keeps its identifier and its position. (Revised 2026-10-21.)
 - Q: FR-032 said a session "is held by the browser rather than by the page", which reads loosely against the constitution's rule that a session is never persisted in browser storage in recoverable form. What does it say now? → A: The browser retains the reference that proves the session, while the session itself stays on the server and is never recoverable from browser storage. The rule the specification states is unchanged; only its wording moves onto the constitution's own terms. FR-032, the `Session` entity, and the matching clarification carry it. (Revised 2026-10-21.)
+
+### Session 2026-10-22
+
+- Q: FR-032 ends a session when "the session timeout elapsing with no activity", but the specification never says what counts as activity — so does a request the browser sends on its own, such as a background request the frame issues, keep the session alive? → A: Only what the merchant themselves do counts as activity for the session timeout — opening a page, submitting a form, or any other action the merchant starts — and that action MUST reset the inactivity clock; a request the browser sends on its own MUST NOT count as activity, so a background request cannot keep a session alive indefinitely and the timeout keeps its meaning. FR-032, AC-015, the `Session` entity, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
+- Q: FR-035 requires a password policy with a minimum length and a rejection of common or breached passwords, but the specification never says whether the person is told what the policy requires, and whether the reasons a password is refused are told apart from one another? → A: Both: the form that takes a password states the policy's requirements before the password is typed, so the person can meet the policy without trial and error, and each reason the policy refuses a password carries its own message — shorter than the minimum, and common or breached — so the person knows what to correct. None of these messages reveals whether an account exists: the policy is applied to every password submitted, and the same message is given for the same reason whether or not the number has an account. FR-035, AC-037, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
+- Q: FR-005 presents the city as "a searchable choice from one fixed list", but the specification never says what a person may type into that search, nor what names the list's entries carry — and the list is fixed once in this slice, so every later slice reads it. → A: Each entry carries one Arabic name and no Latin alternate name, and the search matches those Arabic names while ignoring diacritics, so a person who types a city without its diacritics still finds it, and the list holds no second naming source to keep in step with it. FR-005, AC-005, the city-list Assumption, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -666,7 +672,12 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   Clarifications).
 - **FR-005**: System MUST present the city as a searchable choice from one fixed
   list covering every Libyan governorate, city, and area, and MUST accept only a
-  value drawn from that list.
+  value drawn from that list. The list is a single list whose entries are the
+  governorates, the cities, and the areas themselves; each entry MUST carry one
+  Arabic name and no Latin alternate name, and the search MUST match those
+  Arabic names while ignoring diacritics, so a person who types a city without
+  its diacritics still finds it and no second naming source has to be kept in
+  step with the list (decided 2026-10-22, Clarifications).
 - **FR-006**: System MUST NOT reveal, in any sign-up response, whether the
   submitted mobile number already has an account. The sign-up flow MUST pass
   through the code step in the same way, and MUST send the code to the number,
@@ -709,6 +720,14 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   when the form is submitted, before any one-time code is sent, and the refusal
   MUST be the same whether or not the number already has an account, so it adds
   no signal to FR-006's uniformity (decided 2026-10-11, Clarifications). The
+  form that takes a password MUST state the policy's requirements before the
+  password is typed, so that a person can meet the policy without trial and
+  error, and each reason the policy refuses a password MUST carry its own
+  message — a password shorter than the minimum, and a password that is common
+  or breached — so that the person knows what to correct. None of these messages
+  reveals whether an account exists: the policy is applied to every password
+  that is submitted, and the same message is given for the same reason whether
+  or not the number has an account (decided 2026-10-22, Clarifications). The
   common-or-breached check MUST be performed against a source the platform
   itself holds: this slice introduces no external service for it, so the check
   is always available, a sign-up or a password change MUST NOT fail for want of
@@ -717,7 +736,8 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   The policy sets no rule that a new password differ from the one it replaces: a
   password MAY be set to the value it already has, and no password history is
   kept, because the register provides no entity for one and this slice
-  introduces no third entity (decided 2026-10-11, Clarifications).
+  introduces no third entity (decided 2026-10-11, Clarifications; revised
+  2026-10-22, Clarifications).
 - **FR-040**: While a request is in flight — the sign-up form's submission, the
   sign-in form's submission, the password-recovery request's submission, and the
   entry of a one-time code at sign-up or in password recovery — the page
@@ -827,7 +847,13 @@ requirements it asserts (decided 2026-10-21, Clarifications).
 - **FR-032**: System MUST end a session on either of two clocks: the session
   timeout elapsing with no activity, and the session reaching its absolute
   maximum lifetime, which ends it however active the merchant is; on either end
-  the merchant MUST sign in again. Both values are stated numerically under
+  the merchant MUST sign in again. Only what the merchant themselves do counts
+  as activity for the session timeout — opening a page, submitting a form, or
+  any other action the merchant starts — and that action MUST reset the
+  inactivity clock; a request the browser sends on its own, such as a background
+  request the frame issues, MUST NOT count as activity, so a background request
+  cannot keep a session alive indefinitely and the timeout keeps its meaning.
+  Both values are stated numerically under
   Constitution Mandated Values. A session survives the browser being closed and
   reopened: the browser retains the reference that proves the session, while the
   session itself stays on the server and is never recoverable from browser
@@ -835,7 +861,8 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   returns before the session's absolute maximum lifetime is still signed in, and
   only the session timeout or the absolute maximum lifetime ends it; closing the
   browser neither shortens nor extends either clock (decided 2026-10-11,
-  Clarifications; revised 2026-10-21, Clarifications).
+  Clarifications; revised 2026-10-21, Clarifications; revised 2026-10-22,
+  Clarifications).
 - **FR-037**: System MUST emit a structured record for each security-relevant
   event this slice produces — a failed sign-in attempt, a successful sign-in,
   the verification that creates an account at sign-up, a lock applied, a
@@ -1368,11 +1395,18 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   than an external service, so the check never depends on a third party's
   availability (decided 2026-10-11, Clarifications), and the rule that a new
   password MAY repeat the one it replaces, because no password history is kept
-  (decided 2026-10-11, Clarifications) — and the rule that a stored password is
+  (decided 2026-10-11, Clarifications), and the rule that the form states the
+  policy's requirements before the password is typed and that each reason the
+  policy refuses a password carries its own message, none of which reveals
+  whether the number has an account (decided 2026-10-22, Clarifications) — and
+  the rule that a stored password is
   never held in a recoverable form and is verified through the form the
   platform stores it in, so that a weakened or unrecognised storage form is
   detected rather than accepted (decided 2026-10-21, Clarifications) — the city-list
-  rule, the consecutive
+  rule — every entry carrying one Arabic name and no Latin alternate name, the
+  search matching the Arabic names while ignoring diacritics, and a value
+  outside the list not being accepted (decided 2026-10-22, Clarifications) — the
+  consecutive
   failed-attempt count and the fifteen-minute lock — including the rule that
   only a failed password verification against an existing, active account
   increments the count, so a rate-limit refusal, a format refusal, the refusal a
@@ -1423,7 +1457,11 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   blocking, on the session timeout, and at the session's absolute maximum
   lifetime. A session outlives the page and the browser that created it, so
   closing the browser ends nothing and resets neither clock (decided 2026-10-11,
-  Clarifications). The security notice FR-043 requires is asserted here too — sent on a
+  Clarifications) — and the rule that only what the merchant themselves do counts
+  as activity for the session timeout, so that an action the merchant starts
+  resets the inactivity clock while a request the browser sends on its own does
+  not, and a background request therefore cannot keep a session alive
+  indefinitely (decided 2026-10-22, Clarifications). The security notice FR-043 requires is asserted here too — sent on a
   password change and on a sign-out of every device, Arabic with Latin numerals
   and no emoji, best-effort so a failed send undoes nothing and blocks nothing,
   and sent on no other event — in particular not when the operator's provisioning
@@ -1513,7 +1551,11 @@ runtime scan and keyboard-only pass belong to the slice that ships the first
   invariants that a session belongs to exactly one account, that it is revoked
   when the account's password changes or the account is blocked, and that it ends
   at its own lifetime — after the session timeout with no activity, or at its
-  absolute maximum lifetime (decided 2026-10-10, Clarifications). An account MAY
+  absolute maximum lifetime (decided 2026-10-10, Clarifications). Only what the
+  merchant themselves do counts as activity for the session timeout — an action
+  the merchant starts resets the inactivity clock, and a request the browser
+  sends on its own does not, so a background request cannot keep a session alive
+  indefinitely (decided 2026-10-22, Clarifications). An account MAY
   hold an unlimited number of concurrent sessions: this feature applies no cap,
   signing in never revokes an existing session, and "sign out of every device"
   is the action an account uses to end them all at once (decided 2026-10-11,
@@ -1579,7 +1621,9 @@ Clarifications).
 5. **AC-005**: **Given** a visitor is choosing a city, **When** they type into
    the city field, **Then** it searches one fixed list of every Libyan
    governorate, city, and area, and a value outside that list is not accepted
-   *(FR-005)*
+   *(FR-005)*; **And given** the visitor types a city's Arabic name without its
+   diacritics, **Then** the search finds that entry, and every entry in the list
+   carries one Arabic name and no Latin alternate name *(FR-005)*
 6. **AC-006**: **Given** a mobile number already has an account, **When** the
    sign-up form is submitted with it, **Then** the form's response, the following
    step, and the sending of the code are indistinguishable from those for a
@@ -1612,7 +1656,11 @@ Clarifications).
    depends on the password alone and never on a third party's availability
    *(FR-035)*; **And given** a new password identical to the one it replaces,
    **Then** it is accepted, because the policy applies no rule against reuse and
-   no password history is kept *(FR-035)*
+   no password history is kept *(FR-035)*; **And given** the form that takes a
+   password, **When** it is shown, **Then** it states the policy's requirements
+   before the password is typed, and each reason the policy refuses a password
+   carries its own message — shorter than the minimum, or common or breached —
+   none of which reveals whether the number has an account *(FR-035)*
 
 9. **AC-041**: **Given** the one-time-code step at sign-up or in password
    recovery, **When** it is reached, **Then** it renders as a step of the same
@@ -1704,7 +1752,12 @@ code dispatch results, because the server-side uniqueness rule remains the
     *(FR-013)*
 19. **AC-015**: **Given** a signed-in merchant has been inactive beyond the
     session timeout, **When** they next act, **Then** the session has ended
-    and they must sign in again *(FR-032)*; **And given** a session reaches its
+    and they must sign in again *(FR-032)*; **And given** the merchant's browser
+    sends a request on its own while the merchant does nothing, **Then** that
+    request does not count as activity, the inactivity clock is not reset by it,
+    and the session still ends when the timeout elapses *(FR-032)*; **And given**
+    the merchant opens a page or submits a form, **Then** that action counts as
+    activity and resets the inactivity clock *(FR-032)*; **And given** a session reaches its
     absolute maximum lifetime while the merchant keeps using it, **Then** it
     ends at that point too, however active they are *(FR-032)*; **And given** the
     merchant closes the browser and reopens it, **Then** the session is still
@@ -2232,7 +2285,10 @@ code dispatch results, because the server-side uniqueness rule remains the
 - **The Libyan city list is fixed here, once.** It is recorded as one reference
   list for accounts and named in a decision record; every later slice reads it
   rather than writing a list of its own, and changing the list is an amendment
-  to that record rather than an edit made inside a feature.
+  to that record rather than an edit made inside a feature. Each entry carries
+  one Arabic name and no Latin alternate name, and the search matches those
+  Arabic names while ignoring diacritics, so the list holds no second naming
+  source to keep in step with it (decided 2026-10-22, Clarifications).
 - **The Libyan mobile-prefix set is fixed here, once.** It is recorded as one
   reference dataset for accounts and named in a decision record alongside the
   city list; the platform decides whether a +218 number is a mobile number from

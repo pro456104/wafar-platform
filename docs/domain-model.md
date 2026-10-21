@@ -462,15 +462,15 @@ entity, a relationship, an invariant, a role, a page, a feature, or a usage
 limit — and changing one requires a constitution amendment to the register
 besides the ADR and this document. Rows 1 and 2 are not of that kind: the
 concepts are already fixed, and only their **representation** is open. The
-register already names one sender on a `Message` and already describes a
-`Conversation` as the single thread between a merchant and the administrator;
-what is undecided is whether that sender is a role, a reference, or a
-discriminated column, and whether the administrator side of the thread is
+register describes a `Conversation` as the single thread between a merchant and
+the administrator, and it states no sender on a `Message`; what is undecided is
+whether that sender is a role, a reference, or a discriminated column, and
+whether the administrator side of the thread is
 carried as a reference, a role, or nothing at all. Neither answer changes what
 the product does, so neither requires the constitution's register to be amended.
 R10 therefore records each answer as an ADR and as a change to this document,
 and the slice's `data-model.md` states the shape it chose. A slice that finds
-either answer needs a product fact the register does not carry must amend the
+that either answer needs a product fact the register does not carry must amend the
 register in the same change, as the register's own rule requires.
 
 The same distinction separates rows 1 and 2 from rows 3, 4, 9, 10, and 11, which

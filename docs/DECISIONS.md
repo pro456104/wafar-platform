@@ -141,6 +141,7 @@ from the index rather than edited in its own words.
 | [ADR-103](#adr-103--the-amendment-procedures-version-sources-and-the-index-column-the-check-verifies) | The amendment procedure's version sources, and the index column the check verifies | 2026-10-21 | 3.6.1 |
 | [ADR-104](#adr-104--the-audit-fix-set-the-governance-wording-the-mirror-corrections-and-the-r1-concentration) | The audit fix set: the governance wording, the mirror corrections, and the R1 concentration | 2026-10-21 | 3.6.2 |
 | [ADR-105](#adr-105--the-second-audit-fix-set-the-copied-adr-lists-the-r1-register-amendment-and-four-new-check-coverage-rules) | The second audit fix set: the copied ADR lists, the R1 register amendment, and four new check-coverage rules | 2026-10-21 | 3.7.0 |
+| [ADR-106](#adr-106--the-third-audit-fix-set-the-administrator-reply-the-citation-precision-and-the-specification-identifier-check) | The third audit fix set: the administrator reply, the citation precision, and the specification identifier check | 2026-10-22 | 3.7.1 |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -1581,6 +1582,13 @@ durable record.
 3. R12's intent names staging data anonymisation and the monitoring and alerting set; the R12 First-obligations row's constitution reference is corrected to Deployment and Observability / Dependency Governance / Performance Budgets and Verification instead of the blanket "Register gaps".
 4. The documentation-drift row states explicitly that R1's public surface is covered by OpenAPI generation from the Hono routes (ADR-002), so the first standalone drift test remains R2's.
 5. The shell row cites ADR-016 (icon set and theme toggle in R1) alongside ADR-017; a new R1 row adds automated weak-hashing detection and the sign-out-everywhere / token-revocation-on-password-change duty; R10's intent notes the reply is authored through R13 and that pre-R13 acceptance uses the admin API directly; the R5 "searches" counter note adds that a new entity also requires amending the Product Register; Notes gains explicit statements that R1 seeds the administrator under the current admin-role model, that R4/R7/R8 enforce ownership while R13 ratifies the authorization model, and that My Files → Parts is an R4+R5 cross-slice pair.
+
+**Annotation (2026-10-22, ADR-106 item 1).** Item 5's provision that "pre-R13
+acceptance uses the admin API directly" is superseded. An administrator reply is
+an administrator operation, the constitution requires every administrator
+operation to be recorded, and the audit log arrives with R13, so no pre-R13 reply
+path may exist: R10 ships the merchant's side of the thread, and R13 authors the
+reply and delivers its notification. The rest of this record stands.
 
 **Alternatives considered.**
 
@@ -8044,3 +8052,103 @@ constitution's Unresolved product facts table cites the Product Register for a
 `Message` sender and a `Conversation` administrator reference the register's
 one-line meanings do not state, which R10 resolves whichever way it decides.
 Review date: 2026-12-15. This entry is the durable record.
+
+
+---
+
+## ADR-106 — The third audit fix set: the administrator reply, the citation precision, and the specification identifier check
+
+**Status**: Accepted - 2026-10-22
+**Owning directory**: `.specify/memory/`, `docs/`, `ROADMAP.md`, `governance-drift-check.mjs`
+**Owning feature**: none - governance record ratified by the repository owner.
+
+**Context.** Three findings from the audit that produced ADR-105 needed a
+decision rather than a correction, and the repository owner took all three on
+2026-10-22.
+
+The first was an **unrecorded administrator operation**. R10's row said the
+administrator's reply was authored through the administrator's surface and that,
+before R13 landed, acceptance verified the reply path "via the admin API
+directly". The constitution requires every administrator operation to be
+recorded in the audit log, and the audit log arrives with R13. Between the two
+slices there was therefore a reply that wrote a message and left no record - the
+same class of defect the roadmap's own table claims closed at its entry 5.
+
+The second was a **citation that named a register fact the register does not
+state**. The Unresolved product facts table cited the Product Register for a
+`Message` sender and a `Conversation` administrator reference. The register's
+one-line meanings are "One message inside a conversation" and "The single thread
+between a merchant and the administrator", and the register's own rule says a
+one-line meaning registers a field only where the field's existence is itself a
+product decision. The citations asserted more than the rows carry.
+
+The third was a **coverage gap in the drift check**. Principle I requires
+stable identifiers that are never renumbered or reused, and the specification
+template requires every functional requirement to be cited by at least one
+acceptance criterion. R1 satisfied both, verified by hand; nothing verified the
+next specification, so the class of silent drift the ADR enumerations suffered
+was unguarded in the artefact class that matters most.
+
+**Decision.**
+
+1. **The administrator's reply moves to R13.** R10 ships the merchant's side of
+   the thread - sending a message and reading the reply after a refresh - and
+   creates the `messages` module. R13 authors the reply and delivers the
+   notification for it, because it owns the audit log and no administrator reply
+   may exist before it can be recorded. R10's row and R13's row both say so, and
+   R10 no longer verifies anything through the admin API. No product behaviour
+   changes: the merchant still sends, still sees the reply, and is still notified
+   of it; only the slice that delivers the reply moves.
+2. **The Unresolved product facts table states what the sources actually say.**
+   The two rows no longer cite the Product Register for a field it does not
+   register. Row one now reads that no source fixes how a message's sender is
+   represented, and row two that no source fixes whether the administrator's side
+   of a conversation is a reference, a role, or absent. The owners stay R10, and
+   the questions are unchanged; only the citation is corrected. `docs/domain-
+   model.md`'s companion paragraph is corrected with it.
+3. **The drift check gains check L.** For every `specs/*/spec.md` it verifies
+   that each of `FR-###`, `AC-###`, and `SC-###` is contiguous from 001, defined
+   once, and never referenced without being defined; and that every functional
+   requirement is cited by at least one acceptance criterion. A specification
+   with no identifiers at all is skipped, so a freshly scaffolded spec does not
+   fail the hook.
+4. **Five wording defects are corrected.** R9's scope no longer says the
+   notification list carries "a counter", which invited a second surface for a
+   count the constitution gives to the header control alone. R2's "only" list now
+   names content safety, which it already assigned to intake. R3's "only" list
+   now names the `suppliers` module it creates, and its creation is no longer
+   conditional, matching the first-obligations table that assigns it
+   unconditionally. The broken sentence in `docs/domain-model.md` that read
+   "A slice that finds either answer needs a product fact ... must amend" is
+   fixed. The constitution's reading protocol now names the Usage Limits table by
+   the section it lives in, matching `AGENTS.md` §3, which the protocol says it
+   mirrors.
+5. **This record is a governance record**, not a technical decision: its subject
+   is the constitution's own text, the roadmap, and the governance tooling, which
+   is outside the reach of the `Alternatives considered` field (ADR-090), so that
+   section is not written for it.
+
+**What deliberately did not change.** Every principle and binding section; the
+page, feature, role, entity, and usage-limit registers; the product scope; the
+technology register and its gaps; the Wafar UI layer; the slice count, order, and
+identifiers; the unresolved product facts and their owners; the exception
+register; the amendment procedure; and every decision record already ratified.
+No slice is added, removed, renumbered, or reordered, and no product behaviour
+changes. Checks A through K and G10/G11 are untouched in what they verify.
+
+**Consequences and migration/backfill.** `version.json` moves to 3.7.1 and names
+this record as the one that moved it. The live `ADR-001 . ADR-105` range strings
+become `ADR-001 . ADR-106` in the same change, and `Project-Technologies.txt`'s
+header list gains 106 contiguously; check K enforces the enumerations and check F
+enforces the contiguity, so neither can drift silently again. ADR-029's account of
+R10's intent is annotated, because this record supersedes that one provision; the
+rest of ADR-029 stands. No migration or backfill is required: the changes are
+roadmap prose, two table rows, and one read-only check.
+
+**Follow-ups.** The audit's remaining observation - that R1 carries a checklist
+but no plan, because the binding cycle places the plan before the checklist - is
+a workflow state rather than a defect in a document: R1 is `in-progress`, its
+specification is `Clarified - ready for planning`, and the owner has deferred
+planning deliberately. It is recorded here so a later reader does not mistake the
+absent plan for an omission.
+Review date: 2027-01-15. This entry is the durable record.

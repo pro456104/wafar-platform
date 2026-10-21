@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * governance-drift-check.mjs — Wafar governance drift check
- * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105)
+ * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106)
  * -------------------------------------------------------------------
  * Read-only. Dependency-free. Runs on the pinned Node runtime.
  *
@@ -50,6 +50,10 @@
  *   G11. every entity's owning module agrees across the constitution's Data
  *      entities table and `docs/domain-model.md`'s Entity map, in both
  *      directions
+ *   L. every specification's `FR-###` / `AC-###` / `SC-###` identifiers are
+ *      contiguous from 001, defined once, and never referenced without being
+ *      defined; and every functional requirement is cited by at least one
+ *      acceptance criterion
  *
  * Usage:  node governance-drift-check.mjs
  * Exit:   0 = clean, 1 = drift found.
@@ -657,6 +661,92 @@ if (registerEntities.size === 0) {
   notes.push(`G11: ${registerEntities.size} entity owners agree across the register and the model`);
 }
 
+/* ---- L. every specification's identifiers are sound (ADR-106) -------------- */
+// Principle I requires stable identifiers that are never renumbered or reused,
+// and the spec template requires every FR to be covered by at least one AC.
+// R1 was verified by hand; nothing verified the next specification, so the same
+// class of silent drift the ADR enumerations suffered was unguarded here.
+// Definitions are read from the shape the templates fix: `- **FR-###**` and
+// `- **SC-###**` bullets, and `N. **AC-###**` list items.
+const ID_KINDS = [
+  { k: 'FR', def: /^\s*-\s+\*\*FR-(\d{3})\*\*/gm },
+  { k: 'AC', def: /^\s*\d+\.\s+\*\*AC-(\d{3})\*\*/gm },
+  { k: 'SC', def: /^\s*-\s+\*\*SC-(\d{3})\*\*/gm },
+];
+const specDirs = existsSync(join(ROOT, 'specs'))
+  ? readdirSync(join(ROOT, 'specs'), { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name)
+      .sort()
+  : [];
+let specsChecked = 0;
+for (const dir of specDirs) {
+  const rel = `specs/${dir}/spec.md`;
+  if (!existsSync(join(ROOT, rel))) continue;
+  const spec = read(rel);
+  specsChecked++;
+  const defined = new Map();
+  for (const kind of ID_KINDS) {
+    const seen = new Map();
+    for (const m of spec.matchAll(kind.def)) {
+      const n = Number(m[1]);
+      seen.set(n, (seen.get(n) || 0) + 1);
+    }
+    defined.set(kind.k, seen);
+    const dupes = [...seen].filter(([, c]) => c > 1).map(([n]) => n);
+    if (dupes.length > 0) {
+      failures.push(
+        `L: ${rel} defines ${kind.k}-${dupes.map((n) => String(n).padStart(3, '0')).join(', ' + kind.k + '-')} more than once`,
+      );
+    }
+    const nums = [...seen.keys()].sort((a, b) => a - b);
+    if (nums.length > 0 && (nums[0] !== 1 || nums[nums.length - 1] !== nums.length)) {
+      const gaps = [];
+      for (let n = 1; n <= nums[nums.length - 1]; n++) if (!seen.has(n)) gaps.push(n);
+      failures.push(
+        `L: ${rel} ${kind.k} identifiers are not contiguous 001..${String(nums.length).padStart(3, '0')}` +
+          (gaps.length > 0 ? `; missing ${gaps.join(', ')}` : '') +
+          (nums[0] !== 1 ? `; the sequence starts at ${nums[0]}` : ''),
+      );
+    }
+    const unknown = [...new Set([...spec.matchAll(new RegExp(`${kind.k}-(\\d{3})`, 'g'))].map((m) => Number(m[1])))]
+      .filter((n) => !seen.has(n))
+      .sort((a, b) => a - b);
+    if (unknown.length > 0) {
+      failures.push(
+        `L: ${rel} references ${unknown.map((n) => kind.k + '-' + String(n).padStart(3, '0')).join(', ')}, which it does not define`,
+      );
+    }
+  }
+  // Every FR must be cited by at least one AC. The block of an AC runs to the
+  // next AC definition or the next heading, whichever comes first.
+  const frSeen = defined.get('FR');
+  const lines = spec.split(/\r?\n/);
+  const covered = new Set();
+  for (let i = 0; i < lines.length; i++) {
+    if (!/^\s*\d+\.\s+\*\*AC-\d{3}\*\*/.test(lines[i])) continue;
+    let j = i;
+    while (
+      j < lines.length &&
+      (j === i || (!/^\s*\d+\.\s+\*\*AC-\d{3}\*\*/.test(lines[j]) && !/^#{2,3}\s/.test(lines[j])))
+    ) j++;
+    for (const m of lines.slice(i, j).join(' ').matchAll(/FR-(\d{3})/g)) covered.add(Number(m[1]));
+    i = j - 1;
+  }
+  if (frSeen.size > 0 && defined.get('AC').size > 0) {
+    const uncovered = [...frSeen.keys()].filter((n) => !covered.has(n)).sort((a, b) => a - b);
+    if (uncovered.length > 0) {
+      failures.push(
+        `L: ${rel} has ${uncovered.length} FR(s) no acceptance criterion cites: ${uncovered.map((n) => 'FR-' + String(n).padStart(3, '0')).join(', ')}`,
+      );
+    }
+  }
+  notes.push(
+    `L: ${dir} identifiers sound (${defined.get('FR').size} FR, ${defined.get('AC').size} AC, ${defined.get('SC').size} SC)`,
+  );
+}
+if (specsChecked === 0) notes.push('L: no specification under specs/ to check');
+
 /* ---- I. the integration topology is consistent (ADR-088) ------------------ */
 // Four files state the same fact and nothing compared them: integration.json
 // lists the installed integrations, the default, and their settings; each
@@ -799,7 +889,7 @@ if (footer) {
 }
 
 /* ---- report --------------------------------------------------------------- */
-console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105)');
+console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106)');
 console.log('=====================================');
 for (const n of notes) console.log(`  ok   ${n}`);
 if (failures.length === 0) {

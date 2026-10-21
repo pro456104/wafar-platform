@@ -27,7 +27,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | UI foundation — component library and the project layer | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1's plan consumes it |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-105; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-106; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -160,11 +160,11 @@ key), so a `specify` upgrade may replace it; the project copy is the one to keep
 and its `requires.integrations.any` list must stay correctly nested under
 `integrations:` (ADR-072).
 
-**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105).** `governance-drift-check.mjs`
+**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106).** `governance-drift-check.mjs`
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-105` range string — in the required files, under `docs/`, in
+live `ADR-001 … ADR-106` range string — in the required files, under `docs/`, in
 the two Arabic mirrors, in the template overrides, and in the feature
 specifications — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading, and
@@ -187,7 +187,10 @@ carries, so "which ADRs built the check" has one authority instead of a copy per
 document; the contiguity of `Project-Technologies.txt`'s header list; the
 Constitution Mandated Values count the plan template states against the
 constitution's closed list and its own table; every entity's owning module across
-the constitution's Data entities table and `docs/domain-model.md`; and the
+the constitution's Data entities table and `docs/domain-model.md`; every
+specification's identifier integrity — `FR-###`, `AC-###`, and `SC-###`
+contiguous from 001, defined once, never referenced without being defined, and
+every functional requirement cited by at least one acceptance criterion; and the
 integration topology across `integration.json`, `init-options.json`, the
 integration directories in the tree, and the bundled workflow's nesting. Run it
 with `node governance-drift-check.mjs`; it exits non-zero on drift. It is wired
