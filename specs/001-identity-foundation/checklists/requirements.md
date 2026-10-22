@@ -38,8 +38,8 @@
       → R9, the message sender and the `Conversation` administrator reference →
       R10, the multi-separator printed price → R3) are untouched
 - [x] The specification adds nothing outside the four registers — no page
-      beyond the twenty-six, no entity beyond the twelve, no product feature
-      beyond the sixteen, and no role beyond the three — and the twenty-six-page
+      beyond the twenty-seven, no entity beyond the twelve, no product feature
+      beyond the sixteen, and no role beyond the three — and the twenty-seven-page
       register is not amended
 - [x] No requirement contradicts an accepted decision record
 - [x] Identifiers are contiguous, stable, and never reused — FR-001 … FR-050,

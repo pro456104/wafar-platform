@@ -438,7 +438,7 @@ notes.push('E: wafar.single.css is absent and the constitution carries no Design
 /* ---- G. structural counts the governance text states in prose ------------- */
 // The governance text states countable facts ("fifteen slices", "six exception
 // rows", "ten principles", "twelve entities", "eighteen
-// binding sections", "ten API modules", "twenty-six pages", "sixteen product
+// binding sections", "ten API modules", "twenty-seven pages", "sixteen product
 // features"). None was machine-checked before ADR-075.
 //
 // Each row below counts an enumerable list and compares it to a constant
@@ -556,10 +556,10 @@ const structuralCounts = [
       return s === null ? -1 : countMatches(s, /^\| `\w+` \|/gm);
     } },
   // G8 and G9 complete the set: the governance text also states a page count
-  // ("Twenty-six pages are in scope", Product Register) and a product-feature
+  // ("Twenty-seven pages are in scope", Product Register) and a product-feature
   // count ("The sixteen product features are listed in Product Scope"). Both
   // were stated in prose and left unchecked until ADR-080.
-  { id: 'G8', label: 'pages (the twenty-six)', want: 26,
+  { id: 'G8', label: 'pages (the twenty-seven)', want: 27,
     file: '.specify/memory/constitution.md',
     got: () => {
       const s = sliceBetween(constitution, '## Product Scope', '\n## Product Register');

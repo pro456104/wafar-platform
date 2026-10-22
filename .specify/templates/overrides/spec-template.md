@@ -28,13 +28,13 @@
      specification, and keep it consistent with them:
        - `.specify/memory/constitution.md` — principles and governance; the
          Product Scope (pages, roles, product features), the Product Register
-         (roles, the twenty-six pages, the data entities and the cross-entity
+         (roles, the twenty-seven pages, the data entities and the cross-entity
          rules), the Usage Limits, and the Glossary that is the naming
          authority.
        - `Core-Project.txt` — the product definition: roles and their
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
-       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-109). A
+       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-110). A
          specification that contradicts one is a blocking defect.
        - `docs/domain-model.md` — the entities a Key Entities section may name,
          and the invariants such a specification MUST NOT contradict. A

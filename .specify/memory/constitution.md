@@ -449,6 +449,7 @@ another country is an amendment to this section, not a configuration change
 
 | Page | Content |
 |---|---|
+| Log In | Mobile number and password. |
 | Dashboard | Statistics and reports. |
 | Users | View, block, edit. |
 | Files | Review, delete, reprocess. |
@@ -513,9 +514,9 @@ Every administrator operation MUST be recorded in the audit log.
 
 ### Pages
 
-Twenty-six pages are in scope, and they are listed in Product Scope. The
+Twenty-seven pages are in scope, and they are listed in Product Scope. The
 transitions in Product Scope are the required navigation. A screen that is not
-one of the twenty-six MUST NOT be added without amending this register; Product
+one of the twenty-seven MUST NOT be added without amending this register; Product
 Scope names the rest of that route, and both halves are read together.
 
 ### Features
@@ -1749,4 +1750,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 3.7.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-22
+**Version**: 3.8.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-22

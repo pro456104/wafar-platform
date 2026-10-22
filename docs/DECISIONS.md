@@ -145,6 +145,7 @@ from the index rather than edited in its own words.
 | [ADR-107](#adr-107--the-session-activity-the-policy-messages-the-city-names-the-code-step-and-the-submit-guard) | The session activity, the policy messages, the city names, the code step, and the submit guard | 2026-10-22 | 3.7.1 |
 | [ADR-108](#adr-108--the-record-corrections-the-closed-follow-ups-and-the-misnamed-annotation) | The record corrections: the closed follow-ups and the misnamed annotation | 2026-10-22 | 3.7.1 (unchanged) |
 | [ADR-109](#adr-109--the-slice-corrections-the-delete-cascade-the-content-safety-owner-and-the-notification-source) | The slice corrections: the delete cascade, the content-safety owner, and the notification source | 2026-10-22 | 3.7.1 (unchanged) |
+| [ADR-110](#adr-110--the-twenty-seventh-page-the-administrator-applications-login) | The twenty-seventh page: the administrator application's login | 2026-10-22 | 3.8.0 |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -8384,4 +8385,69 @@ edge, from thirty-eight to thirty-nine, and no document states either count in
 prose. R14's and R15's own cells are unchanged; their position moves because the
 graph moves, not because a row was edited. `docs/architecture.md` gains one
 source in one cell. No migration or backfill is required.
+Review date: 2026-12-20. This entry is the durable record.
+
+---
+
+## ADR-110 — The twenty-seventh page: the administrator application's login
+
+**Status**: Accepted - 2026-10-22
+**Owning directory**: `.specify/memory/`, `Core-Project.txt`, `.specify/templates/overrides/`, `docs/`, `governance-drift-check.mjs`, `specs/001-identity-foundation/`
+**Owning feature**: none - constitution amendment ratified by the repository owner; R13 ships the page.
+
+**Context.** The Product Scope says the administrator operates "the separate
+application with its own login", and R13's row names "its own login" as part of
+the slice. The Product Register's Pages section is a closed list of twenty-six
+pages, and it carries no login row for the administrator application: the public
+"Log In" page is the merchant's, and the administrator application is a separate
+application with a separate entry. The register's own rule forbids adding a
+screen that is not on the list, so R13 could not be planned without either
+registering the page or deciding that the login is not a page at all.
+
+A fourth audit of the governance set found the gap on 2026-10-22 and reported it;
+the repository owner ratified registering the page rather than reinterpreting the
+register, because the public 404 page is registered as a page and a login screen
+is at least as much a screen as an error page.
+
+**Decision.**
+
+1. **The administrator application's login is registered as the twenty-seventh
+   page.** The Product Scope's Administrator's Application table gains a
+   `Log In` row as its first row, carrying "Mobile number and password", the same
+   credential model the public Log In page uses, because ADR-041 makes every
+   account a +218 number and the administrator is a `User` holding the
+   administrator role (ADR-067).
+2. **The register's count moves from twenty-six to twenty-seven.** Product
+   Register → Pages states the new count in both places it states it, and the
+   close of the sentence still forbids a screen outside the list.
+3. **The amendment is MINOR.** It expands a register, which the versioning policy
+   puts at MINOR; the constitution moves to **3.8.0**, and `version.json` moves
+   with it. The product scope's substance does not change: the login was already
+   required by the Product Scope's role table and by R13's row, and this record
+   makes the register say so.
+4. **The copies that restate the count are moved in the same change.**
+   `Core-Project.txt` numbers twenty-seven pages and its administrator table
+   carries the login as its first row; the plan template and the specification
+   template stop saying twenty-six; the R1 specification's four statements stop
+   saying twenty-six; and `governance-drift-check.mjs`'s structural count expects
+   twenty-seven, so the constitution's prose and its tables cannot drift apart
+   again.
+
+**What deliberately did not change.** Every principle; the roles table; the
+merchant and public page tables; the product-feature register; the entity, usage
+limit, and technology registers; the roles' capabilities; the slice count, order,
+and dependencies; and every unresolved product fact. No application code, route,
+component, or stylesheet is created. R13's row already names the login and does
+not change.
+
+**Consequences and migration/backfill.** The live `ADR-001 . ADR-109` range
+strings become `ADR-001 . ADR-110` in the same change, and
+`Project-Technologies.txt`'s header list gains 110 contiguously. The drift
+check's G8 now counts twenty-seven page rows and compares them to the constant
+twenty-seven, so a future page must be added to the constitution, the mirror, and
+the check together. G8's coverage is unchanged - it compares the same two-column
+shape to the same kind of constant - so this record is not added to the
+enumeration of ADRs that built the check. No migration or backfill is required:
+the change is register prose, the copies that restate its count, and one constant
+in a read-only check.
 Review date: 2026-12-20. This entry is the durable record.
