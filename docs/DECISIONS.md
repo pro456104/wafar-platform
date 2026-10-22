@@ -143,6 +143,8 @@ from the index rather than edited in its own words.
 | [ADR-105](#adr-105--the-second-audit-fix-set-the-copied-adr-lists-the-r1-register-amendment-and-four-new-check-coverage-rules) | The second audit fix set: the copied ADR lists, the R1 register amendment, and four new check-coverage rules | 2026-10-21 | 3.7.0 |
 | [ADR-106](#adr-106--the-third-audit-fix-set-the-administrator-reply-the-citation-precision-and-the-specification-identifier-check) | The third audit fix set: the administrator reply, the citation precision, and the specification identifier check | 2026-10-22 | 3.7.1 |
 | [ADR-107](#adr-107--the-session-activity-the-policy-messages-the-city-names-the-code-step-and-the-submit-guard) | The session activity, the policy messages, the city names, the code step, and the submit guard | 2026-10-22 | 3.7.1 |
+| [ADR-108](#adr-108--the-record-corrections-the-closed-follow-ups-and-the-misnamed-annotation) | The record corrections: the closed follow-ups and the misnamed annotation | 2026-10-22 | 3.7.1 (unchanged) |
+| [ADR-109](#adr-109--the-slice-corrections-the-delete-cascade-the-content-safety-owner-and-the-notification-source) | The slice corrections: the delete cascade, the content-safety owner, and the notification source | 2026-10-22 | 3.7.1 (unchanged) |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -8047,12 +8049,21 @@ documentation, and the tooling change reads files it already read.
 than fixed, because each is a decision about a slice rather than a defect in a
 document: R10 exercises the administrator's reply path before R13 owns the audit
 log, which leaves an administrator operation unrecorded between the two slices;
-`first_page_metadata_incomplete` is a registered product fact with no slice in
-`ROADMAP.md` that names setting it, and R3 is its natural owner; and the
-constitution's Unresolved product facts table cites the Product Register for a
-`Message` sender and a `Conversation` administrator reference the register's
+`first_page_metadata_incomplete` is a registered product fact that this record's
+own change gives an owner, because `ROADMAP.md`'s R3 row names setting it; and
+the constitution's Unresolved product facts table cites the Product Register for
+a `Message` sender and a `Conversation` administrator reference the register's
 one-line meanings do not state, which R10 resolves whichever way it decides.
 Review date: 2026-12-15. This entry is the durable record.
+
+**Annotation (2026-10-22, ADR-108).** The first follow-up is closed by ADR-106,
+which moves the administrator's reply to R13 and leaves no administrator
+operation outside the audit log. The third is closed by ADR-106, which corrects
+the Unresolved product facts table's Sources column so it no longer cites the
+Product Register for a field the register does not state. The second was false
+when this record was written: commit `e410e5b`, which carries this entry, makes
+`ROADMAP.md`'s R3 row name setting `first_page_metadata_incomplete`, so the
+sentence above is corrected rather than annotated, and no follow-up remains open.
 
 
 ---
@@ -8141,9 +8152,10 @@ changes. Checks A through K and G10/G11 are untouched in what they verify.
 this record as the one that moved it. The live `ADR-001 . ADR-105` range strings
 become `ADR-001 . ADR-106` in the same change, and `Project-Technologies.txt`'s
 header list gains 106 contiguously; check K enforces the enumerations and check F
-enforces the contiguity, so neither can drift silently again. ADR-029's account of
-R10's intent is annotated, because this record supersedes that one provision; the
-rest of ADR-029 stands. No migration or backfill is required: the changes are
+enforces the contiguity, so neither can drift silently again. ADR-031's account of
+R10's intent is annotated, because this record supersedes item 5's provision that
+pre-R13 acceptance uses the admin API directly; the rest of ADR-031 stands, and
+ADR-029's dependency provision is untouched. No migration or backfill is required: the changes are
 roadmap prose, two table rows, and one read-only check.
 
 **Follow-ups.** The audit's remaining observation - that R1 carries a checklist
@@ -8242,3 +8254,134 @@ Request carry the rules. The live `ADR-001 . ADR-106` range strings become
 list gains 107 contiguously. No migration or backfill is required: the change is
 specification prose, one decision record, and the copied range strings.
 Review date: 2026-11-20. This entry is the durable record.
+
+---
+
+## ADR-108 — The record corrections: the closed follow-ups and the misnamed annotation
+
+**Status**: Accepted - 2026-10-22
+**Owning directory**: `docs/`
+**Owning feature**: none - governance record ratified by the repository owner.
+
+**Context.** A fourth audit of the governance set, run on 2026-10-22 against the
+ADR-107 working tree, re-examined the twelve findings the third audit had
+reported and rejected three of them as misreadings of a cell read without its
+surrounding sentence. Four of the nine that stood are defects in records this
+repository wrote on 2026-10-21 and 2026-10-22, not defects in the roadmap or the
+register, and they are corrected here.
+
+The first was a **follow-up that was false when it was written**. ADR-105's
+Follow-ups paragraph said `first_page_metadata_incomplete` had "no slice in
+`ROADMAP.md` that names setting it". The commit that carried that paragraph,
+`e410e5b`, is the same commit that made R3's row name setting the fact. The
+record asserted the absence of a change it shipped.
+
+The second was a **record that named the wrong record**. ADR-106's consequences
+said "ADR-029's account of R10's intent is annotated". The provision the record
+superseded - that pre-R13 acceptance verifies the reply path through the admin
+API directly - is item 5 of ADR-031, and the annotation is placed there, which is
+correct. ADR-029's item 2, that R10 depends on R1 and R9, states a dependency
+ADR-106 did not change, and it stands.
+
+The third and fourth were **follow-ups closed by a later record without an
+annotation**. ADR-105 recorded that R10 exercises the reply path before R13 owns
+the audit log, and that the Unresolved product facts table cites the Product
+Register for fields the register does not state. ADR-106 closed both. A reader of
+ADR-105 met two open items that were closed, because the file's own rule -
+annotate a record when a later decision changes what it says - had not been
+applied to the record that opened them.
+
+**Decision.**
+
+1. **ADR-105's second follow-up is corrected in place.** Its sentence now states
+   that the fact has an owner because this record's own change gives it one,
+   rather than asserting that no slice names it.
+2. **ADR-105's first and third follow-ups are annotated.** The annotation records
+   that ADR-106 closed both, and that the second was corrected rather than
+   annotated because it was false when written.
+3. **ADR-106's consequences name ADR-031 and its item 5.** The citation is
+   corrected, the annotation stays where it is, and ADR-029's dependency
+   provision is stated to stand.
+
+**What deliberately did not change.** The constitution and its version, which
+stays at 3.7.1; the page, feature, role, entity, and usage-limit registers; the
+product scope; the slice count, order, dependencies, and identifiers; every
+unresolved product fact and its owner; the exception register; the amendment
+procedure; and every other provision of ADR-105 and ADR-106. No check changed
+what it verifies.
+
+**Consequences and migration/backfill.** The live `ADR-001 . ADR-107` range
+strings become `ADR-001 . ADR-109` in the same change, because ADR-109 is
+recorded with this one and the range string's authority is the index's last row.
+`Project-Technologies.txt`'s header list gains 108 and 109 contiguously. No
+migration or backfill is required: the change is record prose and the copied
+range strings.
+Review date: 2026-12-20. This entry is the durable record.
+
+---
+
+## ADR-109 — The slice corrections: the delete cascade, the content-safety owner, and the notification source
+
+**Status**: Accepted - 2026-10-22
+**Owning directory**: `ROADMAP.md`, `docs/`
+**Owning feature**: none - governance record ratified by the repository owner.
+
+**Context.** The same fourth audit found four defects in the slice order and the
+module map, each a statement that had drifted from the change that made it true.
+
+The first is an **ordering defect with a data consequence**. `ROADMAP.md`'s
+defect table says R8 adds the bookmark leg to the catalog-delete cascade "rather
+than a second one", and that R13's admin delete and R15's retention job "reuse
+the routine as it stands". R8 and R13 were both in the sixth layer, so they could
+be built in parallel, and R13's `Depends on` did not name R8. A build that
+reached R13 first would delete a catalog through a routine that had no bookmark
+leg, leaving bookmarks pointing at parts that no longer exist.
+
+The second is an **owner split across the wrong boundary**. The first-obligations
+table assigned the content-safety pipeline to "R2 (validation), R3
+(processing)". The constitution runs content safety at intake, before the queue
+and the worker, and R2's own scope names all four steps and closes with "only".
+R3 owns the pipeline and the extraction, not the scan.
+
+The third is an **incomplete module description**. `docs/architecture.md`'s
+`notifications` row named processing outcomes and administrative messages, and
+omitted the administrator's reply that the constitution and
+`docs/domain-model.md` both give as a source.
+
+The fourth is an **edge with no data dependency**. R10's row depends on R9, and
+after ADR-106 moved the administrator's reply to R13, R10 reads no notification.
+The edge would be a false statement about the data if it were read as one.
+
+**Decision.**
+
+1. **R13 depends on R8.** R13's `Depends on` becomes `R1, R2, R3, R4, R5, R8,
+   R9, R10, R11`. The consequence is a schedule change, not a formality: R13
+   moves from the sixth layer to the seventh, R14 from the seventh to the eighth
+   because it depends on R13, and the dependency graph's longest path becomes
+   eight slices instead of seven. R15 already depends on R8, so its row does not
+   move. The alternative - keeping the parallel window and accepting orphaned
+   bookmarks - is not a schedule question but a data-integrity one.
+2. **R2 alone owns the content-safety pipeline.** The first-obligations row reads
+   "R2 (validation and content safety)". R3's row is unchanged: it owns the
+   pipeline and the `parts` and `suppliers` modules.
+3. **The `notifications` row names all three sources.** The architecture's row
+   gains the administrator's reply, matching the constitution's Glossary and
+   `docs/domain-model.md`.
+4. **R10's edge to R9 is kept and stated as sequencing.** The roadmap's Notes
+   record that the edge orders the thread after the notification list, so the
+   merchant's side ships against a list that already exists, and that it is not a
+   data dependency. R10's row is otherwise unchanged.
+
+**What deliberately did not change.** The constitution and its version; the page,
+feature, role, entity, and usage-limit registers; the product scope; the slice
+count and identifiers, and the order of every slice other than the two the graph
+moves; R14's and R15's dependency cells; every unresolved product fact; the
+exception register; and every check's coverage. No slice is added, removed, or
+renumbered.
+
+**Consequences and migration/backfill.** The roadmap's dependency graph gains one
+edge, from thirty-eight to thirty-nine, and no document states either count in
+prose. R14's and R15's own cells are unchanged; their position moves because the
+graph moves, not because a row was edited. `docs/architecture.md` gains one
+source in one cell. No migration or backfill is required.
+Review date: 2026-12-20. This entry is the durable record.

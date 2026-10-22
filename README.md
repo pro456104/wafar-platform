@@ -16,7 +16,7 @@ not sell, buy, process payment, or host user-to-user chat.
 | `docs/CHANGELOG-mirror.md` | The mirror's historical amendment blocks, split out of `Project-Technologies.txt` (ADR-075). History, not a source of rules. |
 | `docs/architecture.md` | Repository layout, API module map, data flow. |
 | `docs/domain-model.md` | The data model: entities, relationships, cardinality, invariants, and the module that owns each. |
-| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-107; index at the top). |
+| `docs/DECISIONS.md` | Accepted decisions with alternatives and rationale (ADR-001 … ADR-109; index at the top). |
 | `ROADMAP.md` | The MVP slice order. Names and orders slices; does not design them. |
 | `AGENTS.md` | Operating instructions for agent assistants. |
 | `governance-drift-check.mjs` | The committed read-only drift check: the two version sources, every live ADR range string, the upstream manifest hashes, the two integrations, the structural counts the governance text states in prose, the ADR index's constitution-version column, and the absence of the removed stylesheet and its constitution section. Runs on commit via `.githooks/pre-commit`; run it directly with `node governance-drift-check.mjs`. |
@@ -56,7 +56,7 @@ the project's binding templates and must not be replaced with the core ones.
 
 **Governance drift check.** `node governance-drift-check.mjs` (repository root)
 verifies the invariants the governance set cannot verify by discipline: the two
-version sources including the amended date, every live `ADR-001 … ADR-107` range
+version sources including the amended date, every live `ADR-001 … ADR-109` range
 string (in the required files, under `docs/`, in the two Arabic mirrors, in the
 template overrides, and in the feature specifications), every ADR index row's
 anchor against its heading and every heading against
