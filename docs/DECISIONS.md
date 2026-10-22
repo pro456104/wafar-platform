@@ -142,6 +142,7 @@ from the index rather than edited in its own words.
 | [ADR-104](#adr-104--the-audit-fix-set-the-governance-wording-the-mirror-corrections-and-the-r1-concentration) | The audit fix set: the governance wording, the mirror corrections, and the R1 concentration | 2026-10-21 | 3.6.2 |
 | [ADR-105](#adr-105--the-second-audit-fix-set-the-copied-adr-lists-the-r1-register-amendment-and-four-new-check-coverage-rules) | The second audit fix set: the copied ADR lists, the R1 register amendment, and four new check-coverage rules | 2026-10-21 | 3.7.0 |
 | [ADR-106](#adr-106--the-third-audit-fix-set-the-administrator-reply-the-citation-precision-and-the-specification-identifier-check) | The third audit fix set: the administrator reply, the citation precision, and the specification identifier check | 2026-10-22 | 3.7.1 |
+| [ADR-107](#adr-107--the-session-activity-the-policy-messages-the-city-names-the-code-step-and-the-submit-guard) | The session activity, the policy messages, the city names, the code step, and the submit guard | 2026-10-22 | 3.7.1 |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -8152,3 +8153,92 @@ specification is `Clarified - ready for planning`, and the owner has deferred
 planning deliberately. It is recorded here so a later reader does not mistake the
 absent plan for an omission.
 Review date: 2027-01-15. This entry is the durable record.
+
+---
+
+## ADR-107 — The session activity, the policy messages, the city names, the code step, and the submit guard
+
+**Status**: Accepted - 2026-10-22
+**Owning directory**: `specs/001-identity-foundation/`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `docs/architecture.md`, `Project-Technologies.txt`, `.specify/templates/overrides/`
+**Owning feature**: none - product clarification ratified by the repository owner; R1 binds the rules, and the slice that ships the first page carrying the frame exercises the runtime behaviour.
+
+**Context.** A clarification session on 2026-10-22, after ADR-106, settled five
+points the R1 specification still left open: what counts as activity for the
+session timeout, whether the person is told what the password policy requires
+and whether the reasons a password is refused are told apart, what the fixed
+Libyan city list's entries carry and what its search matches, what the
+one-time-code step shows and whether the mobile number may be changed there, and
+whether the in-progress guard covers the new-password step of the
+password-recovery flow. None of them changes a page, an entity, a role, a
+register, or a limit; each one removes a phrase a test could not assert.
+
+**Decision.**
+
+1. **Only what the merchant themselves do counts as activity for the session
+   timeout.** An action the merchant starts - opening a page, submitting a form
+   - resets the inactivity clock, and a request the browser sends on its own,
+   such as a background request the frame issues, does not. A background request
+   therefore cannot keep a session alive indefinitely, and the timeout keeps its
+   meaning.
+2. **The password policy is disclosed, and each reason for a refusal has its own
+   message.** The form that takes a password states the policy's requirements
+   before the password is typed, and a password shorter than the minimum and a
+   password that is common or breached each carry their own message, so the
+   person knows what to correct. None of these messages reveals whether an
+   account exists: the policy applies to every password submitted, and the same
+   message is given for the same reason whether or not the number has an
+   account, so SC-004's uniformity is untouched.
+3. **The fixed Libyan city list carries one Arabic name per entry, and its
+   search ignores diacritics.** No Latin alternate name is carried, so the list
+   holds no second naming source to keep in step with it, and a person who types
+   a city without its diacritics still finds it.
+4. **The one-time-code step shows the fields the person filled in for reading,
+   and they are not editable there.** The mobile number is among them, so the
+   person sees which number the code was sent to. A person who wants a different
+   number returns to the page's first step and submits the form again, which
+   starts a new pending request for the new number on FR-034's terms, while the
+   pending request for the first number stays live until its own expiry.
+5. **The in-progress guard covers every submission these three pages make.** The
+   new-password step of the password-recovery flow is guarded exactly as the
+   password-recovery request is: a repeated submission there neither sets the
+   password twice nor ends the account's sessions twice, and a failure on that
+   step shows the same inline, explicit, retryable message every failure on
+   these pages shows, because the error page arrives with a later slice. The
+   account's own change-password action has no surface in this slice, so the
+   guard has no page to act on there.
+
+**What deliberately did not change.** No page, entity, role, product feature,
+usage limit, security rule, technology, or constitution version changed by this
+record; the constitution stays at 3.7.1. ADR-099 through ADR-106 stand, and this
+record only completes them. The requirement and criterion counts are unchanged
+at 50 FR, 54 AC, and 9 SC; no identifier was renumbered, reused, or withdrawn.
+No application code, package, CSS, or font file was created.
+
+**Alternatives considered.**
+
+- *Every request from the session counting as activity.* Rejected: the frame
+  issues background requests, so the inactivity timeout would lose its meaning
+  and a merchant who leaves a page open would never be asked to sign in again.
+- *A single, undetailed refusal for a password that fails the policy.* Rejected:
+  the person cannot correct a password they are not told about, and telling the
+  reasons apart reveals nothing about account existence because the policy
+  applies to every password submitted.
+- *A Latin alternate name beside each Arabic name in the city list.* Rejected:
+  it makes a second naming source that every later slice and every later
+  amendment of the list must keep in step with the first.
+- *Leaving the mobile number editable at the code step.* Rejected: it leaves the
+  entered code ambiguous between the pending request it belongs to and the one
+  the number would start, and the person has no way to tell which code the
+  platform will accept.
+- *Leaving the new-password step outside the in-progress guard.* Rejected: a
+  repeated submission there sets the password again and ends the sessions again,
+  and the page has no error page to move a failure to.
+
+**Consequences and migration/backfill.** The R1 specification's FR-005, FR-032,
+FR-035, FR-038, FR-040, AC-005, AC-015, AC-037, AC-041, AC-043, the `Session`
+entity, the city-list Assumption, the matching edge case, and the Test Coverage
+Request carry the rules. The live `ADR-001 . ADR-106` range strings become
+`ADR-001 . ADR-107` in the same change, and `Project-Technologies.txt`'s header
+list gains 107 contiguously. No migration or backfill is required: the change is
+specification prose, one decision record, and the copied range strings.
+Review date: 2026-11-20. This entry is the durable record.
