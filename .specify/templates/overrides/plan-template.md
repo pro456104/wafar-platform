@@ -57,7 +57,7 @@
 **Project Type**: Monorepo — apps/ (web, admin, api, worker) + packages/ (shared, db, search, ui, config); see docs/architecture.md
 **Performance Goals**: [p50 and p95 for the request path, under the load condition named below]
 **Constraints**: [numeric budgets and product limits from the Usage Limits table: max file size, upload counts, cart cap, search p95 < 1 s, cart-add < 200 ms, file processing < 5 min — those that apply]
-**Scale/Scope**: [the volume and load this plan's budgets are measured against]
+**Scale/Scope**: [the volume and load this plan's budgets are measured against; start from `docs/capacity-model.md` and state any deviation]
 
 ### Constitution Mandated Values
 

@@ -24,10 +24,11 @@ and a feature artifact references it rather than restating it.
 | Engineering law, product scope, limits | `.specify/memory/constitution.md` |
 | How the system is built (layout, module map, data flow) | `docs/architecture.md` |
 | The data model (entities, relationships, invariants, owning module) | `docs/domain-model.md` |
+| Capacity and load envelope (six-month plan, quotas, ingestion, verification) | `docs/capacity-model.md` (ADR-117); the constitution wins on every conflict |
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | UI foundation — component library and the project layer | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1 builds it through its plan and consumes it |
 | Product detail (roles, pages, acceptance criteria) — mirror | `Core-Project.txt`; the constitution's Product Register and Product Scope win on conflict |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-116; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-117; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -48,9 +49,10 @@ end for a feature command.
   technical sources: a specification stays technology-agnostic (Principle VII).
 - `/speckit.plan` → the constitution's registers (Technology Standards,
   Product Register) plus `docs/architecture.md`, `docs/domain-model.md`,
-  `Project-Technologies.txt`, `Core-Project.txt`, and `docs/DECISIONS.md`.
-  The plan is the only artifact that carries technical detail, and its
-  Ownership Map must match `docs/architecture.md`.
+  `docs/capacity-model.md`, `Project-Technologies.txt`, `Core-Project.txt`, and
+  `docs/DECISIONS.md`. The plan is the only artifact that carries technical
+  detail, its `Scale/Scope` starts from the capacity model, and its Ownership
+  Map must match `docs/architecture.md`.
 - `/speckit.tasks` → `plan.md`, plus the constitution (Product Register,
   Single-Reference Sufficiency, and Artifact Workflow and Traceability),
   `docs/architecture.md`, `docs/domain-model.md`, and `docs/DECISIONS.md`.
@@ -164,7 +166,7 @@ and its `requires.integrations.any` list must stay correctly nested under
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-116` range string — in the required files, under `docs/`, in
+live `ADR-001 … ADR-117` range string — in the required files, under `docs/`, in
 the two Arabic mirrors, in the template overrides, and in the feature
 specifications — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading, and

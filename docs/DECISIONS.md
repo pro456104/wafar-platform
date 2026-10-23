@@ -152,6 +152,7 @@ from the index rather than edited in its own words.
 | [ADR-114](#adr-114--the-forced-first-changes-password-the-pending-requests-password-refusal-precedence-and-a-failed-re-request) | The forced first change's password, the pending request's password, refusal precedence, and a failed re-request | 2026-10-22 | 3.8.0 (unchanged) |
 | [ADR-115](#adr-115--the-ended-session-state-the-acceptance-boundary-the-counted-code-the-replaced-verification-and-the-forced-change) | The ended-session state, the acceptance boundary, the counted code, the replaced verification, and the forced change | 2026-10-22 | 3.8.0 (unchanged) |
 | [ADR-116](#adr-116--the-ui-layer-path-authority-and-the-register-gap-exception) | The UI-layer path authority and the register-gap exception | 2026-10-22 | 3.9.0 |
+| [ADR-117](#adr-117--the-capacity-envelope-and-the-upload-quota-model) | The capacity envelope and the upload-quota model | 2026-10-23 | 3.9.0 (unchanged) |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -9045,3 +9046,133 @@ becomes `ADR-001 … ADR-116` in the same change, and `Project-Technologies.txt`
 header list gains 116 contiguously. No migration or backfill is required: the
 change is constitutional prose, one decision record, the copied range strings,
 and a drift-check run. Review date: 2026-11-20. This entry is the durable record.
+
+---
+
+## ADR-117 — The capacity envelope and the upload-quota model
+
+**Status**: Accepted — 2026-10-23
+**Owning directory**: `docs/`, `.specify/memory/`, `README.md`, `AGENTS.md`,
+`ROADMAP.md`
+**Owning feature**: none — governance decision; ratified by the repository owner.
+
+**Context.** The repository has product limits but no project-level capacity
+model. The six-month product target is 10,000 registered accounts; the platform
+must also hold 50,000 accounts without a new architectural decision. The product
+traffic target is 50,000–100,000 visits per day, with 3,000–5,000 concurrent
+online sessions and 300–600 concurrent uploads. A merchant may upload 30–50
+files in a month, each a scanned PDF of 80–150 pages, and the average file is
+about 7 MB. The ingestion pipeline, not the public read path, is the capacity
+constraint. The current Usage Limits still bind 50 uploads per calendar month and
+100 files in total per user; the total limit stops a merchant who uploads
+30–50 files a month after two or three months. The product also needs an
+administrator per-user quota override, which `PlatformSetting` cannot carry
+because ADR-067 excludes Usage Limits from that entity. The repository needs one
+durable record of the envelope, the target quota model, the deletion semantics,
+and the measurements that must replace the assumptions.
+
+**Decision.**
+
+1. **`docs/capacity-model.md` is adopted as the project-level capacity model.**
+   It is not a feature, does not take a slice number (ADR-007), and does not
+   replace the constitution. It records the six-month envelope, the calculation
+   basis, the deployment shape, the bottlenecks, and the verification plan.
+
+2. **The adopted envelope is:**
+   - 10,000 registered accounts in the six-month plan; 50,000 accounts as the
+     capacity ceiling.
+   - 50,000–100,000 visits per day.
+   - 3,000–5,000 concurrent online sessions.
+   - 300–600 concurrent uploads.
+   - 350,000 uploads per month at design and 500,000 at stress.
+   - 1,050,000 active stored files at design and 1,500,000 at stress, under the
+     90-day retention.
+   - 35,000,000 scanned pages per month at design and 50,000,000 at stress,
+     assuming 100 pages per file.
+   - 840,000,000 active parts at design and 1,200,000,000 at stress, assuming
+     10 rows per page and 20% deduplication.
+   - about 21 TB of replicated and derived storage at design and about 30 TB at
+     stress.
+
+   The numbers are planning figures. The model names its assumptions and its
+   re-run triggers; it is not a guarantee measured on production.
+
+3. **The target quota model is 50 uploads per calendar month, 300 active stored
+   files, and no lifetime total.** The administrator ceiling is 500 uploads per
+   calendar month and 1,500 active stored files, granted per user and audited.
+   The 500/1,500 ceiling is an exception path, not a second default; a broad
+   grant is a re-sizing event. Monthly deletion does not restore the monthly
+   count; a merchant delete, an administrator delete, or the retention job
+   releases an active slot. Lowering a quota never deletes a file and only blocks
+   new uploads; raising a quota takes effect immediately. Quota checks are
+   atomic.
+
+4. **Deletion is one cascade.** The merchant's self-delete, the administrator's
+   delete, and the 90-day retention job withdraw the catalog's bytes, parts,
+   bookmarks, and search-index entries. The catalog row may remain as a
+   soft-deleted record, but the withdrawn state is what the active quota counts.
+   Search therefore contains only files from the last 90 days. The trigger point
+   of the 90 days remains R15's open fact; the model uses the upload date for
+   sizing only.
+
+5. **The administrator quota is a per-user entitlement, not a platform setting.**
+   ADR-067 remains correct: `PlatformSetting` never carries a Usage Limit. The
+   per-user quota record's owning module, schema, endpoint, bounds, and audit
+   fields are decided by the constitutional amendment and the R2/R13
+   specifications. The administrator can view, delete, block, and set a quota for
+   a specific user; the quota change is audited with the old value, the new
+   value, the reason, and the timestamp.
+
+6. **OCR is not selected by this record.** The model treats the scanned
+   100-page PDF as the worst case, but it does not name a library, a paid
+   provider, or a document-AI service. R3 must choose the extraction technology
+   through the Technology Standards gap process, with an ADR, a licence record,
+   a vulnerability scan, and a measured proof on real Arabic table pages. The
+   model is re-run when that choice is made and measured.
+
+7. **Verification is part of the decision.** Before R3 commits to extraction,
+   20–50 real pages are measured for Arabic text accuracy, table structure,
+   latency, cost, and data terms. At R12's pre-release load test, the platform is
+   measured at 100,000 visits/day, 5,000 concurrent online sessions, 600
+   concurrent uploads, and 50,000 registered accounts. The model is re-run when
+   average file size, pages per file, rows per page, OCR coverage, uploader
+   share, the 500/1,500 exception share, retention, or the Usage Limits change.
+
+**What deliberately did not change.** No constitutional text or Usage Limit is
+amended by this record. The current 50-per-month and 100-in-total limits remain
+binding until the next constitutional amendment; the target values in this
+record are not enforceable before it. No product scope, page, entity count, role,
+module, slice order, or dependency edge changes. No R1 `plan.md` or `tasks.md` is
+created, and no application code, package, schema, or API is built. The
+per-user quota record is not created here, and no OCR technology is chosen.
+
+**Alternatives considered.**
+
+- *Keep the 100-file lifetime total.* Rejected: a merchant uploading 30–50 files
+  a month reaches it in two or three months and then cannot upload again; a
+  six-month planning horizon is not an account lifetime.
+- *Make 300 a lifetime total.* Rejected: the same cliff moves to month six. The
+  six-month horizon is a planning horizon, not the life of the account.
+- *Make the administrator ceiling unlimited.* Rejected: the capacity model would
+  be unbounded, one account could consume the platform's storage and processing,
+  and the constitutional limit would lose its meaning.
+- *Store the quota in `PlatformSetting`.* Rejected: ADR-067 states that
+  `PlatformSetting` never carries a Usage Limit; a per-user entitlement is not a
+  platform-wide setting.
+- *Size for 100,000 concurrent visitors.* Rejected: 100,000 is the daily visit
+  target, not a concurrency target. The concurrency target is 3,000–5,000, and
+  conflating the two would build a different, unnecessary platform.
+- *Treat this as a numbered feature.* Rejected: it is project-level knowledge,
+  and ADR-007 prohibits a feature for a project-level concern.
+- *Amend the constitution in the same record.* Rejected for this step: the
+  capacity model and the target quota model are recorded first so the wording
+  can be reviewed; the constitutional amendment is the next change and moves the
+  version, the Usage Limits, the domain model, and the owning specs.
+
+**Consequences and migration/backfill.** `docs/capacity-model.md` is added and
+linked from `README.md`, `AGENTS.md`, and `docs/architecture.md`; R12's load-test
+scope names it. The live `ADR-001 … ADR-116` range strings move to
+`ADR-001 … ADR-117`, and `Project-Technologies.txt`'s header list gains 117
+contiguously. The constitution version stays 3.9.0 until the separate amendment.
+No migration, backfill, R1 plan, or code is required. Review date: 2026-11-23,
+and again at R12's load test. This entry is the durable record.
