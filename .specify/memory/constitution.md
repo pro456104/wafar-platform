@@ -452,7 +452,7 @@ another country is an amendment to this section, not a configuration change
 |---|---|
 | Log In | Mobile number and password. |
 | Dashboard | Statistics and reports. |
-| Users | View, block, edit. |
+| Users | View, block, edit, set upload quota. |
 | Files | Review, delete, reprocess. |
 | Suppliers | Manage. |
 | Parts | Edit and add manually. |
@@ -545,7 +545,7 @@ registered, and prose is not a field list.
 
 | Entity | Owning module | One-line meaning |
 |---|---|---|
-| `User` | `users` | A registered merchant: full name, Libyan mobile number (E.164, unique, always +218), city, optional shop name, role, status (`active` or `blocked`), the consecutive failed sign-in attempt count, the sign-in lock's expiry, and the requirement to change the password at first sign-in. |
+| `User` | `users` | A registered merchant: full name, Libyan mobile number (E.164, unique, always +218), city, optional shop name, role, status (`active` or `blocked`), the consecutive failed sign-in attempt count, the sign-in lock's expiry, the requirement to change the password at first sign-in, and optional per-user upload-quota overrides (monthly and active). |
 | `Supplier` | `suppliers` | The company named on a catalog's first page. |
 | `Catalog` | `catalogs` | An uploaded supplier file, its metadata, its status, and its stored bytes. |
 | `Part` | `parts` | One row extracted from a catalog, representing one car part. |
@@ -993,12 +993,25 @@ an amendment to this constitution.
 | Large files (rare) | 10 – 15 MB |
 | Very large files in practice (exceptional) | up to 20 MB (the binding ceiling stays 100 MB) |
 | Monthly upload limit per user | 50 files per calendar month |
-| Total upload limit per user | 100 files |
+| Active stored files per user | 300 files |
+| Lifetime upload total | none; no lifetime cap |
+| Administrator-granted monthly ceiling | 500 files per calendar month, per user, exception only |
+| Administrator-granted active ceiling | 1,500 files per user, exception only |
 | Maximum cart size | 99 parts |
 | Automatic file deletion | after 90 days, counted from a trigger point R15 fixes |
 | Search latency budget | p95 < 1 s |
 | Cart-add latency budget | p95 < 200 ms |
 | File processing budget | p95 < 5 min |
+
+**Quota semantics.** The monthly limit counts upload events in the calendar month;
+deleting a file does not restore it. The active limit counts files whose bytes,
+parts, bookmarks, and search-index entries are present; a merchant delete, an
+administrator delete, or the 90-day retention job releases an active slot, and a
+soft-deleted catalog row does not count. The administrator may set a per-user
+monthly or active quota up to the ceilings above; the change is audited and never
+deletes a file. A quota above a ceiling requires an amendment to this table. The
+50-per-month and 300-active values are the defaults a user receives without an
+override.
 
 **Rationale:** A budget without a percentile and a measurement point is a number
 in a document that nothing checks. These rules exist so that performance is
@@ -1754,4 +1767,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 3.9.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-22
+**Version**: 4.0.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-23

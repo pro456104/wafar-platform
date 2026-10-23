@@ -75,7 +75,7 @@ exposed via the shared package — never through a direct import.
 
 | Entity | Owning module | What it represents | Cardinality |
 |---|---|---|---|
-| `User` | `users` | A registered merchant whose identity is a full name, a Libyan mobile number (E.164, unique, always +218), a city, an optional shop name, the role that separates a merchant from an administrator, and a status that is `active` or `blocked`. No email address exists, and no dial-code selector is offered. | One account has many catalogs, bookmarks, notifications, sessions, and at most one conversation. |
+| `User` | `users` | A registered merchant whose identity is a full name, a Libyan mobile number (E.164, unique, always +218), a city, an optional shop name, the role that separates a merchant from an administrator, a status that is `active` or `blocked`, and optional per-user upload-quota overrides (monthly and active). No email address exists, and no dial-code selector is offered. | One account has many catalogs, bookmarks, notifications, sessions, and at most one conversation. |
 | `Supplier` | `suppliers` | The company named on a catalog's first page, from which the parts originate. | One supplier appears in many catalogs. |
 | `Catalog` | `catalogs` | An uploaded supplier file with its metadata, its processing status, and a pointer to its stored bytes. | One catalog belongs to one uploading user and to at most one supplier, and contains many parts. |
 | `Part` | `parts` | A single row extracted from a catalog, representing one car part, carrying the price its own catalog printed. | One part belongs to exactly one catalog. |
@@ -192,8 +192,15 @@ service layer re-checks the ones a constraint cannot express.
   the index's. The period is fixed; the point the 90 days are counted from is
   not, and it belongs to the same open fact: until R15 decides it, no feature may
   name a trigger, and neither this model nor `ROADMAP.md` states one.
-- **Upload quotas are 50 files per calendar month and 100 files in total per
-  user**, enforced server-side by the `catalogs` module service (R2).
+- **Upload quotas are 50 files per calendar month and 300 active stored files per
+  user, with no lifetime cap**, enforced server-side by the `catalogs` module
+  service (R2). The monthly count counts upload events in the calendar month and
+  is not restored by deletion. The active count counts files whose bytes, parts,
+  bookmarks, and search-index entries are present; a merchant delete, an
+  administrator delete, or the 90-day retention job releases an active slot.
+  Quota checks are atomic. The administrator may set a per-user monthly or active
+  quota up to the ceilings of 500 per month and 1,500 active; a change above a
+  ceiling requires a constitutional amendment.
 
 ### Part
 
@@ -343,6 +350,16 @@ service layer re-checks the ones a constraint cannot express.
 - **Blocking a merchant does not remove their public contributions.** Their
   catalogs and the parts extracted from them stay visible, because the catalog
   is public and other merchants search it.
+- **The account may carry two upload-quota overrides, monthly and active.** A
+  missing value means the constitutional default of 50 uploads per calendar month
+  or 300 active stored files. The administrator sets each override per user,
+  within the ceilings of 500 per month and 1,500 active; a value above a ceiling
+  requires a constitutional amendment. The `users` module owns the fields, the
+  `catalogs` module enforces the effective quota atomically, and the `admin`
+  module records every change in the audit log. Lowering a quota never deletes a
+  file and only blocks new uploads until the account is under the new limit;
+  raising a quota takes effect immediately. A blocked account cannot upload, and
+  blocking never deletes its files.
 - **The account carries three sign-in state fields, and each is a field the
   Product Register names.** They are the consecutive failed sign-in attempt
   count, the sign-in lock's expiry, and the requirement to change the password

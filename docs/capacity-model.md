@@ -1,19 +1,19 @@
 # Capacity Model — Wafar
 
-**Status**: Adopted by ADR-117 on 2026-10-23. Project-level planning document.
+**Status**: Adopted by ADR-117 on 2026-10-23; the quota model was ratified by
+ADR-118 (constitution 4.0.0). Project-level planning document.
 **Scope**: the six-month launch horizon only. This document defines no second
 horizon.
 
 **Authority**: this document is the planning authority for the load envelope, the
 ingestion envelope, and the capacity assumptions a plan's `Scale/Scope` records.
 It is read with the constitution, not in place of it. The constitution wins on
-every conflict, and this document does not amend a Usage Limit.
+every conflict.
 
-**Current binding limits.** The constitution still binds the platform to
-50 uploads per calendar month and 100 files in total per user. The quota model in
-§6 is the target of the next constitutional amendment. Until that amendment is
-ratified, the 100-file total limit remains binding and the target values in §6
-are not enforceable.
+**Binding limits.** The constitution binds 50 uploads per calendar month, 300
+active stored files, and no lifetime total. The administrator may grant a
+per-user exception of up to 500 uploads per calendar month and 1,500 active
+stored files; a value above either ceiling requires an amendment.
 
 ---
 
@@ -154,17 +154,15 @@ while the queue drains.
 
 ## 6. Quota model
 
-### 6.1 Current and target
+### 6.1 Binding and administrator ceiling
 
-| Quota | Current binding | Target after amendment | Reset or release |
+| Quota | Binding value | Administrator ceiling | Reset or release |
 |---|---:|---:|---|
-| Monthly uploads per user | 50 | 50 | calendar month; deletion does not restore it |
-| Total files per user | 100 lifetime | no lifetime cap | not applicable |
-| Active stored files per user | not separately capped; the 100 total binds | 300 | deletion or 90-day retention releases a slot |
-| Administrator monthly ceiling | not available | 500 | per-user exception, audited |
-| Administrator active ceiling | not available | 1,500 | per-user exception, audited |
+| Monthly uploads per user | 50 | 500 | calendar month; deletion does not restore it |
+| Active stored files per user | 300 | 1,500 | deletion or 90-day retention releases a slot |
+| Lifetime total | none | none | not applicable |
 
-The target is internally consistent:
+The model is internally consistent:
 
 - 50 uploads/month × 3 months = 150 active files, so the 300 active cap is a
   safety cap and is not reached by an ordinary account.
@@ -370,8 +368,8 @@ These are assumptions, not measurements:
 - 90 days counted from the upload date for sizing only; R15 owns the real
   trigger.
 - No OCR technology is selected.
-- The per-user quota record's owning module and schema are decided by the
-  amendment and the R2/R13 specifications, not by this document.
+- The per-user quota overrides are optional fields on `User` (ADR-118); R2
+  enforces them and R13 provides the administrator surface.
 
 ## 13. References
 
@@ -380,5 +378,5 @@ These are assumptions, not measurements:
 - `docs/architecture.md` — data flow, modules, worker pipeline.
 - `docs/domain-model.md` — entities, invariants, and the current quota
   invariant.
-- `docs/DECISIONS.md` — ADR-067, ADR-117.
+- `docs/DECISIONS.md` — ADR-067, ADR-117, ADR-118.
 - `ROADMAP.md` — R2, R3, R12, R13, R15.

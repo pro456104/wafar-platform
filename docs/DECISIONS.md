@@ -153,6 +153,7 @@ from the index rather than edited in its own words.
 | [ADR-115](#adr-115--the-ended-session-state-the-acceptance-boundary-the-counted-code-the-replaced-verification-and-the-forced-change) | The ended-session state, the acceptance boundary, the counted code, the replaced verification, and the forced change | 2026-10-22 | 3.8.0 (unchanged) |
 | [ADR-116](#adr-116--the-ui-layer-path-authority-and-the-register-gap-exception) | The UI-layer path authority and the register-gap exception | 2026-10-22 | 3.9.0 |
 | [ADR-117](#adr-117--the-capacity-envelope-and-the-upload-quota-model) | The capacity envelope and the upload-quota model | 2026-10-23 | 3.9.0 (unchanged) |
+| [ADR-118](#adr-118--the-upload-quota-amendment-50300-no-lifetime-total-and-the-administrator-ceiling) | The upload-quota amendment: 50/300, no lifetime total, and the administrator ceiling | 2026-10-23 | 4.0.0 |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -9176,3 +9177,109 @@ scope names it. The live `ADR-001 … ADR-116` range strings move to
 contiguously. The constitution version stays 3.9.0 until the separate amendment.
 No migration, backfill, R1 plan, or code is required. Review date: 2026-11-23,
 and again at R12's load test. This entry is the durable record.
+
+**Annotation (2026-10-23, ADR-118).** The target quota model in item 3 was
+ratified by the constitutional amendment recorded in ADR-118, which moved the
+constitution to 4.0.0. The capacity envelope in item 2 and the review date stand.
+
+---
+
+## ADR-118 — The upload-quota amendment: 50/300, no lifetime total, and the administrator ceiling
+
+**Status**: Accepted — 2026-10-23
+**Owning directory**: `.specify/memory/`, `docs/`, `ROADMAP.md`,
+`Core-Project.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner.
+
+**Context.** ADR-117 adopted the capacity envelope and recorded the target quota
+model, but the constitution still bound 50 uploads per calendar month and 100
+files in total. A merchant uploading 30–50 files a month reaches the 100-file
+total in two or three months and then cannot upload again, while the product's
+six-month plan assumes monthly uploads continue. The product also needs an
+administrator per-user quota override; `PlatformSetting` cannot carry it because
+ADR-067 excludes Usage Limits from that entity. The amendment must remove the
+lifetime cliff, define the active quota and its deletion semantics, and authorize
+the administrator ceiling without turning the Settings page into a second source
+of Usage Limits. The repository has no application code, no schema, and no
+production data; R1 is in specification, and R2/R13 are planned.
+
+**Decision.** The constitution is amended to **4.0.0** — a MAJOR amendment,
+because a binding Usage Limit is removed and another is redefined.
+
+1. **Usage Limits become:**
+   - 50 uploads per calendar month per user.
+   - 300 active stored files per user.
+   - No lifetime upload total.
+   - Administrator-granted monthly ceiling: 500 files per calendar month, per
+     user, exception only.
+   - Administrator-granted active ceiling: 1,500 files per user, exception only.
+   - A quota above either ceiling requires a further amendment.
+2. **The quota semantics are explicit.** The monthly count counts upload events
+   in the calendar month and is not restored by deletion. The active count counts
+   files whose bytes, parts, bookmarks, and search-index entries are present; a
+   merchant delete, an administrator delete, or the 90-day retention job releases
+   an active slot, and a soft-deleted catalog row does not count. Quota checks are
+   server-side and atomic. Lowering a quota never deletes a file and only blocks
+   new uploads until the account is under the new limit; raising a quota takes
+   effect immediately.
+3. **The per-user quota is carried by `User`, not by a new entity.** The
+   constitution's `User` row gains optional monthly and active overrides, and the
+   domain model records the null-means-default rule, the ceilings, the ownership,
+   the enforcement point, and the audit. The `users` module owns the fields; the
+   `catalogs` module (R2) enforces the effective quota atomically; the `admin`
+   module (R13) sets it; the audit log records every change with the old value,
+   the new value, the reason, and the timestamp. The register stays at twelve
+   entities.
+4. **The administrator surface changes.** The Product Scope's administrator
+   Users page moves from "View, block, edit." to "View, block, edit, set upload
+   quota." The administrator application still has its own login and its own
+   shell; the quota control lives on the Users page, not on the Settings page.
+5. **The downstream documents move with the amendment.** `docs/domain-model.md`
+   records the quota invariant and the `User` fields; `ROADMAP.md` R2, R13, and
+   R15 name the new enforcement, the Users-page control, and the active-slot
+   release; `Core-Project.txt` mirror carries the Arabic limits, the admin page,
+   the `User` fields, and the note that the global limits are not edited from the
+   Settings page; `docs/capacity-model.md` records the ratified values.
+6. **The capacity model is not reopened.** The envelope in ADR-117 (10,000
+   accounts in six months, 50,000 capacity, 50,000–100,000 visits/day,
+   3,000–5,000 concurrent online, 300–600 concurrent uploads, 350,000/500,000
+   uploads per month) stands. The model is re-run when the assumptions in
+   `docs/capacity-model.md` §11.3 change.
+
+**What deliberately did not change.** The 100 MB maximum file size, the 90-day
+retention period, the 99-part cart cap, the p95 budgets (search under one second,
+cart-add under 200 ms, processing under five minutes), the product scope, the
+page count, the module list, the roles, and the slice order are unchanged. No new
+entity is introduced. No R1 `plan.md` or `tasks.md` is created, and no application
+code, package, schema, API, or migration is built. The 90-day trigger point
+remains R15's open fact.
+
+**Alternatives considered.**
+
+- *Keep the 100-file lifetime total and lower the monthly limit.* Rejected: it
+  would stop every active merchant sooner, not later, and would contradict the
+  capacity envelope.
+- *Make 300 a lifetime total.* Rejected: the same cliff moves to month six, and
+  the six-month horizon is a planning horizon, not an account lifetime.
+- *Create a separate `UserQuota` entity.* Rejected: the override is two nullable
+  per-account values with no independent lifecycle, the audit log already records
+  changes, and a new entity would add a join and a register count for no product
+  fact. Fields on `User` keep one owner and one read path.
+- *Put the quota on `PlatformSetting`.* Rejected: ADR-067 forbids a Usage Limit
+  in that entity, and the value is per user, not platform-wide.
+- *Let the administrator grant unlimited quota.* Rejected: the capacity model
+  would be unbounded and the constitutional limit would lose its meaning.
+- *Amend only the total and leave the administrator ceiling out.* Rejected: the
+  product requirement names a per-user override, and an unbounded override would
+  make the capacity model unenforceable.
+
+**Consequences and migration/backfill.** The constitution moves to 4.0.0; the
+footer, `.specify/memory/version.json`, and the ADR index row record the same
+version and date. The live `ADR-001 … ADR-117` range strings move to
+`ADR-001 … ADR-118`, and `Project-Technologies.txt`'s header list gains 118
+contiguously. The migration is documentation-only: there is no production data
+and no schema, so no backfill runs; R2 and R13, when specified, read the new
+limits, the `User` fields, and the audit rule. The current R1 specification does
+not name the upload quota, so its identifiers and acceptance criteria do not
+change. Review date: 2026-11-23, and again at R12's load test. This entry is the
+durable record.
