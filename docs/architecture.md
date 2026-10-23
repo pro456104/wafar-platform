@@ -270,14 +270,15 @@ Read/write notes:
   `.specify/memory/version.json`) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-118; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-119; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.
 - Capacity and load envelope: `docs/capacity-model.md` — the six-month plan,
   the quota model, the ingestion envelope, the deployment shape, and the
-  verification plan (ADR-117). The constitution wins on every conflict.
+  verification plan (ADR-117, ADR-119); sample evidence:
+  `docs/pdf-sample-analysis.md`. The constitution wins on every conflict.
 - UI foundation: Nuxt UI v4 is the component library; the Wafar UI layer is
   `packages/ui`, fixed by ADR-097 (Principle IX); R1 builds it through its plan
   and consumes it.

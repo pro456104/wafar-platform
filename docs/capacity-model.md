@@ -1,7 +1,8 @@
 # Capacity Model — Wafar
 
 **Status**: Adopted by ADR-117 on 2026-10-23; the quota model was ratified by
-ADR-118 (constitution 4.0.0). Project-level planning document.
+ADR-118 (constitution 4.0.0), and the first sample calibrated the envelope in
+ADR-119. Project-level planning document.
 **Scope**: the six-month launch horizon only. This document defines no second
 horizon.
 
@@ -51,6 +52,14 @@ The six-month plan is 10,000 registered accounts. The platform is sized to hold
 50,000 accounts without a new architectural decision, and is stress-tested at
 the ingestion volume that 50,000 accounts can produce.
 
+The first 19-file sample (2026-10-23) measured 2.28 MB average, 80.3 pages per
+file, 31.7 rows per page, and 5.3% scanned files. It is a planning base from one
+sample, not a final measurement. The pre-sample envelope is retained as the
+scanned-heavy stress case; it is not the measured baseline. ADR-119 records the
+calibration, and `docs/pdf-sample-analysis.md` carries the evidence.
+
+### 3.1 Measured baseline (2026-10-23)
+
 | Dimension | Six-month baseline | Stress ceiling | Basis |
 |---|---:|---:|---|
 | Registered accounts | 10,000 | 50,000 | product target |
@@ -60,10 +69,10 @@ the ingestion volume that 50,000 accounts can produce.
 | Concurrent uploads | 300 | 600 | product target |
 | Upload events per month | 350,000 | 500,000 | 10k × 70% × 50; 50k × 20% × 50 |
 | Active stored files (90 days) | 1,050,000 | 1,500,000 | three months of accepted uploads |
-| Scanned pages per month | 35,000,000 | 50,000,000 | 100 pages per file |
-| Active parts at 10 rows/page and 20% dedup | 840,000,000 | 1,200,000,000 | three months of parts |
-| Raw file storage (90 days) | 8.2 TB | 11.7 TB | 7.8 MB weighted average |
-| Replicated and derived storage | about 21 TB | about 30 TB | 2× replication + 30% derived data |
+| Pages per month | 28,100,000 | 40,100,000 | 80.3 pages per file |
+| Active parts at 31.7 rows/page and 20% dedup | 2,140,000,000 | 3,060,000,000 | three months of parts |
+| Raw file storage (90 days) | about 2.4 TB | about 3.4 TB | 2.28 MB average |
+| Replicated and derived storage | about 6.3 TB | about 8.9 TB | 2× replication + 30% derived data |
 | Processing workers at 5–10 min/file, 8-hour window | 122–243 | 174–347 | calculation in §5 |
 | Processing workers at 15 min/file, 8-hour window | 365 | 521 | OCR-heavy sensitivity |
 
@@ -72,6 +81,24 @@ The stress ceiling is not a promise that every one of the 50,000 accounts upload
 before a new sizing decision. The baseline assumes 70% of the 10,000 accounts
 upload in the month; that is a conservative planning assumption, not a forecast.
 The stress case assumes 20% of the 50,000 accounts upload in the month.
+
+### 3.2 Scanned-heavy envelope (pre-sample, retained as stress)
+
+The pre-sample envelope assumed 7.8 MB average and 100 pages per file. It is
+retained for the case where scans or large files dominate. It is not the measured
+baseline.
+
+| Dimension | Six-month baseline | Stress ceiling | Basis |
+|---|---:|---:|---|
+| Average file size | 7.8 MB | 7.8 MB | 94% at 7 MB, 6% at 20 MB |
+| Pages per file | 100 | 100 | pre-sample assumption |
+| Pages per month | 35,000,000 | 50,000,000 | 100 pages per file |
+| Active parts at 31.7 rows/page and 20% dedup | 2,660,000,000 | 3,800,000,000 | three months of parts |
+| Raw file storage (90 days) | 8.2 TB | 11.7 TB | 7.8 MB weighted average |
+| Replicated and derived storage | about 21 TB | about 30 TB | 2× replication + 30% derived data |
+
+All other rows are those of the measured baseline. This envelope is a stress
+case, not a second forecast.
 
 ## 4. Read traffic
 
@@ -106,14 +133,15 @@ response-shape rule, not a capacity exception.
 
 ### 5.1 Upload ingress
 
-The weighted average file size is **7.8 MB**:
+The measured sample average is **2.28 MB**. The pre-sample scanned-heavy
+envelope uses **7.8 MB**: 94% at 7 MB and 6% at 20 MB gives
+`0.94 × 7 + 0.06 × 20 = 7.8 MB`.
 
-- 94% at 7 MB and 6% at 20 MB gives `0.94 × 7 + 0.06 × 20 = 7.8 MB`.
-
-At 300–600 concurrent uploads, the bytes in flight are 2.3–4.7 GB. If those
-transfers complete in 30–60 seconds, the inbound rate is **39–156 MB/s**
-(about 0.3–1.25 Gbps). The upload path is a presigned multipart stream to
-SeaweedFS; the API does not buffer the file.
+At 300–600 concurrent uploads, the measured bytes in flight are 0.68–1.37 GB.
+If those transfers complete in 30–60 seconds, the inbound rate is **11–46 MB/s**
+(about 0.1–0.37 Gbps). In the scanned-heavy case the bytes in flight are
+2.3–4.7 GB and the rate is **39–156 MB/s** (about 0.3–1.25 Gbps). The upload path
+is a presigned multipart stream to SeaweedFS; the API does not buffer the file.
 
 ### 5.2 Processing arithmetic
 
@@ -146,11 +174,11 @@ drives it.
 
 ### 5.3 Burst arithmetic
 
-A burst of 600 files at 100 pages each is 60,000 pages. At 3 seconds/page, that
-is 50 CPU-hours of work. A 100-worker pool needs about 30 minutes; a 300-worker
-pool needs about 10 minutes. This is why the upload path and the processing path
-are separate: the upload is accepted quickly, and the user sees `processing`
-while the queue drains.
+In the scanned-heavy case, a burst of 600 files at 100 pages each is 60,000
+pages. At 3 seconds/page, that is 50 CPU-hours of work. A 100-worker pool needs
+about 30 minutes; a 300-worker pool needs about 10 minutes. This is why the
+upload path and the processing path are separate: the upload is accepted
+quickly, and the user sees `processing` while the queue drains.
 
 ## 6. Quota model
 
@@ -244,33 +272,40 @@ assume that variant.
 The raw 90-day file storage is:
 
 ```text
-files/month × 7.8 MB × 3 months
+files/month × average file size × 3 months
 ```
 
-| Load | Files/month | Raw 90-day storage | With 2× replication | With 30% derived |
+| Scenario | Files/month | Raw 90-day storage | With 2× replication | With 30% derived |
 |---|---:|---:|---:|---:|
-| Design | 350,000 | 8.2 TB | 16.4 TB | about 21 TB |
-| Stress | 500,000 | 11.7 TB | 23.4 TB | about 30 TB |
+| Measured design | 350,000 | about 2.4 TB | 4.8 TB | about 6.3 TB |
+| Measured stress | 500,000 | about 3.4 TB | 6.8 TB | about 8.9 TB |
+| Scanned-heavy design | 350,000 | 8.2 TB | 16.4 TB | about 21 TB |
+| Scanned-heavy stress | 500,000 | 11.7 TB | 23.4 TB | about 30 TB |
 
-The derived allowance covers page images, OCR text, temporary workspace, and
+The measured rows use 2.28 MB average; the scanned-heavy rows use 7.8 MB. The
+derived allowance covers page images, OCR text, temporary workspace, and
 index-side artefacts. It is not a second copy of the original file.
 
 ### 8.2 Parts and the search index
 
-The parts volume depends on rows per page, which is not yet measured. At 100
-pages/file and 20% deduplication:
+The sample measured 31.7 rows per page (median 33, range 21–47). At 80.3
+pages/file, 350,000/500,000 files per month, and 20% deduplication:
 
-| Rows per page | Active parts, design | Active parts, stress |
-|---:|---:|---:|
-| 5 | 420,000,000 | 600,000,000 |
-| 10 | 840,000,000 | 1,200,000,000 |
-| 20 | 1,680,000,000 | 2,400,000,000 |
+| Rows per page | Active parts, design | Active parts, stress | Basis |
+|---:|---:|---:|---|
+| 10 | 675,000,000 | 964,000,000 | pre-sample row count |
+| 20 | 1,350,000,000 | 1,930,000,000 | sensitivity |
+| 31.7 | 2,140,000,000 | 3,060,000,000 | measured sample |
+| 50 | 3,370,000,000 | 4,820,000,000 | high sensitivity |
+
+The scanned-heavy 100 pages/file case at 31.7 rows/page gives about 2.66 billion
+active parts at design and 3.80 billion at stress.
 
 The 50,000-account figure is not a database problem by itself; 50,000 rows in
 `users` is small. The parts projection is the database and search problem.
-PostgreSQL needs a partitioning and archival decision before the high end of
-this table, and OpenSearch needs a shard plan sized to the measured index, not to
-a guess.
+PostgreSQL needs a partitioning and archival decision before the 2–3 billion
+range, and OpenSearch needs a shard plan sized to the measured index, not to a
+guess.
 
 ## 9. Deployment shape
 
@@ -281,8 +316,8 @@ This is a shape, not a quote and not a single-server specification:
 | API | 4–8 replicas, 4 vCPU / 8 GB each, stateless, behind a load balancer |
 | PostgreSQL | 8–16 vCPU / 32–64 GB, SSD, primary plus replica, PgDog in front |
 | Redis | 8–16 GB for BullMQ and cache |
-| OpenSearch | at least 3 data nodes, 8–16 vCPU / 32–64 GB, NVMe; shard count from the measured index |
-| SeaweedFS | 4–6 nodes, 16 TB each, 10 Gbps, replication; about 64–96 TB raw for the 21–30 TB replicated envelope |
+| OpenSearch | at least 3 data nodes, 8–16 vCPU / 32–64 GB, NVMe; the 2–3 billion measured parts range needs a shard plan and likely more than the minimum |
+| SeaweedFS | 4–6 nodes, 16 TB each, 10 Gbps, replication; 4 nodes give 64 TB raw and about 32 TB replicated, covering both the 6.3–8.9 TB measured and 21–30 TB scanned-heavy envelopes |
 | Workers | 50–350 autoscaling, 2–4 vCPU / 4–8 GB each; 365–521 at the 15-minute OCR sensitivity |
 | OCR | a paid document-AI service or a GPU worker pool; not selected by this document |
 | Edge | CDN for public pages and images; TLS and load balancing at the edge |
@@ -294,24 +329,30 @@ multi-node search cluster, and replicated object storage.
 
 ## 10. Bottlenecks and risks
 
-1. **OCR and table extraction.** A scanned Arabic parts table is not a text PDF.
-   OCR alone does not preserve merged columns, rotated pages, or a table's row
-   boundaries. The extraction technology is a register gap; R3 must choose it
-   through the gap process and prove it on real pages before the model is
-   treated as measured.
+1. **Table extraction from text PDFs and scans.** A scanned Arabic parts table is
+   not a text PDF; OCR alone does not preserve merged columns, rotated pages, or
+   a table's row boundaries. The sample also found text PDFs whose text layer is
+   corrupted, so a text layer is not a guarantee. The extraction technology is a
+   register gap; R3 must choose it through the gap process and prove it on real
+   pages before the model is treated as final.
 2. **The 5-minute p95 processing budget.** A 100-page scan at 3 seconds/page is
    already at the budget before queue wait. Autoscaling alone does not remove
    the per-file floor; parallel page processing and a fast OCR path are required.
-3. **Parts volume.** 840 million to 1.2 billion active parts at 10 rows/page is
-   the planning range. At 20 rows/page it doubles. The index design is not yet
-   measured.
-4. **Storage growth.** The 90-day rule caps the file set, but replication and
-   derived data turn 8.2–11.7 TB of originals into 21–30 TB of storage.
+3. **Parts volume.** The measured 31.7 rows/page gives about 2.14 billion active
+   parts at design and 3.06 billion at stress, after 20% deduplication. The
+   scanned-heavy 100-page case reaches 2.66–3.80 billion. PostgreSQL and
+   OpenSearch are the capacity risk, not the 50,000 user rows.
+4. **Storage growth.** The measured sample needs about 6.3–8.9 TB replicated and
+   derived; the scanned-heavy envelope needs 21–30 TB. The 90-day rule caps the
+   file set, but replication and derived data still multiply the originals.
 5. **Administrator review.** Ten administrators cannot review 350,000–500,000
    files a month. The pipeline must process automatically and route only
    exceptions to a human.
 6. **The 500/1,500 exception.** A small number of exceptions is affordable; a
    broad grant changes the stress case and is a re-sizing event.
+7. **Text-layer quality.** Eight of the 18 text PDFs in the sample carry
+   corrupted characters or unreadable headers. A quality gate is required before
+   extraction, with a fallback to another extractor or OCR.
 
 ## 11. Verification
 
@@ -319,13 +360,17 @@ multi-node search cluster, and replicated object storage.
 
 Measure 20–50 real pages from real supplier files:
 
+- Text-layer quality and encoding, including the share of expected Arabic that
+  survives extraction.
 - Arabic text accuracy.
 - Table structure and merged-column accuracy.
+- Per-column precision and recall for the six canonical columns and the supplier.
 - Time per 100 pages.
 - Cost per 1,000 pages.
 - Data terms and retention of the OCR provider.
 
-The result feeds R3's extraction decision and the next revision of this model.
+The sample must include Excel, Word, text PDF, and scanned PDF. The result feeds
+R3's extraction decision and the next revision of this model.
 
 ### 11.2 At R12's pre-release load test
 
@@ -357,14 +402,18 @@ this document defines no other horizon.
 
 ## 12. Open assumptions
 
-These are assumptions, not measurements:
+These are assumptions, not final measurements:
 
-- 7 MB average, with 6% at 20 MB, giving 7.8 MB weighted.
-- 100 pages per file (range 80–150).
-- 10 rows per page (sensitivity at 5 and 20).
-- 20% deduplication.
+- The first sample (19 files, 2026-10-23) gives 2.28 MB average, 80.3 pages per
+  file, 31.7 rows per page, and 5.3% scanned files. It is a preliminary
+  measurement, not a population estimate.
+- The scanned-heavy envelope retains 7.8 MB average and 100 pages per file as a
+  stress case; it is not the measured baseline.
+- 20% deduplication remains an assumption.
 - 70% of the 10,000 accounts upload in the design month.
 - 20% of the 50,000 accounts upload in the stress month.
+- The share of text PDFs whose text layer is corrupted, and therefore needs an
+  alternate extractor or OCR, is not yet measured beyond the sample.
 - 90 days counted from the upload date for sizing only; R15 owns the real
   trigger.
 - No OCR technology is selected.
@@ -378,5 +427,6 @@ These are assumptions, not measurements:
 - `docs/architecture.md` — data flow, modules, worker pipeline.
 - `docs/domain-model.md` — entities, invariants, and the current quota
   invariant.
-- `docs/DECISIONS.md` — ADR-067, ADR-117, ADR-118.
+- `docs/pdf-sample-analysis.md` — the 2026-10-23 sample evidence and its limits.
+- `docs/DECISIONS.md` — ADR-067, ADR-117, ADR-118, ADR-119.
 - `ROADMAP.md` — R2, R3, R12, R13, R15.

@@ -154,6 +154,7 @@ from the index rather than edited in its own words.
 | [ADR-116](#adr-116--the-ui-layer-path-authority-and-the-register-gap-exception) | The UI-layer path authority and the register-gap exception | 2026-10-22 | 3.9.0 |
 | [ADR-117](#adr-117--the-capacity-envelope-and-the-upload-quota-model) | The capacity envelope and the upload-quota model | 2026-10-23 | 3.9.0 (unchanged) |
 | [ADR-118](#adr-118--the-upload-quota-amendment-50300-no-lifetime-total-and-the-administrator-ceiling) | The upload-quota amendment: 50/300, no lifetime total, and the administrator ceiling | 2026-10-23 | 4.0.0 |
+| [ADR-119](#adr-119--the-first-pdf-sample-calibration-and-the-two-scenario-capacity-model) | The first PDF sample calibration and the two-scenario capacity model | 2026-10-23 | 4.0.0 (unchanged) |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -9182,6 +9183,12 @@ and again at R12's load test. This entry is the durable record.
 ratified by the constitutional amendment recorded in ADR-118, which moved the
 constitution to 4.0.0. The capacity envelope in item 2 and the review date stand.
 
+**Annotation (2026-10-23, ADR-119).** The envelope in item 2 was calibrated by
+the first PDF sample. The measured planning baseline is now 2.28 MB average,
+80.3 pages per file, and 31.7 rows per page; the 7.8 MB/100-page case is retained
+as the scanned-heavy stress scenario. The envelope's targets and the review date
+stand.
+
 ---
 
 ## ADR-118 — The upload-quota amendment: 50/300, no lifetime total, and the administrator ceiling
@@ -9283,3 +9290,97 @@ limits, the `User` fields, and the audit rule. The current R1 specification does
 not name the upload quota, so its identifiers and acceptance criteria do not
 change. Review date: 2026-11-23, and again at R12's load test. This entry is the
 durable record.
+
+---
+
+## ADR-119 — The first PDF sample calibration and the two-scenario capacity model
+
+**Status**: Accepted — 2026-10-23
+**Owning directory**: `docs/`
+**Owning feature**: none — governance decision; ratified by the repository owner.
+R3 consumes the evidence; no slice specification is created by this record.
+
+**Context.** ADR-117 adopted the capacity envelope with three pre-sample
+assumptions: a 7.8 MB weighted average file, 100 pages per file, and 10 rows per
+page. The first real sample (19 PDFs, 1,525 pages, inspected locally on
+2026-10-23) measured a different shape: 18 text PDFs and one scan; 2.28 MB
+average; 80.3 pages per file; 31.7 rows per page; 5.3% of files scanned; and
+48.3% of the bytes in the single scan. Eight of the 18 text PDFs also carry
+corrupted characters or unreadable headers, so a text layer is not a guarantee of
+clean extraction. The sample is small and comes from one folder, so it cannot
+replace the envelope outright; it is enough to calibrate the planning baseline
+and preserve the pre-sample envelope as a stress case. The alternative — leaving
+the 10-row figure as the only planning number — would understate the parts
+projection by about 2.5 times.
+
+**Decision.**
+
+1. **`docs/pdf-sample-analysis.md` is added as preliminary evidence.** It records
+   the 19-file sample, its method, its aggregate measurements, its limits, and
+   the extraction problems it exposed. It is not a feature, a specification, or a
+   source of product rules. It carries no raw merchant data.
+2. **The capacity model uses two scenarios.** The measured baseline is 2.28 MB
+   average, 80.3 pages per file, 31.7 rows per page, and 5.3% scanned files. The
+   scanned-heavy envelope retains 7.8 MB average and 100 pages per file as the
+   stress case. Both use 350,000/500,000 uploads per month, 20% deduplication, and
+   the 90-day active set.
+3. **The measured parts projection is about 2.14 billion active parts at design
+   and 3.06 billion at stress**, after 20% deduplication. The scanned-heavy
+   envelope is about 2.66 billion at design and 3.80 billion at stress. These are
+   planning figures, not a measured production index. PostgreSQL partitioning and
+   OpenSearch sharding are the capacity risk.
+4. **The measured storage projection is about 6.3 TB at design and 8.9 TB at
+   stress**, replicated and including 30% derived data. The scanned-heavy
+   envelope remains 21 TB and 30 TB. The measured upload ingress is 11–46 MB/s
+   at 300–600 concurrent uploads; the scanned-heavy ingress remains 39–156 MB/s.
+5. **The canonical columns do not change.** The six `Part` columns and the
+   supplier display remain exactly as ADR-040 and the Glossary fix them. The
+   sample does not justify a new column. Four rules remain for R3: which price
+   wins when a file prints two; when a row-level company is `type` and when it is
+   the supplier; whether a missing original number is null or derived; and how
+   the car model and type are separated from a long Arabic name. A new canonical
+   column would be a Glossary amendment, not an R3 choice.
+6. **Text-layer quality becomes an extraction gate.** R3 must measure whether a
+   text PDF's extracted Arabic and header survive extraction, and fall back to
+   another extractor or OCR when they do not. The sample's corrupted text layers
+   make "text PDF means no OCR" unsafe. No OCR or table-extraction technology is
+   selected by this record; the Technology Standards gap process still owns that
+   choice.
+7. **The sample remains preliminary.** A broader sample of 50–100 files across
+   5–10 suppliers, including Excel, Word, text PDF, and scanned PDF, is required
+   before the measured baseline is treated as final. The 20% deduplication figure
+   is still an assumption. The 90-day trigger remains R15's decision; the
+   sample's old issue dates support the upload-date recommendation already
+   recorded in the capacity model, but this record does not decide it.
+
+**What deliberately did not change.** No constitutional text, Usage Limit,
+canonical column, entity, page, role, module, slice order, or dependency edge
+changes. The quota model of ADR-118 stands. No R1 `plan.md` or `tasks.md` is
+created, no slice specification is created, and no application code, package,
+schema, API, or migration is built. No OCR technology is chosen.
+
+**Alternatives considered.**
+
+- *Keep 7.8 MB and 10 rows per page as the only model.* Rejected: the sample
+  contradicts both the file-size and row-count assumptions, and the 10-row figure
+  understates active parts by about 2.5 times.
+- *Replace the envelope entirely with 2.28 MB and 31.7 rows.* Rejected: 19 files
+  from one folder are not a population, and the scanned-heavy case must remain
+  visible for merchants who photograph documents.
+- *Add separate description, currency, brand, or country columns.* Rejected: the
+  sample does not prove the need, and the Glossary fixes the six; a new column is
+  a constitutional amendment.
+- *Choose an OCR or document-AI vendor now.* Rejected: the register gap belongs
+  to R3, and the sample is a five-page lower-bound benchmark, not a product
+  selection.
+- *Treat the sample as a feature or a slice.* Rejected: it is project-level
+  evidence, and ADR-007 prohibits a feature for a project-level concern.
+
+**Consequences and migration/backfill.** `docs/capacity-model.md` now carries the
+measured baseline and the scanned-heavy stress case; its old 10-row figure is
+retained only as a sensitivity row. The live `ADR-001 … ADR-118` range strings
+move to `ADR-001 … ADR-119`, and `Project-Technologies.txt`'s header list gains
+119 contiguously. The change is documentation-only: there is no production data,
+no schema, and no code, so no backfill runs. R3, when planned, reads the sample
+report, the two scenarios, and the open rules. Review date: 2026-11-23, and again
+after the broader sample. This entry is the durable record.
