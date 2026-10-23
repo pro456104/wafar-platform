@@ -34,7 +34,7 @@
        - `Core-Project.txt` — the product definition: roles and their
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
-       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-110). A
+       - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-116). A
          specification that contradicts one is a blocking defect.
        - `docs/domain-model.md` — the entities a Key Entities section may name,
          and the invariants such a specification MUST NOT contradict. A
@@ -78,7 +78,7 @@
 - Q: How should the platform express the fifteen-minute lock after five consecutive failed sign-in attempts, so that a sign-in response still does not reveal whether the number has an account? → A: The refusal stays uniform — an attempt made while the account is locked is refused with the same response text, the same status, and the same response path as any other failed sign-in, and no message, timing difference, or other signal distinguishes a locked account from a wrong password or an unknown number; the lock withholds acceptance only, so FR-008 and SC-004 stay unqualified and no documented exception is recorded.
 - Q: Where does a person arrive after the mobile number is verified at sign-up and after signing in, given that this slice ships no page carrying the frame and no page in the merchant's area? → A: Nowhere in this slice — each journey ends at the platform's own response (the session created after verification, or the session created after sign-in), the session's existence is verified at the behaviour level and by the integration tests, and the first page a signed-in merchant lands on arrives with the slice that ships the merchant's area; this slice adds no landing page and AC-023 and SC-005 keep the three bare pages as their only list.
 - Q: Does a session end only when it goes unused, or also at an absolute maximum lifetime, however active the merchant is? → A: Both clocks — the session ends when the session timeout elapses with no activity, and it also ends when it reaches its absolute maximum lifetime, however active the merchant is; the two values are stated numerically under Constitution Mandated Values, and AC-015 and the session unit tests cover both.
-- Q: When a new one-time code is requested, does the previous code stop being valid, and is the bound on incorrect entries counted per code or over the whole verification? → A: Exactly one code is valid at any moment and the bound is counted over the whole verification — requesting a new code invalidates the previous one at once and does not reset the count of incorrect entries, so the guessing bound holds across re-requests and is governed only by the limit on requesting new codes.
+- Q: When a new one-time code is requested, does the previous code stop being valid, and is the bound on incorrect entries counted per code or over the whole verification? → A: Exactly one code is valid at any moment and the bound is counted over the whole verification - requesting a new code invalidates the previous one once the new message is dispatched and does not reset the count of incorrect entries, so the guessing bound holds across re-requests and is governed only by the limit on requesting new codes. (Revised 2026-10-22: the previous code stops being valid when the replacement is dispatched, so a failed send leaves it valid — see the Session 2026-10-22 bullet on a failed re-request.)
 - Q: Does a successful password reset through the recovery flow lift the account's fifteen-minute lock, or does the lock run its full duration? → A: The lock runs its full duration — a successful reset neither lifts the lock nor resets the count of consecutive failed attempts, because the lock is a time bound independent of the password and proving ownership of the number does not waive it; the merchant signs in with the new password once the fifteen minutes have passed.
 
 ### Session 2026-10-11
@@ -89,7 +89,7 @@
 - Q: In the password-recovery flow, is the indistinguishability rule bounded to the request and the code dispatch — as in sign-up — given that a number with no account has nothing to reset? → A: Bounded the same way — after the correct code is entered, ownership of the number is proven and the platform states explicitly that no account exists for it, rather than continuing as though a reset had occurred; FR-015 and AC-017 carry the bound, and SC-004 bounds the recovery flow as it bounds sign-up.
 - Q: Is the set of valid Libyan mobile prefixes on +218 fixed in this slice as reference data named in a decision record — as the city list was — or left to the plan? → A: Fixed here, once — recorded as one reference dataset for accounts and named in a decision record alongside the city list; the platform decides whether a +218 number is a mobile number from that dataset rather than from a rule of its own, so FR-003 and AC-003 are testable without judgement.
 - Q: Does this slice choose and build the surface that carries the static-page links and record the decision, or deliver the four routes only and defer the surface? → A: This slice chooses the surface, builds it inside the frame, and records the decision as a decision record — revising the earlier deferral, because the frame is delivered whole and ROADMAP assigns the choice and its record to R1; FR-024, AC-026, US5, and the matching Assumptions bullet are revised accordingly.
-- Q: At the administrator's first sign-in, is the sign-in accepted and the account then restricted to the password change, or is the sign-in itself refused until the password is changed? → A: The first sign-in is accepted and the account is restricted so that no action other than the password change is permitted until the change is made; the sign-in itself is never refused, so FR-028 and AC-030 are reworded and the earlier "a first sign-in is refused" reading is removed.
+- Q: At the administrator's first sign-in, is the sign-in accepted and the account then restricted to the password change, or is the sign-in itself refused until the password is changed? → A: The first sign-in is accepted and the account is restricted so that no action other than the password change is permitted until the change is made; the sign-in itself is never refused, so FR-028 and AC-030 are reworded and the earlier "a first sign-in is refused" reading is removed. (Revised 2026-10-22: the restriction withholds every product action that needs the account's ordinary permissions, but not the password change itself or ending the session; see Session 2026-10-22.)
 - Q: When the holder of a blocked account resets the password through the recovery flow, does the reset complete while the block stands, or is the request refused because the account is blocked? → A: The reset completes — a new password is set and every existing session ends — but the account's block stands, so no access is granted; the outcome is stated only after ownership of the number is proven, and FR-014 and the matching edge case carry the rule.
 - Q: Does this slice deliver the act of blocking an account — the action that sets the status to blocked — or does it deliver the status and everything that follows from it, with the act arriving with the slice that ships the administrator's Users page? → A: The act is not delivered here: this slice delivers the status, the uniform refusal a blocked account receives, and the withdrawal of the sessions the account already held, and its tests reach the blocked state directly; the act of blocking arrives with the administrator's Users page (R13), where the audit record every administrator operation requires also exists, and US4's Independent Test is narrowed to that boundary.
 - Q: Does this slice deliver the account's own change-password action — the action that changes the password from inside the account — or does it stay with the profile page (R7) so that session revocation is exercised through the recovery flow alone? → A: The action is delivered here as behaviour, with no page, and is verified by the integration tests; the profile page that offers it arrives with a later slice. Both halves of FR-013 therefore stay testable in this slice — the change made from inside the account and the change made through the recovery flow — and FR-013, US2, and its Independent Test carry the boundary.
@@ -175,7 +175,7 @@
 - Q: The sidebar's item list is the same for a guest and a signed-in merchant, so a guest can press an item that names a merchant-area destination — what does the platform show then? → A: The sign-in page: the platform takes the guest there, because the register gives a guest no cart, no upload, no message, and no merchant area; the item itself stays present and enabled, since the list is not varied by role, and the three items that name a public destination — Home, Parts, and Catalog — open their own pages as they do for a merchant. The rule adds no page, no route, and no stored state, and whether the merchant returns to the item they wanted after signing in is a decision of the slice that ships the merchant area's pages. FR-048 and AC-052 carry the rule.
 - Q: What does a merchant see when their session ends or their account is blocked while they are on a page that carries the frame? → A: An explicit state inside the frame, stating that the session has ended and offering the way to sign in again, and saying plainly that the account is blocked when that is the reason, because the person held a valid session and is no longer an unknown caller; no unrelated error is shown, and the frame stops sending requests for a session that no longer exists. The state adds no page, no route, and no entity, and it is outside the enumeration comparison SC-004 bounds. FR-049 and AC-053 carry the rule.
 - Q: What does the administrator application's header carry now that the platform's header design is fixed? → A: The administrator application keeps its own shell, and its header carries the platform's logo at the inline-start edge and an account control whose menu offers «تسجيل الخروج» only, because the administrator application has no Profile page and no merchant settings page, so the merchant menu's destinations do not exist there. This specification binds that composition for R13 and delivers nothing of it. FR-050 and AC-054 carry the rule.
-- Q: Is the background and its colour an option a merchant or the administrator chooses, or a fixed design value? → A: A fixed design value: the appearance's surfaces, backgrounds, and colours belong to the Wafar UI layer and are recorded in this slice's plan (ADR-098); neither a merchant nor the administrator chooses a background or a colour, and no such preference is stored on the account or in the platform's settings, so no requirement, entity, or slice is added. FR-025 carries the rule.
+- Q: Is the background and its colour an option a merchant or the administrator chooses, or a fixed design value? → A: A fixed design value: the appearance's surfaces, backgrounds, and colours are recorded as fixed design values in this slice's plan (ADR-098); neither a merchant nor the administrator chooses a background or a colour, and no such preference is stored on the account or in the platform's settings, so no requirement, entity, or slice is added. FR-025 carries the rule.
 - Q: What closes the account menu? → A: Three paths, each closing it without action: pressing Escape, activating something outside it, and moving the focus out of it; the focus returns to the account control in every case. FR-047 and AC-051 carry the rule.
 - Q: What does «حسابي» show exactly? → A: The account's full name, its city, and its status — active or blocked — and no other account field; the mobile number and the editable account details belong to the settings section, so the item that opens the page shows a summary and the item that opens the settings section shows and changes the details. FR-047 and AC-051 carry the rule.
 - Q: What does the merchant see in the page they were on after confirming the sign-out in the account menu? → A: The same ended-session state FR-049 requires when a request is refused: the page stays where it is inside the frame, states that the session has ended, and offers the way to sign in again, so both ways a session ends lead to one outcome. FR-049 and AC-053 carry the rule.
@@ -200,8 +200,28 @@
 - Q: FR-032 ends a session when "the session timeout elapsing with no activity", but the specification never says what counts as activity — so does a request the browser sends on its own, such as a background request the frame issues, keep the session alive? → A: Only what the merchant themselves do counts as activity for the session timeout — opening a page, submitting a form, or any other action the merchant starts — and that action MUST reset the inactivity clock; a request the browser sends on its own MUST NOT count as activity, so a background request cannot keep a session alive indefinitely and the timeout keeps its meaning. FR-032, AC-015, the `Session` entity, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
 - Q: FR-035 requires a password policy with a minimum length and a rejection of common or breached passwords, but the specification never says whether the person is told what the policy requires, and whether the reasons a password is refused are told apart from one another? → A: Both: the form that takes a password states the policy's requirements before the password is typed, so the person can meet the policy without trial and error, and each reason the policy refuses a password carries its own message — shorter than the minimum, and common or breached — so the person knows what to correct. None of these messages reveals whether an account exists: the policy is applied to every password submitted, and the same message is given for the same reason whether or not the number has an account. FR-035, AC-037, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
 - Q: FR-005 presents the city as "a searchable choice from one fixed list", but the specification never says what a person may type into that search, nor what names the list's entries carry — and the list is fixed once in this slice, so every later slice reads it. → A: Each entry carries one Arabic name and no Latin alternate name, and the search matches those Arabic names while ignoring diacritics, so a person who types a city without its diacritics still finds it, and the list holds no second naming source to keep in step with it. FR-005, AC-005, the city-list Assumption, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
-- Q: FR-038 makes the one-time-code entry a step of the same page, but the specification never says what that step shows — do the fields the person filled in stay visible and editable, and may the mobile number be changed there? → A: The fields are shown for reading, the mobile number among them, so the person sees which number the code was sent to, and they are not editable there; a person who wants a different number returns to the page's first step and submits the form again, which starts a new pending request for the new number on FR-034's terms, while the pending request for the first number stays live until its own expiry. FR-038, AC-041, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
+- Q: FR-038 makes the one-time-code entry a step of the same page, but the specification never says what that step shows — do the fields the person filled in stay visible and editable, and may the mobile number be changed there? → A: The fields are shown for reading, the mobile number among them, so the person sees which number the code was sent to, and they are not editable there; a person who wants a different number returns to the page's first step and submits the form again, which starts a new pending request for the new number on FR-034's terms, while the pending request for the first number stays live until its own expiry. FR-038, AC-041, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications). (Revised 2026-10-22: the fields the code step shows are enumerated, and the password is excluded from them — see the later bullet in this session.) (Revised again 2026-10-22: the enumeration is bounded to the fields each flow collected — the four at sign-up, the mobile number alone in recovery — and the step carries its re-request and change-number controls; see the later bullets in this session.)
 - Q: FR-040 lists the submissions the in-progress state and the disabled submit control govern, but the new-password step of the password-recovery flow is not among them — does the guard cover that step, and what happens there when the request fails? → A: The guard governs every submission these three pages make, so the new-password step is guarded exactly as the password-recovery request is: a repeated submission there neither sets the password twice nor ends the account's sessions twice, and a failure on that step shows the same inline, explicit, retryable message every failure on these pages shows, because the error page arrives with a later slice. The account's own change-password action has no surface in this slice, so the guard has no page to act on there. FR-040, AC-043, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
+- Q: When the correct one-time code is entered in the password-recovery flow, does the code stop being usable at that moment or stay usable until the new password is set, and what does the page show when the person reloads it at the new-password step? → A: In the password-recovery flow the code stops being usable the moment it is verified: the pending request moves to a verified state that carries the new-password step alone, lasts no longer than the pending request's own lifetime — the value Constitution Mandated Values already fixes — and is single-use, because setting the new password ends it and the pending request, so the same code cannot authorise a second reset. A reload, or a close-and-return, while the verified state lives shows the new-password step again rather than the code step, and once the password is set it returns the page to its first step as FR-041 provides. FR-014, FR-034, FR-038, AC-036, AC-041, the key-entities note, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
+- Q: Must the in-progress state, the inline failure message, and the in-place confirmation the three bare pages render be announced to assistive technology, and where does focus go when a step that held it is replaced? → A: Every one of those states is announced to assistive technology, and when a step replaces another the focus moves to the step now shown — its first field, or its heading when it carries no field — and never remains on a control the previous step carried; the automated scan and the keyboard-only pass SC-006 requires assert both on the three bare pages. FR-040, AC-043, and SC-006 carry the rule (decided 2026-10-22, Clarifications).
+- Q: The code step shows "the fields the person filled in" for reading, and the sign-up form's fields include the password — so does the step show the submitted password back to the browser? → A: No — the code step shows the full name, the mobile number, the city, and the optional shop name for reading, and the password is never shown back: it is not re-displayed, not echoed, and not masked-and-rendered either, so a submitted password never returns to the browser in any form. The mobile number is shown among them, so the person sees which number the code was sent to, and the whole set is read-only there. FR-038, AC-041, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications). (Revised 2026-10-22: this enumeration is the sign-up code step's; in password recovery the step shows the mobile number alone, because the recovery form collects nothing else — see the later bullet in this session.)
+- Q: AC-030 asserts that the administrator's forced-password-change requirement "is cleared by the change made at that first sign-in", and US6's Independent Test demands that clearing be confirmed — but this slice ships no administrator sign-in surface, and FR-027 and FR-014 close every other path to that credential, so the event AC-030 names cannot occur here. Does this slice deliver the administrator's first sign-in as behaviour, with no page? → A: Yes — this slice delivers the administrator's first sign-in as behaviour with no page, exactly as FR-013 delivers the account's own change-password action: the first sign-in is accepted, the account is restricted so that nothing but the password change is permitted, and the change made at that first sign-in clears the requirement and lifts the restriction. Only the administrator's sign-in *surface* — the page — arrives with the later slice that ships the administrator application, and this slice creates no page for it. FR-028, AC-030, US6, the administrator Assumption, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications). (Revised 2026-10-22: the restriction withholds every product action that needs the account's ordinary permissions, but not the password change itself or ending the session, so sign-out remains available — see the later bullet in this session.)
+- Q: FR-017 refuses a blocked account's sign-in "because it is a status refusal and never reached a password verification", while FR-008 and SC-004 require every sign-in response to do the same work and take the same time whatever the account's state — so does the platform refuse a blocked, a locked, and an administrator account before verifying the password, or after? → A: After — a status or role refusal performs the same verification work as any other sign-in attempt and is refused afterwards on the status or role ground, so its response is indistinguishable in text, status, response path, and duration from a wrong password and from an unknown number, exactly as SC-004 requires. The consecutive-failed-attempt count is still not incremented, because the verification the attempt performed was not against an active account — the reason FR-009 already gives, and the reason FR-017's own wording is brought into line with. FR-008, FR-009, FR-017, AC-009, AC-019, AC-029, SC-004, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
+- Q: When the correct one-time code is entered at sign-up for a number that already has an account, the platform creates no second account and directs the person to sign in or to recover the password — but what happens to the pending request and its code at that point, given that the recovery flow's counterpart (FR-014) ends the pending request once the outcome is stated? → A: The same rule governs both code paths: the pending request ends once the outcome is stated, and the code stops being valid at once, so no live request and no usable code survive an outcome the platform has already reported. FR-006, FR-034, AC-006, the Key Entities note, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
+- Q: The Test Coverage Request sets the coverage target at "at least 80% of changed lines" of changed production code, while the frame's runtime behaviour — the account menu's open and confirm behaviour, the sidebar's two-width behaviour, and the header controls' behaviour — is expressly deferred to the slice that ships the first page carrying the frame, and this slice builds that frame. Does the deferred behaviour count against this slice's coverage target? → A: No — the target is stated over the changed production lines this slice introduces, except the frame's runtime behaviour this slice defers to the first frame-carrying slice, and that exclusion is named in the Test Coverage Request so the coverage gate is asserted over a scope the specification can actually meet. The frame's composition and the presence of its controls remain covered here by the structural verification, and the deferred runtime lines are covered in the slice that exercises them. The Test Coverage Request carries the rule (decided 2026-10-22, Clarifications).
+- Q: In password recovery the page collects only a mobile number, yet FR-038 and AC-041 require the one-time-code step to show the full name, the mobile number, the city, and the optional shop name — what does that step show in the recovery flow? → A: The mobile number alone — the field the flow collected — in its canonical form with Latin numerals; the four fields remain the sign-up code step's rule, and the no-password rule governs both flows. Showing an account field before the code is verified would reveal that the number has an account, breaching FR-015 and SC-004. FR-038, AC-041, the matching edge cases, and the Test Coverage Request carry the bound (decided 2026-10-22, Clarifications).
+- Q: At the administrator's first sign-in the account is restricted so that nothing but the password change is permitted (FR-028, AC-030), yet the administrator application's header offers sign-out (FR-050) — may the restricted administrator end their session before changing the password? → A: Yes — the restriction withholds every product action that needs the account's ordinary permissions, but it does not withhold the password change itself or ending the session: sign-out, the session timeout, and a platform revocation all remain available, so FR-028 and AC-030 are bounded to say so and FR-050's sign-out control stands for a restricted account (decided 2026-10-22, Clarifications).
+- Q: The code step shows the submitted values for reading and keeps them from being edited there, and a reload resumes the code step — so how does the person request a new one-time code or return to the first step to change the mobile number? → A: The step carries two controls beside the code field and its submit control: one that requests a new one-time code, subject to FR-034's limit, and one that returns to the page's first step, where the values already typed are editable again and retained except the password, which the page never retains or shows; a reload still resumes the code step while the pending request is live, and a fresh submission replaces the pending request on FR-034's terms. FR-038, AC-041, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
+- Q: At the administrator's forced first sign-in, may the new password be identical to the initial password the operator supplied, so that submitting the same value clears the requirement without changing anything? → A: No — the change MUST set a value different from the initial password: a submission that repeats it is refused and clears nothing, and the requirement is cleared only by an actual change. The allowance that a new password MAY repeat the one it replaces stays as it is for every change made after the person's own password, because the policy keeps no history; only the forced first change is bounded (decided 2026-10-22, Clarifications).
+- Q: When the sign-up form is submitted, does the pending request hold the submitted password until the account is created after verification, and in what form is it held so that no plaintext password is retained? → A: The password is irreversibly protected at submission — in the same protected form a stored password has, computed before the pending request is written — and the pending request holds only that protected value; the account is created from it when the correct code is entered, so no plaintext password is ever stored, logged, or cached while the request lives, and the page never retains or shows it. A request that is replaced or ends discards the value with it (decided 2026-10-22, Clarifications).
+- Q: When more than one refusal applies to one submission — an exhausted rate limit, a filled hidden field, a submission before the minimum time, a value that breaks a rule, and a number that already has an account — which refusal does the sender receive first, and in what order are the checks applied? → A: One fixed order, applied identically on every page: the operation's rate limit first, then the sign-up form's hidden field, then its minimum time-to-submit, then the value rules, then the account-existence comparison. A submission refused at a step is decided by that step alone, so no later check runs; within the value step every failing rule may report its own message, but no account-existence comparison runs until every value rule has passed (decided 2026-10-22, Clarifications).
+- Q: When a person asks for a new one-time code and the messaging channel does not accept the message, does the previously delivered code stay valid, or is it invalidated at the moment of the request so that the live request carries no valid code until another re-request succeeds? → A: The previous code stays valid until the channel accepts the new message: the replacement takes effect only when the new code is dispatched, a failed send leaves the previous code as the one valid code, the pending request stays live, and the failed attempt consumes no part of the limit on re-requesting. A moment with no valid code therefore never arises, and a channel outage does not cost the person the code they already hold (decided 2026-10-22, Clarifications).
+- Q: Is the administrator's forced first change a password change for the two rules that follow one — does it end every existing session (FR-013), and does it send the security notice (FR-043) — or is it a special path exempt from both? → A: Both rules apply: it is a password change like any other, so every existing session of the account ends, including the restricted session the change was made from, and the administrator signs in again with the new password, now unrestricted; the security notice is sent as well, exactly as AC-047 already provides for the account's own change action, because the forced change replaces a password the account already held (decided 2026-10-22, Clarifications).
+- Q: When a session ends by a platform revocation (FR-012), by a password change or reset made elsewhere (FR-013), or by a sign-out of every device (FR-011), does the merchant see the same ended-session state FR-049 defines, or do those paths have no defined surface? → A: Every path that ends a session leads to the one state FR-049 defines — the explicit state inside the frame, stating that the session has ended and offering the way to sign in again — so a platform revocation, a password change or reset, and a sign-out of every device join the inactivity timeout, the absolute maximum lifetime, an explicit sign-out elsewhere, and a block; no session-ending path shows an unrelated error, and the blocked variant still says the account is blocked. FR-049 and AC-053 carry the rule (decided 2026-10-22, Clarifications).
+- Q: When the messaging channel accepts a one-time-code message but delivery later fails, is that a send failure that must produce the explicit failure state, or is "cannot be sent at all" bounded to a refusal at acceptance? → A: Bounded to a refusal at acceptance: a message the channel accepts is a successful send from the platform's side even if it is never delivered, a later delivery failure is outside the platform's observation and produces no failure state, and a person who does not receive an accepted message can request a new code subject to FR-034's limit; the explicit failure state and the retry it offers govern a channel refusal at acceptance alone. FR-034, AC-036, SC-009, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
+- Q: Does the bound on incorrect entries count an expired code, or a code that a replacement has superseded, as an incorrect entry, or only a wrong value entered for the code that is currently valid? → A: Only a wrong value entered for the live code counts; an expired code and a superseded code are refused as expired or superseded and MUST NOT increment the bound, because neither is a wrong guess of the live code, so a stale code cannot lock a person out and the count measures exactly the guesses the bound exists to stop. FR-034, AC-036, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
+- Q: When a new sign-up or recovery request is started for a mobile number whose pending request is in the recovery flow's verified state, does the new request replace that state at once, or can the old verified state still set a password? → A: The new request replaces the pending request in every state, including the verified state: the verified state ends at once, its authority to set a password is withdrawn, and only the new code step is live, so two authorities never coexist for one number and a stale new-password step cannot set a password after a new code has been sent. FR-014, FR-034, AC-036, AC-041, the key-entities note, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
+- Q: Does the administrator's forced first change require the current (initial) password, as FR-013 requires of the account's own change action, or is the fresh sign-in proof enough? → A: It requires the current password: the forced change is a password change like any other for this rule, so a submission without the current password, or with a wrong one, is refused, clears nothing, leaves the account restricted, and counts as a failed password verification under FR-009, while a correct current password with a new value clears the requirement and lifts the restriction. FR-028, AC-030, US6's Independent Test, the administrator Assumption, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-22, Clarifications).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -279,7 +299,10 @@ essential but secondary to getting in the first time.
 **Independent Test**: Can be fully tested by requesting a reset for a registered
 number, entering the code, and setting a new password, and delivers a merchant
 back into their account with every session the account already held ended; the
-uniform response is verifiable on its own.
+uniform response is verifiable on its own, and so is the code's single use — it
+stops being usable once verified, the new-password step survives a reload while
+the verified state lives, and it cannot authorise a second reset (decided
+2026-10-22, Clarifications).
 
 **Acceptance Scenarios**: covered by AC-016 – AC-017 and AC-038 in the Acceptance Criteria section.
 
@@ -389,10 +412,17 @@ same uniform refusal any failed sign-in receives, by running the provisioning
 action twice and confirming each run yields a distinct administrator account
 while a run for a number that already has an account creates nothing and reports
 the conflict, and by confirming that the provisioned account carries the
-forced-password-change requirement, so that any further action is refused until
-the password is changed, and by confirming that the password change made at that
+forced-password-change requirement, so that any further product action is refused
+until the password is changed while ending the session remains available, and by
+confirming that the password change made at that
 first sign-in clears the requirement and lifts the restriction while no other
-path clears it; the sign-in surface itself arrives with a later slice.
+path clears it, and that a submission repeating the initial password is refused
+and clears nothing, that the change requires the current password and a
+submission without it or with a wrong one is refused and leaves the account
+restricted, that the change ends every existing session of the account,
+and that it sends the security notice — the first sign-in and the change made at it are exercised at
+the behaviour level here, with no page, and only the sign-in surface itself
+arrives with a later slice.
 
 **Acceptance Scenarios**: covered by AC-029 – AC-030 and AC-054 in the Acceptance Criteria section.
 
@@ -422,7 +452,7 @@ request the person did not make is refused, that a value typed as markup or
 script is shown as text, and that every response carries the required security
 headers.
 
-**Acceptance Scenarios**: covered by AC-031 – AC-036 and AC-048 – AC-050 in the
+**Acceptance Scenarios**: covered by AC-031 – AC-036, AC-048 – AC-050, and AC-055 in the
 Acceptance Criteria section.
 ---
 
@@ -456,22 +486,33 @@ Acceptance Criteria section.
   set, and the platform states explicitly that no account exists for that number;
   the request's response, the following step, and the code dispatch were already
   indistinguishable from those for a number that has an account (AC-017).
-- A one-time code is entered incorrectly several times, or after it has expired.
-  The platform refuses it and lets the person request another — which invalidates
-  the previous code at once and does not reset the bound on incorrect entries,
+- A one-time code is entered incorrectly several times, after it has expired, or
+  after a replacement has superseded it. The platform refuses it and lets the
+  person request another — which replaces
+  the previous code when the new message is accepted and otherwise leaves it
+  valid, and which does not reset the bound on incorrect entries,
   because that bound is counted over the whole verification — without revealing
-  whether the number has an account. When the bound on incorrect entries is
+  whether the number has an account. Only a wrong value entered for the live code
+  increments the bound: an expired code, and a code a replacement has superseded,
+  are refused as expired or superseded and do not increment it, so a stale code
+  cannot lock the person out. When the bound on incorrect entries is
   reached the pending request ends, so the person starts a fresh request — a
   sign-up or a recovery — which begins a new verification with the count at zero
   (AC-036).
-- A one-time code cannot be sent at all — the messaging channel fails, or the
-  number cannot be delivered to. The person sees an explicit failure and can
+- The messaging channel refuses a one-time code at acceptance — the channel
+  fails, or the number is one the channel will not accept because it cannot
+  deliver to it. The person sees an explicit failure and can
   retry, the pending request — a sign-up or a password reset — stays valid until
   it expires, and the failed send does not consume the limit on requesting a new
   code (AC-036). The failure is shown on the submission that asked for the code
   and the code step is never reached, because the send is attempted inside that
   request and the step opens only once the channel has accepted the message
   (AC-036).
+- The messaging channel accepts a one-time code but the message never reaches the
+  number. The platform has no delivery signal, so it shows no failure state and
+  the code step remains; the code expires on its own, and the person can request
+  a new code subject to the limit on requesting a new code, because a later
+  delivery failure is outside the platform's observation (AC-036).
 - A one-time code is entered correctly but the account cannot be created at that
   moment — a transient failure. The pending request stays valid until its own
   expiry and the same code remains usable, because a code is consumed only once
@@ -488,23 +529,58 @@ Acceptance Criteria section.
   or reached (AC-043).
 - A person reloads the sign-up or password-recovery page, or closes it and comes
   back, while a one-time code is still waiting for them. While the pending
-  request is still live the page shows the code step again, so the code already
-  sent stays usable and no new code is requested; once the pending request has
-  ended or expired, the page returns to the form's first step and a fresh
-  submission begins a new verification on FR-034's terms (AC-041, AC-036).
-- A person at the code step wants to use a different mobile number. The fields
-  at that step are shown for reading and are not editable there, so the person
-  returns to the page's first step and submits the form again; the fresh
+  request is still live and its code has not yet been verified the page shows the
+  code step again, so the code already sent stays usable and no new code is
+  requested; once the code has been verified in password recovery, the same
+  reload shows the new-password step while the verified state lives; once the
+  pending request has ended or expired, the page returns to the form's first step
+  and a fresh submission begins a new verification on FR-034's terms (AC-041,
+  AC-036).
+- A person at the sign-up code step wants to use a different mobile number. The
+  full name, the mobile number, the city, and the optional shop name are shown
+  at that step for reading and are not editable there; the step carries a
+  control that returns to the page's first step, where those values are editable
+  again and retained except the password, which the page never retains or shows, so
+  the person changes the number and submits the form again; the fresh
   submission starts a new pending request for the new number on FR-034's terms,
   while the pending request for the first number stays live until its own
   expiry, because only one pending request is live per number (AC-041,
   AC-036).
+- A person reaches the sign-up code step. The password they submitted is not
+  shown back to them in any form — neither re-displayed, nor echoed, nor
+  rendered masked — so the step carries the full name, the mobile number, the
+  city, and the optional shop name for reading, and the password never returns
+  to the browser (AC-041). In the password-recovery flow, the code step carries
+  the mobile number alone, because that is the only field the recovery form
+  collected; no account field is shown there before the code is verified
+  (AC-041, FR-015).
+- A person enters the correct one-time code at sign-up for a number that already
+  has an account. The platform states that no second account was created and
+  directs the person to sign in or to recover the password, and the pending
+  request ends at that point: its code stops being valid at once, so no live
+  request and no usable code survive an outcome the platform has already
+  reported, and the same rule governs the password-recovery flow's counterpart
+  (AC-006, AC-036).
+- A person enters the correct code in password recovery and reloads the page,
+  or closes it and comes back, before setting a new password. The new-password
+  step is shown again while the verified state lives, no new code is requested,
+  and the code already used is not offered again; if a new request for the same
+  number replaces the pending request, the verified state ends at once and the
+  new code step is the only live step; once the password is set, a reload returns
+  the page to its first step (AC-036, AC-041, FR-014).
+- A person who has just set a new password tries to use the same one-time code
+  again. The pending request has ended, so the code is refused and a fresh
+  request is needed (AC-036, FR-034).
 - A +218 number that is not a mobile number (for example a landline) is
   submitted. It is refused, because the account identifier is a Libyan *mobile*
   number (AC-003).
 - The operator runs the provisioning action for the administrator account: the
   account is created directly, with no one-time code and no verification step,
   and the mobile-number verification rule is not applied to it (AC-030).
+- The administrator's forced first change is submitted without the current
+  password, or with a wrong one. It is refused, clears nothing, and leaves the
+  account restricted; a correct current password with a new value clears the
+  requirement and lifts the restriction (AC-030, FR-028).
 - A merchant is blocked while signed in on more than one device: every session
   they hold stops granting access (AC-021).
 - A merchant asks to reset the password of a blocked account and enters the
@@ -704,7 +780,11 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   also cover how long each of those steps takes: the form's response, the
   following step, and the sending of the code MUST do the same work whether or
   not the number has an account, so no step's duration signals it (decided
-  2026-10-11, Clarifications).
+  2026-10-11, Clarifications). When the correct code is entered for a number that
+  already has an account, the pending request MUST end once the outcome is
+  stated, and its code MUST stop being valid at once, so no live request and no
+  usable code survive an outcome the platform has already reported — the same
+  rule FR-014 states for the recovery flow (decided 2026-10-22, Clarifications).
 - **FR-031**: System MUST treat the mobile number as the account's unique
   identifier, comparing it in a normalized form so that two spellings of the same
   number are one account. The normalized form MUST also be reached from digits
@@ -746,6 +826,11 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   password MAY be set to the value it already has, and no password history is
   kept, because the register provides no entity for one and this slice
   introduces no third entity (decided 2026-10-11, Clarifications; revised
+  2026-10-22, Clarifications). That allowance is bounded by FR-028's forced
+  first change: the administrator's first change MUST set a value different
+  from the initial password the operator supplied, because a change that
+  repeats it would leave the forced-password-change requirement unsatisfied,
+  and the allowance therefore governs every later change alone (decided
   2026-10-22, Clarifications).
 - **FR-040**: While a request is in flight — the sign-up form's submission, the
   sign-in form's submission, the password-recovery request's submission, the
@@ -773,7 +858,12 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   retryable failure message and MUST NOT navigate away from itself, because the
   error page arrives with a later slice and a bare page has no frame to navigate
   through; no placeholder error page is created here (decided 2026-10-11,
-  Clarifications).
+  Clarifications). Every state these pages render — the in-progress state, the
+  inline failure message, and the in-place confirmation FR-004, FR-007, and
+  FR-014 require — MUST be announced to assistive technology, and when a step
+  replaces another the focus MUST move to the step now shown — its first field,
+  or its heading when it carries no field — and MUST NOT remain on a control the
+  previous step carried (decided 2026-10-22, Clarifications).
 
 **Signing in and out**
 
@@ -827,7 +917,11 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   NOT
   increment it, because none of them reached a password verification against an
   active account, so the lock cannot be driven by requests that never verified a
-  password (decided 2026-10-11, Clarifications). A current-password check that
+  password (decided 2026-10-11, Clarifications). A status or role refusal still
+  performs the same verification work as any other attempt and is refused
+  afterwards on that ground, so its response's duration is indistinguishable —
+  the verification it performs is simply not one against an active account
+  (FR-017, FR-008; decided 2026-10-22, Clarifications). A current-password check that
   fails inside the account's own change-password action is a failed password
   verification against an existing, active account and is counted exactly as a
   failed sign-in is: five consecutive such failures lock the account for the same
@@ -850,7 +944,11 @@ requirements it asserts (decided 2026-10-21, Clarifications).
 - **FR-013**: System MUST end every existing session of an account when its
   password changes, whether the password is changed from the account's own change
   action or set through the recovery flow; after a reset the merchant MUST sign
-  in with the new password. The account's own change action MUST require the
+  in with the new password. The administrator's forced first change is a password
+  change for this rule: it ends every existing session of that account too,
+  including the restricted session it was made from, and the administrator signs
+  in again with the new password, now unrestricted (decided 2026-10-22,
+  Clarifications). The account's own change action MUST require the
   current password: a change submitted without it, or with a wrong one, is
   refused and ends no session, and the recovery flow is the only path that sets a
   password without the current one, because it proves ownership of the number
@@ -909,13 +1007,27 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   it already holds, and the operator who supplies it is the party the notice
   would inform, so the notice has no owner to inform; the provisioning stays
   recorded as the structured security event FR-037 names, so the privileged
-  creation is not silent (decided 2026-10-11, Clarifications).
+  creation is not silent (decided 2026-10-11, Clarifications). The change made
+  at the administrator's forced first sign-in changes a password the account
+  already holds, so the notice is sent for it as well, exactly as it is for the
+  account's own change action (decided 2026-10-22, Clarifications).
 
 **Recovering a password**
 
 - **FR-014**: System MUST let a merchant who has forgotten the password reset it
   by entering a one-time code sent by SMS to the registered mobile number and
-  then setting a new password. A reset requested for a blocked account completes
+  then setting a new password. The one-time code MUST stop being usable the
+  moment it is entered correctly: the pending request MUST move to a verified
+  state that carries the new-password step alone, lasts no longer than the
+  pending request's own lifetime — the value Constitution Mandated Values
+  already fixes — and ends when the new password is set, or when a new request
+  replaces the pending request (FR-034), so the same code cannot authorise a
+  second reset and a replaced request leaves no verified state behind. A person
+  who reloads, or closes and reopens,
+  the page while that verified state lives MUST be shown the new-password step
+  again rather than the code step, and once the password is set the page MUST
+  return to its first step as FR-041 provides (decided 2026-10-22,
+  Clarifications). A reset requested for a blocked account completes
   — a new password is set and every existing session ends — but the account's
   block stands, so no access is granted and the outcome is stated only after
   ownership of the number is proven. A reset requested for a mobile number whose
@@ -923,7 +1035,11 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   verified: no password is set, no session is created, and the platform states
   explicitly that the credential cannot be reset on this surface, because an
   administrator's credential belongs to the administrator's own surface
-  (decided 2026-10-11, Clarifications). Setting the new password MUST render its
+  (decided 2026-10-11, Clarifications). Where the reset cannot proceed — because
+  the number has no account, or because its account holds the administrator
+  role — the pending request MUST end once the outcome is stated, so no verified
+  state outlives the step it would have carried (decided 2026-10-22,
+  Clarifications). Setting the new password MUST render its
   confirmation in place on the password-recovery page — the step is replaced by a
   confirmation that the password was changed and that the merchant must sign in
   with it — with no navigation, no new route, and no new page (decided
@@ -958,10 +1074,14 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   contributions, and MUST NOT be able to sign in. The refusal MUST be the same
   uniform refusal FR-008 requires — the same text, the same status, and the same
   response path as every other failed sign-in — so that no signal, at any step,
-  tells the person the account is blocked or that it exists. That refusal MUST
-  NOT increment the account's consecutive-failed-attempt count, because it is a
-  status refusal and never reached a password verification (FR-009; decided
-  2026-10-11, Clarifications).
+  tells the person the account is blocked or that it exists. A status refusal
+  MUST perform the same verification work as any other sign-in attempt and be
+  refused afterwards on
+  the status ground, so its response's duration signals nothing, exactly as
+  FR-008 and SC-004 require (decided 2026-10-22, Clarifications). That refusal
+  MUST NOT increment the account's consecutive-failed-attempt count, because the
+  verification the attempt performed was not against an active account
+  (FR-009; decided 2026-10-11 and 2026-10-22, Clarifications).
 - **FR-018**: A merchant MUST NOT be able to delete their own account, and no
   such control MUST be offered. The account's personal data lives as long as the
   account is registered and is removed only by an administrator action, since
@@ -1021,18 +1141,39 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   route of its own. The code step adds no page and no route, so this slice ships
   exactly the three bare pages it names — sign-up, sign-in, and password
   recovery — and the Product Register's twenty-seven pages are not amended
-  (decided 2026-10-11, Clarifications). The fields the person filled in MUST be
-  shown at the code step for reading, the mobile number among them, so that the
-  person sees which number the code was sent to, and they MUST NOT be editable
-  there: a person who wants a different number returns to the page's first step
-  and submits the form again, which starts a new pending request for the new
-  number on FR-034's terms (decided 2026-10-22, Clarifications). A person who
+  (decided 2026-10-11, Clarifications). The code step MUST show, for reading and
+  without editing them, the fields the flow collected: at sign-up, the full name,
+  the mobile number, the city, and the optional shop name; in password recovery,
+  the mobile number alone, because the recovery form collects nothing else and
+  showing an account's name, city, or shop name before the code is verified would
+  reveal that the number has an account, breaching FR-015 and SC-004. The mobile
+  number is shown in its canonical form with Latin numerals, so that the person
+  sees which number the code was sent to. The password MUST NOT be shown back in
+  any form: it is neither re-displayed, nor echoed, nor rendered masked, so a
+  submitted password never returns to the browser in any form, and that rule is
+  the same at sign-up and in password recovery (decided 2026-10-22,
+  Clarifications). The prohibition governs the page: the pending request still
+  carries the submitted password, so that the account can be created when the
+  correct code is entered, and it carries it only in the same irreversibly
+  protected form a stored password has, computed at submission, so no plaintext
+  password is stored, logged, or cached while the request lives; a request that
+  is replaced or that ends discards the value with it (decided 2026-10-22,
+  Clarifications). The step MUST carry, beside the code field and its submit
+  control, a control that requests a new one-time code subject to FR-034's limit
+  on re-requesting, and a control that returns to the page's first step; the
+  first step then shows the values the person already typed for editing again,
+  except the password, which the page never retains or shows, and submitting it starts
+  a new pending request for the new number on FR-034's terms (decided
+  2026-10-22, Clarifications). A person who
   reloads that page, or who closes it and comes back, MUST be shown the code
-  step again while the pending
-  request is still live, so the code already sent to them stays usable rather
-  than being spent by an accidental refresh; the resumption adds no page and no
+  step again while the pending request is still live and its code has not yet
+  been verified, so the code already sent to them stays usable rather than being
+  spent by an accidental refresh; once the code has been verified in the
+  password-recovery flow, the same reload MUST show the new-password step
+  instead, as FR-014 provides. The resumption adds no page and no
   route, and a fresh submission still replaces the pending request on FR-034's
-  terms (decided 2026-10-11, Clarifications).
+  terms (decided 2026-10-11, Clarifications; revised 2026-10-22,
+  Clarifications).
 - **FR-041**: The three bare pages this slice ships — sign-up, sign-in, and
   password recovery — MUST render identically for a signed-in person and for a
   guest: no redirect is introduced and no signed-in-specific surface is shown on
@@ -1052,7 +1193,7 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   to an icon-only rail when collapsed; on a narrow screen it MUST become a drawer
   that the same control opens and closes. The collapse control sits in the
   sidebar itself, beside the navigation item list (decided 2026-10-21,
-  Clarifications). The rail's width is a Wafar UI layer value this slice
+  Clarifications). The rail's width is a fixed design value this slice
   records, and the shell's desktop collapsed state consumes it (decided
   2026-10-21, Clarifications).
 - **FR-039**: The frame MUST carry the sidebar's navigation item list as part of
@@ -1143,12 +1284,15 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   carrying the frame (decided 2026-10-21, Clarifications).
 - **FR-049**: When a request issued from a page that carries the frame is refused
   because the session has ended — by the inactivity timeout, by the absolute
-  maximum lifetime, or by an explicit sign-out elsewhere — or because the
+  maximum lifetime, by an explicit sign-out elsewhere, by a platform revocation
+  (FR-012), by a sign-out of every device (FR-011), or by a password change or
+  reset made elsewhere (FR-013) — or because the
   account is blocked, the platform MUST show an explicit state inside the frame,
   stating that the session has ended and offering the way to sign in again; when
   the account is blocked, that state MUST say so plainly, because the person
-  held a valid session and is no longer an unknown caller. The platform MUST NOT
-  show an unrelated error, and the frame MUST NOT keep sending requests for a
+  held a valid session and is no longer an unknown caller. Every path that ends
+  a session leads to that one state, so no session-ending path shows an
+  unrelated error, and the frame MUST NOT keep sending requests for a
   session that no longer exists. The same state is shown after a merchant signs
   out deliberately from the account menu, so that both ways a session ends lead
   to one outcome. This state is shown only to a person who held a
@@ -1157,15 +1301,17 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   ships renders the frame, this state is verified structurally here and its
   runtime behaviour is verified by the slice that ships the first page carrying
   the frame (decided 2026-10-21,
-  Clarifications; ADR-100).
+  Clarifications; ADR-100; revised 2026-10-22, Clarifications).
 - **FR-050**: The administrator application keeps its own shell, and its header
   MUST carry the platform's logo at the inline-start edge and an account control
   whose menu offers «تسجيل الخروج» only, because the administrator application
   has no Profile page and no merchant settings page, so the merchant menu's
-  destinations do not exist there. This slice binds that composition for the
+  destinations do not exist there. The sign-out control remains available while
+  the account is restricted by the forced-password-change requirement, as FR-028
+  provides. This slice binds that composition for the
   slice that ships the administrator application (R13) and delivers nothing of it
   here, exactly as it binds the shared frame without rendering it (decided
-  2026-10-21, Clarifications; ADR-100).
+  2026-10-21, Clarifications; ADR-100; revised 2026-10-22, Clarifications).
 - **FR-024**: The frame MUST carry the product's means of reaching the static
   pages (Contact, Privacy Policy, Terms of Use, FAQ). The surface that carries
   them is a footer band inside the frame, below the page's content, shown on
@@ -1194,7 +1340,7 @@ requirements it asserts (decided 2026-10-21, Clarifications).
 - **FR-025**: The frame MUST honour two appearances — dark and light — with a
   control that switches between them, and the chosen appearance MUST hold as a
   person moves between pages. The default appearance on a first visit is not
-  fixed by this specification; it is a Wafar UI layer value, recorded by
+  fixed by this specification; it is a fixed design value, recorded by
   ADR-098. The chosen appearance MUST apply to
   every page, including the bare pages that carry no frame, and MUST be applied
   before the page is painted so the other appearance never flashes; the switch
@@ -1203,7 +1349,7 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   bare page. The choice
   MUST be remembered in the browser the person is using (per device) and MUST
   NOT be stored on the account, so no entity gains an appearance field. The
-  appearance's surfaces, backgrounds, and colours are Wafar UI layer values, not
+  appearance's surfaces, backgrounds, and colours are fixed design values, not
   a product setting: neither a merchant nor the administrator chooses a
   background or a colour, and no such preference is stored on the account or in
   the platform's settings (decided 2026-10-21, Clarifications; ADR-098;
@@ -1231,14 +1377,31 @@ requirements it asserts (decided 2026-10-21, Clarifications).
 - **FR-028**: System MUST create the administrator account only by an
   operator-run provisioning action, and MUST require the administrator to change
   the password at first sign-in: the first sign-in is accepted, and the account
-  is then restricted so that no action other than the password change is
-  permitted until the change is made. That requirement is cleared by the change
+  is then restricted so that no product action other than the password change is
+  permitted until the change is made. The restriction withholds every action that
+  needs the account's ordinary permissions, but it MUST NOT withhold the password
+  change itself or ending the session: sign-out, the session timeout, and a
+  platform revocation all remain available, so the administrator application's
+  sign-out control (FR-050) stands for a restricted account (decided 2026-10-22,
+  Clarifications). That requirement is cleared by the change
   performed while the account is restricted — the change made at that first
   sign-in — and it is cleared by no other path: the restriction lifts at that
   point and the account is thereafter unrestricted, because an administrator's
   credential is reachable only on the administrator's own surface, the recovery
   flow refusing it (FR-014) and the merchant sign-in surface refusing it
-  (FR-027) (decided 2026-10-11, Clarifications). The provisioning action MUST create the
+  (FR-027) (decided 2026-10-11, Clarifications). The value that first change
+  sets MUST differ from the initial password the operator supplied: a
+  submission that repeats it MUST be refused and MUST NOT clear the
+  requirement, because a forced change that sets the same value would leave the
+  requirement unsatisfied (decided 2026-10-22, Clarifications). The forced change
+  MUST also require the current password — the initial password the operator
+  supplied — exactly as FR-013 requires of the account's own change action: a
+  submission without the current password, or with a wrong one, MUST be refused,
+  MUST clear nothing, and MUST leave the account restricted, and a failed check is
+  a failed password verification under FR-009; the fresh sign-in is not treated as
+  proof for this purpose, so a restricted session that is taken over cannot set a
+  new password without the current password (decided 2026-10-22,
+  Clarifications). The provisioning action MUST create the
   account directly: it sets the account's full name, Libyan mobile number, city,
   and an initial password the operator supplies — which MUST satisfy the same
   password policy FR-035 requires, because a password is being set — and it sends
@@ -1259,9 +1422,16 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   requires for any account, so a run for a number that already has an account
   MUST create nothing and MUST report the conflict to the operator, who is
   running the action out of band (decided 2026-10-11, Clarifications). This
-  slice delivers the provisioning action
-  and the requirement it places on the account; the administrator's sign-in
-  surface is delivered by a later slice. The provisioning action is out of band:
+  slice delivers the provisioning action, and it delivers the administrator's
+  first sign-in as behaviour with no page, exactly as FR-013 delivers the
+  account's own change-password action: the first sign-in is accepted, the
+  account is restricted so that nothing but the password change is permitted
+  among the product actions that need its ordinary permissions, while ending the
+  session remains available, and the change made at that first sign-in clears the requirement and lifts
+  the restriction, so the rule is exercised here rather than asserted of a path
+  that does not exist; only the administrator's sign-in surface — the page — is
+  delivered by a later slice, and this slice creates no page for it (decided
+  2026-10-22, Clarifications). The provisioning action is out of band:
   it is run by the platform's operator outside the product's role model and
   outside the administrator application, so it is not an administrator operation
   and writes no audit-log row — the audit log records the operations an
@@ -1341,24 +1511,47 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   neither consumes nor is bounded by the account-creation or the recovery budget,
   so a merchant who mistypes a code and asks for a new one cannot spend the
   operation's budget (decided 2026-10-11, Clarifications). Exactly one code is
-  valid for a verification at any moment:
-  requesting a new code MUST invalidate the previous one at once, and the bound on
+  valid for a verification at any moment: a request for a new code MUST take
+  effect only once the messaging channel has accepted the new message, and at
+  that moment it MUST invalidate the previous code at once; a request the channel
+  refuses at acceptance MUST leave the previous code as the one valid code, the pending request
+  live, and the limit on re-requesting untouched, so a moment with no valid code
+  never arises and a channel outage does not cost the person the code they
+  already hold (decided 2026-10-22, Clarifications). The bound on
   incorrect entries MUST be counted over the whole verification, not per code, so
-  that a new code does not reset it. Exactly one pending request MUST also be
+  that a new code does not reset it, and it MUST count only a wrong value entered
+  for the code that is currently valid: an expired code, and a code that a
+  replacement has superseded, MUST be refused as expired or superseded and MUST
+  NOT increment the bound, because neither is a wrong guess of the live code, so
+  a stale code cannot lock a person out and the count measures exactly the
+  guesses the bound exists to stop (decided 2026-10-22, Clarifications). Exactly
+  one pending request MUST also be
   live per mobile number: a new sign-up or recovery request for a number that
   already has a live pending request MUST replace the previous one and
-  invalidate its code at once (decided 2026-10-11, Clarifications). When a code cannot be sent at all — a failure
-  at the messaging channel, or a number the channel cannot deliver to — the
-  platform
-  MUST show an explicit failure state that allows a retry, MUST keep the pending
-  request valid until its own expiry, and MUST NOT count the failed send against
-  the limit on requesting a new code. One rule governs both code paths — the code
-  sent at sign-up and the code sent for password recovery — so the pending
-  request, whether it is a sign-up or a password reset, expires on the same terms
-  and behaves identically when a send fails (decided 2026-10-11, Clarifications).
+  invalidate its code at once (decided 2026-10-11, Clarifications). The
+  replacement reaches every state of the pending request, including the recovery
+  flow's verified state: a new request for a number whose pending request is in
+  that state MUST end the verified state at once and withdraw its authority to
+  set a password, so only the new code step is live and two authorities never
+  coexist for one number (decided 2026-10-22, Clarifications). When the messaging
+  channel refuses a code at acceptance — a failure at the channel, or a number the
+  channel refuses because it cannot deliver to it — the platform MUST show an
+  explicit failure state that allows a retry, MUST keep the pending request valid
+  until its own expiry, MUST leave the code already delivered valid — the
+  replacement takes effect only once the channel accepts the new message — and
+  MUST NOT count the failed send against the limit on requesting a new code. A
+  message the channel accepts is a successful send from the platform's side even
+  if it is never delivered: a later delivery failure is outside the platform's
+  observation, MUST NOT produce that failure state, and does not by itself
+  invalidate the code, so a person who does not receive an accepted message can
+  request a new code subject to the limit on re-requesting (decided 2026-10-22,
+  Clarifications). One rule governs both code paths — the code sent at sign-up
+  and the code sent for password recovery — so the pending request, whether it is
+  a sign-up or a password reset, expires on the same terms and behaves identically
+  when a send is refused at acceptance (decided 2026-10-11, Clarifications).
   The send is attempted inside the request that asks for the code, and the code
   step is reached only once the messaging channel has accepted the message: a
-  channel refusal therefore produces that explicit, retryable failure on the
+  refusal at acceptance therefore produces that explicit, retryable failure on the
   submission itself rather than on the code step, so no failure reaches a person
   who has already moved past the step, and the failure state stays the one this
   requirement already describes rather than one the code step would have to gain
@@ -1371,12 +1564,44 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   (decided 2026-10-11, Clarifications). When the correct code is entered but the
   account cannot be created at that moment — a transient failure — the pending
   request MUST stay valid until its own expiry and the correct code MUST stay
-  usable, because a code is consumed only once the account is actually created;
+  usable, because at sign-up a code is consumed only once the account is
+  actually created;
   the person MUST see an explicit, retryable failure state, and that failure MUST
   NOT count against the bound on incorrect entries (it was not an incorrect
    entry) nor against the limit on requesting a new code. This rule is distinct
-   from the send-failure rule above, which governs a code that never reached the
-   number (decided 2026-10-11, Clarifications).
+   from the send-failure rule above, which governs a code the channel refused at
+   acceptance; a message the channel accepted but did not deliver is not that
+   failure, as the rule above states (decided 2026-10-11, Clarifications). In the
+   password-recovery flow the
+  correct code MUST end its own validity at once, and the pending request MUST
+  end when the new password is set or when a new request replaces it, so a
+  verified code cannot authorise a second reset (decided 2026-10-22,
+  Clarifications). The same rule governs the sign-up
+  path's own outcome: when the correct code is entered for a number that already
+  has an account, the pending request MUST end once the outcome is stated, so no
+  live request survives an outcome the platform has already reported
+  (decided 2026-10-22, Clarifications).
+- **FR-051**: When more than one refusal applies to a submission, System MUST
+  decide them in one fixed order, applied identically on every page this slice
+  ships: (1) the operation's rate limit, refused with the distinct, explicit
+  limit refusal (FR-033); (2) at sign-up only, the form's hidden field, refused
+  with the silent response whose flow stops at it (FR-029); (3) at sign-up only,
+  the minimum time-to-submit, refused with the explicit, retryable refusal
+  (FR-029); (4) the value rules — the mobile-number format (FR-042, FR-003), the
+  full-name and shop-name bounds (FR-001), the city-list rule (FR-005), and the
+  password policy (FR-035); and (5) the account-existence comparison, refused
+  with the uniform response (FR-006, FR-008, FR-015). A submission refused at a
+  step MUST be decided by that step alone: no later check runs and no earlier
+  refusal is replaced. Within step (4) every failing value rule MAY carry its
+  own message and several MAY be reported together, but no account-existence
+  comparison runs until every value rule has passed. The order is observable
+  and MUST be asserted, because a client's refusal depends on it; it narrows no
+  response's uniformity: a value-rule refusal is the same whether or not the
+  number has an account, so SC-004 still compares it, while the limit, format,
+  and re-request refusals stay outside that comparison exactly as their own
+  requirements provide. The order introduces no
+  refusal beyond those this specification already names (decided 2026-10-22,
+  Clarifications).
 
 **Securing the browser surface**
 
@@ -1417,14 +1642,21 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   than an external service, so the check never depends on a third party's
   availability (decided 2026-10-11, Clarifications), and the rule that a new
   password MAY repeat the one it replaces, because no password history is kept
-  (decided 2026-10-11, Clarifications), and the rule that the form states the
+  (decided 2026-10-11, Clarifications) — bounded by the rule that the
+  administrator's forced first change must set a value different from the
+  initial password, so a submission that repeats it is refused and clears
+  nothing (decided 2026-10-22, Clarifications), and the rule that the form states the
   policy's requirements before the password is typed and that each reason the
   policy refuses a password carries its own message, none of which reveals
   whether the number has an account (decided 2026-10-22, Clarifications) — and
   the rule that a stored password is
   never held in a recoverable form and is verified through the form the
   platform stores it in, so that a weakened or unrecognised storage form is
-  detected rather than accepted (decided 2026-10-21, Clarifications) — the city-list
+  detected rather than accepted (decided 2026-10-21, Clarifications), and the
+  rule that a pending sign-up request holds the submitted password only in that
+  same protected form, so no plaintext password is held while the request lives
+  and the value is discarded when the request is replaced or ends (decided
+  2026-10-22, Clarifications) — the city-list
   rule — every entry carrying one Arabic name and no Latin alternate name, the
   search matching the Arabic names while ignoring diacritics, and a value
   outside the list not being accepted (decided 2026-10-22, Clarifications) — the
@@ -1451,8 +1683,19 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   account-creation budget counting every submission that reaches the sign-up
   form, including one the form's hidden field or minimum time-to-submit refuses
   (decided 2026-10-11, Clarifications), the replacement of a live pending request
-  for a number, the ending of a pending request when the bound on incorrect
-  entries is reached, the uniform
+  for a number, the dispatch-conditioned replacement of a one-time code — a
+  failed send leaves the previous code valid, the request live, and the
+  re-request limit untouched, and the previous code stops being valid at the
+  moment the new message is accepted (decided 2026-10-22, Clarifications) — the
+  ending of a pending request when the bound on incorrect
+  entries is reached, the bound counting only a wrong value for the live code, so
+  an expired or superseded code is refused without incrementing it, the verified
+  state that carries the recovery flow's
+  new-password step — the code stops being usable at verification, the state
+  lasts no longer than the pending request's own lifetime, it survives a
+  reload, and setting the new password ends it — or a new request replaces the
+  pending request, which ends the verified state at once — so the same code
+  cannot authorise a second reset (decided 2026-10-22, Clarifications) — the uniform
   responses that
   conceal account existence — including the refusal made while the account is
   locked, the refusal of a blocked account, and the refusal of an administrator
@@ -1464,18 +1707,24 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   value that is not a valid Libyan mobile number receives (FR-042), and the
   distinct, explicit refusal the limit on requesting a new one-time code produces
   (FR-034), all
-  deliberately outside that uniformity — the
+  deliberately outside that uniformity — the fixed order in which a
+  submission's refusals are decided, so an over-budget submission receives the
+  limit refusal whatever else is wrong with it and a value failure is decided
+  before any account-existence comparison (FR-051) — the
   repeatability of the operator's
   provisioning action and the uniqueness conflict it reports for a number that
   already has an account, the initial password it sets and the password policy
-  that governs it, the account field rules it applies — the full-name bounds, the
+  that governs it, the forced first change's requirement of the current password —
+  a submission without it or with a wrong one is refused, clears nothing, and
+  leaves the account restricted — the account field rules it applies — the full-name bounds, the
   Libyan-mobile-number rule against the fixed prefix dataset, and the city-list
   rule, each refusing and reporting to the operator — the structured security record emitted for each event
   FR-037 names (including the operator's provisioning action, a successful
   sign-in, and the verification that creates an account), each identifying its
   subject by an internal account identifier and never by the mobile number
   (decided 2026-10-11, Clarifications), and session revocation on
-  password change, on
+  password change — including the administrator's forced first change, which
+  ends the restricted session it was made from — on
   blocking, on the session timeout, and at the session's absolute maximum
   lifetime. A session outlives the page and the browser that created it, so
   closing the browser ends nothing and resets neither clock (decided 2026-10-11,
@@ -1488,7 +1737,14 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   and no emoji, best-effort so a failed send undoes nothing and blocks nothing,
   and sent on no other event — in particular not when the operator's provisioning
   action sets the administrator's initial password, which sets a first password
-  rather than changing one already held (decided 2026-10-11, Clarifications).
+  rather than changing one already held, while the administrator's forced first
+  change does send it because it changes a password the account already held
+  (decided 2026-10-11 and 2026-10-22, Clarifications).
+  The state changes the three bare pages render are asserted here as well — the
+  in-progress state, the inline failure message, and the in-place confirmation
+  are announced to assistive technology, and focus lands on the step now shown
+  rather than on a control the previous step carried (decided 2026-10-22,
+  Clarifications).
 - **Integration tests (module contracts)**: Requested — the account area
   and the authentication surface together: account creation and the
   one-time-code verification, sign-in and sign-out, the recovery flow —
@@ -1502,10 +1758,28 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   delivers as behaviour because the page that offers it arrives later (decided
   2026-10-11, Clarifications), and including the
   concurrent case, where two attempts for one number arrive together and at most
-  one account is created (decided 2026-10-11, Clarifications). The
+  one account is created (decided 2026-10-11, Clarifications), and including the
+  ending of a pending request once the platform has stated an outcome it cannot
+  complete — at sign-up for a number that already has an account, and in recovery
+  for a number with no account or one holding the administrator role — so no live
+  request and no usable code outlive that step (decided 2026-10-22, Clarifications).
+  The administrator's first sign-in is exercised here as behaviour with no page —
+  the sign-in is accepted, the account is restricted to the password change, the
+  change made at that first sign-in clears the requirement and lifts the
+  restriction, ends every session of the account, and sends the security notice,
+  and ending the session remains available to the restricted
+  account — together with the rule that a status or role refusal performs the
+  same verification work as any other attempt and is refused afterwards on that
+  ground, so the enumeration test compares a blocked, a locked, and an
+  administrator account against a wrong password and an unknown number over the
+  response's whole shape (decided 2026-10-22, Clarifications). The
   unlimited-concurrency rule is asserted here too: a sign-in leaves every session
   the account already holds intact, so only an explicit end removes a session
-  (decided 2026-10-11, Clarifications). The access
+  (decided 2026-10-11, Clarifications). The ended-session state FR-049 defines is
+  asserted over every path that ends a session — the inactivity timeout, the
+  absolute maximum lifetime, an explicit sign-out, a sign-out of every device, a
+  platform revocation, a password change or reset, and a block — so no path shows
+  an unrelated error (decided 2026-10-22, Clarifications). The access
   controls the constitution
   requires of the first browser-facing feature (request-forgery protection,
   output encoding, and security headers, FR-044 … FR-046) are exercised here. The frame's
@@ -1524,15 +1798,18 @@ runtime scan and keyboard-only pass belong to the slice that ships the first
    request that asks for the code, the code step opens only once the channel has
    accepted the message, and a channel refusal is reported as the explicit,
    retryable failure on the submission rather than on the code step, so no
-   failure reaches a person who has already moved on (decided 2026-10-11,
-   Clarifications).
+   failure reaches a person who has already moved on; only a refusal at
+   acceptance is that failure, and a message the channel accepts but does not
+   deliver is outside the platform's observation and is not a failure the request
+   reports, so the person requests a new code subject to the limit (decided
+   2026-10-11 and 2026-10-22, Clarifications).
 - **End-to-end tests (user journeys)**: Requested — journeys covered: US1
   (sign-up and verification), US2 (sign-in), US3 (password recovery), and US5 as
   far as the frame's scoping — the absence of the frame from the three bare
   pages this slice ships. The sidebar's two-width behaviour and the header
   controls' behaviour are not exercised here: they are verified by the slice that
   ships the first page carrying the frame, because no page in this slice renders
-  it (decided 2026-10-11, Clarifications). Each journey starts from one of the three bare pages, which link to one another (decided 2026-10-11, Clarifications), runs through the one-time-code step as a step of the same page — no route of its own (FR-038), with the fields the person filled in shown for reading and the mobile number not editable there (decided 2026-10-22, Clarifications) — and ends at the platform's own response —
+  it (decided 2026-10-11, Clarifications). Each journey starts from one of the three bare pages, which link to one another (decided 2026-10-11, Clarifications), runs through the one-time-code step as a step of the same page — no route of its own (FR-038), with the fields the flow collected shown for reading — at sign-up the full name, the mobile number, the city, and the optional shop name; in recovery the mobile number alone — the mobile number shown in its canonical Latin-numeral form and not editable there, the password not shown back in any form, and the step carrying both the re-request control and the control that returns to the first step (decided 2026-10-22, Clarifications) — and ends at the platform's own response —
   the session created by verification or by sign-in — because this slice ships no
   landing page (decided 2026-10-10, Clarifications); that response is a
   confirmation rendered in place on the page that began the journey, so each
@@ -1541,8 +1818,11 @@ runtime scan and keyboard-only pass belong to the slice that ships the first
   on the sign-in submission, on the password-recovery request, on the
   code-entry step, and on the new-password step of the recovery flow
   (decided 2026-10-22, Clarifications). A journey that reloads part-way resumes at the code step while
-  its pending request is live, and the code already sent is entered rather than a
-  new one requested (decided 2026-10-11, Clarifications). Each of the three bare
+  its pending request is live and its code has not yet been verified, and the code already sent is entered rather than a
+  new one requested (decided 2026-10-11, Clarifications), while a journey that
+  reloads at the new-password step resumes there for as long as the verified
+  state lives and returns to the page's first step once the password is set
+  (decided 2026-10-22, Clarifications). Each of the three bare
   pages is exercised showing an inline, retryable failure message without
   navigating away when a failure occurs, since this slice ships no error page to
   navigate to (decided 2026-10-11, Clarifications). US2's sign-out,
@@ -1550,7 +1830,15 @@ runtime scan and keyboard-only pass belong to the slice that ships the first
   other session-ending paths — which no surface offers in this slice — together
   with US4, US6, and US7, are covered by the unit and integration tests named
   above.
-- **Coverage target for changed production code**: at least 80% of changed lines.
+- **Coverage target for changed production code**: at least 80% of changed
+  lines, measured over the changed production lines this slice introduces and
+  excepting the frame's runtime behaviour this slice defers to the first
+  frame-carrying slice — the account menu's open and confirm behaviour, the
+  sidebar's two-width behaviour, and the header controls' behaviour — which are
+  excluded from this slice's target and covered by the slice that exercises
+  them, while the frame's composition and the presence of its controls remain
+  covered here by the structural verification (decided 2026-10-22,
+  Clarifications).
 
 ### Key Entities *(include if the feature involves data)*
 
@@ -1598,13 +1886,33 @@ No third entity is introduced (decided 2026-10-10, Clarifications). The pending
 sign-up data and the one-time codes are transient verification state, held in an
 expiring store outside the entity register rather than as an entity; because the
 store carries a per-number identity, an expiry, a replacement rule, and a bound
-on incorrect entries, `docs/domain-model.md` records it as transient,
+on incorrect entries that counts only a wrong value for the live code — an
+expired or superseded code is refused without incrementing it — `docs/domain-model.md`
+records it as transient,
 non-entity state owned by the `users` module, with those invariants, in the same
 change that records the decision — so the store is documented without entering
-the entity register (decided 2026-10-21, Clarifications). Exactly one
+the entity register (decided 2026-10-21 and 2026-10-22, Clarifications). The pending sign-up
+request carries the details the form collected, so that the account can be
+created when the correct code is entered; the password among them is held only
+in the same irreversibly protected form a stored password has, never in
+plaintext, and it is discarded when the request is replaced or ends (decided
+2026-10-22, Clarifications). Exactly one
 pending request is live per mobile number: a new sign-up or recovery request for
 a number that already has a live pending request replaces it and invalidates its
-code at once (decided 2026-10-11, Clarifications). The state
+code at once in every state, including the recovery flow's verified state, which
+ends at once and can no longer set a password (decided 2026-10-11 and
+2026-10-22, Clarifications). In the password-recovery flow,
+entering the correct code moves the pending request to a verified state that
+carries the new-password step alone, lasts no longer than the pending request's
+own lifetime, survives a reload, and ends when the new password is set or when a
+new request replaces the pending request — so the
+same code cannot authorise a second reset and a replaced request leaves no
+verified state behind (decided 2026-10-22, Clarifications).
+A pending request also ends once the platform has stated an outcome it cannot
+complete — at sign-up, when the number already has an account, and in recovery,
+when the number has no account or holds the administrator role — so no live
+request and no usable code outlive the step that would have carried them
+(decided 2026-10-22, Clarifications). The state
 the account itself carries — the consecutive-failed-attempt count, the lock, and
 the requirement to change the password at first sign-in, which the change made
 at that first sign-in clears and no other path clears — is an account
@@ -1655,8 +1963,10 @@ Clarifications).
    number is proven, no second account is created, the submitted password is not
    applied, and the person is directed to sign in or to recover the password by
    a message on the code step naming both options with the link to the sign-in
-   page and the link to the password-recovery page, and with no redirect
-   *(FR-006)*; **And given** two sign-up attempts for the same number arrive at
+   page and the link to the password-recovery page, and with no redirect; **And
+   then** the pending request ends at that point and its code stops being valid
+   at once, so no live request survives the outcome *(FR-006, FR-034)*; **And
+   given** two sign-up attempts for the same number arrive at
    the same moment, **Then** at most one account is created, the attempt that
    does not create it receives the same uniform outcome and direction, and no
    partial account and no second session is left behind *(FR-006, FR-031)*
@@ -1677,9 +1987,13 @@ Clarifications).
    **And given** the common-or-breached check, **Then** it is performed against
    a source the platform holds — no external service is called, so the refusal
    depends on the password alone and never on a third party's availability
-   *(FR-035)*; **And given** a new password identical to the one it replaces,
-   **Then** it is accepted, because the policy applies no rule against reuse and
-   no password history is kept *(FR-035)*; **And given** the form that takes a
+   *(FR-035)*; **And given** a new password identical to the one it replaces on a change
+   other than the administrator's forced first change, **Then** it is accepted,
+   because the policy applies no rule against reuse and no password history is
+   kept *(FR-035)*; **And given** the administrator's forced first change,
+   **Then** a value identical to the initial password the operator supplied is
+   refused and clears nothing, so only an actual change lifts the restriction
+   *(FR-035, FR-028)*; **And given** the form that takes a
    password, **When** it is shown, **Then** it states the policy's requirements
    before the password is typed, and each reason the policy refuses a password
    carries its own message — shorter than the minimum, or common or breached —
@@ -1689,15 +2003,36 @@ Clarifications).
    recovery, **When** it is reached, **Then** it renders as a step of the same
    page that began the flow — no page and no route of its own — so this slice
    still ships exactly the three bare pages: sign-up, sign-in, and password
-   recovery *(FR-038)*; **And given** the code step is reached, **Then** the
-   fields the person filled in are shown for reading, the mobile number among
-   them, and they are not editable there, so a person who wants a different
-   number returns to the page's first step and submits the form again, which
-   starts a new pending request for the new number *(FR-038, FR-034)*;
+   recovery *(FR-038)*; **And given** the code step is reached, **Then** it
+   shows the fields the flow collected, for reading and without editing them:
+   at sign-up, the full name, the mobile number, the city, and the optional shop
+   name; in password recovery, the mobile number alone, shown in its canonical
+   form with Latin numerals, because the recovery form collects nothing else and
+   showing an account field there before the code is verified would reveal that
+   the number has an account; the password is not shown back in any form —
+   neither re-displayed, nor echoed, nor rendered masked — so a submitted
+   password never returns to the browser, and the pending request holds it only
+   in the same irreversibly protected form a stored password has, so no
+   plaintext password is held while the request lives *(FR-038)*; **And given**
+   the code step, **Then**
+   it carries a control that requests a new one-time code, subject to the limit
+   on re-requesting, and a control that returns to the page's first step, where
+   the values already typed are editable again and retained except the password,
+   which the page never retains or shows, and a fresh submission starts a new pending
+   request for the new number *(FR-038, FR-034)*;
    **And given** the page is reloaded, or reopened, while a
-   one-time code is still waiting and its pending request is still live, **Then**
+   one-time code is still waiting, its pending request is still live, and its
+   code has not yet been verified, **Then**
    the code step is shown again and the code already sent stays usable, with no
-   new code requested and no new pending request started *(FR-038, FR-034)*
+   new code requested and no new pending request started *(FR-038, FR-034)*;
+   **And given** the code has been verified in the password-recovery flow and
+   the page is reloaded, or reopened, while the verified state lives, **Then**
+   the new-password step is shown again rather than the code step, and once the
+   password is set the page returns to its first step *(FR-014, FR-038)*;
+   **And given** a new request replaces the pending request while the verified
+   state lives, **Then** the verified state ends at once, its authority to set a
+   password is withdrawn, and the new code step is shown *(FR-014, FR-034,
+   FR-038)*
 
 10. **AC-043**: **Given** any authentication form this slice ships has been
     submitted — the sign-up form, the sign-in form, or the password-recovery
@@ -1706,7 +2041,7 @@ Clarifications).
     recovery, **When** the request is in flight, **Then** the page
     shows an in-progress state and the submit control is disabled; **And given**
     the same submission is sent twice, **Then** no second account and no second
-code dispatch results, because the server-side uniqueness rule remains the
+    code dispatch results, because the server-side uniqueness rule remains the
    authority *(FR-040)*; **And given** the new password is submitted twice in
    password recovery, **Then** the password is set once and the account's
    sessions are ended once *(FR-040)*; **And given** a failure occurs while one
@@ -1715,7 +2050,12 @@ code dispatch results, because the server-side uniqueness rule remains the
    failure message and does not navigate away, including when the failure is one
    this specification does not name — such as a session that cannot be created
    after a correct password or a correct code — and no error page is shipped or
-   reached *(FR-040)*
+   reached *(FR-040)*;
+    **And given** any of those states — the in-progress state, the inline failure
+    message, or the in-place confirmation — **Then** it is announced to assistive
+    technology, and when a step replaces another the focus moves to the step now
+    shown — its first field, or its heading when it carries no field — and does
+    not remain on a control the previous step carried *(FR-040)*
 
 11. **AC-046**: **Given** the sign-up form, **When** the full name is left empty
    or contains only spaces, **Then** the details are refused and no account is
@@ -1736,7 +2076,8 @@ code dispatch results, because the server-side uniqueness rule remains the
    — stating that the merchant is signed in *(FR-007)*
 13. **AC-009**: **Given** a sign-in attempt, **When** the number is unknown or the
    password is wrong, **Then** the response does not reveal whether an account
-   exists *(FR-008)*
+   exists, and it does the same work and takes the same time as an attempt
+   against a blocked, a locked, or an administrator account *(FR-008, FR-017)*
 14. **AC-010**: **Given** an account has five consecutive failed sign-in
     attempts, **When** a sign-in is attempted within the next fifteen minutes,
     **Then** it is refused with the same uniform response as any other failed
@@ -1813,8 +2154,9 @@ code dispatch results, because the server-side uniqueness rule remains the
     value is not a valid Libyan mobile number, and that refusal is not the
     uniform refusal FR-008 requires and is excluded from SC-004's enumeration
     comparison *(FR-042)*
-22. **AC-047**: **Given** a merchant's password changes — through the recovery
-    flow or through the account's own change action — **When** the change
+22. **AC-047**: **Given** an account's password changes — through the recovery
+    flow, through the account's own change action, or through the
+    administrator's forced first change — **When** the change
     completes, **Then** a notice is sent by SMS to the registered mobile number,
     whose body is Arabic and right-to-left with Latin numerals and no emoji
     *(FR-043, FR-026)*; **And given** every session of an account is ended at
@@ -1862,8 +2204,9 @@ code dispatch results, because the server-side uniqueness rule remains the
 27. **AC-019**: **Given** a merchant is blocked, **When** they try to sign in,
     **Then** the attempt is refused with the same uniform response as any other
     failed sign-in and nothing in that response tells the person the account is
-    blocked or that it exists, and their data and public contributions remain in
-    place *(FR-017, FR-008)*
+    blocked or that it exists, the response doing the same work and taking the
+    same time as any other failed sign-in, and their data and public
+    contributions remain in place *(FR-017, FR-008)*
 28. **AC-020**: **Given** a signed-in merchant, **When** they look for a way to
     delete their account, **Then** no such control is offered and any such
     request is refused *(FR-018)*; **And given** an account that is no longer
@@ -1883,8 +2226,10 @@ code dispatch results, because the server-side uniqueness rule remains the
     carrying the navigation item list and the collapse
     control, the product's icon set, and the product's typography — is present;
     in this slice the scoping is verified structurally, because no public or
-    merchant content page ships until a later slice; and the icon set itself is
-    chosen and recorded in this slice, because the register fixes no set yet
+    merchant content page ships until a later slice; and the icon set is the one
+    already chosen and recorded (ADR-098), which this slice records in the
+    technology register through the register-gap record, the licence-obligation
+    record, the vulnerability scan, and the vendoring the register requires
     *(FR-020)*; **And given** the frame as delivered, **When** its controls are
     inspected, **Then** each of them — the logo/home, account, the account
     menu's three items, the notifications control, the theme switch, the
@@ -2008,7 +2353,10 @@ code dispatch results, because the server-side uniqueness rule remains the
      redirection is verified by the slice that ships the first page carrying the
      frame *(FR-048, FR-039)*
 42. **AC-053**: **Given** a signed-in merchant on a page that carries the frame,
-     **When** a request is refused because the session has ended or the account
+     **When** a request is refused because the session has ended — whether by
+     the inactivity timeout, the absolute maximum lifetime, an explicit sign-out
+     elsewhere, a platform revocation, a sign-out of every device, or a password
+     change or reset made elsewhere — or because the account
      is blocked, **Then** an explicit state inside the frame states that the
      session has ended and offers the way to sign in again, and says plainly
      that the account is blocked when that is the reason; no unrelated error is
@@ -2017,7 +2365,7 @@ code dispatch results, because the server-side uniqueness rule remains the
      confirms the sign-out in the account menu, **Then** that same state is shown
      in the page they were on; the state is verified structurally in this slice,
      and its runtime behaviour is verified by the slice that ships the first
-     page carrying the frame *(FR-019, FR-049)*
+     page carrying the frame *(FR-019, FR-049, FR-011, FR-012, FR-013)*
 ### User Story 6 — The operator creates the administrator account (P3)
 
 43. **AC-029**: **Given** the public sign-up flow, **When** a person completes
@@ -2026,13 +2374,26 @@ code dispatch results, because the server-side uniqueness rule remains the
     submitted on the merchant sign-in surface, **Then** the attempt is refused
     with the same uniform response as any other failed sign-in and nothing in
     that response tells the person the account exists or that it is an
-    administrator account *(FR-027, FR-008)*
+    administrator account, and the response does the same work and takes the
+    same time as any other failed sign-in *(FR-027, FR-008)*
 44. **AC-030**: **Given** the operator creates the administrator account,
     **When** it is provisioned, **Then** it carries the requirement to change
     the password at first sign-in, so that the first sign-in is accepted and no
-    action other than the password change is permitted until the change is made,
+    product action other than the password change is permitted until the change
+    is made, while ending the session — sign-out, the session timeout, and a
+    platform revocation — remains available,
     and that requirement is cleared by the change made at that first sign-in,
-    which lifts the restriction, and by no other path *(FR-028)*;
+    which lifts the restriction and MUST set a value different from the initial
+    password the operator supplied — a submission repeating the initial
+    password is refused and clears nothing, and a submission without the current
+    password or with a wrong one is refused, clears nothing, leaves the account
+    restricted, and counts as a failed password verification under FR-009 — and
+    by no other path, the change
+    also ends every existing session of the account, including the restricted
+    session it was made from, and sends the security notice FR-043 requires, the whole
+    rule being verified at the behaviour level with no page because the
+    administrator's first sign-in is delivered here as behaviour *(FR-028,
+    FR-035, FR-009, FR-013, FR-043)*;
     **And given** the provisioning action runs, **Then** it creates the account
     directly with no one-time code and no verification step, and the account
     carries the identity details the register requires, including an initial
@@ -2048,7 +2409,7 @@ code dispatch results, because the server-side uniqueness rule remains the
     action is run for a mobile number that already has an account, **Then** no
     second account is created for that number and the conflict is reported to
     the operator *(FR-028, FR-031)*; the sign-in
-    surface is verified by the slice that ships it *(FR-028)*; **And given** the
+    surface — the page — is verified by the slice that ships it *(FR-028)*; **And given** the
     provisioning action runs, **Then** it is out of band — run by the operator
     outside the administrator application — so it writes no audit-log row, and
     the provisioning is recorded as the structured security event FR-037 names
@@ -2099,34 +2460,55 @@ code dispatch results, because the server-side uniqueness rule remains the
 51. **AC-036**: **Given** a one-time code, **When** it has expired, or a new code
     is requested beyond the allowed limit, or it is entered incorrectly more than
     the allowed number of times, **Then** the platform refuses it and grants no
-    access; **And given** a new code is requested, **Then** the previous code
-    stops being valid at once and the count of incorrect entries is not reset, so
-    the bound holds over the whole verification *(FR-034)*; **And given** a new
+    access; **And given** a new code is requested, **Then** the replacement takes
+    effect only when the messaging channel accepts the new message, the previous
+    code stops being valid at that moment, and the count of incorrect entries is
+    not reset, so
+    the bound holds over the whole verification *(FR-034)*; **And given** the
+    code entered is expired, or a code a replacement has superseded, **Then** it
+    is refused as expired or superseded and does not increment the bound on
+    incorrect entries, while a wrong value for the live code does *(FR-034)*;
+    **And given** a new
     code is requested beyond the allowed limit, **Then** the request is refused
     with a distinct, explicit refusal stating that the limit was exceeded and that
     the person may retry later, and that refusal is excluded from SC-004's
     enumeration comparison because it depends on the pending request's own history
     rather than on whether the number has an account *(FR-034)*; **And given** the
-    code
-    cannot be sent at all, **Then** an explicit
+    messaging channel refuses the code at acceptance, **Then** an explicit
     failure state allows a retry, the pending request — a sign-up or a password
-    reset — stays valid until it expires, and the failed send does not count
-    against the re-request limit *(FR-034)*; **And given** the messaging channel
-   refuses the message, **Then** the failure is shown on the submission itself
-   and the code step is never reached, because the send is attempted inside the
-   request that asks for the code and the step opens only once the channel has
-   accepted the message, so no failure arrives after the person has moved on
-   *(FR-034)*; **And given** a new sign-up or
+    reset — stays valid until it expires, the code already delivered stays
+    valid because the replacement takes effect only once the channel accepts the
+    new message, and the failed send does not count
+    against the re-request limit; the failure is shown on the submission that
+    asked for the code and the code step is never reached, because the send is
+    attempted inside that request and the step opens only once the channel has
+    accepted the message, so no failure reaches a person who has already moved
+    on *(FR-034)*; **And given** the messaging channel
+    accepts the message but delivery later fails, **Then** no failure state is
+    shown, the code stays valid until it expires, and the person can request a
+    new code subject to the re-request limit, because a later delivery failure
+    is outside the platform's observation *(FR-034)*; **And given** a new sign-up or
     recovery request is started for a number that already has a live pending
     request, **Then** the previous pending request and its code are replaced and
-    stop being valid at once *(FR-034)*; **And given** the bound on incorrect
+    stop being valid at once, including a pending request in the recovery flow's
+    verified state, whose authority to set a password ends at once
+    *(FR-014, FR-034)*; **And given** the bound on incorrect
     entries is reached, **Then** the pending request ends, no further code for it
     is accepted, and a fresh request begins a new verification with the count of
     incorrect entries at zero *(FR-034)*; **And given** the correct code is
     entered but the account cannot be created at that moment, **Then** the
     pending request stays valid and the same code remains usable, an explicit
     retryable failure is shown, and the failure counts neither as an incorrect
-     entry nor against the limit on requesting a new code *(FR-034)*
+     entry nor against the limit on requesting a new code *(FR-034)*;
+    **And given** the correct code is entered in the password-recovery flow,
+    **Then** it stops being usable at once, the pending request carries the
+    new-password step as a verified state that lasts no longer than the pending
+    request's own lifetime, and setting the new password ends both — or a new
+    request replaces the pending request, which ends the verified state at once
+    — so the same code cannot authorise a second reset *(FR-014, FR-034)*; **And given** the
+    reset cannot proceed because the number has no account or because the account
+    holds the administrator role, **Then** the pending request ends once the
+    outcome is stated and no verified state remains *(FR-014, FR-034, FR-015)*
 52. **AC-048**: **Given** any action this slice ships that changes state — the
      sign-up submission, the sign-in submission, the password-recovery request,
      the entry of a one-time code, or the account's own change-password action —
@@ -2144,6 +2526,23 @@ code dispatch results, because the server-side uniqueness rule remains the
      transport-security declaration, a declaration that the browser MUST NOT guess
      a response's content type, and a frame-ancestors restriction — asserted by an
      automated test *(FR-046)*
+55. **AC-055**: **Given** a submission to which more than one refusal applies,
+     **When** it is decided, **Then** the refusals are applied in the one fixed
+     order — the operation's rate limit first, then the sign-up form's hidden
+     field, then its minimum time-to-submit, then the value rules, then the
+     account-existence comparison — so an over-budget submission receives the
+     distinct limit refusal whatever else is wrong with it, a submission that
+     fills the hidden field receives the silent response even when another rule
+     would also refuse it, a submission before the minimum time receives the
+     explicit, retryable time refusal even when a field is invalid, and a
+     submission whose value rules fail is refused for those rules before any
+     account-existence comparison runs *(FR-051, FR-029, FR-033, FR-042)*;
+     **And given** several value rules fail at once, **Then** each failing rule
+     carries its own message and no account-existence comparison runs until every
+     value rule has passed *(FR-051, FR-001, FR-005, FR-035)*; **And given** a
+     submission refused at one step, **Then** no later check runs and no earlier
+     refusal is replaced *(FR-051)*
+
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
@@ -2178,7 +2577,12 @@ code dispatch results, because the server-side uniqueness rule remains the
   explicit, and it is excluded from the enumeration comparison because it depends
   on the pending request's own history rather than on whether the number has an
   account, and the pending request exists for a number with no account exactly as
-  it does for one (decided 2026-10-11, Clarifications).
+  it does for one (decided 2026-10-11, Clarifications). The criterion is
+  unweakened for a status or role refusal: a blocked, a locked, and an
+  administrator account each receive a response that does the same work and
+  takes the same time as a wrong password and as an unknown number, so the
+  enumeration test asserts them alongside those cases rather than exempting them
+  (decided 2026-10-22, Clarifications).
 - **SC-005**: 100% of the frame's target scopes render the frame and 100% of the
   bare scopes this slice ships (sign-up, sign-in, recovery) do not (asserted by
   an automated check); in this slice the frame's own scoping is verified
@@ -2193,7 +2597,10 @@ code dispatch results, because the server-side uniqueness rule remains the
   reachability, while the automated scan and the keyboard-only pass over the
   frame's rendered behaviour belong to the slice that ships the first page
   carrying it — the same boundary its two-width behaviour already observes
-  (decided 2026-10-11, Clarifications).
+  (decided 2026-10-11, Clarifications). On the three bare pages this slice
+  ships, the scan and the keyboard-only pass also assert that each state change
+  is announced and that focus lands on the step now shown rather than on a
+  control the previous step carried (decided 2026-10-22, Clarifications).
 - **SC-007**: The lock triggers on the fifth consecutive failed sign-in attempt,
   lifts after fifteen minutes, and clears the consecutive-failed-attempt count at
   that point — with attempts made during the lock neither counted nor extending
@@ -2224,8 +2631,9 @@ code dispatch results, because the server-side uniqueness rule remains the
   takes to arrive. The time a request spends waiting for the messaging channel to
   accept a message is inside that budget and is not excluded: the send is
   attempted inside the request that asks for the code, so only the delivery
-  after acceptance lies outside the platform's control (decided 2026-10-11,
-  Clarifications).
+  after acceptance lies outside the platform's control; a delivery that fails
+  after acceptance is outside the platform's observation and does not turn the
+  request into a failure (decided 2026-10-11 and 2026-10-22, Clarifications).
 
 ## Assumptions
 
@@ -2334,14 +2742,21 @@ code dispatch results, because the server-side uniqueness rule remains the
   public sign-up, and the operator who runs the action already controls the
   platform. The action also sets an initial password the operator supplies, which
   MUST satisfy the password policy FR-035 requires, so the administrator can sign
-  in and is then held to the forced password change (decided 2026-10-11,
+  in and is then held to the forced password change; that forced change must set
+  a value different from the initial password, so the requirement is cleared
+  only by an actual change, and it requires the current password exactly as the
+  account's own change action does, so a submission without it or with a wrong
+  one is refused and clears nothing (decided 2026-10-11 and 2026-10-22,
   Clarifications). The values the action sets are bound by the same account
   field rules sign-up applies — the full name present and within its bounds
   (FR-001), the number a Libyan mobile number on +218 (FR-003), and the city
   drawn from the fixed list (FR-005) — because those rules govern the account
   rather than the public path; a value that fails one is refused and the refusal
   is reported to the operator, with no account created (decided 2026-10-11,
-  Clarifications). The action is repeatable and the
+  Clarifications). The change made at the forced first sign-in ends every
+  existing session of the account, including the restricted session it was made
+  from, and sends the security notice, because it is a password change like any
+  other (decided 2026-10-22, Clarifications). The action is repeatable and the
   platform holds no cap on the number of administrator accounts, because the
   register states none and the sources speak of every administrator account;
   uniqueness is enforced on the normalised mobile number as for any account
@@ -2349,20 +2764,27 @@ code dispatch results, because the server-side uniqueness rule remains the
   not an administrator operation: it writes no audit-log row, its recording is
   the structured security event FR-037 names, and this slice therefore creates
   no audit-log table and needs none (decided 2026-10-11, Clarifications).
-- **The administrator's sign-in surface arrives later (decided 2026-10-10 and
-  2026-10-11, Clarifications).** This slice ships no administrator sign-in page:
-  it creates
+- **The administrator's first sign-in is delivered as behaviour, and its
+  surface arrives later (decided 2026-10-10 and 2026-10-11; revised 2026-10-22,
+  Clarifications).** This slice ships no administrator sign-in page: it
+  delivers the first sign-in as behaviour with no page — the sign-in is
+  accepted, the account is restricted to the password change, and the change
+  made at that first sign-in clears the requirement and lifts the restriction —
+  and it creates
   the administrator account through an operator-run provisioning action and
   records the forced-password-change requirement and its state on the account,
   and its acceptance verifies that requirement at the behaviour level. The
   requirement means the first sign-in is accepted and the account is restricted
-  to the password change until it is made — the sign-in itself is not refused
-  (decided 2026-10-11, Clarifications). Because the administrator's sign-in is
+  to the password change until it is made — the sign-in itself is not refused —
+  while ending the session remains available to a restricted account, so the
+  administrator application's sign-out control stands (decided 2026-10-11;
+  revised 2026-10-22, Clarifications). Because the administrator's sign-in is
   separate, the merchant sign-in surface this slice ships refuses an
   administrator account's credentials with the same uniform refusal any failed
   sign-in receives, so nothing tells the person the account exists or is an
   administrator account (decided 2026-10-11, Clarifications). The administrator's separate login
-  belongs to the slice that ships the administrator application.
+  surface — the page — belongs to the slice that ships the administrator
+  application.
 - **The base project is established by this slice.** The repository workspaces,
   the shared configuration, the test runner, the account and authentication
   capabilities, and the supporting infrastructure the rules require

@@ -33,9 +33,9 @@ templates.
 | How the system is built | `docs/architecture.md` |
 | The data model — entities, relationships, invariants | `docs/domain-model.md` |
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
-| UI foundation (component library and project layer) | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1's plan consumes it; ADR-098 records the visual foundation |
+| UI foundation (component library and project layer) | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1 builds it through its plan and consumes it; ADR-098 records the visual foundation |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-110) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-116) |
 
 A slice named "Architecture", "UI Foundation", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide

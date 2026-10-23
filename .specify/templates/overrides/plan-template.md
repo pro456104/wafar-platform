@@ -133,7 +133,7 @@
 | VI. Catalog-Only Scope *(NON-NEGOTIABLE)* | | [no payment/purchase/RFQ/wallet; cart is a bookmark list carrying no price or quantity; single admin conversation thread only] |
 | VII. Specification-First and Documentation Separation *(NON-NEGOTIABLE)* | | [spec.md reviewed for absence of technical detail; this plan holds the technical detail] |
 | VIII. User Story Independence *(NON-NEGOTIABLE)* | | [priorities assigned; the P1 set forms the shippable MVP; no circular story dependencies] |
-| IX. UI Foundation Fidelity *(NON-NEGOTIABLE)* | | [Nuxt UI v4 is the only component library; the Wafar UI layer is `packages/ui`; project values, IconPark (colour + outline), IBM Plex Sans Arabic, and tokens live there; no second component library, no custom design system, no raw values or direct z-index values; no emoji; every state rendered; the apps' `app/` paths appear in the Ownership Map] |
+| IX. UI Foundation Fidelity *(NON-NEGOTIABLE)* | | [Nuxt UI v4 is the only component library; the Wafar UI layer is `packages/ui`; project values, IconPark (colour + outline), IBM Plex Sans Arabic, and tokens live there; no second component library, no parallel design system, no raw values or direct z-index values; no emoji; every state rendered; the apps' `app/` paths appear in the Ownership Map] |
 | X. Modular Monolith Architecture | | [owning module named per change; one responsibility per module; no direct cross-module imports — communication through the shared package] |
 
 *Every row is filled. A principle that does not apply is marked "not applicable" with a reason; never left blank.*
@@ -157,7 +157,7 @@
 | Project Structure and Debt Control | | [ownership map below; import boundaries mechanically enforced; shared code promoted only after a second consumer exists] |
 | Documentation | | [ADR for every non-trivial decision (alternatives + rationale); affected docs updated in the same change; every ADR first named by this plan reaffirmed here] |
 | Deployment and Observability | | [dev/staging/production; staging parity; health checks per used dependency; structured logs + correlation id; error tracker; backups; RTO/RPO in CMV] |
-| Technology Standards | | [stack unchanged from the constitution's Technology Standards register; the paths match the repository topology and the internal layout, with the Wafar UI layer path fixed by ADR-097 outside the constitution's package rows; no unregistered technology; a MAJOR substitution would require a constitutional amendment] |
+| Technology Standards | | [stack unchanged from the constitution's Technology Standards register; the paths match the repository topology and the internal layout, with the Wafar UI layer path fixed by ADR-097 outside the constitution's package rows; no unregistered technology outside the "Register gaps a slice MUST close" process; a MAJOR substitution would require a constitutional amendment] |
 | Glossary | | [every term the feature uses is the Glossary's term, not a synonym; no entity, field, or column name is invented outside the register] |
 | Product Scope | | [pages and features stay inside the defined list; an addition is recorded in Complexity Tracking] |
 | File Processing Overview | | [single pipeline sequence; status enum exactly uploaded/processing/completed/failed; validation before storage; duplicate rejected] |

@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-10-10
-**Refreshed**: 2026-10-21 — after ADR-097, ADR-098, ADR-099, ADR-102, and ADR-105
+**Refreshed**: 2026-10-22 — after ADR-111 (the recovery flow's verified state, and the bare pages' state announcements), again after the fifth `/speckit.clarify` session of that date (five answers; see Notes), again after the sixth session of that date (five answers; ADR-114), and again after the seventh session of that date (five answers; ADR-115)
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -42,8 +42,8 @@
       beyond the sixteen, and no role beyond the three — and the twenty-seven-page
       register is not amended
 - [x] No requirement contradicts an accepted decision record
-- [x] Identifiers are contiguous, stable, and never reused — FR-001 … FR-050,
-      AC-001 … AC-054, SC-001 … SC-009, with no gap, no renumbering, and no
+- [x] Identifiers are contiguous, stable, and never reused — FR-001 … FR-051,
+      AC-001 … AC-055, SC-001 … SC-009, with no gap, no renumbering, and no
       dangling reference
 - [x] Every user story is independently testable and deliverable — US5's
       independent test is structural, and the strain its deferred runtime
@@ -63,8 +63,8 @@
   slice while this slice binds the frame's absence from them and provides the
   reachability surface, and that the base project's technical composition is a
   plan matter rather than a specification matter.
-- FR-001 … FR-050 (50 requirements) are each covered by at least one AC;
-  AC-001 … AC-054 (54 criteria) are grouped under their user stories and each
+- FR-001 … FR-051 (51 requirements) are each covered by at least one AC;
+  AC-001 … AC-055 (55 criteria) are grouped under their user stories and each
   cites its functional requirement. SC-001 … SC-009 are numeric and
   technology-agnostic.
 - The spec names only entities registered in `docs/domain-model.md` (`User`,
@@ -169,3 +169,78 @@
   by the `users` module, so the register stays at twelve entities. The
   constitution moved to 3.7.0 (MINOR: a register expanded). No requirement,
   criterion, or identifier changed.
+- Refreshed 2026-10-22: a `/speckit.clarify` session answered two more questions
+  and ADR-111 recorded the answers — the one-time code stops being usable the
+  moment it is verified in password recovery, the pending request moves to a
+  single-use verified state that carries the new-password step and lasts no
+  longer than the request's own lifetime, a reload at that step resumes it, and
+  setting the password ends the state so the same code cannot authorise a second
+  reset; and the in-progress state, the inline failure message, and the in-place
+  confirmation are announced to assistive technology, with focus moving to the
+  step now shown rather than remaining on a removed control. FR-014, FR-034,
+  FR-038, FR-040, AC-036, AC-041, AC-043, SC-006, the key-entities note, US3's
+  Independent Test, two edge cases, the Test Coverage Request, and
+  `docs/domain-model.md`'s transient-verification-state section carry the rules.
+  The requirement and criterion counts are unchanged at 50 FR, 54 AC, and 9 SC;
+  no identifier was renumbered, reused, or withdrawn; no `[NEEDS CLARIFICATION]`
+  marker was raised; and every checkbox above stays checked.
+- Refreshed 2026-10-22 (second time): the fifth `/speckit.clarify` session of
+  that date answered five questions that the earlier sessions had left open, and
+  ADR-112 recorded the answers; each answer was applied to the sections that
+  carry its rule. The code step no
+  longer shows back "the fields the person filled in": FR-038 and AC-041
+  enumerate the fields it shows — the full name, the mobile number, the city, and
+  the optional shop name — and state that the password is never re-displayed,
+  echoed, or rendered masked, so a submitted password cannot return to the
+  browser. The administrator's first sign-in is delivered here as behaviour with
+  no page, exactly as FR-013's change-password action is, so AC-030's assertion
+  that the forced-password-change requirement is cleared by the change made at
+  that first sign-in is exercisable in this slice; FR-028, AC-030, US6's
+  Independent Test, the administrator Assumption, an edge case, and the Test
+  Coverage Request carry the bound, and only the sign-in surface stays with the
+  later slice. A status or role refusal now performs the same verification work
+  as any other sign-in attempt and is refused afterwards on that ground, which
+  brings FR-017 into line with FR-009's wording and with FR-008 and SC-004's
+  timing uniformity; AC-009, AC-019, AC-029, SC-004, an edge case, and the Test
+  Coverage Request assert it. The pending request now ends once the platform has
+  stated an outcome it cannot complete, at sign-up for a number that already has
+  an account as well as in the recovery flow, so no live request or usable code
+  survives a reported outcome; FR-006, FR-034, AC-006, the key-entities note, an
+  edge case, and the Test Coverage Request carry the rule. Finally, the coverage
+  target names its scope: 80% of the changed production lines this slice
+  introduces, excepting the frame's runtime behaviour it defers to the first
+  frame-carrying slice, which that slice covers. AC-022's stale clause about the
+  icon set being chosen here was corrected against FR-020 and ADR-098, which
+  record that the set is already chosen and that this slice records it in the
+  technology register. The requirement and criterion counts are unchanged at 50
+  FR, 54 AC, and 9 SC; no identifier was renumbered, reused, or withdrawn; no
+  `[NEEDS CLARIFICATION]` marker was raised; all 50 FRs remain cited by at least
+  one AC and every AC still cites at least one FR; and every checkbox above
+  stays checked.
+- Refreshed 2026-10-22 (third time): a sixth `/speckit.clarify` session answered
+  five questions and ADR-114 recorded the answers. The administrator's forced
+  first change must set a value different from the initial password, so the
+  reuse allowance no longer makes the requirement vacuous. The pending sign-up
+  request holds the submitted password only in the same irreversibly protected
+  form a stored password has, computed at submission, so no plaintext password is
+  retained and the account is still created from it after verification. A
+  submission's refusals are decided in one fixed order — the rate limit, the
+  hidden field, the minimum time, the value rules, then account existence — so
+  each criterion asserts one refusal. A failed re-request of a one-time code
+  leaves the previous code valid, the request live, and the re-request limit
+  untouched. The forced first change ends every session, including the restricted
+  one it was made from, and sends the security notice. FR-013, FR-028, FR-034,
+  FR-035, FR-038, FR-043, and the new FR-051 carry the rules; AC-030, AC-036,
+  AC-037, AC-041, AC-047, and the new AC-055 assert them, with US6's Independent
+  Test, two Assumptions, the Key Entities note, two edge cases, and the Test
+  Coverage Request. `docs/domain-model.md` is corrected in the same change — the
+  transient store's protected password, the dispatch-conditioned code
+  replacement, and the forced change's session and notice. The counts become 51
+  FR, 55 AC, and 9 SC; no identifier was renumbered, reused, or withdrawn; every
+  FR is cited by at least one AC; and all 22 checkboxes above stay checked.
+- Refreshed 2026-10-22 (fourth time): a seventh `/speckit.clarify` session
+  answered five questions and ADR-115 recorded the answers — the ended-session
+  state, the send-failure boundary, the counted code, the replaced verification,
+  and the forced change's current-password check. The counts stay 51 FR, 55 AC,
+  and 9 SC; no identifier was renumbered, reused, or withdrawn; every FR is cited
+  by at least one AC; and all 22 checkboxes above stay checked.

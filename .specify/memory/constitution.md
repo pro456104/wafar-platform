@@ -330,9 +330,10 @@ parallel design system is prohibited.
 - **Component source.** Nuxt UI v4 is the only UI component library. A second
   component library MUST NOT be introduced.
 - **Project values.** Project-specific UI values, theme configuration, wrappers,
-  and patterns live in the Wafar UI layer built by R1 through SpecKit; that plan
-  fixes the path. This constitution does not restate those values and does not
-  create a package.
+  and patterns live in the Wafar UI layer at `packages/ui`, whose path is fixed
+  by ADR-097 and `docs/architecture.md`; R1 builds it through SpecKit and its plan
+  consumes that path. This constitution does not restate those values and does
+  not create a package.
 - **Existing components first.** A new interface MUST use the existing Nuxt UI
   components and the Wafar UI layer. A missing component is added to that layer
   in the same change, never created ad hoc inside a feature.
@@ -1233,8 +1234,9 @@ where the two disagree, this section wins. The mirror carries the exact version
 of each technology, the per-technology notes, and the repository trees at file
 granularity; it MUST NOT introduce a technology this register does not name, and
 MUST NOT restate a rule. A technology absent from this
-register MUST NOT be used, and a technology named here MUST NOT be substituted
-without an amendment to this constitution.
+register MUST NOT be used, except a gap listed under "Register gaps a slice MUST
+close" while that section's process is followed. A technology named here MUST NOT
+be substituted without an amendment to this constitution.
 
 ### Repository topology
 
@@ -1332,14 +1334,16 @@ when the automated update process performs it.
 
 ### Register gaps a slice MUST close
 
-No technology is approved yet for the following, and each is required by a rule
-or by Product Scope. Where a gap's choice is one of the values Module Discipline
-and Development Workflow lists in its closed Constitution Mandated Values set,
-the plan MUST record it in that table; every other gap's choice belongs in the
-plan's Complexity Tracking table. Either way the plan MUST record the choice
-together with an ADR, a licence-obligation record, and a vulnerability scan, and
-this register MUST be amended to add it no later than that slice's acceptance.
-Until then the choice is open, and naming a specific library in this register is
+No technology is approved by this register yet for the following, and each is
+required by a rule or by Product Scope. Where a gap's choice is one of the values
+Module Discipline and Development Workflow lists in its closed Constitution
+Mandated Values set, the plan MUST record it in that table; every other gap's
+choice belongs in the plan's Complexity Tracking table. Either way the plan MUST
+record the choice together with an ADR, a licence-obligation record, and a
+vulnerability scan. The technology MUST NOT be used before that record exists.
+After it exists, the owning slice may use the technology, and this register MUST
+be amended to add it no later than that slice's acceptance. Until the record
+exists the choice is open, and naming a specific library in this register is
 prohibited, because an unvetted name would fail Dependency Governance.
 
 Where both tables apply, the Constitution Mandated Values table is where the
@@ -1750,4 +1754,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 3.8.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-22
+**Version**: 3.9.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-22

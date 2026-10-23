@@ -234,7 +234,7 @@ Read/write notes:
 | `packages/shared` | Validation schemas, types, and contracts shared between frontend and backend. | Single source of the two contracts (Principle II); promoted code only after a second consumer exists. |
 | `packages/db` | Database schema and migrations. | One migration tool only; every migration a single reversible step; destructive changes split into expand/backfill/contract (Schema and Migration Control). |
 | `packages/search` | Search client and index mappings. | Arabic analyzer; OpenSearch Index State Management (ISM) on the index, with the per-catalog 90-day deletion enforced by the retention job (R15); one mapping owner per index. |
-| `packages/ui` | The Wafar UI layer: design tokens, theme, IconPark icons, IBM Plex Sans Arabic, and shared primitives. | Nuxt UI v4 only; IconPark colour + outline, vendored and pinned; IBM Plex Sans Arabic; no app pages; app-specific components stay in the apps; ADR-097/098. |
+| `packages/ui` | The Wafar UI layer: design tokens, theme, IconPark icons, IBM Plex Sans Arabic, and shared primitives. | Nuxt UI v4 only; IconPark colour + outline, vendored and pinned; IBM Plex Sans Arabic; no app pages; app-specific components stay in the apps; ADR-097/098. IconPark is the ADR-098 choice; the icon set remains a Technology Standards register gap R1 closes (ADR-116). |
 | `packages/config` | ESLint, Stylelint, Prettier, TypeScript configuration shared by all workspaces. | Dependency and tooling changes follow Dependency Governance. Stylelint + ESLint fail the build on physical direction properties and on any colour, spacing, radius, shadow, duration, or z-index value that is not supplied by the Wafar UI layer — enforced by the committed configuration, not a review comment (Principle IX). |
 
 ## 5. Environments and operations
@@ -270,13 +270,14 @@ Read/write notes:
   `.specify/memory/version.json`) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-110; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-116; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.
 - UI foundation: Nuxt UI v4 is the component library; the Wafar UI layer is
-  `packages/ui`, fixed by ADR-097 (Principle IX), and R1's plan consumes it.
+  `packages/ui`, fixed by ADR-097 (Principle IX); R1 builds it through its plan
+  and consumes it.
   ADR-098 records IconPark, IBM Plex Sans Arabic, the light default, and the
   marine/sand palette.
 - Technology stack: `Project-Technologies.txt`; product scope and roles:

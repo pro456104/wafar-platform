@@ -358,8 +358,16 @@ service layer re-checks the ones a constraint cannot express.
     expiry the count clears. An attempt refused while the lock is in force is not
     counted as a further failed attempt and never extends the lock.
   - **The forced-password-change requirement is cleared by that change and by no
-    other path.** An account that carries it is restricted to the password change
-    and nothing else; the sign-in that reveals it is accepted, never refused.
+    other path.** The change must set a value different from the initial
+    password and must supply the current password — the initial password the
+    operator supplied — exactly as any other password change does; a submission
+    without it or with a wrong one is refused, clears nothing, and leaves the
+    account restricted, and the failed check is a failed password verification.
+    The change ends every existing session, including the restricted one it was
+    made from, and sends the security notice, exactly as any other password
+    change does. An account that carries the requirement is restricted to the
+    password change and the ending of its session; the sign-in that reveals it is
+    accepted, never refused.
 - **Deletion is soft** for users and catalogs; see Soft deletion below.
 
 ## Transient verification state (not an entity)
@@ -372,15 +380,39 @@ thirteenth entity. The `users` module owns the store.
 
 - **One pending request is live per mobile number.** A new sign-up or recovery
   request for a number that already has a live pending request replaces it, and
-  the previous code stops being valid at once.
-- **Exactly one code is valid at any moment.** Requesting a new code invalidates
-  the previous one and does not reset the count of incorrect entries.
+  the previous code stops being valid at once. The replacement reaches every
+  state of the pending request, including the recovery flow's verified state:
+  that state ends at once and can no longer set a password, so two authorities
+  never coexist for one number.
+- **Exactly one code is valid at any moment.** A new code replaces the previous
+  one only when the messaging channel accepts its message; a refusal at
+  acceptance leaves the previous code valid, the request live, and the
+  re-request limit untouched. A message the channel accepts is a successful
+  send from the platform's side even if it is never delivered; a later delivery
+  failure is outside the platform's observation and is not a send failure.
+  A replacement never resets the count of incorrect entries, and that count
+  records only a wrong value for the live code: an expired code and a code a
+  replacement has superseded are refused without incrementing it.
 - **The pending request ends when the bound on incorrect entries is reached**,
   and the person starts a fresh request, which begins a new verification with
   the count at zero.
+- **The pending sign-up request holds the form's details in protected form.**
+  It carries what the form collected, so the account can be created when the
+  correct code is entered; the password among them is irreversibly protected at
+  submission, in the same form a stored password has, and the request holds that
+  value rather than the plaintext. Replacing or ending the request discards it.
 - **A pending request expires.** The expiry, the re-request limit, and the
   incorrect-entry bound are numbers the plan records under Constitution
   Mandated Values; this section fixes the rules, not the numbers.
+- **The recovery flow's new-password step is carried by a verified state.**
+  When the correct code is entered in the password-recovery flow, the code stops
+  being usable at once and the pending request moves to a verified state that
+  carries the new-password step alone, lasts no longer than the pending
+  request's own lifetime, and ends when the new password is set or when a new
+  request replaces the pending request, so the same
+  code cannot authorise a second reset. A reload while the state lives shows the
+  new-password step again; once the password is set the page returns to its
+  first step. (ADR-111, ADR-115.)
 - **Nothing here is an account.** No `User` row exists until the correct code is
   entered, so `User.status` stays the closed two-value set and the register's
   twelve entities stay twelve. The store's rows carry no merchant identity and

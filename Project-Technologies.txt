@@ -1,8 +1,8 @@
 # Project-Technologies.txt — the detail of the technology register
 
 **Constitution**: `.specify/memory/constitution.md` (current version: its footer
-or `.specify/memory/version.json`; last amended 2026-10-21,
-ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064/065/066/067/068/069/070/071/072/073/074/075/076/077/078/079/080/081/082/083/084/085/086/087/088/089/090/091/092/093/094/095/096/097/098/099/100/101/102/103/104/105/106/107/108/109/110). On any conflict with this file, the constitution
+or `.specify/memory/version.json`; last amended 2026-10-22,
+ADR-040/041/042/043/044/045/046/047/048/049/050/051/052/053/054/055/056/057/058/059/060/061/062/063/064/065/066/067/068/069/070/071/072/073/074/075/076/077/078/079/080/081/082/083/084/085/086/087/088/089/090/091/092/093/094/095/096/097/098/099/100/101/102/103/104/105/106/107/108/109/110/111/112/113/114/115/116). On any conflict with this file, the constitution
 wins and this file is corrected.
 
 **Status**: detail mirror, not a source of rules. The register is
@@ -25,7 +25,7 @@ and the way it may restate them — are the register's, stated there and not her
 | التقنية | الدور | التفاصيل |
 |---|---|---|
 | **Monorepo** | مستودع واحد يجمع كل التطبيقات والحزم | يضم: `apps/web`، `apps/admin`، `apps/api`، `apps/worker` + `packages/shared`، `packages/db`، `packages/search`، `packages/ui`، `packages/config`. يسهّل مشاركة الكود والأنواع بين الواجهة والخادم. |
-| **Node.js** | بيئة التشغيل | **22 LTS** مثبّتة ومتوثّقة عبر ADR وسجل Constitution Mandated Values؛ لا يختار المطوّر نسخة مختلفة بين البيئات. |
+| **Node.js** | بيئة التشغيل | **22 LTS** مثبّتة بـ ADR-021 و`.nvmrc`؛ خطة R1 تسجّلها في Constitution Mandated Values؛ لا يختار المطوّر نسخة مختلفة بين البيئات. |
 | **pnpm** | مدير الحزم | أسرع من npm/yarn، يوفر مساحة القرص عبر الروابط الصلبة (Hard Links). يدعم **pnpm Catalogs** لإدارة الإصدارات المركزية في Monorepo. ملف القفل (lockfile) مُودَع في المستودع، ولا يُولَّد إلا بعملية تحديث التبعيات أو بخطة صريحة. |
 | **Turborepo** | منسق المهام والبناء | يشغّل `build`، `test`، `lint` عبر كل الحزم بأمر واحد. يخزّن النتائج مؤقتاً (Caching) فلا يعيد البناء إن لم يتغير شيء. يبني الحزم بالترتيب الصحيح (shared ← web). الإصدار من سلسلة v2 (الدستور يثبّت v2؛ لا رقم دقيق منفرد). ملف القفل (lockfile) مُودَع في المستودع. |
 
@@ -137,7 +137,7 @@ apps/admin/
 └── public/
 ```
 
-### 🎨 أصول التصميم (Design assets — قيم Wafar UI layer، ليست تقنيات في السجل المعتمد)
+### 🎨 أصول التصميم (Design assets — قيم Wafar UI layer؛ ومجموعة الأيقونات فجوة تقنية في السجل يغلقها R1)
 
 | الأصل | التفاصيل |
 |---|---|
