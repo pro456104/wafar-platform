@@ -155,6 +155,7 @@ from the index rather than edited in its own words.
 | [ADR-117](#adr-117--the-capacity-envelope-and-the-upload-quota-model) | The capacity envelope and the upload-quota model | 2026-10-23 | 3.9.0 (unchanged) |
 | [ADR-118](#adr-118--the-upload-quota-amendment-50300-no-lifetime-total-and-the-administrator-ceiling) | The upload-quota amendment: 50/300, no lifetime total, and the administrator ceiling | 2026-10-23 | 4.0.0 |
 | [ADR-119](#adr-119--the-first-pdf-sample-calibration-and-the-two-scenario-capacity-model) | The first PDF sample calibration and the two-scenario capacity model | 2026-10-23 | 4.0.0 (unchanged) |
+| [ADR-120](#adr-120--the-two-price-column-one-price-cell-two-printed-amounts-and-the-primary-price) | The two-price column: one price cell, two printed amounts, and the primary price | 2026-10-24 | 4.1.0 |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -2064,6 +2065,12 @@ supplier-column-to-canonical-column table and the price and comparison
 acceptance criteria; `Project-Technologies.txt` gains a 2.18.0 additions section
 that binds the still-open extraction-library gap without naming a library. This
 entry is the durable amendment record.
+
+**Annotation (2026-10-24, ADR-120).** The price column now carries one amount
+or two, each with the supplier's printed label; the six canonical columns, the
+eight displayed columns, and the guest redaction stand. The second amount is
+display-only, and the primary amount is the one the parts table sorts and
+filters on.
 
 ---
 
@@ -9384,3 +9391,100 @@ move to `ADR-001 … ADR-119`, and `Project-Technologies.txt`'s header list gain
 no schema, and no code, so no backfill runs. R3, when planned, reads the sample
 report, the two scenarios, and the open rules. Review date: 2026-11-23, and again
 after the broader sample. This entry is the durable record.
+
+**Annotation (2026-10-24, ADR-120).** The first of the four R3 rules in item 5
+— which price wins when a file prints two — is decided by ADR-120. The other
+three remain R3's.
+
+---
+
+## ADR-120 — The two-price column: one price cell, two printed amounts, and the primary price
+
+**Status**: Accepted — 2026-10-24
+**Owning directory**: `.specify/memory/`, `docs/`, `Core-Project.txt`,
+`ROADMAP.md`
+**Owning feature**: none — governance decision; ratified by the repository
+owner. R3 reads the extraction rule; R5 renders the cell.
+
+**Context.** The constitution registered one price per part. The first real
+sample (19 PDFs, 1,525 pages, 2026-10-23) contains files that print two price
+columns: «نقدي» and «مصرفي», «سعر القطعة» and «سعر الجملة», «سعر البيع», and
+«سعر الخاص». The sample report recorded the two-price pattern and left the
+precedence rule to R3. Storing one amount would silently drop a printed price
+and force a schema migration later. Adding a second canonical column would
+break the six-column composition, the eight displayed columns, and the rule
+that every column is always shown. Adding a `PartPrice` entity would make
+thirteen entities, break the twelve-entity register, and put a join in every
+read of the parts table. The product decision is to keep one price column and
+let it carry one amount or two.
+
+**Decision.**
+
+1. **The price column carries one amount or two.** A parts table that prints
+   two price columns, or one column carrying two labelled amounts, stores both;
+   a table that prints one stores one. Each amount carries the column name the
+   supplier printed, stored as part of the price cell; the label is not a
+   seventh canonical value. The six canonical columns and the eight displayed
+   columns are unchanged.
+2. **The primary amount is the sort and filter key.** It is the amount the
+   parts table sorts and filters on: «نقدي» when the file prints it, otherwise
+   «قطعة», otherwise the only printed amount, otherwise the first amount in the
+   table's reading order, which is right to left in an RTL table. The second
+   amount is displayed only and is neither sortable nor filterable.
+3. **Labels.** «نقدي» is payment in cash and «مصرفي» is payment by card; a
+   printed «مصرف» is stored as «مصرفي». A label is rendered with its amount
+   only when it is Arabic; a label in another script, or no label, leaves the
+   amount unlabelled.
+4. **Storage cap.** At most two amounts are stored. When a file prints more
+   than two, the stored pair is the primary amount and the first of the
+   remaining amounts in reading order; a third amount is not stored even though
+   it belongs to the price column, and it is not counted or flagged. When two
+   printed columns carry the same label, the first in reading order is stored
+   and the second is not.
+5. **The guest projection excludes both amounts.** A guest's read path projects
+   the part without its price column and without either amount, through its own
+   allowlist. The administrator edits both amounts; a merchant edits neither.
+6. **The other-currency rule is unchanged.** A price in another currency is not
+   converted and not stored; when the second amount is in another currency it is
+   not stored either, and a part with no storable amount reads «بدون سعر».
+7. **The constitution moves to 4.1.0 (MINOR).** The change is a material
+   expansion of registered price guidance; nothing is removed or redefined
+   incompatibly, and a one-price part remains valid.
+
+**What deliberately did not change.** The six canonical columns, the eight
+displayed columns, the twelve entities, the twenty-seven pages, the sixteen
+features, the Usage Limits table, the Technology Standards register, the cart's
+prohibition on price, and the guest redaction. No entity, canonical column,
+displayed column, page, limit, or technology is added. No OCR vendor is named
+and no capacity number enters the constitution. R1's specification does not
+name the price, so its identifiers and acceptance criteria do not change. R3
+and R5 read the amended rule when they are specified.
+
+**Alternatives considered.**
+
+- *Store one amount and drop the second.* Rejected: it silently discards a
+  printed price and forces a migration once a merchant asks where the card
+  price went.
+- *Add a second canonical column.* Rejected: it breaks the six-column
+  composition, the eight displayed columns, and the rule that every column is
+  always shown; it would be a MAJOR amendment.
+- *Introduce a `PartPrice` entity.* Rejected: it makes thirteen entities,
+  breaks the twelve-entity register, and adds a join to every read of the parts
+  table.
+- *Leave the precedence rule to R3.* Rejected: the rule decides what the
+  merchant sees first and what the price filter means, so it is a product fact,
+  not an extraction detail.
+- *A closed label enumeration.* Rejected: the label is the supplier's printed
+  column name, and suppliers vary; the two meanings that matter — cash and card
+  — are registered, and the rest is stored as printed.
+
+**Consequences and migration/backfill.** The constitution's Principle VI,
+Product Scope, Product Register, File Processing Rules, Glossary, and Product
+Fact Clarifications move in this change; `docs/domain-model.md`,
+`Core-Project.txt`, `docs/architecture.md`, `ROADMAP.md`, and
+`docs/pdf-sample-analysis.md` follow in the same commit. ADR-040 and ADR-119
+carry annotations. The live `ADR-001 … ADR-119` range strings move to
+`ADR-001 … ADR-120`, and `Project-Technologies.txt`'s header list gains 120
+contiguously. The change is documentation-only: there is no production data,
+no schema, and no code, so no backfill runs. Review date: 2026-11-23, and again
+when R3's extraction benchmark lands.

@@ -89,7 +89,7 @@ shared package — never through a direct import from one module to another.
 | `auth` | Sign-up, sign-in/out, password recovery, sessions. | Implemented with the designated proven library with `scim` and `sso` disabled (Identity, Authentication, and Session Policy). Password hashing, session timeout, and auth rate limits are recorded per plan in Constitution Mandated Values. Sign-in, registration, and password-recovery responses never reveal whether an account exists; after five consecutive failed sign-in attempts the account locks for fifteen minutes. Every session is revocable server-side, including a "sign out everywhere" operation, and browser-stored tokens are revocable on password change. Registration and contact forms are protected by a honeypot field, a minimum time-to-submit, and a per-client rate limit; CAPTCHA is never used. The administrator account is created by a seeded CLI command with a forced password change at first sign-in. `auth` owns the `Session` entity — the server-side, revocable session store — while the account's identity and profile belong to `users` (ADR-067). |
 | `users` | Merchant accounts and profile data; account edits; optional per-user upload-quota overrides. | Only the account's owner edits the profile; the administrator sets a quota override through the admin surface, and every change is audited. No user may delete an account (roles: see Product Register in `.specify/memory/constitution.md`). |
 | `catalogs` | Uploaded supplier files: metadata (supplier name, issue date, upload date, expiry date), processing status, the `first_page_metadata_incomplete` flag, retention, and the pointer to the stored bytes. | Status is exactly one of `uploaded`, `processing`, `completed`, `failed`; `first_page_metadata_incomplete` is a boolean flag and never a fifth status; automatic deletion after 90 days; duplicates rejected by content hash (File Processing Overview). |
-| `parts` | Extracted part rows: the six canonical columns the constitution's Glossary fixes for a part (`Glossary` → `Part`), including the price its own catalog printed. The parts table additionally shows the supplier's name, which is read through the `suppliers` module and is not a part column. | A part belongs to exactly one catalog; merchants cannot edit or delete parts, and cannot edit a price — the administrator does (Authorization and Access Control). The price is per catalog, in Libyan Dinar, and every guest-reachable read path projects the part without it. |
+| `parts` | Extracted part rows: the six canonical columns the constitution's Glossary fixes for a part (`Glossary` → `Part`), including the amount or the two amounts its own catalog printed. The parts table additionally shows the supplier's name, which is read through the `suppliers` module and is not a part column. | A part belongs to exactly one catalog; merchants cannot edit or delete parts, and cannot edit a price — the administrator does, and edits either amount (Authorization and Access Control). The price is per catalog, in Libyan Dinar; the price column carries one amount or two, the primary amount is the sort and filter key, and every guest-reachable read path projects the part without its price column and without either amount. |
 | `suppliers` | The supplier named on a catalog's first page, stored in its normalised form, and its associations to catalogs. | One supplier may appear in many catalogs. Normalisation makes two spellings of one name compare equal; it merges nothing, and only the administrator merges (Glossary, File Processing Rules). |
 | `bookmarks` | The "cart": a merchant's personal bookmark list of parts. | Carries no price, no quantity, and no checkout state; maximum 99 parts; capacity is enforced server-side (Principle VI, Usage Limits). |
 | `notifications` | Processing-completed/failed notices, administrative messages, and an administrator's reply to a merchant message; read state. | Failed processing presents a retry action. |
@@ -182,10 +182,10 @@ writes the search index directly, because it is the projection's only writer.
    whole indices by index age, so the per-catalog 90-day deletion is enforced by
    the retention job (R15) rather than by the index lifecycle alone. Search
    results follow the p95 < 1 s budget (Usage Limits). The projection is not one
-   shape for everyone: a guest's read path projects a part without its price,
-   through an allowlist of its own, so the price is absent from the response
-   rather than hidden by the presentation layer (Principle VI, Query Safety and
-   Secrets).
+   shape for everyone: a guest's read path projects a part without its price
+   column and without either amount, through an allowlist of its own, so neither
+   amount is present in the response rather than hidden by the presentation
+   layer (Principle VI, Query Safety and Secrets).
 4. **worker → db and search.** The worker is what keeps the projection current: it
    consumes queued jobs, extracts and normalizes parts, then writes the catalog
    status and the extracted parts into the system of record through the owning
@@ -219,9 +219,10 @@ Read/write notes:
 - Filters offered by the parts table: a search field over part number and
   original number (partial match), multi-select filters over car model, type,
   catalog file, and supplier (no selection means every value of that filter, so
-  an unselected supplier filter means every supplier), and a price
-  range (minimum and maximum); pagination 20/50/100; column sorting on every
-  column except `type`; `?file=<id>` filters by catalog (Product Scope). The
+  an unselected supplier filter means every supplier), and a price range over
+  the primary amount (minimum and maximum); pagination 20/50/100; column sorting
+  on every column except `type`, with the price column sorting and filtering on
+  the primary amount; `?file=<id>` filters by catalog (Product Scope). The
   price column, and any filter or sort over it, are rendered for a registered
   merchant only. Search ranking beyond the sortable columns is a deferred area.
 - Sort and projection columns come from the explicit allowlist mapped to real
@@ -270,7 +271,7 @@ Read/write notes:
   `.specify/memory/version.json`) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-119; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-120; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;

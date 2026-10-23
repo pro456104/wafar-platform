@@ -251,23 +251,28 @@ not process payment, and does not host direct user-to-user chat.
 - The "cart" is a personal bookmark list. It MUST NOT carry price,
   quantity, or checkout state. It MUST NOT be described in user-facing text
   as a purchase.
-- **Displayed price.** A part carries the price printed in its own source
-  catalog, so a merchant can see what each supplier charges. It is a catalog
+- **Displayed price.** A part carries the price or prices printed in its own
+  source catalog, so a merchant can see what each supplier charges. A catalog
+  that prints two price columns, or one column carrying two labelled amounts,
+  stores both amounts, each with the column name the supplier printed; a catalog
+  that prints one stores one. The **primary price** is the amount the parts table
+  sorts and filters on, fixed by the rule in **Price**; the second amount is
+  displayed and is neither sortable nor filterable. The price is a catalog
   attribute, not an offer: it carries no quantity, no discount, no currency
-  conversion, and no checkout state, and the cart renders none of it. A
-  merchant never edits a price; only the administrator does. The price is
-  visible to a registered merchant and MUST NOT reach a guest through any
-  surface, response, index projection, or export: a guest's read path projects
-  the part through its own allowlist without the price column, which is a
-  different projection and not a hidden column (Query Safety and Secrets). A
-  price is sortable and filterable like any other column, for a registered
-  merchant only. It is rendered with a decimal point and exactly three decimal
-  places, the dinar's own subdivision, and with no thousands separator, so ten
-  dinar reads `10.000` (and fifteen dinar reads `15.000`); the denomination is
-  named once in the column header
-  rather than repeated in every cell. A part whose catalog prints no price reads
-  «بدون سعر» rather than a blank or a zero, and the price filter accepts a
-  minimum and a maximum.
+  conversion, and no checkout state, and the cart renders none of it. A merchant
+  never edits a price; only the administrator does, and the administrator edits
+  both amounts. Neither amount is visible to a guest and neither MUST reach a
+  guest through any surface, response, index projection, or export: a guest's
+  read path projects the part through its own allowlist without the price column,
+  which is a different projection and not a hidden column (Query Safety and
+  Secrets). Every amount is rendered with a decimal point and exactly three
+  decimal places, the dinar's own subdivision, and with no thousands separator,
+  so ten dinar reads `10.000` (and fifteen dinar reads `15.000`); the
+  denomination is named once in the column header rather than repeated in every
+  cell. A printed label is rendered with its amount only when it is Arabic; a
+  label in another script, or no label, leaves the amount unlabelled. A part
+  whose catalog prints no price reads «بدون سعر» rather than a blank or a zero,
+  and the price filter accepts a minimum and a maximum.
 - Messaging is limited to a single conversation thread between a user and
   the administrator. Direct user-to-user messaging is prohibited.
 - Sale and purchase are deferred. Enabling them requires an amendment to
@@ -416,7 +421,7 @@ the Home page.
 | Page | Content |
 |---|---|
 | Home | Platform name, quick search field, four statistical cards (accounts, files, parts, searches). |
-| Parts | A search field covering part number and original number (partial match), multi-select filters (car model, type, catalog file, supplier, in which no selection means every value of that filter), a price filter taking a minimum and a maximum, a parts table showing every column at all times — part number, name, car model, original number, type, price, the supplier's name, and the cart control — pagination (20/50/100), and column sorting on every column except type. Accepts `?file=<id>` to filter by a catalog. The price column, and any filter or sort over it, are rendered for a registered merchant only; a guest receives the same table and the same filters without them. |
+| Parts | A search field covering part number and original number (partial match), multi-select filters (car model, type, catalog file, supplier, in which no selection means every value of that filter), a price filter taking a minimum and a maximum over the primary price, a parts table showing every column at all times — part number, name, car model, original number, type, price, the supplier's name, and the cart control — pagination (20/50/100), and column sorting on every column except type; the price column renders the primary amount and, when the file prints one, the second amount with its printed label, and the filter and the sort act on the primary price only. Accepts `?file=<id>` to filter by a catalog. The price column, and any filter or sort over it, are rendered for a registered merchant only; a guest receives the same table and the same filters without them. |
 | Catalog | Table of every uploaded catalog file. |
 | Contact | Contact information and a form (name, phone, body) that reaches the administrator. |
 | Log In | Mobile number and password. |
@@ -580,16 +585,18 @@ map depends on them:
   `type` is the entity the action was performed on.
 - **A part's price is the price of its own catalog.** A part belongs to exactly
   one catalog, so the same part offered by five suppliers is five parts in five
-  catalogs, each carrying the price its own file printed. Two parts whose
-  original numbers are equal are the same part offered by different suppliers.
+  catalogs, each carrying the amount or the two amounts its own file printed.
+  Two parts whose original numbers are equal are the same part offered by
+  different suppliers.
   The platform identifies that sameness and shows the parts side by side in one
   table, which is what a merchant comparing suppliers needs. It does not merge
   them: no equivalence entity is introduced, no row is withdrawn, and no two
   catalogs are joined by it (ADR-040).
 - **The price is a registered-merchant-only projection.** Every read path a
-  guest can reach projects the part without its price, through an allowlist of
-  its own (Query Safety and Secrets). Redaction is a property of the
-  projection, not a rule the presentation layer applies after the fact.
+  guest can reach projects the part without its price column and without either
+  amount, through an allowlist of its own (Query Safety and Secrets). Redaction
+  is a property of the projection, not a rule the presentation layer applies
+  after the fact.
 
 The entity shape beyond what `docs/domain-model.md` states is a deferred area
 (Catalog data shape). Column types, constraints, and the physical schema are not
@@ -714,14 +721,24 @@ implemented as a single sequence; a shortcut that skips a step is a defect.
   `للبيع`, is removed. Normalisation makes two spellings of one name compare
   equal. It MUST NOT merge two suppliers, and only the administrator can merge
   them.
-- **Price denomination.** A part's price is the amount printed in its own
-  catalog, denominated in the Libyan Dinar. The period and the comma in a
-  printed price are decimal separators, not thousands separators, so `123.000`
+- **Price denomination.** A part's price is the amount or amounts printed in
+  its own catalog, denominated in the Libyan Dinar. The period and the comma in
+  a printed price are decimal separators, not thousands separators, so `123.000`
   denotes 123 dinar. A printed price carrying more than one separator, or a file
   that separates thousands instead, is a recorded unresolved product fact owned
-  by R3; no feature may settle it on its own. A price printed in another currency
-  is not converted and not stored: the part reads «بدون سعر» for it, because a
-  converted figure the platform cannot stand behind is worse than an honest gap.
+  by R3; no feature may settle it on its own. A parts table may print two price
+  columns, or one column carrying two labelled amounts: both amounts are read
+  with the column name printed above each, and at most two are stored. When a
+  file prints more than two, the stored pair is the primary amount **Price**
+  defines and the first of the remaining amounts in the table's reading order; a
+  third amount is not stored even though it belongs to the price column, and it
+  is not counted or flagged. When two printed columns carry the same label, the
+  first in reading order is stored and the second is not. A printed «مصرف» and a
+  printed «مصرفي» are one label and are stored as «مصرفي». A price printed in
+  another currency is not converted and not stored; when the second amount is in
+  another currency it is not stored either, and a part with no storable amount
+  reads «بدون سعر», because a converted figure the platform cannot stand behind
+  is worse than an honest gap.
 - **Retry vs reprocess.** A retry re-enqueues a failed file's processing job
   over its stored bytes, without re-uploading anything. A reprocess is the
   administrator's re-run of the same pipeline over a catalog's stored bytes,
@@ -1427,10 +1444,10 @@ however obviously the concept belongs to the entity.
 | Term | Definition |
 |---|---|
 | **Catalog** | An uploaded supplier file, together with its extracted parts, its processing status, and its metadata (supplier name, issue date, upload date, expiry date). A catalog is owned by the merchant who uploaded it. |
-| **Part** | A single row extracted from a catalog, representing one car part. Its six canonical columns are the whole of it: part number, name, car model, original number, type, price. The car model is separated out of the name when a supplier prints it inside the name; a printed year range (for example `2018-2020`) that rides inside the name is NOT extracted into its own column and stays part of the part name, while the car model itself is still separated out; `type` is one free-text column carrying what suppliers print as a single type/country column — brand, country of origin, and manufacturing grade together — and is therefore not sortable; the price is the amount printed in the part's own catalog. A part has no description column: it is neither extracted nor stored. A part belongs to exactly one catalog. |
+| **Part** | A single row extracted from a catalog, representing one car part. Its six canonical columns are the whole of it: part number, name, car model, original number, type, price. The car model is separated out of the name when a supplier prints it inside the name; a printed year range (for example `2018-2020`) that rides inside the name is NOT extracted into its own column and stays part of the part name, while the car model itself is still separated out; `type` is one free-text column carrying what suppliers print as a single type/country column — brand, country of origin, and manufacturing grade together — and is therefore not sortable; the price column carries one amount or two, each with the column name the supplier printed; the label is stored as part of the price cell and is not a seventh canonical value, and the primary amount is the amount the parts table sorts and filters on, fixed by the rule in **Price**. A part has no description column: it is neither extracted nor stored. A part belongs to exactly one catalog. |
 | **Original number** | The supplier-independent identifier a manufacturer prints for a part, which is what tells the platform that the same part appears in two suppliers' files. It is a canonical column, is indexed, and is searched by partial match; it carries no uniqueness constraint, because suppliers repeat a number within their own file and rival suppliers print the same one. It identifies a part across catalogs and merges nothing. |
 | **Canonical column** | One of the fixed columns a part is made of (see **Part**). Extraction assigns each value to a canonical column and never invents one. |
-| **Price** | The amount a supplier's own file prints for a part, in Libyan Dinar, shown so a merchant can compare suppliers. It belongs to the part and its catalog; it is not an offer, and the cart carries none. It renders with a decimal point and three decimal places and no thousands separator, so ten dinar reads `10.000` and fifteen dinar reads `15.000`; a part with no price reads «بدون سعر». |
+| **Price** | The amount or amounts a supplier's own file prints for a part, in Libyan Dinar, shown so a merchant can compare suppliers. A part carries one amount, or two when the file prints two price columns or one column carrying two labelled amounts; each amount carries the column name the supplier printed, and the label is stored as part of the price cell and is not a seventh canonical value. «نقدي» is payment in cash and «مصرفي» is payment by card; a printed «مصرف» is stored as «مصرفي». The **primary amount** is the amount the parts table sorts and filters on: the amount printed under «نقدي» when the file prints it, otherwise the amount printed under «قطعة», otherwise the only printed amount, otherwise the first amount in the table's reading order, which is right to left in an RTL table. The second amount is displayed only. The price belongs to the part and its catalog; it is not an offer, and the cart carries none. It renders with a decimal point and three decimal places and no thousands separator, so ten dinar reads `10.000` and fifteen dinar reads `15.000`; a label is rendered with its amount only when it is Arabic, and a part with no price reads «بدون سعر». |
 | **Supplier** | The company named on the first page of an uploaded catalog, from which the parts originate, stored in its normalised form. A supplier may appear in many catalogs. Normalisation makes two spellings of one name compare equal; it does not merge two suppliers, and only the administrator merges. |
 | **Cart** | A merchant's personal bookmark list of parts. It is not a purchase order. It carries no price and no quantity: the price lives on the part, and the cart shows none of it. See Principle VI. Its user-facing Arabic name is «سلة المشتريات». |
 | **Bookmark** | A single entry in the cart, linking a user to a part. |
@@ -1544,13 +1561,18 @@ the same force as the principles above.
   The number is stored in E.164 form, and the account's city comes from the
   Libyan city list.
 - **The price is in Libyan Dinar, and its separator is decimal.** `123.000` is
-  123 dinar, not 123,000. The price is the amount printed in the part's own
-  catalog, shown for comparison; it is not an offer, and it never enters the
-  cart.
+  123 dinar, not 123,000. The price is the amount or amounts printed in the
+  part's own catalog, shown for comparison; it is not an offer, and it never
+  enters the cart.
 - **Registered merchants see the price; guests do not.** The price column and
   any filter or sort over it are rendered for a registered merchant only, and a
   guest's read path projects the part without them. A part with no price reads
   «بدون سعر»; a price in another currency is never converted and never stored.
+- **A part may print two prices, and both are shown.** The column keeps its
+  single header «السعر»; its cell renders the primary amount and, when the file
+  prints one, the second amount, each with the label the supplier printed. The
+  filter and the sort act on the primary price only, as **Price** defines it.
+  A guest receives neither amount.
 - **The parts table shows every column, and hides none.** Part number, name, car
   model, original number, type, price, the supplier's name, and the cart
   control. Every column is sortable except `type`. Part number and original
@@ -1767,4 +1789,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 4.0.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-23
+**Version**: 4.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-24

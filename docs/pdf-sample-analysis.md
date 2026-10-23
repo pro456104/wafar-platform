@@ -92,8 +92,8 @@ The sample shows these patterns:
 | Minimal | `سعر البيع \| البيان \| رقم الصنف` | 3 | name, model, type, and original number are inside `البيان` |
 | Standard | `السعر \| الرقم الأصلي \| الشركة \| اسم الصنف \| رقم الصنف \| م` | 6 | `الشركة` is a brand/type, not the supplier; `م` is a row index |
 | Merged | `سعر البيع \| الرقم الأصلي \| ع \| الانو \| البيان \| رقم الصنف` | 6 | merged or abbreviated headers; `ع` and `الانو` need decoding |
-| Two prices | `مصرف \| نقدي \| الشركة \| المادة \| رقم الصنف` | 5 | bank price and cash price; the model carries one price |
-| Two prices | `سعر القطعة \| سعر الجملة \| رقم القطعة \| اسم الصنف \| رقم الصنف \| م` | 6 | piece and wholesale price; the model carries one price |
+| Two prices | `مصرف \| نقدي \| الشركة \| المادة \| رقم الصنف` | 5 | bank price and cash price; the model carried one price before ADR-120 |
+| Two prices | `سعر القطعة \| سعر الجملة \| رقم القطعة \| اسم الصنف \| رقم الصنف \| م` | 6 | piece and wholesale price; the model carried one price before ADR-120 |
 | Compact | `سعر الخاص \| الشركة \\ البلد \| اسم الصنف \| رقم الصنف` | 4 | type and country are merged; company is not the supplier |
 | Scanned | OCR header is incomplete | 4–5 | the table grid is visible but OCR merges rows and columns |
 
@@ -110,9 +110,13 @@ sample does not settle that distinction.
 
 ### 2.7 Two price columns need a precedence rule
 
-The model carries one price per part. The sample has files with `مصرف` and
-`نقدي`, and files with `سعر القطعة` and `سعر الجملة`. R3 needs a precedence rule.
-Adding a second price column would be a Glossary amendment, not a feature choice.
+The model carried one price per part before ADR-120. The sample has files with
+`مصرف` and `نقدي`, and files with `سعر القطعة` and `سعر الجملة`. ADR-120 kept the
+single canonical column and let it carry one amount or two: the primary amount
+is the cash price of one part («نقدي», otherwise «قطعة», otherwise the only
+amount, otherwise the first in reading order), and the second amount is
+display-only. Adding a second canonical column would have been a Glossary
+amendment, not a feature choice.
 
 ### 2.8 OCR is fast enough but not table-aware
 
@@ -144,10 +148,11 @@ The supplier name is read through the `suppliers` module and is not a part
 column. There is no description column. `type` holds brand, country, and
 manufacturing grade together.
 
-The sample does not justify a new canonical column. It does expose four rules
-that R3 must decide without changing the six:
+The sample does not justify a new canonical column. It exposed four rules; the
+first was decided by ADR-120, and three remain for R3 without changing the six:
 
-1. Which price wins when a file prints two.
+1. Which price wins when a file prints two — decided by ADR-120: the primary
+   amount rule.
 2. When a row-level company is `type` and when it is the supplier.
 3. Whether a missing original number is stored as null or derived from the name.
 4. How the car model and type are separated from a long Arabic name.
@@ -162,7 +167,7 @@ supported by the sample and would require a Glossary amendment.
 | Corrupted text layer | wrong Arabic, unusable header | quality gate; alternate extractor or OCR |
 | Merged or multi-row headers | wrong column assignment | structural header detection |
 | Three-to-seven source columns | per-file mapping | automatic assignment to the six |
-| Two price columns | wrong price | explicit precedence rule |
+| Two price columns | wrong price | decided by ADR-120: primary amount rule |
 | Row-level company | supplier/type confusion | header and context rule |
 | Description or `البيان` | forbidden stored description | map to name; store no description |
 | Model and type inside name | missing columns | model list and separation rules |

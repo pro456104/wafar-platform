@@ -78,7 +78,7 @@ exposed via the shared package — never through a direct import.
 | `User` | `users` | A registered merchant whose identity is a full name, a Libyan mobile number (E.164, unique, always +218), a city, an optional shop name, the role that separates a merchant from an administrator, a status that is `active` or `blocked`, and optional per-user upload-quota overrides (monthly and active). No email address exists, and no dial-code selector is offered. | One account has many catalogs, bookmarks, notifications, sessions, and at most one conversation. |
 | `Supplier` | `suppliers` | The company named on a catalog's first page, from which the parts originate. | One supplier appears in many catalogs. |
 | `Catalog` | `catalogs` | An uploaded supplier file with its metadata, its processing status, and a pointer to its stored bytes. | One catalog belongs to one uploading user and to at most one supplier, and contains many parts. |
-| `Part` | `parts` | A single row extracted from a catalog, representing one car part, carrying the price its own catalog printed. | One part belongs to exactly one catalog. |
+| `Part` | `parts` | A single row extracted from a catalog, representing one car part, carrying the amount or the two amounts its own catalog printed. | One part belongs to exactly one catalog. |
 | `Bookmark` | `bookmarks` | One entry in a merchant's cart: a link from a user to a part. | One user has at most 99 bookmarks; a bookmark links exactly one user and one part. |
 | `Notification` | `notifications` | A message delivered to a user in the notification list, from a processing outcome, from the administrator, or from an administrator reply. | Many per user; no upper bound is fixed. |
 | `Conversation` | `messages` | The single thread between a merchant and the administrator. Whether it carries an administrator reference, and whether every administrator account reads the same thread, is unresolved fact #2 below, owned by R10. | A user has at most one conversation. |
@@ -234,21 +234,29 @@ service layer re-checks the ones a constraint cannot express.
   Rules). A value that belongs to no canonical column is part of no stored
   column and is not stored. There is no "unassigned" class of value and no
   counter for one.
-- **The price is the price of this part's own catalog, in Libyan Dinar.** The
-  period and the comma in a printed price are decimal separators, so `123.000`
-  is 123 dinar. A printed price carrying more than one separator, or a file that
-  separates thousands instead, is a recorded unresolved fact owned by R3.
+- **The price is the amount or amounts of this part's own catalog, in Libyan
+  Dinar.** The period and the comma in a printed price are decimal separators, so
+  `123.000` is 123 dinar. A printed price carrying more than one separator, or a
+  file that separates thousands instead, is a recorded unresolved fact owned by
+  R3.
+- **The price column carries one amount or two, each with its printed label.**
+  The label is stored as part of the price cell and is not a seventh canonical
+  value. The primary amount is the amount the parts table sorts and filters on
+  (Glossary → `Price`); the second is displayed only. A file that prints more
+  than two amounts stores the primary and the first of the remaining amounts; a
+  third is not stored, counted, or flagged.
 - **The original number identifies without merging.** Two parts whose original
   numbers are equal are the same part offered by different suppliers. The
   platform identifies that sameness and shows the parts side by side in one
   table; it performs no merge, introduces no equivalence entity, withdraws no
   row, and joins no two catalogs (ADR-040).
 - **A guest never receives a price.** Every read path a guest can reach projects
-  the part without its price, through an allowlist of its own. Redaction belongs
-  to the projection, not to the presentation layer hiding a column afterwards.
+  the part without its price column and without either amount, through an
+  allowlist of its own. Redaction belongs to the projection, not to the
+  presentation layer hiding a column afterwards.
 - **A part's price is never edited by a merchant.** Only the administrator edits
-  it, on the same path as any other part edit (Authorization and Access
-  Control).
+  either amount, on the same path as any other part edit (Authorization and
+  Access Control).
 - **Whether a part persists its page and row of origin is undecided.** It is
   beyond the canonical column set the Glossary fixes, so it is a recorded
   unresolved fact owned by R3. Until R3 decides it, a feature MUST NOT treat
