@@ -302,10 +302,22 @@ The scanned-heavy 100 pages/file case at 31.7 rows/page gives about 2.66 billion
 active parts at design and 3.80 billion at stress.
 
 The 50,000-account figure is not a database problem by itself; 50,000 rows in
-`users` is small. The parts projection is the database and search problem.
-PostgreSQL needs a partitioning and archival decision before the 2–3 billion
-range, and OpenSearch needs a shard plan sized to the measured index, not to a
-guess.
+`users` is small. The parts projection is the database and search problem, and
+the 2–3 billion range is accepted as the planning envelope (ADR-121). Two
+consequences are binding on the physical design and are not R3's free choice:
+
+- **`parts` is partitioned by the catalog's upload time**, so the 90-day
+  retention is a partition drop rather than a row-by-row delete. In PostgreSQL a
+  partitioned table's unique constraint must include the partition key, so the
+  part's identity and every reference to it must accommodate the partition key.
+  R3's plan chooses the mechanism; it does not choose whether to partition.
+- **OpenSearch uses time-based indices with an alias.** ISM deletes a whole index
+  by age; a per-catalog delete is a delete-by-query on the alias. The shard count
+  is derived from the measured index, not guessed.
+
+The two levers that change this projection are the cross-merchant unique-file
+rate (the content-hash check rejects an identical file before processing) and
+the deduplication rate. Both are unmeasured; 20% remains an assumption.
 
 ## 9. Deployment shape
 
@@ -314,9 +326,9 @@ This is a shape, not a quote and not a single-server specification:
 | Component | Planning shape |
 |---|---|
 | API | 4–8 replicas, 4 vCPU / 8 GB each, stateless, behind a load balancer |
-| PostgreSQL | 8–16 vCPU / 32–64 GB, SSD, primary plus replica, PgDog in front |
+| PostgreSQL | 8–16 vCPU / 32–64 GB, SSD, primary plus replica, PgDog in front; `parts` partitioned by upload time, retention by partition drop |
 | Redis | 8–16 GB for BullMQ and cache |
-| OpenSearch | at least 3 data nodes, 8–16 vCPU / 32–64 GB, NVMe; the 2–3 billion measured parts range needs a shard plan and likely more than the minimum |
+| OpenSearch | at least 3 data nodes, 8–16 vCPU / 32–64 GB, NVMe; time-based indices with an alias; shard count from the measured 2–3 billion index |
 | SeaweedFS | 4–6 nodes, 16 TB each, 10 Gbps, replication; 4 nodes give 64 TB raw and about 32 TB replicated, covering both the 6.3–8.9 TB measured and 21–30 TB scanned-heavy envelopes |
 | Workers | 50–350 autoscaling, 2–4 vCPU / 4–8 GB each; 365–521 at the 15-minute OCR sensitivity |
 | OCR | a paid document-AI service or a GPU worker pool; not selected by this document |
@@ -340,8 +352,9 @@ multi-node search cluster, and replicated object storage.
    the per-file floor; parallel page processing and a fast OCR path are required.
 3. **Parts volume.** The measured 31.7 rows/page gives about 2.14 billion active
    parts at design and 3.06 billion at stress, after 20% deduplication. The
-   scanned-heavy 100-page case reaches 2.66–3.80 billion. PostgreSQL and
-   OpenSearch are the capacity risk, not the 50,000 user rows.
+   scanned-heavy 100-page case reaches 2.66–3.80 billion. The range is accepted
+   (ADR-121); PostgreSQL and OpenSearch are the capacity risk, not the 50,000
+   user rows.
 4. **Storage growth.** The measured sample needs about 6.3–8.9 TB replicated and
    derived; the scanned-heavy envelope needs 21–30 TB. The 90-day rule caps the
    file set, but replication and derived data still multiply the originals.
@@ -379,6 +392,8 @@ The load test measures the model, not a smaller substitute:
 - 100,000 visits/day and 5,000 concurrent online sessions.
 - 600 concurrent uploads.
 - 50,000 registered accounts.
+- 2–3 billion parts present in the corpus, so the search p95 is measured at the
+  modelled index size, not on an empty or small index.
 - 500,000 uploads in the modelled month, or a scaled equivalent with the same
   arrival shape.
 - p95 request latency, search p95, processing p95, error rate, queue depth, and
@@ -391,6 +406,8 @@ Re-run the model when any of these changes:
 - average file size or the 20 MB share;
 - pages per file;
 - rows per page;
+- the cross-merchant unique-file rate;
+- the deduplication rate;
 - OCR coverage (all-scanned versus mixed);
 - the share of accounts that upload in a month;
 - the share of accounts granted 500/1,500;
@@ -409,7 +426,10 @@ These are assumptions, not final measurements:
   measurement, not a population estimate.
 - The scanned-heavy envelope retains 7.8 MB average and 100 pages per file as a
   stress case; it is not the measured baseline.
-- 20% deduplication remains an assumption.
+- 20% deduplication remains an assumption; it is one of the two levers that
+  change the parts projection (ADR-121).
+- The cross-merchant unique-file rate is unmeasured; the content-hash check may
+  reduce the accepted-upload volume well below the 350,000/500,000 model.
 - 70% of the 10,000 accounts upload in the design month.
 - 20% of the 50,000 accounts upload in the stress month.
 - The share of text PDFs whose text layer is corrupted, and therefore needs an
@@ -428,5 +448,5 @@ These are assumptions, not final measurements:
 - `docs/domain-model.md` — entities, invariants, and the current quota
   invariant.
 - `docs/pdf-sample-analysis.md` — the 2026-10-23 sample evidence and its limits.
-- `docs/DECISIONS.md` — ADR-067, ADR-117, ADR-118, ADR-119.
+- `docs/DECISIONS.md` — ADR-067, ADR-117, ADR-118, ADR-119, ADR-121.
 - `ROADMAP.md` — R2, R3, R12, R13, R15.

@@ -178,9 +178,11 @@ writes the search index directly, because it is the projection's only writer.
 3. **db → search.** The parts listing is served from the search index, which
    mirrors catalog data derived from the system of record. PostgreSQL remains
    authoritative; the index is a projection. The index uses the Arabic
-   analyzer (root-aware search) and Index State Management (ISM). ISM deletes
-   whole indices by index age, so the per-catalog 90-day deletion is enforced by
-   the retention job (R15) rather than by the index lifecycle alone. Search
+   analyzer (root-aware search) and Index State Management (ISM) on time-based
+   indices behind an alias, so a whole index is deleted by age; the per-catalog
+   90-day deletion is enforced by the retention job (R15) through a
+   delete-by-query on the alias rather than by the index lifecycle alone. The
+   shard count is derived from the measured 2–3 billion index (ADR-121). Search
    results follow the p95 < 1 s budget (Usage Limits). The projection is not one
    shape for everyone: a guest's read path projects a part without its price
    column and without either amount, through an allowlist of its own, so neither
@@ -234,7 +236,7 @@ Read/write notes:
 |---|---|---|
 | `packages/shared` | Validation schemas, types, and contracts shared between frontend and backend. | Single source of the two contracts (Principle II); promoted code only after a second consumer exists. |
 | `packages/db` | Database schema and migrations. | One migration tool only; every migration a single reversible step; destructive changes split into expand/backfill/contract (Schema and Migration Control). |
-| `packages/search` | Search client and index mappings. | Arabic analyzer; OpenSearch Index State Management (ISM) on the index, with the per-catalog 90-day deletion enforced by the retention job (R15); one mapping owner per index. |
+| `packages/search` | Search client and index mappings. | Arabic analyzer; time-based indices behind an alias; OpenSearch Index State Management (ISM) deletes a whole index by age, with the per-catalog 90-day deletion enforced by the retention job (R15); one mapping owner per index; shard count from the measured index (ADR-121). |
 | `packages/ui` | The Wafar UI layer: design tokens, theme, IconPark icons, IBM Plex Sans Arabic, and shared primitives. | Nuxt UI v4 only; IconPark colour + outline, vendored and pinned; IBM Plex Sans Arabic; no app pages; app-specific components stay in the apps; ADR-097/098. IconPark is the ADR-098 choice; the icon set remains a Technology Standards register gap R1 closes (ADR-116). |
 | `packages/config` | ESLint, Stylelint, Prettier, TypeScript configuration shared by all workspaces. | Dependency and tooling changes follow Dependency Governance. Stylelint + ESLint fail the build on physical direction properties and on any colour, spacing, radius, shadow, duration, or z-index value that is not supplied by the Wafar UI layer — enforced by the committed configuration, not a review comment (Principle IX). |
 
@@ -271,7 +273,7 @@ Read/write notes:
   `.specify/memory/version.json`) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-120; the
+- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-121; the
   index table is at the top of that file).
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;

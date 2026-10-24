@@ -156,6 +156,7 @@ from the index rather than edited in its own words.
 | [ADR-118](#adr-118--the-upload-quota-amendment-50300-no-lifetime-total-and-the-administrator-ceiling) | The upload-quota amendment: 50/300, no lifetime total, and the administrator ceiling | 2026-10-23 | 4.0.0 |
 | [ADR-119](#adr-119--the-first-pdf-sample-calibration-and-the-two-scenario-capacity-model) | The first PDF sample calibration and the two-scenario capacity model | 2026-10-23 | 4.0.0 (unchanged) |
 | [ADR-120](#adr-120--the-two-price-column-one-price-cell-two-printed-amounts-and-the-primary-price) | The two-price column: one price cell, two printed amounts, and the primary price | 2026-10-24 | 4.1.0 |
+| [ADR-121](#adr-121--the-accepted-parts-envelope-and-the-partitioning-constraint) | The accepted parts envelope and the partitioning constraint | 2026-10-24 | 4.1.0 (unchanged) |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -9488,3 +9489,87 @@ carry annotations. The live `ADR-001 … ADR-119` range strings move to
 contiguously. The change is documentation-only: there is no production data,
 no schema, and no code, so no backfill runs. Review date: 2026-11-23, and again
 when R3's extraction benchmark lands.
+
+---
+
+## ADR-121 — The accepted parts envelope and the partitioning constraint
+
+**Status**: Accepted — 2026-10-24
+**Owning directory**: `docs/`, `.specify/templates/overrides/`
+**Owning feature**: none — governance decision; ratified by the repository
+owner. R3 and R12 consume it.
+
+**Context.** ADR-119 calibrated the six-month envelope from the first 19-file
+sample and left two physical questions open: `docs/capacity-model.md` said
+PostgreSQL "needs a partitioning and archival decision before the 2–3 billion
+range", and OpenSearch "needs a shard plan sized to the measured index, not to a
+guess". The owner accepted the 2–3 billion range as the planning envelope.
+Leaving the partition key to R3's plan is not safe: in PostgreSQL a partitioned
+table's unique constraint must include the partition key, so the key decides the
+part's primary key and every reference to it, including `bookmarks`. Discovering
+that in R3 would force a redesign of the module's schema and its read paths. The
+plan template's binding block also did not name the capacity model, so a plan
+could satisfy its binding sources without reading the envelope. The sample
+report repeated the capacity table, creating a second source for numbers that
+`docs/capacity-model.md` owns.
+
+**Decision.**
+
+1. **The 2–3 billion range is accepted as the planning envelope.** 2.14 billion
+   active parts at design and 3.06 billion at stress, after 20% deduplication,
+   from the measured 31.7 rows/page; the scanned-heavy 100-page case reaches
+   2.66/3.80 billion. These are planning figures, not a measured production
+   index.
+2. **`parts` is partitioned by the catalog's upload time.** The 90-day retention
+   is a partition drop, not a row-by-row delete. Because PostgreSQL requires
+   every unique constraint on a partitioned table to include the partition key,
+   the part's identity and every reference to it must accommodate the partition
+   key. R3's plan chooses the mechanism; it does not choose whether to
+   partition.
+3. **OpenSearch uses time-based indices behind an alias.** ISM deletes a whole
+   index by age; a per-catalog delete is a delete-by-query on the alias. The
+   shard count is derived from the measured index.
+4. **R12's load test measures the corpus, not only the request rate.** The test
+   includes 2–3 billion parts present, so the search p95 is measured at the
+   modelled index size.
+5. **The two levers are measured, not assumed.** The cross-merchant unique-file
+   rate (the content-hash check rejects an identical file before processing) and
+   the deduplication rate are the two figures that change the parts projection.
+   Both are unmeasured; a change in either is a re-sizing trigger.
+6. **The plan template binds the capacity model.** `docs/capacity-model.md` joins
+   the binding Project Context Sources, so a plan cannot omit the envelope.
+7. **The sample report points to the capacity model.** Its duplicate capacity
+   table is removed; `docs/capacity-model.md` is the single source for the
+   numbers.
+
+**What deliberately did not change.** No constitutional text, Usage Limit,
+entity, canonical column, displayed column, page, role, module, or slice order
+changes. The quota model of ADR-118 stands. The six-month horizon stands. No
+technology is named, and the OCR choice remains the register gap R3 closes. No
+R1 `plan.md` or `tasks.md` is created, no slice specification is created, and no
+application code, package, schema, API, or migration is built.
+
+**Alternatives considered.**
+
+- *Leave the partition key to R3.* Rejected: the key determines the primary key
+  and every reference, so discovering it in R3 forces a schema and read-path
+  redesign.
+- *Partition by `catalog_id`.* Rejected: the dominant deletion is the 90-day
+  sweep, which is time-based; only a time key makes retention a partition drop.
+- *Keep the capacity numbers in both documents.* Rejected: two sources drift, and
+  the report is evidence rather than the envelope's owner.
+- *Lower the envelope until the levers are measured.* Rejected: the owner
+  accepted the range; the correct response is to measure the levers and re-size
+  on a trigger, not to plan for a smaller corpus silently.
+- *Put the partitioning rule in the constitution.* Rejected: the constitution
+  excludes the physical schema, and this is a physical constraint.
+
+**Consequences and migration/backfill.** `docs/capacity-model.md` §8.2, §9, §10,
+§11, and §12 carry the accepted envelope and the two constraints;
+`docs/architecture.md` §3 and §4 carry the time-based index; `plan-template.md`
+binds the capacity model; `docs/pdf-sample-analysis.md` loses its duplicate table
+and fixes the daily OCR arithmetic. The live `ADR-001 … ADR-120` range strings
+move to `ADR-001 … ADR-121`, and `Project-Technologies.txt`'s header list gains
+121 contiguously. The change is documentation-only: there is no production data,
+no schema, and no code, so no backfill runs. Review date: 2026-11-23, and again
+at R12's load test.

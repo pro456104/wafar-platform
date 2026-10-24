@@ -126,10 +126,11 @@ returned about 20 text lines for a table with about 30 rows; columns and prices
 were merged. OCR alone is not a table extractor.
 
 At the sample's 5.3% scanned share, OCR volume is small: about 18,500 scanned
-files and 1.0 million pages per month at 350,000 uploads/month. At 2 seconds per
-page that is roughly two workers over an eight-hour window, before table
-structure work. The pre-sample 365–521 worker figure describes an all-files-
-scanned, 15-minute-per-file sensitivity, not this sample.
+files and 1.0 million pages per month at 350,000 uploads/month, or about 32,000
+pages a day. At 2 seconds per page that is roughly two workers over an
+eight-hour daily window, before table structure work. The pre-sample 365–521
+worker figure describes an all-files-scanned, 15-minute-per-file sensitivity,
+not this sample.
 
 ### 2.9 Date and retention
 
@@ -181,26 +182,16 @@ supported by the sample and would require a Glossary amendment.
 ## 5. Capacity implications
 
 The measured sample gives a planning scenario distinct from the pre-sample
-envelope:
+envelope. The authoritative table is `docs/capacity-model.md` §3.1 (measured
+baseline) and §3.2 (scanned-heavy stress); this report does not repeat it.
+ADR-119 records the calibration, and ADR-121 accepts the resulting 2–3 billion
+parts range and fixes the partitioning constraint.
 
-| Dimension | Measured sample | Scanned-heavy envelope |
-|---|---:|---:|
-| Average file size | 2.28 MB | 7.8 MB |
-| Pages per file | 80.3 | 100 |
-| Rows per page | 31.7 | 31.7 |
-| Uploads per month, design | 350,000 | 350,000 |
-| Uploads per month, stress | 500,000 | 500,000 |
-| Active parts, design, 20% dedup | about 2.14 billion | about 2.66 billion |
-| Active parts, stress, 20% dedup | about 3.06 billion | about 3.80 billion |
-| Raw 90-day storage, design | about 2.4 TB | 8.2 TB |
-| Raw 90-day storage, stress | about 3.4 TB | 11.7 TB |
-| Replicated and derived, design | about 6.3 TB | about 21 TB |
-| Replicated and derived, stress | about 8.9 TB | about 30 TB |
-
-The measured scenario reduces storage and OCR pressure but raises the parts
-projection by roughly 2.5 times the pre-sample 840 million/1.2 billion figure.
-PostgreSQL partitioning and OpenSearch sharding are therefore the larger risk.
-The 20% deduplication rate remains an assumption.
+In short: the measured scenario reduces storage and OCR pressure but raises the
+parts projection by roughly 2.5 times the pre-sample 840 million/1.2 billion
+figure. PostgreSQL partitioning and OpenSearch sharding are therefore the larger
+risk. The 20% deduplication rate and the cross-merchant unique-file rate remain
+assumptions.
 
 ## 6. What this sample does not settle
 

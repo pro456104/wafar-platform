@@ -19,8 +19,9 @@
   - Project Context Sources (binding): this plan is the only artifact carrying
     technical detail, so it MUST be written against the project-level sources
     rather than from the feature spec alone — `.specify/memory/constitution.md`,
-    `docs/architecture.md` (the layout), the constitution's registers
-    (Technology Standards, Product Register),
+    `docs/architecture.md` (the layout), `docs/capacity-model.md` (the six-month
+    load envelope and the physical constraints it fixes), the constitution's
+    registers (Technology Standards, Product Register),
     `docs/domain-model.md` (the entities, their relationships, and their
     invariants, which the plan's Phase 1 `data-model.md` MUST NOT contradict),
     `Project-Technologies.txt` (a mirror),
