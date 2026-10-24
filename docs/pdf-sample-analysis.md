@@ -201,8 +201,8 @@ assumptions.
 - The OCR benchmark covers five pages on one local engine, not production.
 - Cross-supplier deduplication is not measured.
 - The scanned share may rise with merchants who photograph documents.
-- The six canonical columns are not proven sufficient until the four rules in
-  section 3 are decided.
+- The six canonical columns are not proven sufficient until the three remaining
+  rules in section 3 are decided.
 
 ## 7. Next step
 

@@ -229,8 +229,8 @@ capacity effect is additive:
 - 5% at 500/month is 725,000 uploads/month, about 45% above the stress case and a
   re-sizing trigger.
 - 10,000 accounts all at 500/month is 5,000,000 uploads/month, 117 TB of raw
-  file storage per 90 days, and 1,700–3,500 workers at 5–10 minutes/file. That is
-  outside this model.
+  file storage per 90 days at the scanned-heavy 7.8 MB average, and 1,700–3,500
+  workers at 5–10 minutes/file. That is outside this model.
 
 The percentage is an operational guardrail, not a product limit. The 500/1,500
 values are the product ceiling; how many exceptions are granted is a capacity

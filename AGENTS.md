@@ -28,7 +28,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | UI foundation — component library and the project layer | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1 builds it through its plan and consumes it |
 | Product detail (roles, pages, acceptance criteria) — mirror | `Core-Project.txt`; the constitution's Product Register and Product Scope win on conflict |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-122; the index table is at the top of that file) |
+| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-124; the index table is at the top of that file) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -100,10 +100,12 @@ replace them with the core templates.
 - Logical CSS properties only (`margin-inline-start`, not `margin-left`).
 - No emoji in anything a person reads inside the platform: every screen,
   including the administrator application, and the body of every SMS
-  (Principle V). An icon is an SVG from the registered open-source icon set,
-  and an emoji glyph is not an icon. That set is **not registered yet**: it is an
-  open register gap owned by R1, so no slice may name an icon set before R1
-  chooses one and records it.
+  (Principle V). An icon is an SVG from the approved open-source icon set, and
+  an emoji glyph is not an icon. The set is **IconPark** (colour and outline),
+  chosen by ADR-098 and vendored under `packages/ui/vendor`; the Technology
+  Standards register gap for the icon set is still open and owned by R1, so no
+  other slice may choose a set of its own or add a second family, and R1 closes
+  the gap through the register-gap process.
 - Registration is Libya only: every account is a +218 number and sign-up offers
   no dial-code selector (ADR-041).
 
@@ -166,7 +168,7 @@ and its `requires.integrations.any` list must stay correctly nested under
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-122` range string — in the required files, under `docs/`, in
+live `ADR-001 … ADR-124` range string — in the required files, under `docs/`, in
 the two Arabic mirrors, in the template overrides, and in the feature
 specifications — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading, and

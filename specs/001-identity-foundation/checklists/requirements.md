@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-10-10
-**Refreshed**: 2026-10-22 — after ADR-111 (the recovery flow's verified state, and the bare pages' state announcements), again after the fifth `/speckit.clarify` session of that date (five answers; see Notes), again after the sixth session of that date (five answers; ADR-114), and again after the seventh session of that date (five answers; ADR-115)
+**Refreshed**: 2026-10-22 — after ADR-111 (the recovery flow's verified state, and the bare pages' state announcements), again after the fifth `/speckit.clarify` session of that date (five answers; see Notes), again after the sixth session of that date (five answers; ADR-114), and again after the seventh session of that date (five answers; ADR-115); 2026-10-24 — the Assumptions' scale sentence now names `docs/capacity-model.md` as the planning authority (no requirement, criterion, or count changed)
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -244,3 +244,10 @@
   and the forced change's current-password check. The counts stay 51 FR, 55 AC,
   and 9 SC; no identifier was renumbered, reused, or withdrawn; every FR is cited
   by at least one AC; and all 22 checkboxes above stay checked.
+- Refreshed 2026-10-24: the Assumptions' scale sentence now states the
+  measurement condition for SC-009 and names `docs/capacity-model.md` as the
+  planning authority for the platform envelope, so the plan's `Scale/Scope`
+  starts from that model and records this feature's condition and any deviation
+  instead of treating 10,000 accounts / 500 sessions / 10 authentication requests
+  per second as the platform's sizing ceiling. No requirement, criterion,
+  identifier, or count changed.

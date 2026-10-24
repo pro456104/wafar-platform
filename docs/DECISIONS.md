@@ -158,6 +158,8 @@ from the index rather than edited in its own words.
 | [ADR-120](#adr-120--the-two-price-column-one-price-cell-two-printed-amounts-and-the-primary-price) | The two-price column: one price cell, two printed amounts, and the primary price | 2026-10-24 | 4.1.0 |
 | [ADR-121](#adr-121--the-accepted-parts-envelope-and-the-partitioning-constraint) | The accepted parts envelope and the partitioning constraint | 2026-10-24 | 4.1.0 (unchanged) |
 | [ADR-122](#adr-122--local-first-ocr-and-the-extraction-evidence-gap) | Local-first OCR and the extraction evidence gap | 2026-10-24 | 4.1.0 (unchanged) |
+| [ADR-123](#adr-123--the-420-audit-fix-set-references-the-exception-register-and-four-document-corrections) | The 4.2.0 audit fix set: References, the exception register, and four document corrections | 2026-10-24 | 4.2.0 |
+| [ADR-124](#adr-124--the-blocked-recovery-confirmation-the-replacement-codes-full-period-the-single-security-notice-and-the-journey-criterias-delivery-boundary) | The blocked recovery confirmation, the replacement code's full period, the single security notice, and the journey criteria's delivery boundary | 2026-10-24 | 4.2.0 (unchanged) |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -7955,6 +7957,14 @@ recorded in that specification's checklist rather than here, because the
 constitution's own rules govern it and no rule is broken by its size.
 Review date: 2026-11-20. This entry is the durable record.
 
+**Annotation (2026-10-24, ADR-123).** Item 6's account of which rows are
+registered facts is corrected: rows 9 through 11 are field-level facts on
+registered entities, not register facts. The constitution's Data entities rule
+changes an entity's shape only through `docs/domain-model.md` and an ADR, and
+`Catalog`'s one-line meaning registers neither a byte count nor a content type.
+Item 6's own caveat — a register amendment only where the answer needs a product
+fact the register does not carry — states the governing rule.
+
 ---
 
 ## ADR-105 — The second audit fix set: the copied ADR lists, the R1 register amendment, and four new check-coverage rules
@@ -9641,3 +9651,212 @@ R3's. The live `ADR-001 … ADR-121` range strings move to `ADR-001 … ADR-122`
 `Project-Technologies.txt`'s header list gains 122 contiguously. The change is
 documentation-only: there is no production data, no schema, and no code, so no
 backfill runs. Review date: 2026-11-23, and again when R3's benchmark lands.
+
+---
+
+## ADR-123 — The 4.2.0 audit fix set: References, the exception register, and four document corrections
+
+**Status**: Accepted — 2026-10-24
+**Owning directory**: `.specify/memory/`, `.specify/templates/`, `docs/`, `AGENTS.md`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** A deep audit of constitution 4.1.0 checked the document against its
+own rules rather than against its prose. Two register defects, one stale
+rationale, and one inaccurate scope sentence survived, because
+`governance-drift-check.mjs` verifies counts, version sources, ADR identifiers,
+manifest hashes, and integration topology, but not whether References names every
+project-level source, whether the paragraph binding sources to a reserved
+decision lists the sources that exist, or whether a scope sentence describes the
+point at which its tool runs.
+
+`docs/capacity-model.md` and `docs/pdf-sample-analysis.md` are project-level
+documents. The first is named by `AGENTS.md`'s source table, is the planning
+authority for the load envelope, and is the document a plan's `Scale/Scope`
+starts from (`plan-template.md` → Technical Context). The constitution named
+neither. Single-Reference Sufficiency states that a feature MUST NOT need a
+source outside this constitution, and that "every project-level source is named
+in References" — so a plan was obliged to read a document the register did not
+carry. The same omission left `docs/capacity-model.md` outside the closed list of
+sources bound by an open reserved decision, because that list was written before
+the capacity model existed (2026-10-23, ADR-117). The model currently honours the
+reservation on its own (§7 and §11.2 leave the 90-day trigger point to R15), so
+the gap is latent rather than breached.
+
+The exception register's EX-001 and EX-002 justified their exceptions on the
+premise that "the rule prohibits a dependency absent from the Approved register".
+Since 2.19.0 both ClamAV and Lighthouse CI are rows of that register, and the
+constitution's own note says those six rows "close a register gap rather than
+open one". EX-003 to EX-006 already state the operative reason; EX-001 and EX-002
+still argued from an absence that no longer holds, so their recorded rationale no
+longer described the rule they except; EX-001's scope sentence separately
+described a build-time and CI dependency for a scan the intake path runs at
+upload time.
+
+The same audit found four document defects: `docs/domain-model.md` lists rows 9
+through 11 as registered facts although the constitution's Data entities rule
+puts a field outside the register; `AGENTS.md` still describes the icon set as
+unchosen and unregistered although ADR-098 chose it; `docs/pdf-sample-analysis.md`
+still counts four undecided rules after ADR-120 decided one; and
+`docs/capacity-model.md` states a storage figure drawn from the scanned-heavy
+average without naming that average. None of the four changes a rule; each is
+corrected so a reader meets the governing text.
+
+**Decision.**
+
+1. `References` gains two rows: `docs/capacity-model.md` as the planning
+   authority for the load envelope, and `docs/pdf-sample-analysis.md` as the
+   measured evidence behind its baseline, explicitly not a source of rules.
+2. The reserved-decision paragraph's closed list of bound sources gains
+   `docs/capacity-model.md`, so a future revision of the model cannot assert an
+   answer a row below still reserves.
+3. EX-001 and EX-002 are reworded to state the character of their Approved
+   register rows rather than their absence from the register, and EX-001's scope
+   sentence is corrected from a build-time and CI dependency to the separate
+   scanning process the intake path invokes at upload time. The scope's boundary,
+   approver, and review date are unchanged.
+4. Four documents are corrected so each agrees with the authority it cites:
+   `docs/domain-model.md`'s two statements that a field on a registered entity is
+   a register fact (rows 9 through 11 are field-level, and the register is amended
+   only where a field's existence is itself a product decision);
+   `AGENTS.md` §4's description of the icon set as unchosen and unregistered
+   (ADR-098 chose IconPark, while the register row stays open for R1);
+   `docs/pdf-sample-analysis.md`'s count of four undecided rules (ADR-120 decided
+   one, three remain); and `docs/capacity-model.md`'s 117 TB figure, which now
+   names the 7.8 MB scanned-heavy average it is computed from.
+
+**Deliberately not changed.** No principle, product scope, register count, usage
+limit, entity, page, feature, module, or technology moved. The four open deferred
+areas (extraction algorithm, file ingestion internals, authorization model,
+retrieval interface) are untouched, and Catalog data shape stays discharged
+(ADR-040). The icon-set register gap stays open and is not pre-empted here; R1
+closes it through the gap process. No constitution rule was reworded to fit the
+finding.
+
+**Alternatives considered.**
+
+- *Leave `docs/capacity-model.md` out of References and cite it only from the
+  plan template.* Rejected: Single-Reference Sufficiency makes References the
+  register of project-level sources, and a template is not a register. The rule
+  would then be discharged by a document the constitution never names.
+- *Treat the capacity model as detail of Technology Standards.* Rejected: it is
+  a planning envelope, not a technology, and the register does not own load.
+- *Delete EX-001 and EX-002 now that the register names both tools.* Rejected:
+  each exception still carries an obligation — that the row is a scanner or a CI
+  gate and never a runtime import — and deleting it would drop the record the
+  reader needs. Governance requires an exception to carry its rationale; the
+  rationale is corrected, not removed.
+- *Do nothing because the drift check is green.* Rejected: a green check means
+  the checked invariants hold. These fell outside its coverage, which is why
+  the amendment records them here.
+
+**Consequences and migration/backfill.** Constitution 4.2.0 (MINOR: the
+references register gained two rows and a closed list of bound sources gained
+one — materially expanded guidance rather than wording). The footer,
+`.specify/memory/version.json`, and this index row agree at 4.2.0 / 2026-10-24.
+Every live `ADR-001 … ADR-122` range string moves to `ADR-001 … ADR-123`, and
+`Project-Technologies.txt`'s header list gains 123 contiguously. No principle is
+affected, so no in-flight feature is re-evaluated against a changed principle;
+`specs/001-identity-foundation/spec.md` changes only in the ADR range string its
+references block carries. The four corrections in item 4 change no register,
+count, identifier, or version source. The change is documentation-only: no
+production data, no schema, and no code, so no backfill runs. The constitution's
+sync impact report is review material and is not committed (Governance →
+amendment procedure). Review date: 2026-11-24.
+
+## ADR-124 — The blocked recovery confirmation, the replacement code's full period, the single security notice, and the journey criteria's delivery boundary
+
+**Status**: Accepted - 2026-10-24
+**Owning directory**: `specs/001-identity-foundation/`, `docs/`
+**Owning feature**: none - product clarification ratified by the repository owner; R1 binds the rules and verifies them.
+
+**Context.** A clarification session on 2026-10-24, after ADR-123, settled four
+points the R1 specification still left open, each of which changed an observable
+rule rather than a wording. The first was the recovery flow's confirmation for a
+blocked account: FR-014 let the reset complete while the block stood, and
+AC-016's confirmation told the merchant to sign in with the new password — a
+sign-in the block makes impossible. The second was the pending request's
+lifetime: FR-034 made a replacement take effect only when the messaging channel
+accepted the new message, but never said whether that accepted dispatch restarts
+the request's expiry, so a code requested near the end of a request's life could
+be delivered already dead. The third was the notice count: FR-013 ends every
+session when the password changes, and FR-043 requires a notice on a password
+change and on a sign-out of every device, so one action appeared to produce two
+SMS. The fourth was the journey criteria: SC-001 and SC-003 fix a three-minute
+journey while the Assumptions exclude SMS delivery from "the response-time
+criteria", leaving it unstated whether the wait for a code counts.
+
+**Decision.**
+
+1. **The blocked recovery confirmation states both outcomes.** When the
+   recovery flow resets the password of a blocked account, the in-place
+   confirmation states that the password was changed and that the account is
+   blocked, and says plainly that sign-in stays refused until an administrator
+   returns the account to active. The block is disclosed only after the code is
+   verified, so FR-015's uniformity is untouched, and the page never promises a
+   sign-in that cannot succeed.
+2. **An accepted dispatch restarts the pending request's lifetime.** The
+   request and the replacement code get the full period Constitution Mandated
+   Values fixes, so a new code is never delivered with only the remainder of the
+   request it replaced. The limit on requesting a new code bounds repeated
+   extension, and a dispatch the channel refuses changes neither the code nor the
+   expiry.
+3. **One action produces one notice.** A password change sends a single notice
+   that reports the change and the sessions it ended; those session endings are
+   the change's own consequence rather than a second sign-out of every device,
+   and the sign-out-of-every-device notice is sent when the merchant performs
+   that action.
+4. **SC-001 and SC-003 exclude the code's delivery after acceptance.** Both
+   criteria measure the person's own actions and the platform's responses; the
+   time a code spends in delivery after the messaging channel accepts it is
+   excluded, the same boundary SC-009 already draws between the request and the
+   delivery.
+
+**What deliberately did not change.** No page, entity, role, product feature,
+usage limit, security rule, technology, module, or constitution version changed
+by this record; the constitution stays at 4.2.0 and the Constitution Mandated
+Values set stays closed at its seventeen values. The Product Register's
+twenty-seven pages, twelve entities, sixteen product features, and three roles
+are untouched. The identifier set does not grow: no functional requirement,
+acceptance criterion, or success criterion is added, renumbered, reused, or
+withdrawn, so the counts stay 51 FR, 55 AC, and 9 SC. `docs/domain-model.md` is
+corrected in the same change where decision 2 binds its
+transient-verification-state expiry invariant. No application code, package,
+CSS, or font file was created.
+
+**Alternatives considered.**
+
+- *Leaving the blocked account's confirmation generic.* Rejected: it would
+  instruct the merchant to sign in with a password the block refuses, so the
+  page would promise an outcome the platform cannot deliver; the person has
+  proved ownership of the number and is no longer an unknown caller, exactly as
+  FR-049 already treats a session holder.
+- *Disclosing the block before the code is verified.* Rejected: it would reveal
+  that the number has an account, breaching FR-015 and SC-004 for a person who
+  has proved nothing yet.
+- *Keeping the original expiry when a replacement is dispatched.* Rejected: a
+  code sent late in a request's life would carry only the remainder of that
+  life, so a legitimate person could receive a code that is already dead; the
+  replacement is a new send and must carry a full period.
+- *Capping the extension with an absolute maximum for the pending request.*
+  Rejected: it adds an eighteenth value to a closed Constitution Mandated Values
+  set, and the limit on requesting a new code already bounds how often the
+  lifetime can be extended.
+- *Sending two notices when a password change ends every session.* Rejected:
+  two SMS for one action, and a consequence counted as a second event; the
+  owner learns the same fact from one notice.
+- *Counting SMS delivery inside SC-001 and SC-003.* Rejected: delivery is
+  outside the platform's control, so the criterion would fail through no fault
+  of the platform and could not be verified objectively; SC-009 already excludes
+  it and the journey criteria now use the same boundary.
+
+**Consequences and migration/backfill.** The R1 specification's FR-014, FR-034,
+FR-043, SC-001, SC-003, the Key Entities note, the Assumptions, and the Test
+Coverage Request carry the rules; AC-016, AC-036, and AC-047 assert them,
+together with the edge cases the four answers touch. `docs/domain-model.md`
+carries the expiry-restart invariant. The live `ADR-001 … ADR-123` range strings
+become `ADR-001 … ADR-124` in the same change, and `Project-Technologies.txt`'s
+header list gains 124 contiguously. The specification checklist is re-validated
+and all twenty-two items still pass. No migration or backfill is required: the
+change is specification prose, one decision record, one model correction, the
+copied range strings, and a checklist re-validation. Review date: 2026-11-21.
+This entry is the durable record.

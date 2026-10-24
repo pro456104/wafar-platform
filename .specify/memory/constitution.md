@@ -615,12 +615,13 @@ slice named in the last column MUST resolve each one and record the answer in
 A source that states an answer this table has not given is itself the defect,
 and the fix is a correction to that source — not an annotation of it, and not
 the treating of the answer as decided. `Core-Project.txt`, `ROADMAP.md`,
-`docs/domain-model.md`, and `Project-Technologies.txt` are therefore bound: while
-a row below is open, none of them may assert the answer it reserves, in any
-wording, and a plan that finds such an assertion MUST record it in its
-Constitution Check as a defect to correct in the same change. A source may
-state the question, name the owning slice, and restate the constraint that
-bounds the answer; that is not an assertion of the answer.
+`docs/domain-model.md`, `docs/capacity-model.md`, and
+`Project-Technologies.txt` are therefore bound: while a row below is open, none
+of them may assert the answer it reserves, in any wording, and a plan that finds
+such an assertion MUST record it in its Constitution Check as a defect to
+correct in the same change. A source may state the question, name the owning
+slice, and restate the constraint that bounds the answer; that is not an
+assertion of the answer.
 
 | Conflict | Sources | Resolve in |
 |---|---|---|
@@ -1494,6 +1495,8 @@ however obviously the concept belongs to the entity.
 | `docs/domain-model.md` | The data model's source of truth: entities, relationships, cardinality, invariants, and the owning module of each. Mirrors the Data entities table, which holds the map. | `docs/`. |
 | `docs/DECISIONS.md` | The record of design decisions and the reasoning behind them. | `docs/`. |
 | `docs/architecture.md` | The repository layout, module map, and data-flow descriptions. | `docs/`. |
+| `docs/capacity-model.md` | The capacity and load envelope: the six-month plan, the ingestion envelope, and the starting point a plan's Scale/Scope records. The planning authority for the envelope only; this constitution wins on every conflict (ADR-117, ADR-119, ADR-121, ADR-122). | `docs/`. |
+| `docs/pdf-sample-analysis.md` | The measured sample evidence behind the capacity model's baseline (the 19-file sample of 2026-10-23). Evidence, not a source of rules (ADR-119, ADR-122). | `docs/`. |
 | `.specify/templates/exception-register.md` | The exception register required by Governance. | `.specify/templates/`. |
 | `.specify/templates/overrides/` | Template overrides required by Single-Reference Sufficiency and by Governance. | `.specify/templates/overrides/`. |
 | `.specify/memory/constitution.md` | This document. | `.specify/memory/`. |
@@ -1789,4 +1792,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 4.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-24
+**Version**: 4.2.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-24

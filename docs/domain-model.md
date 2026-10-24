@@ -428,7 +428,11 @@ thirteenth entity. The `users` module owns the store.
   value rather than the plaintext. Replacing or ending the request discards it.
 - **A pending request expires.** The expiry, the re-request limit, and the
   incorrect-entry bound are numbers the plan records under Constitution
-  Mandated Values; this section fixes the rules, not the numbers.
+  Mandated Values; this section fixes the rules, not the numbers. A dispatch the
+  messaging channel accepts restarts the request's expiry, so the replacement
+  code carries a full period rather than the remainder of the request it
+  replaced, and a dispatch the channel refuses changes neither the code nor the
+  expiry. (ADR-124.)
 - **The recovery flow's new-password step is carried by a verified state.**
   When the correct code is entered in the password-recovery flow, the code stops
   being usable at once and the pending request moves to a verified state that
@@ -508,9 +512,13 @@ product mirror; any use of them is a reference to this table, not to the mirror.
 
 Rows 9 through 11 are field-level questions, not conceptual ones: the entity and
 its owner are not in doubt, only what the entity carries. Row 12 is a reading
-rule rather than a field, and binds the extraction pipeline the same way. Each is
-decided by the slice named, recorded as an ADR, and added to this document and
-the constitution's register in the same change.
+rule rather than a field, and binds the extraction pipeline the same way. Row 12
+is also carried by the constitution's Unresolved product facts table, so its
+answer amends that table. Rows 9 through 11 add one or more fields to an entity
+the register already carries: the answer is recorded as an ADR and as a change to
+this document and to the owning feature's `data-model.md` and schema, and the
+register is amended only where a field's existence is itself a product decision
+the entity's one-line meaning must name.
 
 **Rows 1 and 2 are schema decisions rather than registered product facts, and
 the distinction matters when the slice that owns them records its answer.** A
@@ -530,10 +538,17 @@ and the slice's `data-model.md` states the shape it chose. A slice that finds
 that either answer needs a product fact the register does not carry must amend the
 register in the same change, as the register's own rule requires.
 
-The same distinction separates rows 1 and 2 from rows 3, 4, 9, 10, and 11, which
-**are** registered facts: a retention period, a trigger point, and a field on a
-registered entity are decisions the constitution's register owns, and each
-requires the register amended in the same change as the decision.
+The same distinction separates rows 1 and 2 from rows 3 and 4, which **are**
+registered facts: a retention period and the point it is counted from are
+product facts the register states or reserves, and resolving either amends the
+register in the same change. Rows 9 through 11 are a third kind: fields added to
+an entity the register already carries. The constitution's Data entities rule
+changes an entity's shape only through this document and an ADR — `Catalog`'s
+row registers neither a byte count nor a content type, because prose is not a
+field list — so resolving one records the answer as an ADR and a change to this
+document, states the fields in the owning feature's `data-model.md` and schema,
+and amends the register only where a field's existence is itself a product
+decision the one-line meaning must name.
 
 ## What this document deliberately does not contain
 
