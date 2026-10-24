@@ -157,6 +157,7 @@ from the index rather than edited in its own words.
 | [ADR-119](#adr-119--the-first-pdf-sample-calibration-and-the-two-scenario-capacity-model) | The first PDF sample calibration and the two-scenario capacity model | 2026-10-23 | 4.0.0 (unchanged) |
 | [ADR-120](#adr-120--the-two-price-column-one-price-cell-two-printed-amounts-and-the-primary-price) | The two-price column: one price cell, two printed amounts, and the primary price | 2026-10-24 | 4.1.0 |
 | [ADR-121](#adr-121--the-accepted-parts-envelope-and-the-partitioning-constraint) | The accepted parts envelope and the partitioning constraint | 2026-10-24 | 4.1.0 (unchanged) |
+| [ADR-122](#adr-122--local-first-ocr-and-the-extraction-evidence-gap) | Local-first OCR and the extraction evidence gap | 2026-10-24 | 4.1.0 (unchanged) |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,
@@ -9573,3 +9574,70 @@ move to `ADR-001 … ADR-121`, and `Project-Technologies.txt`'s header list gain
 121 contiguously. The change is documentation-only: there is no production data,
 no schema, and no code, so no backfill runs. Review date: 2026-11-23, and again
 at R12's load test.
+
+---
+
+## ADR-122 — Local-first OCR and the extraction evidence gap
+
+**Status**: Accepted — 2026-10-24
+**Owning directory**: `docs/`
+**Owning feature**: none — governance decision; ratified by the repository
+owner. R3 consumes it.
+
+**Context.** The sample measured the local Windows Arabic OCR engine at 1.3–2.6
+seconds per page on five pages of the scanned file, but the engine returned about
+20 text lines for a table of about 30 rows and merged columns and prices. The
+Technology Standards register has an open gap for Excel, PDF, and Word
+extraction, owned by R3, and naming a library before the gap is closed is
+prohibited. The owner's decision is that OCR runs locally first; a cloud
+document-AI service is a later option only after the local path proves it cannot
+meet the extraction gate, and only with the owner's approval. The reason is not
+cost alone: supplier price files are the product's data, and sending them to a
+third party adds a data-terms and retention surface the product does not need if
+the local path works.
+
+**Decision.**
+
+1. **OCR and table extraction run on the platform's own infrastructure first.**
+   The local path is the default: a self-hosted OCR engine and table-structure
+   extraction on the worker or a GPU pool the platform operates.
+2. **A cloud document-AI service is a later, approved option.** It may be
+   evaluated only after the local benchmark fails the extraction gate, and only
+   with the owner's explicit approval. No provider is named by this record.
+3. **The benchmark is the gate, not the vendor.** R3 measures Arabic accuracy,
+   table structure, per-column precision and recall, time per 100 pages, and
+   cost per 1,000 pages on 20–50 hand-labelled pages. The local path is measured
+   first.
+4. **The register gap stays open.** No OCR or table-extraction technology is
+   added to the Technology Standards register by this record; R3 closes the gap
+   through the gap process, with an ADR, a licence record, and a vulnerability
+   scan.
+5. **Data terms are recorded before any cloud use.** If a cloud path is later
+   approved, its data terms and retention are recorded before the first page is
+   sent.
+
+**What deliberately did not change.** No constitutional text, Usage Limit,
+entity, column, page, role, module, or slice order changes. No OCR vendor,
+library, or service is named. The capacity envelope of ADR-121 stands; the OCR
+worker row is a deployment note, not a new sizing decision. No R1 plan or tasks,
+no slice specification, and no code are created.
+
+**Alternatives considered.**
+
+- *Choose a cloud document-AI vendor now.* Rejected: the register gap belongs to
+  R3, the sample is a five-page lower-bound benchmark, and the data-terms surface
+  is avoidable if the local path works.
+- *Choose a local library now.* Rejected: naming a library before the gap's ADR,
+  licence record, and vulnerability scan would violate the register-gap rule.
+- *Leave the choice entirely to R3 with no policy.* Rejected: without a policy, a
+  plan could default to a cloud service and add a data-processing surface the
+  owner did not approve.
+- *Run both paths in parallel now.* Rejected: it doubles the benchmark and the
+  cost before the local path has been measured.
+
+**Consequences and migration/backfill.** `docs/capacity-model.md` §9 and §11.1
+carry the local-first note and the benchmark order; the register gap remains
+R3's. The live `ADR-001 … ADR-121` range strings move to `ADR-001 … ADR-122`, and
+`Project-Technologies.txt`'s header list gains 122 contiguously. The change is
+documentation-only: there is no production data, no schema, and no code, so no
+backfill runs. Review date: 2026-11-23, and again when R3's benchmark lands.

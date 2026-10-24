@@ -331,7 +331,7 @@ This is a shape, not a quote and not a single-server specification:
 | OpenSearch | at least 3 data nodes, 8–16 vCPU / 32–64 GB, NVMe; time-based indices with an alias; shard count from the measured 2–3 billion index |
 | SeaweedFS | 4–6 nodes, 16 TB each, 10 Gbps, replication; 4 nodes give 64 TB raw and about 32 TB replicated, covering both the 6.3–8.9 TB measured and 21–30 TB scanned-heavy envelopes |
 | Workers | 50–350 autoscaling, 2–4 vCPU / 4–8 GB each; 365–521 at the 15-minute OCR sensitivity |
-| OCR | a paid document-AI service or a GPU worker pool; not selected by this document |
+| OCR | local first: a self-hosted OCR engine and table-structure extraction on the platform's own worker or GPU pool; a cloud document-AI service only after the local benchmark fails and the owner approves (ADR-122) |
 | Edge | CDN for public pages and images; TLS and load balancing at the edge |
 | Observability | Prometheus + Grafana; p95 request latency, search p95, processing success rate, queue depth |
 
@@ -346,7 +346,8 @@ multi-node search cluster, and replicated object storage.
    a table's row boundaries. The sample also found text PDFs whose text layer is
    corrupted, so a text layer is not a guarantee. The extraction technology is a
    register gap; R3 must choose it through the gap process and prove it on real
-   pages before the model is treated as final.
+   pages before the model is treated as final. The local path is the default
+   (ADR-122).
 2. **The 5-minute p95 processing budget.** A 100-page scan at 3 seconds/page is
    already at the budget before queue wait. Autoscaling alone does not remove
    the per-file floor; parallel page processing and a fast OCR path are required.
@@ -378,12 +379,15 @@ Measure 20–50 real pages from real supplier files:
 - Arabic text accuracy.
 - Table structure and merged-column accuracy.
 - Per-column precision and recall for the six canonical columns and the supplier.
-- Time per 100 pages.
-- Cost per 1,000 pages.
-- Data terms and retention of the OCR provider.
+- Time per 100 pages on the local path.
+- Cost per 1,000 pages on the local path, and the cloud comparison only if a
+  cloud path is later approved.
+- Data terms and retention of any cloud OCR provider, if one is later approved.
 
-The sample must include Excel, Word, text PDF, and scanned PDF. The result feeds
-R3's extraction decision and the next revision of this model.
+The sample must include Excel, Word, text PDF, and scanned PDF. The local path is
+measured first; a cloud service is evaluated only if the local path fails the
+gate (ADR-122). The result feeds R3's extraction decision and the next revision
+of this model.
 
 ### 11.2 At R12's pre-release load test
 
@@ -436,7 +440,8 @@ These are assumptions, not final measurements:
   alternate extractor or OCR, is not yet measured beyond the sample.
 - 90 days counted from the upload date for sizing only; R15 owns the real
   trigger.
-- No OCR technology is selected.
+- No OCR technology is selected; OCR runs locally first, and a cloud service is
+  a later approved option (ADR-122).
 - The per-user quota overrides are optional fields on `User` (ADR-118); R2
   enforces them and R13 provides the administrator surface.
 
@@ -448,5 +453,5 @@ These are assumptions, not final measurements:
 - `docs/domain-model.md` — entities, invariants, and the current quota
   invariant.
 - `docs/pdf-sample-analysis.md` — the 2026-10-23 sample evidence and its limits.
-- `docs/DECISIONS.md` — ADR-067, ADR-117, ADR-118, ADR-119, ADR-121.
+- `docs/DECISIONS.md` — ADR-067, ADR-117, ADR-118, ADR-119, ADR-121, ADR-122.
 - `ROADMAP.md` — R2, R3, R12, R13, R15.
