@@ -280,7 +280,7 @@ Read/write notes:
   that document explains what each one owns. Neither repeats the other.
 - Capacity and load envelope: `docs/capacity-model.md` — the six-month plan,
   the quota model, the ingestion envelope, the deployment shape, and the
-  verification plan (ADR-117, ADR-119); sample evidence:
+  verification plan (ADR-117, ADR-119, ADR-121, ADR-122); sample evidence:
   `docs/pdf-sample-analysis.md`. The constitution wins on every conflict.
 - UI foundation: Nuxt UI v4 is the component library; the Wafar UI layer is
   `packages/ui`, fixed by ADR-097 (Principle IX); R1 builds it through its plan

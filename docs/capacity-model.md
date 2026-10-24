@@ -1,8 +1,10 @@
 # Capacity Model — Wafar
 
 **Status**: Adopted by ADR-117 on 2026-10-23; the quota model was ratified by
-ADR-118 (constitution 4.0.0), and the first sample calibrated the envelope in
-ADR-119. Project-level planning document.
+ADR-118 (constitution 4.0.0); the first sample calibrated the envelope in
+ADR-119; ADR-121 accepts the 2–3 billion parts range and fixes the partitioning
+constraint, and ADR-122 fixes the local-first OCR policy. Project-level planning
+document.
 **Scope**: the six-month launch horizon only. This document defines no second
 horizon.
 

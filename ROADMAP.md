@@ -32,7 +32,7 @@ templates.
 | Engineering law, product scope, limits | `.specify/memory/constitution.md` |
 | How the system is built | `docs/architecture.md` |
 | The data model — entities, relationships, invariants | `docs/domain-model.md` |
-| Capacity and load envelope | `docs/capacity-model.md` (ADR-117, ADR-119); sample evidence: `docs/pdf-sample-analysis.md`; the constitution wins on every conflict |
+| Capacity and load envelope | `docs/capacity-model.md` (ADR-117, ADR-119, ADR-121, ADR-122); sample evidence: `docs/pdf-sample-analysis.md`; the constitution wins on every conflict |
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | UI foundation (component library and project layer) | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1 builds it through its plan and consumes it; ADR-098 records the visual foundation |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |

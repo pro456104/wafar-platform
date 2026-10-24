@@ -24,7 +24,7 @@ and a feature artifact references it rather than restating it.
 | Engineering law, product scope, limits | `.specify/memory/constitution.md` |
 | How the system is built (layout, module map, data flow) | `docs/architecture.md` |
 | The data model (entities, relationships, invariants, owning module) | `docs/domain-model.md` |
-| Capacity and load envelope (six-month plan, quotas, ingestion, verification) | `docs/capacity-model.md` (ADR-117, ADR-119); sample evidence: `docs/pdf-sample-analysis.md`; the constitution wins on every conflict |
+| Capacity and load envelope (six-month plan, quotas, ingestion, verification) | `docs/capacity-model.md` (ADR-117, ADR-119, ADR-121, ADR-122); sample evidence: `docs/pdf-sample-analysis.md`; the constitution wins on every conflict |
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | UI foundation — component library and the project layer | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1 builds it through its plan and consumes it |
 | Product detail (roles, pages, acceptance criteria) — mirror | `Core-Project.txt`; the constitution's Product Register and Product Scope win on conflict |
