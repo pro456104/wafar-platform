@@ -313,7 +313,7 @@ consequences are binding on the physical design and are not R3's free choice:
   R3's plan chooses the mechanism; it does not choose whether to partition.
 - **OpenSearch uses time-based indices with an alias.** ISM deletes a whole index
   by age; a per-catalog delete is a delete-by-query on the alias. The shard count
-  is derived from the measured index, not guessed.
+  is derived from the modelled index size, not guessed.
 
 The two levers that change this projection are the cross-merchant unique-file
 rate (the content-hash check rejects an identical file before processing) and
@@ -328,7 +328,7 @@ This is a shape, not a quote and not a single-server specification:
 | API | 4–8 replicas, 4 vCPU / 8 GB each, stateless, behind a load balancer |
 | PostgreSQL | 8–16 vCPU / 32–64 GB, SSD, primary plus replica, PgDog in front; `parts` partitioned by upload time, retention by partition drop |
 | Redis | 8–16 GB for BullMQ and cache |
-| OpenSearch | at least 3 data nodes, 8–16 vCPU / 32–64 GB, NVMe; time-based indices with an alias; shard count from the measured 2–3 billion index |
+| OpenSearch | at least 3 data nodes, 8–16 vCPU / 32–64 GB, NVMe; time-based indices with an alias; shard count from the modelled 2–3 billion index |
 | SeaweedFS | 4–6 nodes, 16 TB each, 10 Gbps, replication; 4 nodes give 64 TB raw and about 32 TB replicated, covering both the 6.3–8.9 TB measured and 21–30 TB scanned-heavy envelopes |
 | Workers | 50–350 autoscaling, 2–4 vCPU / 4–8 GB each; 365–521 at the 15-minute OCR sensitivity |
 | OCR | local first: a self-hosted OCR engine and table-structure extraction on the platform's own worker or GPU pool; a cloud document-AI service only after the local benchmark fails and the owner approves (ADR-122) |

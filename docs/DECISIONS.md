@@ -9529,7 +9529,7 @@ report repeated the capacity table, creating a second source for numbers that
    partition.
 3. **OpenSearch uses time-based indices behind an alias.** ISM deletes a whole
    index by age; a per-catalog delete is a delete-by-query on the alias. The
-   shard count is derived from the measured index.
+   shard count is derived from the modelled index size.
 4. **R12's load test measures the corpus, not only the request rate.** The test
    includes 2–3 billion parts present, so the search p95 is measured at the
    modelled index size.
