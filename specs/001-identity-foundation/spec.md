@@ -1173,8 +1173,8 @@ requirements it asserts (decided 2026-10-21, Clarifications).
   MUST be a step of the same page that begins the flow, not a page and not a
   route of its own. The code step adds no page and no route, so this slice ships
   exactly the three bare pages it names — sign-up, sign-in, and password
-  recovery — and the Product Register's twenty-seven pages are not amended
-  (decided 2026-10-11, Clarifications). The code step MUST show, for reading and
+  recovery — and this requirement adds no page to the Product Register, which ADR-126
+  holds at twenty-eight pages (decided 2026-10-11, Clarifications). The code step MUST show, for reading and
   without editing them, the fields the flow collected: at sign-up, the full name,
   the mobile number, the city, and the optional shop name; in password recovery,
   the mobile number alone, because the recovery form collects nothing else and
