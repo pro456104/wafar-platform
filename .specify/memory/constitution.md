@@ -475,6 +475,8 @@ The following transitions are required by the product and MUST be supported:
 - Home → search → Parts
 - Catalog → click a file → Parts (filtered by that file)
 - My Files → click a file → Parts (filtered by that file)
+- My Files → Upload Catalog (the way to the intake)
+- Upload Catalog → My Files (the record the intake creates)
 - Parts → `+` button → Cart (bookmark added)
 - Parts → `?file=<id>` → Parts (filtered by that file)
 
@@ -657,8 +659,8 @@ questions.
 Every uploaded file follows the pipeline below. The pipeline MUST be
 implemented as a single sequence; a shortcut that skips a step is a defect.
 
-1. **Upload and validation.** The user submits the file from My Files. The file
-   is validated against the file-size and content-type rules, and a file that
+1. **Upload and validation.** The user submits the file from the Upload Catalog page, whose way in is
+   carried by My Files. The file is validated against the file-size and content-type rules, and a file that
    fails MUST NOT be stored (File Processing Rules).
 2. **Content safety and storage.** The file passes, in order, magic-byte
    validation against its declared content type, a ClamAV scan, the decoded-size
