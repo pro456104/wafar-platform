@@ -28,7 +28,7 @@ and a feature artifact references it rather than restating it.
 | Approved technology stack — the register | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | UI foundation — component library and the project layer | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1 builds it through its plan and consumes it |
 | Product detail (roles, pages, acceptance criteria) — mirror | `Core-Project.txt`; the constitution's Product Register and Product Scope win on conflict |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-124; the index table is at the top of that file) |
+| Accepted decisions | the decision register: `docs/DECISIONS.md` (the index and reading protocol) and `docs/decisions/volume-NN.md` (the records) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -40,7 +40,8 @@ re-invent what already exists. See `docs/DECISIONS.md` → ADR-007.
 
 Read only the constitution sections this list names; the constitution's own
 Reading protocol mirrors this map, and the constitution MUST NOT be read end to
-end for a feature command.
+end for a feature command. Where a list names `docs/DECISIONS.md`, read its index
+and the volume that holds the records the command needs (ADR-071, ADR-125).
 
 - `/speckit.specify` → the constitution (Product Scope, Product Register, the
   Usage Limits table in Performance Budgets and Verification, Glossary),
@@ -164,15 +165,17 @@ key), so a `specify` upgrade may replace it; the project copy is the one to keep
 and its `requires.integrations.any` list must stay correctly nested under
 `integrations:` (ADR-072).
 
-**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106).** `governance-drift-check.mjs`
+**The governance drift check is committed (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106, ADR-125).** `governance-drift-check.mjs`
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-124` range string — in the required files, under `docs/`, in
-the two Arabic mirrors, in the template overrides, and in the feature
-specifications — against the last row of
-`docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading, and
-every heading against the index; every `ADR-NNN` reference against the index; the
+live `ADR-001 … ADR-125` range string — in the required files, in the top-level
+`docs/` files, in the two Arabic mirrors, in the template overrides, and in the
+feature specifications — against the last row of
+`docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading in
+the volume that holds it, and every heading against the index; every volume's ADR
+continuity and the volume and index size caps; every `ADR-NNN` reference
+against the index; the
 ADR list in `Project-Technologies.txt`'s header against the same row; every
 `speckit.manifest.json` hash for an upstream-owned file against the working tree,
 and every upstream-owned file in the tree against the manifest (the project-owned
@@ -276,4 +279,4 @@ runner (R1) wires it into continuous integration.
 - Every deviation is recorded in the plan's Complexity Tracking table with an
   owner and a review date.
 - Documents affected by the change are updated in the same change.
-- Non-trivial decisions are recorded in `docs/DECISIONS.md` as an ADR.
+- Non-trivial decisions are recorded in the decision register as an ADR.

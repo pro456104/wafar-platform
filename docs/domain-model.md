@@ -9,8 +9,8 @@ Its authority is `.specify/memory/constitution.md` (current version: its footer
 or `.specify/memory/version.json`); where this
 document and the constitution disagree, the constitution wins and this document
 is corrected. Its amendment procedure is the constitution's: a change here is a
-change to a registered product fact and MUST be recorded as an ADR in
-`docs/DECISIONS.md`.
+change to a registered product fact and MUST be recorded as an ADR in the
+decision register.
 
 ## What this document is, and what it is not
 
@@ -475,7 +475,7 @@ removed.
 
 Recorded rather than silently resolved, per the constitution's Unresolved
 product facts rule. Each names the slice that must decide it and record the
-answer in `docs/DECISIONS.md`. A slice MUST NOT decide one on its own.
+answer in the decision register. A slice MUST NOT decide one on its own.
 
 **Read this table before planning.** Rows 1–4 are also carried in the
 constitution's Unresolved product facts table, so a slice reading either document
@@ -571,8 +571,8 @@ decision the one-line meaning must name.
 
 - A change to an entity, a relationship, or an invariant is a change to a
   registered product fact: it requires a constitution amendment to the Product
-  Register, an ADR in `docs/DECISIONS.md`, and this document updated in the same
-  change.
+  Register, an ADR in the decision register, and this document updated in the
+  same change.
 - A change to a column type or a constraint is a feature's business: it is
   recorded in that feature's `data-model.md` and applied by a migration under
   the constitution's Schema and Migration Control.

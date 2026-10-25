@@ -16,8 +16,8 @@ path a task touches MUST appear in the plan's ownership map, that map MUST match
 `docs/architecture.md`, an entity a task touches MUST exist in
 `docs/domain-model.md`, and a task that contradicts an accepted decision in
 `docs/DECISIONS.md` MUST NOT be generated. Read the sections named; for
-`docs/DECISIONS.md` read its index and the records this feature touches, not the
-whole file (ADR-071, Reading protocol).
+`docs/DECISIONS.md` read its index and the volume that holds the records this
+feature touches, not the whole register (ADR-071, ADR-125, Reading protocol).
 
 **Tests**: Test tasks are generated only when the spec's **Test Coverage Request** section requests them (constitution Principle III reads the request from the specification, not from the plan). If requested, include unit, integration, and end-to-end tasks as requested; if not requested, say so here explicitly rather than omitting silently.
 

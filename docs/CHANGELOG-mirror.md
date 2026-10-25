@@ -222,7 +222,7 @@ is committed, integration manifest hashes are re-recorded, the cart label in
 stamp-site claims in ADR-028/030/034 are aligned with the Governance procedure,
 and the page-addition route in Product Scope is aligned with the Product
 Register. This mirror states none of those rules; they live in the constitution
-and `docs/DECISIONS.md`.
+and the decision register.
 
 ### Cline removal (ADR-048)
 

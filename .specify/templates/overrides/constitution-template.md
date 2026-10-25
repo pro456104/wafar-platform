@@ -20,7 +20,7 @@
 
   On every amendment (normative): the constitution's version lives in its footer
   and in `.specify/memory/version.json`, which MUST agree, and the amendment is
-  recorded as an ADR in `docs/DECISIONS.md`. The authoritative statement is the
+  recorded as an ADR in the decision register. The authoritative statement is the
   constitution's Governance -> Amendment procedure; this block points at it. The
   footer below is a placeholder: a scaffolded constitution writes its own version
   there.

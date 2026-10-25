@@ -36,7 +36,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | UI foundation (component library and project layer) | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1 builds it through its plan and consumes it; ADR-098 records the visual foundation |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | `docs/DECISIONS.md` (ADR-001 … ADR-124) |
+| Accepted decisions | the decision register: `docs/DECISIONS.md` (index, ADR-001 … ADR-125) and `docs/decisions/` (records) |
 
 A slice named "Architecture", "UI Foundation", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -200,7 +200,7 @@ Each names the slice that closes it.
   statistical cards) needs no slice of its own: its search field is R5 and its
   counters depend on R1, R2, R3, and R5. R5 also owns the four-cards question,
   and the product register's four cards (accounts, files, parts, searches)
-  stand; R5's plan records the choice in `docs/DECISIONS.md`. The "searches"
+  stand; R5's plan records the choice in the decision register. The "searches"
   counter (including guest searches) has no entity today; R5 decides where it
   is stored, records the choice as an ADR, and amends the Product Register in
   the same change if a new entity is required.
@@ -247,7 +247,7 @@ Each names the slice that closes it.
   13. ~~Where the administrator's platform settings are stored~~ — resolved 2026-10-07 by ADR-067: `PlatformSetting`, owned by `admin`
 
   Each owning slice MUST decide its question, record the decision in
-  `docs/DECISIONS.md`, and amend `docs/domain-model.md` in the same change —
+  the decision register, and amend `docs/domain-model.md` in the same change —
   never silently choose it. Row 12 was added 2026-10-05 with the price column;
   rows 6, 7, 8, and 13 were resolved 2026-10-07 by ADR-067.
 - **Release gate.** Several rules (load test, Dependabot/Renovate, SBOM and

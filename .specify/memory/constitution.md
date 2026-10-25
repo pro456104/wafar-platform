@@ -609,7 +609,8 @@ Schema and Migration Control governs how any shape changes.
 The conflicts and ambiguities below were found between the sources, or inside
 the sources' own data. They are recorded rather than silently resolved. The
 slice named in the last column MUST resolve each one and record the answer in
-`docs/DECISIONS.md`; until then a slice MUST NOT decide one on its own:
+the decision register (the index in `docs/DECISIONS.md` and the volume that
+holds the record); until then a slice MUST NOT decide one on its own:
 
 **A reserved decision is reserved everywhere, not only in the deciding slice.**
 A source that states an answer this table has not given is itself the defect,
@@ -644,7 +645,7 @@ conversation thread and not through user-to-user chat. Recorded in
 
 **Resolved conflict (2026-10-03).** Home carries four statistical cards
 (accounts, files, parts, searches) across Product Scope and the mirror; R5's
-plan records the choice in `docs/DECISIONS.md` when it plans.
+plan records the choice in the decision register when it plans.
 
 ## File Processing Overview
 
@@ -769,7 +770,7 @@ UI layer, not in a constitutional register.
   where the rule is stated.
 - A value a referenced source leaves open, or defers, MUST be given a binding
   value under Constitution Mandated Values by the first plan that needs it, and
-  the choice MUST be recorded in `docs/DECISIONS.md` as an ADR.
+  the choice MUST be recorded in the decision register as an ADR.
 - A technology, component, page, feature, role, or entity that is absent
   from the registers above is not approved. Finding it in a referenced source
   does not approve it; the register MUST be amended first.
@@ -1171,6 +1172,18 @@ after the author has moved on.
   or a conversation is not recorded. The record MUST be committed under the
   directory that owns the decision, and the owning feature MUST be named in
   the record.
+
+**The decision register.** The register is `docs/DECISIONS.md` (the reading
+protocol and the index) together with the volumes under `docs/decisions/` that
+hold the records. A new record is appended to the last volume. A non-last
+volume MUST NOT exceed the byte cap the drift check carries; the last volume
+MUST NOT cross that cap except by the single record that crosses it, and a
+volume holding exactly one record is exempt. When the next record would cross
+the cap, the next volume is opened in the same change and the index row points
+to the volume that holds the record. The index MUST NOT exceed the index byte
+cap the drift check carries. The values live only in the check; this paragraph
+names the rule, not the number.
+
 - The readme MUST document setup, development, testing, and deployment. A new
   contributor MUST be able to run the project locally and run its full test
   suite from the readme alone, without asking a person. This MUST be verified
@@ -1493,7 +1506,7 @@ however obviously the concept belongs to the entity.
 | `docs/CHANGELOG-mirror.md` | The mirror's historical "Constitution X additions" blocks, split out of `Project-Technologies.txt` (ADR-075). History, not a source of rules. | `docs/`. |
 | `Core-Project.txt` | The product's detail: pages, roles, and the acceptance criteria the product already states. Mirrors Product Register and Product Scope, which win on conflict. | Repository root. |
 | `docs/domain-model.md` | The data model's source of truth: entities, relationships, cardinality, invariants, and the owning module of each. Mirrors the Data entities table, which holds the map. | `docs/`. |
-| `docs/DECISIONS.md` | The record of design decisions and the reasoning behind them. | `docs/`. |
+| `docs/DECISIONS.md` | The decision register's index and reading protocol: the entry point to the ADR volumes under `docs/decisions/` (ADR-125). | `docs/`. |
 | `docs/architecture.md` | The repository layout, module map, and data-flow descriptions. | `docs/`. |
 | `docs/capacity-model.md` | The capacity and load envelope: the six-month plan, the ingestion envelope, and the starting point a plan's Scale/Scope records. The planning authority for the envelope only; this constitution wins on every conflict (ADR-117, ADR-119, ADR-121, ADR-122). | `docs/`. |
 | `docs/pdf-sample-analysis.md` | The measured sample evidence behind the capacity model's baseline (the 19-file sample of 2026-10-23). Evidence, not a source of rules (ADR-119, ADR-122). | `docs/`. |
@@ -1506,7 +1519,7 @@ however obviously the concept belongs to the entity.
 | `.specify/extensions.yml` | The installed extensions and the hook registry every Spec Kit command reads before and after it runs. | `.specify/`. |
 | `.specify/workflows/speckit/workflow.yml` | The bundled workflow that runs the binding cycle in order, with its human review gates. | `.specify/workflows/speckit/`. |
 | `README.md` | The contributor entry point: documentation map, workflow, and prerequisites. | Repository root. |
-| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106): the two version sources including the amended date, every live ADR range string (in the required files, under `docs/`, in the two Arabic mirrors, in the template overrides, and in the feature specifications), every ADR index row's anchor against its heading and every heading against the index, every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header and its contiguity, every ADR enumeration in the governance set against the canonical one the check's own header carries, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the structural counts the governance text states in prose, the Constitution Mandated Values count the plan template states, every entity's owning module in `docs/domain-model.md` against the Data entities table above, the ADR index's constitution-version column against the footer's version, and the absence of the removed stylesheet and its constitution section. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
+| `governance-drift-check.mjs` | The committed read-only drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106, ADR-125): the two version sources including the amended date, every live ADR range string (in the required files, in the top-level `docs/` files, in the two Arabic mirrors, in the template overrides, and in the feature specifications), every ADR index row's anchor against its heading in the volume that holds it and every heading against the index, every volume's ADR continuity and the volume and index size caps (ADR-125), every `ADR-NNN` reference against the index, the ADR list in `Project-Technologies.txt`'s header and its contiguity, every ADR enumeration in the governance set against the canonical one the check's own header carries, the upstream manifest hashes in both directions, the two integrations' byte-identity (their command directories, and each integration manifest against the tree it records and that integration's whole command directory), the integration topology across `integration.json`, `init-options.json`, the integration directories and the bundled workflow's nesting, the structural counts the governance text states in prose, the Constitution Mandated Values count the plan template states, every entity's owning module in `docs/domain-model.md` against the Data entities table above, the ADR index's constitution-version column against the footer's version, and the absence of the removed stylesheet and its constitution section. Read-only and dependency-free; exits non-zero on drift, and runs on commit through the committed `pre-commit` hook. | Repository root. |
 
 ## Artifact Workflow and Traceability
 
@@ -1630,7 +1643,7 @@ the same force as the principles above.
 - The Libyan city list is one dataset, named once. Sign Up selects from it:
   every Libyan governorate, city, and area, searchable, with Libya (+218) as
   the default country. R1 records the list once as reference data of the
-  `users` module and names the record in `docs/DECISIONS.md`; every later
+  `users` module and names the record in the decision register; every later
   slice reads that record instead of writing a list of its own, and changing
   the list is an amendment to that record rather than an edit made inside a
   feature.
@@ -1690,7 +1703,8 @@ the policy below, and MUST record the change durably. The sync impact report the
 constitution command produces is review material for the person ratifying the
 amendment: it MUST NOT be committed, because it describes the document rather
 than governing it, and it restates MUSTs the document already states. The
-durable record of an amendment is an entry in `docs/DECISIONS.md` naming the
+durable record of an amendment is an entry in the decision register — the index
+row in `docs/DECISIONS.md` and the ADR in the volume that holds it — naming the
 version, what changed, and what deliberately did not.
 
 On every amendment the version lives in exactly three places, which MUST agree,
@@ -1700,10 +1714,11 @@ and the amendment is recorded once:
    authority for the current version.
 2. `.specify/memory/version.json` — the machine-readable value, whose
    `constitution_version` field MUST equal the footer's version.
-3. `docs/DECISIONS.md` — the ADR index row and the ADR the amendment records,
-   which are the durable record of what changed. The index row's constitution
-   version column names the version this ADR produced, so the version is
-   recorded in that column as well as in the two sources above.
+3. the decision register — the ADR index row in `docs/DECISIONS.md` and the ADR
+   in the volume that holds it, which are the durable record of what changed.
+   The index row's constitution version column names the version this ADR
+   produced, so the version is recorded in that column as well as in the two
+   sources above.
 
 This paragraph is the single authority for those sources; no other document may
 restate them, and a document that carries a copy is corrected from here rather
@@ -1792,4 +1807,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 4.2.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-24
+**Version**: 5.0.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-24

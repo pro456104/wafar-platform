@@ -273,8 +273,9 @@ Read/write notes:
   `.specify/memory/version.json`) — principles I–X and
   the binding sections (including File Processing Overview, Product Scope, and
   Deferred areas).
-- Decisions and their rationale: `docs/DECISIONS.md` (ADR-001 … ADR-124; the
-  index table is at the top of that file).
+- Decisions and their rationale: the decision register — `docs/DECISIONS.md`
+  (index and reading protocol) and `docs/decisions/volume-NN.md` (records),
+  ADR-001 … ADR-125.
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.

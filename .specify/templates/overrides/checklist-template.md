@@ -20,13 +20,14 @@
      - `.specify/memory/constitution.md` — principles and governance.
      - `Core-Project.txt` — the product definition: roles, pages, file
        processing, and acceptance criteria.
-     - `docs/DECISIONS.md` — accepted decisions (ADR-001 … ADR-124).
+     - the decision register — `docs/DECISIONS.md`'s index and the volumes
+       under `docs/decisions/` (ADR-001 … ADR-125).
        An item that contradicts one is a blocking defect.
      - `docs/domain-model.md` — the entities a checklist may reference,
        and the invariants it MUST NOT contradict.
      Read the sections named above; for `docs/DECISIONS.md` read its index and
-     the records this feature touches, not the whole file (ADR-071, Reading
-     protocol).
+     the volume that holds the records this feature touches, not the whole
+     register (ADR-071, ADR-125, Reading protocol).
      The technical sources (`docs/architecture.md`,
      `Project-Technologies.txt`) belong to the plan template's binding block,
      NOT here.

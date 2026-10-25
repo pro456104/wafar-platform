@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * governance-drift-check.mjs — Wafar governance drift check
- * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106)
+ * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106, ADR-125)
  * -------------------------------------------------------------------
  * Read-only. Dependency-free. Runs on the pinned Node runtime.
  *
@@ -9,12 +9,13 @@
  *   A. the constitution footer version AND last-amended date equal
  *      `.specify/memory/version.json`
  *   B. every live `ADR-001 … ADR-0NN` range string, in every governance
- *      markdown file under `docs/`, the two Arabic mirrors, the template
- *      overrides, and the feature specifications, equals the last ADR row in
- *      `docs/DECISIONS.md`'s index; every
- *      index row's anchor resolves to its heading; no heading is orphaned; and
- *      every `ADR-NNN` reference in the governance set resolves to an ADR the
- *      index carries
+ *      markdown file directly under `docs/`, the two Arabic mirrors, the
+ *      template overrides, and the feature specifications, equals the last ADR
+ *      row in `docs/DECISIONS.md`'s index; every index row's anchor resolves to
+ *      its heading in the volume that holds it and its href points to that
+ *      volume; the index carries one row per ADR in ascending order; no heading
+ *      is orphaned; and every `ADR-NNN` reference in the governance set resolves
+ *      to an ADR the index carries
  *   F. the ADR list in `Project-Technologies.txt`'s header ends at that row and
  *      is contiguous from ADR-040 to it
  *   K. every enumeration of five or more ADR numbers in the governance set
@@ -44,6 +45,9 @@
  *      version — no cell claims a version the constitution never reached, the
  *      column never moves backwards down the table, and the last row names the
  *      footer's version
+ *   M. the decision register's volumes (ADR-125): contiguous ADR numbers, one
+ *      record per number, index hrefs that resolve to the volume that holds the
+ *      heading, a volume cap, and an index cap
  *   G10. the Constitution Mandated Values count the constitution states equals
  *      the count the plan template's prose states, and its table's row count
  *      equals the row count that prose states
@@ -97,11 +101,20 @@ if (!footer) {
 
 /* ---- B. live ADR range strings equal the index's last ADR ----------------- */
 const decisions = read('docs/DECISIONS.md');
-const indexNumbers = [...decisions.matchAll(/\|\s*\[ADR-(\d{3})\]\(#adr-/g)].map((m) =>
+const indexNumbers = [...decisions.matchAll(/\|\s*\[ADR-(\d{3})\]\([^)#]*#adr-/g)].map((m) =>
   Number(m[1]),
 );
 const lastAdr = indexNumbers.length ? Math.max(...indexNumbers) : null;
 const expected = lastAdr === null ? null : String(lastAdr).padStart(3, '0');
+
+// ADR-125: the records live in docs/decisions/volume-NN.md and the index lives
+// in docs/DECISIONS.md. The heading map, the anchor resolution, and the caps
+// all read the volumes; the index is the only entry point.
+const VOLUME_DIR = 'docs/decisions';
+const volumeFiles = existsSync(join(ROOT, VOLUME_DIR))
+  ? readdirSync(join(ROOT, VOLUME_DIR)).filter((f) => /^volume-\d{2}\.md$/.test(f)).sort()
+  : [];
+const volumeText = new Map(volumeFiles.map((f) => [f, read(`${VOLUME_DIR}/${f}`)]));
 
 // Files that MUST carry the live range string: a miss there is a defect.
 const REQUIRED_RANGE_FILES = [
@@ -116,8 +129,9 @@ const RANGE = /ADR-001\s*…\s*ADR-(\d{3})/g;
 
 // Every other markdown file is scanned too, so a new document that carries a
 // stale range string is caught even though it is not on the required list.
-// `docs/DECISIONS.md` is excluded: it holds historical range strings in its
-// records, which are correct as written.
+// `docs/DECISIONS.md` is excluded as well, and the ADR volumes are outside this
+// top-level scan by their location under `docs/decisions/`: both hold historical
+// range strings that are correct as written.
 const scannedRangeFiles = new Set(REQUIRED_RANGE_FILES);
 for (const dir of ['docs', '.specify/templates/overrides']) {
   if (!existsSync(join(ROOT, dir))) continue;
@@ -164,6 +178,22 @@ if (expected === null) {
       }
     }
   }
+  // The index is one row per ADR, in ascending order. The anchor pass below
+  // resolves each row; this pass catches a duplicate, a gap, or a row moved out
+  // of order, none of which the set comparison would see.
+  if (indexNumbers.length !== Number(expected)) {
+    failures.push(
+      `B: the index carries ${indexNumbers.length} rows, expected ${expected} (one per ADR)`,
+    );
+  }
+  for (let i = 0; i < indexNumbers.length; i++) {
+    if (indexNumbers[i] !== i + 1) {
+      failures.push(
+        `B: index row ${i + 1} is ADR-${String(indexNumbers[i]).padStart(3, '0')}, expected ADR-${String(i + 1).padStart(3, '0')}`,
+      );
+      break;
+    }
+  }
   // Every index row's anchor must resolve to its heading. The heading anchor is
   // GitHub's slug: lowercase, drop every character that is not a letter, digit,
   // space, or hyphen, then replace each space with a hyphen (no collapsing, so
@@ -172,24 +202,35 @@ if (expected === null) {
   const anchorOf = (s) =>
     s.toLowerCase().replace(/[^a-z0-9 -]/g, '').replace(/ /g, '-');
   const headingAnchors = new Map();
-  for (const m of decisions.matchAll(/^## ADR-(\d{3}) — (.+)$/gm)) {
-    headingAnchors.set(m[1], anchorOf(`adr-${m[1]} — ${m[2]}`));
+  for (const [file, text] of volumeText) {
+    for (const m of text.matchAll(/^## ADR-(\d{3}) — (.+)$/gm)) {
+      headingAnchors.set(m[1], {
+        file: `decisions/${file}`,
+        anchor: anchorOf(`adr-${m[1]} — ${m[2]}`),
+      });
+    }
   }
   let anchorsChecked = 0;
-  for (const m of decisions.matchAll(/^\| \[ADR-(\d{3})\]\(#([^)]+)\)/gm)) {
-    const [, n, anchor] = m;
-    const expectedAnchor = headingAnchors.get(n);
-    if (!expectedAnchor) {
+  for (const m of decisions.matchAll(/^\| \[ADR-(\d{3})\]\(([^)#]+)#([^)]+)\)/gm)) {
+    const [, n, target, anchor] = m;
+    const heading = headingAnchors.get(n);
+    if (!heading) {
       failures.push(`B: ADR-${n} has an index row but no "## ADR-${n} — …" heading`);
-    } else if (expectedAnchor !== anchor) {
-      failures.push(`B: ADR-${n} index anchor #${anchor} != heading anchor #${expectedAnchor}`);
+    } else if (heading.anchor !== anchor) {
+      failures.push(`B: ADR-${n} index anchor #${anchor} != heading anchor #${heading.anchor}`);
+    } else if (heading.file !== target) {
+      failures.push(
+        `B: ADR-${n} index href ${target} != the volume that holds its heading (${heading.file})`,
+      );
+    } else if (!existsSync(join(ROOT, 'docs', target))) {
+      failures.push(`B: ADR-${n} index href target ${target} does not exist`);
     }
     anchorsChecked++;
   }
   // The reverse direction (ADR-086): a heading the index does not carry. The
   // loop above only caught an index row with no heading.
   const indexRows = new Set(
-    [...decisions.matchAll(/^\| \[ADR-(\d{3})\]\(#/gm)].map((m) => m[1]),
+    [...decisions.matchAll(/^\| \[ADR-(\d{3})\]\([^)#]+#/gm)].map((m) => m[1]),
   );
   for (const n of headingAnchors.keys()) {
     if (!indexRows.has(n)) {
@@ -197,7 +238,10 @@ if (expected === null) {
     }
   }
   notes.push(`B: index ends at ADR-${expected}; ${scannedRangeFiles.size} markdown files scanned`);
-  notes.push(`B: ${anchorsChecked} ADR index anchors resolved against their headings`);
+  notes.push(`B: ${indexNumbers.length} index rows checked for one per ADR in ascending order`);
+  notes.push(
+    `B: ${anchorsChecked} ADR index anchors resolved against the volumes (${volumeFiles.length} files)`,
+  );
 
   // Every `ADR-NNN` reference in the governance set must resolve to an ADR the
   // index carries. ADR-083 added this check; a typo or a reference to an ADR
@@ -213,6 +257,10 @@ if (expected === null) {
     '.specify/templates/overrides/checklist-template.md',
     '.specify/templates/overrides/constitution-template.md',
   ];
+  // ADR-125: the records moved out of docs/DECISIONS.md into the volumes, so
+  // the reference pass must read them there or their cross-references go
+  // unchecked.
+  for (const file of volumeFiles) REFERENCE_FILES.push(`${VOLUME_DIR}/${file}`);
   // ADR-102: the reference pass runs over the same file set as the range pass,
   // so a feature specification's `ADR-NNN` reference is resolved instead of
   // passing unseen while `AGENTS.md` §5 states that every reference is checked.
@@ -821,10 +869,7 @@ const cmpVersion = (a, b) => {
   return pa[0] - pb[0] || pa[1] - pb[1] || pa[2] - pb[2];
 };
 if (footer) {
-  const indexTable = decisions.slice(
-    decisions.indexOf('## Index'),
-    decisions.indexOf('## ADR-001'),
-  );
+  const indexTable = decisions.slice(decisions.indexOf('## Index'));
   const columnRows = [];
   for (const line of indexTable.split(/\r?\n/)) {
     if (!/^\|\s*\[ADR-\d{3}\]/.test(line)) continue;
@@ -888,8 +933,83 @@ if (footer) {
   }
 }
 
+/* ---- M. the decision register's volumes (ADR-125) -------------------------- */
+// The records live in docs/decisions/volume-NN.md. They must be contiguous from
+// ADR-001 to the index's last row, ascending inside each file, and unique. A
+// non-last volume stays within the volume cap unless it holds a single record,
+// which cannot be split; the last volume may cross it only by the record that
+// crosses it, measured as the prefix before its last record. The index has its
+// own cap so it cannot silently become the next 663 KB file.
+const VOLUME_CAP = 100_000;
+const INDEX_CAP = 120_000;
+if (volumeFiles.length === 0) {
+  failures.push('M: no docs/decisions/volume-NN.md files found');
+} else {
+  const all = [];
+  let largest = { file: '', bytes: 0 };
+  const prefixBytes = new Map();
+  const recordCounts = new Map();
+  for (const file of volumeFiles) {
+    const text = volumeText.get(file);
+    const bytes = Buffer.byteLength(text, 'utf8');
+    if (bytes > largest.bytes) largest = { file, bytes };
+    const ms = [...text.matchAll(/^## ADR-(\d{3})/gm)];
+    if (ms.length === 0) {
+      failures.push(`M: ${file} carries no "## ADR-NNN" heading`);
+      continue;
+    }
+    prefixBytes.set(
+      file,
+      ms.length > 1 ? Buffer.byteLength(text.slice(0, ms.at(-1).index), 'utf8') : 0,
+    );
+    recordCounts.set(file, ms.length);
+    for (const m of ms) all.push({ n: Number(m[1]), file });
+  }
+  volumeFiles.forEach((file, i) => {
+    const want = `volume-${String(i + 1).padStart(2, '0')}.md`;
+    if (file !== want) failures.push(`M: ${file} appears where ${want} was expected`);
+  });
+  for (let i = 0; i < all.length; i++) {
+    if (all[i].n !== i + 1) {
+      failures.push(
+        `M: ADR-${String(all[i].n).padStart(3, '0')} in ${all[i].file} appears where ADR-${String(i + 1).padStart(3, '0')} was expected`,
+      );
+      break;
+    }
+  }
+  const lastLabel = all.length ? all.at(-1).n : 0;
+  if (expected !== null && lastLabel !== Number(expected)) {
+    failures.push(
+      `M: volumes end at ADR-${String(lastLabel).padStart(3, '0')}, index ends at ADR-${expected}`,
+    );
+  }
+  volumeFiles.forEach((file, i) => {
+    const bytes = Buffer.byteLength(volumeText.get(file), 'utf8');
+    const isLast = i === volumeFiles.length - 1;
+    const count = recordCounts.get(file) ?? 0;
+    if (!isLast && count > 1 && bytes > VOLUME_CAP) {
+      failures.push(`M: ${file} is ${bytes} bytes, above the ${VOLUME_CAP}-byte volume cap`);
+    }
+    const prefix = prefixBytes.get(file) ?? 0;
+    if (isLast && prefix > VOLUME_CAP) {
+      failures.push(
+        `M: ${file} (last volume) is ${prefix} bytes before its last record, above the ${VOLUME_CAP}-byte cap`,
+      );
+    }
+  });
+  const indexBytes = Buffer.byteLength(decisions, 'utf8');
+  if (indexBytes > INDEX_CAP) {
+    failures.push(
+      `M: docs/DECISIONS.md is ${indexBytes} bytes, above the ${INDEX_CAP}-byte index cap`,
+    );
+  }
+  notes.push(
+    `M: ${volumeFiles.length} volumes, ${all.length} records, largest ${largest.file} ${largest.bytes} B, index ${indexBytes} B`,
+  );
+}
+
 /* ---- report --------------------------------------------------------------- */
-console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106)');
+console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106, ADR-125)');
 console.log('=====================================');
 for (const n of notes) console.log(`  ok   ${n}`);
 if (failures.length === 0) {
