@@ -769,10 +769,11 @@ administrator application's eleven pages, the roles table, the
 identical-list rule for guests and merchants, the four bare-layout static
 pages, and the route discipline the frame's decision record fixed.
 
-**Consequences and migration/backfill.** The constitution is amended in the same change — the Product Register (the
-merchant table and the Pages prose at twenty-eight pages), the Page Flow (the
-My Files → Upload Catalog and Upload Catalog → My Files transitions), and the
-File Processing Overview's first step, which now submits from the page;
+**Consequences and migration/backfill.** The constitution is amended in the
+same change — the Product Register (the merchant table and the Pages prose at
+twenty-eight pages), the Page Flow (the My Files → Upload Catalog and
+Upload Catalog → My Files transitions), and the File Processing Overview's
+first step, which now submits from the page;
 `Core-Project.txt` mirrors the register, the nine-item sidebar list, and the
 two transitions; the R1 specification's FR-039 and AC-042 carry the nine-item
 list; `ROADMAP.md` moves the page to R2 and rewords R4's upload action to a
