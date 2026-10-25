@@ -38,9 +38,10 @@
       → R9, the message sender and the `Conversation` administrator reference →
       R10, the multi-separator printed price → R3) are untouched
 - [x] The specification adds nothing outside the four registers — no page
-      beyond the twenty-seven, no entity beyond the twelve, no product feature
-      beyond the sixteen, and no role beyond the three — and the twenty-seven-page
-      register is not amended
+      beyond the twenty-eight, no entity beyond the twelve, no product feature
+      beyond the sixteen, and no role beyond the three — and the twenty-eight-page
+      register is not amended by this specification (ADR-126 amended it, and the
+      item list's ninth destination is carried by FR-039, AC-042, and US5)
 - [x] No requirement contradicts an accepted decision record
 - [x] Identifiers are contiguous, stable, and never reused — FR-001 … FR-051,
       AC-001 … AC-055, SC-001 … SC-009, with no gap, no renumbering, and no
@@ -251,3 +252,10 @@
   instead of treating 10,000 accounts / 500 sessions / 10 authentication requests
   per second as the platform's sizing ceiling. No requirement, criterion,
   identifier, or count changed.
+- Refreshed 2026-10-25: ADR-126 amended the Product Register with the Upload
+  Catalog page (the register's twenty-eighth page and the sidebar's ninth
+  destination at route `/upload`), so FR-039, AC-042, and US5 carry the
+  nine-item list, the page-count claims above read twenty-eight, and the
+  checklist item marks the register as amended by ADR-126 rather than by this
+  specification. No requirement, criterion, or identifier changed (counts stay
+  51 FR, 55 AC, and 9 SC); all 22 checkboxes above stay checked.

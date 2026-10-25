@@ -174,3 +174,4 @@ records themselves are not rewritten.
 
 ---
 | [ADR-125](decisions/volume-08.md#adr-125--the-decision-register-split-into-an-index-and-eight-volumes) | The decision register split into an index and eight volumes | 2026-10-24 | 5.0.0 |
+| [ADR-126](decisions/volume-08.md#adr-126--the-upload-catalog-page-the-twenty-eighth-page-and-the-ninth-sidebar-destination) | The Upload Catalog page: the twenty-eighth page and the ninth sidebar destination | 2026-10-25 | 5.1.0 |

@@ -445,7 +445,8 @@ another country is an amendment to this section, not a configuration change
 
 | Page | Content |
 |---|---|
-| My Files | The merchant's uploaded files, upload action, processing status. |
+| My Files | The merchant's uploaded files, processing status, the delete and retry actions for those files, and the way to the Upload Catalog page. |
+| Upload Catalog | One supplier catalog uploaded by the merchant (Excel, PDF, or Word up to 100 MB), the merchant's monthly and active quota state, and a duplicate rejected by hash naming the original; the catalog record it creates lives with My Files. |
 | Cart | Bookmarked parts, remove action. No price, no quantity, no checkout: the price lives on the part and the cart shows none of it. |
 | Notifications | Full list, mark as read. |
 | Messages | Single conversation thread with the administrator. |
@@ -520,9 +521,9 @@ Every administrator operation MUST be recorded in the audit log.
 
 ### Pages
 
-Twenty-seven pages are in scope, and they are listed in Product Scope. The
+Twenty-eight pages are in scope, and they are listed in Product Scope. The
 transitions in Product Scope are the required navigation. A screen that is not
-one of the twenty-seven MUST NOT be added without amending this register; Product
+one of the twenty-eight MUST NOT be added without amending this register; Product
 Scope names the rest of that route, and both halves are read together.
 
 ### Features
@@ -1807,4 +1808,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 5.0.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-24
+**Version**: 5.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-25

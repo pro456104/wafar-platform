@@ -710,3 +710,72 @@ a revert of this commit and restores the single file with no manual
 reconstruction. R1's specification carries
 the live range string `ADR-001 … ADR-125`; no `FR`, `AC`, or `SC` identifier
 changed, so R1's Constitution Check is unaffected.
+
+---
+
+## ADR-126 — The Upload Catalog page: the twenty-eighth page and the ninth sidebar destination
+
+**Status**: Accepted — 2026-10-25. **Constitution version**: 5.1.0
+
+**Owning directory**: `.specify/memory/` (Product Register), `Core-Project.txt`, `ROADMAP.md`
+**Owning feature**: R2, File intake (tracked in ROADMAP.md; the slice's sub-spec is open)
+
+**Context.** The merchant's upload lives today as the upload action inside the
+My Files page (Product Register → Merchant's Authenticated Area), while the
+intake channel itself — validation, content safety, storage, the content hash,
+the duplicate rule, and the per-user quotas of 50 files per calendar month and
+300 active stored files (ADR-118) — is slice R2. The operator decided the
+upload deserves a standalone surface: the quota state is only visible where
+the upload begins, the intake is a single-purpose flow, and the merchant
+reaches it from the navigation directly rather than through the table of his
+own files.
+
+**Decision.** The Product Register gains the Upload Catalog page as the
+twenty-eighth page: a merchant-only page on the product's shared shell whose
+content is the upload of one supplier catalog (Excel, PDF, or Word up to
+100 MB, the Usage Limits table's first row), the display of the merchant's
+monthly and active quota state, upload progress, and the duplicate-by-hash
+outcome — a duplicate names the original with its upload date and links to the
+part numbers that came from it, and no duplicate is stored, queued, or
+processed. The record the upload creates is a `Catalog` whose processing
+status lives in My Files, so the page creates no entity and adds no product
+feature — File Upload remains the first of the sixteen features. The sidebar's
+navigation item list carries the page as its ninth destination, ordered
+between Catalog and My Files; the list is still shown identically to a guest
+and to a signed-in merchant, so a guest pressing the item is taken to the
+sign-in page (the ADR-100 pattern). The page ships at the route `/upload`,
+fixed here, and My Files keeps its own actions — the table, the processing
+status, delete with confirmation, and retry for a failed file — and links to
+the page instead of embedding the upload. Slice R2 delivers the page alongside
+the channel it exists for; slice R4 keeps everything after the intake.
+
+**Alternatives considered.**
+- *Keep the upload as a My Files action (no page).* Rejected: the quota state
+  and the intake flow would inherit a page whose centre is a table, and the
+  navigation would carry a destination the register could not name.
+- *Name the page «كتالوج جديد» (noun-first).* Rejected: the page is an action
+  (an intake), not a catalog list; the catalogue noun already owns the public
+  Catalog page.
+- *Name the page «رفع ملف».* Rejected: the merchant uploads a supplier
+  catalog, not a generic file; «رفع كتالوج» carries that model into the
+  product's Arabic.
+- *Deliver the page with R4's table.* Rejected: R2 owns the intake and depends
+  only on R1, so the page would wait on reading surfaces R5 owns while its own
+  backend (R2) already exists.
+
+**What this decision does not change.** The twelve data entities (`Catalog`
+already owns the intake data), the sixteen product features, the
+administrator application's eleven pages, the roles table, the
+identical-list rule for guests and merchants, the four bare-layout static
+pages, and the route discipline the frame's decision record fixed.
+
+**Consequences and migration/backfill.** The constitution's Product Register
+(the merchant table and the Pages prose) is amended to twenty-eight pages in
+the same change; `Core-Project.txt` mirrors the register and the nine-item
+sidebar list; the R1 specification's FR-039 and AC-042 carry the nine-item
+list; `ROADMAP.md` moves the page to R2 and rewords R4's upload action to a
+link. The live `ADR-001 … ADR-125` range strings become `ADR-001 … ADR-126`
+in the same change. No migration or backfill is required: the change is the
+register prose, this decision record, the mirrors, the specification
+revisions, the roadmap, and the drift check's structural page count
+(G8 27 → 28). Review date: 2026-11-25. This entry is the durable record.
