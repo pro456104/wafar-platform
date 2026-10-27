@@ -18,7 +18,8 @@ not sell, buy, process payment, or host user-to-user chat.
 | `docs/domain-model.md` | The data model: entities, relationships, cardinality, invariants, and the module that owns each. |
 | `docs/capacity-model.md` | The six-month load and ingestion envelope, the quota model, the deployment shape, and the verification plan (ADR-117, ADR-119, ADR-121, ADR-122). Planning authority; the constitution wins on every conflict. |
 | `docs/pdf-sample-analysis.md` | The preliminary 19-file PDF sample evidence: size, pages, text-layer quality, rows per page, OCR benchmark, and extraction problems (ADR-119). Evidence, not a source of rules. |
-| `docs/DECISIONS.md` | The decision register's index and reading protocol (ADR-001 … ADR-126); the records with their alternatives and rationale live in `docs/decisions/volume-NN.md`. |
+| `docs/design/` | The Precision design contract's slice map and reference screenshots: 15 slices and 28 pages, with the 11 administrator pages marked as composed from the contract (ADR-128, ADR-129); the adopted departures — part-family cards, the retention trigger, and the shell's scroll, icon, and appearance rules — are ADR-130, ADR-131, and ADR-132. Reference, not a visual baseline. |
+| `docs/DECISIONS.md` | The decision register's index and reading protocol (ADR-001 … ADR-132); the records with their alternatives and rationale live in `docs/decisions/volume-NN.md`. |
 | `ROADMAP.md` | The MVP slice order. Names and orders slices; does not design them. |
 | `AGENTS.md` | Operating instructions for agent assistants. |
 | `governance-drift-check.mjs` | The committed read-only drift check: the two version sources, every live ADR range string, the decision-register volumes and their caps, the upstream manifest hashes, the two integrations, the structural counts the governance text states in prose, the ADR index's constitution-version column, and the absence of the removed stylesheet and its constitution section. Runs on commit via `.githooks/pre-commit`; run it directly with `node governance-drift-check.mjs`. |
@@ -58,7 +59,7 @@ the project's binding templates and must not be replaced with the core ones.
 
 **Governance drift check.** `node governance-drift-check.mjs` (repository root)
 verifies the invariants the governance set cannot verify by discipline: the two
-version sources including the amended date, every live `ADR-001 … ADR-126` range
+version sources including the amended date, every live `ADR-001 … ADR-132` range
 string (in the required files, in the top-level `docs/` files, in the two Arabic
 mirrors, in the template overrides, and in the feature specifications), every ADR
 index row's anchor against its heading in the volume that holds it and every

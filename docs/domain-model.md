@@ -189,9 +189,9 @@ service layer re-checks the ones a constraint cannot express.
 - **Retention is 90 days, enforced by R15.** The search index is a projection,
   and its lifecycle policy (OpenSearch Index State Management) deletes whole
   indices by index age, so per-catalog expiry is the retention job's work and not
-  the index's. The period is fixed; the point the 90 days are counted from is
-  not, and it belongs to the same open fact: until R15 decides it, no feature may
-  name a trigger, and neither this model nor `ROADMAP.md` states one.
+  the index's. The period is counted from the catalog file's upload timestamp
+  (ADR-131); no feature may count it from extraction, the last update, or the
+  first search.
 - **Upload quotas are 50 files per calendar month and 300 active stored files per
   user, with no lifetime cap**, enforced server-side by the `catalogs` module
   service (R2). The monthly count counts upload events in the calendar month and
@@ -234,6 +234,14 @@ service layer re-checks the ones a constraint cannot express.
   Rules). A value that belongs to no canonical column is part of no stored
   column and is not stored. There is no "unassigned" class of value and no
   counter for one.
+- **A part carries a derived family, and the set is fixed.** `Part.family` holds
+  one of six values — `brakes`, `filters`, `batteries`, `cooling`, `engine`,
+  `suspension` — registered as reference data by ADR-130. It is a classification
+  the pipeline assigns, not a canonical column and not an extracted value: the
+  Glossary's six columns and the parts table's columns are unchanged. R3 fills
+  it; a part whose family cannot be determined carries none, stays out of the
+  Home cards, and remains in the unfiltered parts list. The set changes only by
+  amending ADR-130.
 - **The price is the amount or amounts of this part's own catalog, in Libyan
   Dinar.** The period and the comma in a printed price are decimal separators, so
   `123.000` is 123 dinar. A printed price carrying more than one separator, or a
@@ -498,7 +506,7 @@ product mirror; any use of them is a reference to this table, not to the mirror.
 |---|---|---|---|
 | 1 | How a message's sender is represented when the sender may be either a merchant or an administrator. | The register names one sender on a message, but the two roles are different principals and the representation is a schema decision, not a conceptual one. | R10 |
 | 2 | Whether `Conversation` carries an administrator reference when every administrator account sees the same thread. | The thread is single and shared; whether the administrator side is a reference, a role, or absent is a schema decision. | R10 |
-| 3 | Whether `expires_at` is the retention deadline or the supplier's printed expiry date, and the point the 90-day retention is counted from. | Two product sources disagree on the field, and no source names a trigger for the period; both readings of each are defensible. | R15 |
+| 3 | Whether `expires_at` is the retention deadline or the supplier's printed expiry date. The point the 90-day retention is counted from is settled: the catalog file's upload timestamp (ADR-131). | Two product sources disagree on the field; the trigger point, once part of this row, is now fixed. | R15 |
 | 4 | Notification retention. | The product statement defers it. | R9 |
 | 5 | ~~Whether a contact message becomes a conversation or is read in its own inbox.~~ Resolved 2026-10-03 by ADR-028: a dedicated administrator "Contact messages" page. | — | ADR-028 (owning slice: R13) |
 | 6 | ~~Whether an administrator is a distinct entity or a role on `User`.~~ Resolved 2026-10-07 by ADR-067: the administrator is a **role on `User`**, not a distinct entity. | — | ADR-067 |

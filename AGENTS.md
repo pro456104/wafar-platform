@@ -29,6 +29,7 @@ and a feature artifact references it rather than restating it.
 | UI foundation — component library and the project layer | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1 builds it through its plan and consumes it |
 | Product detail (roles, pages, acceptance criteria) — mirror | `Core-Project.txt`; the constitution's Product Register and Product Scope win on conflict |
 | Accepted decisions | the decision register: `docs/DECISIONS.md` (the index and reading protocol) and `docs/decisions/volume-NN.md` (the records) |
+| Design contract and per-slice visual reference | ADR-128 (the token and rendering contract); ADR-130 (part families and the Home cards); ADR-131 (the retention trigger); ADR-132 (the shell: scroll-hide, colour icons, `system`); `docs/design/` (the slice map and the reference screenshots) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -169,7 +170,7 @@ and its `requires.integrations.any` list must stay correctly nested under
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-126` range string — in the required files, in the top-level
+live `ADR-001 … ADR-132` range string — in the required files, in the top-level
 `docs/` files, in the two Arabic mirrors, in the template overrides, and in the
 feature specifications — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading in

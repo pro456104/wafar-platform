@@ -126,6 +126,10 @@ The 300–600 RPS envelope covers the table above with headroom. Search is a
 fraction of those requests; the search budget remains p95 < 1 s, and the actual
 search QPS is measured at the R12 load test rather than assumed here.
 
+The Home page's six part-family counts are one indexed aggregate query over the
+parts projection, not six queries (ADR-130); they are read with the page and add
+one query per Home visit to the envelope above.
+
 Read traffic is served by API replicas, the PostgreSQL system of record,
 OpenSearch for the parts listing, and a CDN for public pages and images. The
 price projection for a guest contains no price at all (ADR-040); this is a
@@ -258,9 +262,9 @@ Consequences:
   uploading disappears from search after the retention window.
 - The 90-day deletion releases an active slot but does not restore the monthly
   upload count.
-- The trigger point of the 90 days (upload date or the supplier's printed issue
-  date) is an open fact owned by R15. This model uses the upload date as the
-  conservative sizing assumption; it does not decide the trigger.
+- The 90 days are counted from the catalog file's upload timestamp (ADR-131).
+  This model already used the upload date as its conservative sizing
+  assumption; the trigger is now fixed, so the sizing and the rule agree.
 
 If the product later keeps extracted parts after deleting the original bytes,
 that is a different model: file storage falls, but PostgreSQL and OpenSearch

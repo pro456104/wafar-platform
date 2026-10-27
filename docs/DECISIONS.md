@@ -175,3 +175,9 @@ records themselves are not rewritten.
 ---
 | [ADR-125](decisions/volume-08.md#adr-125--the-decision-register-split-into-an-index-and-eight-volumes) | The decision register split into an index and eight volumes | 2026-10-24 | 5.0.0 |
 | [ADR-126](decisions/volume-08.md#adr-126--the-upload-catalog-page-the-twenty-eighth-page-and-the-ninth-sidebar-destination) | The Upload Catalog page: the twenty-eighth page and the ninth sidebar destination | 2026-10-25 | 5.1.0 |
+| [ADR-127](decisions/volume-08.md#adr-127--the-frames-fourth-surface-the-narrow-screen-bottom-navigation-bar) | The frame's fourth surface: the narrow-screen bottom navigation bar | 2026-10-27 | 6.0.0 |
+| [ADR-128](decisions/volume-08.md#adr-128--the-precision-design-contract-palette-type-shape-density-and-rendering-rules) | The Precision design contract: palette, type, shape, density, and rendering rules | 2026-10-27 | 6.0.0 |
+| [ADR-129](decisions/volume-08.md#adr-129--the-design-conformance-gate-and-the-baseline-chain) | The design conformance gate and the baseline chain | 2026-10-27 | 6.0.0 |
+| [ADR-130](decisions/volume-08.md#adr-130--part-families-and-the-home-category-cards) | Part families and the Home category cards | 2026-10-27 | 6.1.0 |
+| [ADR-131](decisions/volume-08.md#adr-131--the-90-day-period-counted-from-the-upload) | The 90-day period counted from the upload | 2026-10-27 | 6.1.0 |
+| [ADR-132](decisions/volume-08.md#adr-132--the-shell-and-appearance-scroll-hide-colour-icons-and-the-system-default) | The shell and appearance: scroll-hide, colour icons, and the system default | 2026-10-27 | 6.1.0 |

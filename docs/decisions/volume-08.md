@@ -782,3 +782,235 @@ in the same change. No migration or backfill is required: the change is the
 register prose, this decision record, the mirrors, the specification
 revisions, the roadmap, and the drift check's structural page count
 (G8 27 → 28). Review date: 2026-11-25. This entry is the durable record.
+
+---
+
+## ADR-127 — The frame's fourth surface: the narrow-screen bottom navigation bar
+
+**Status**: Accepted — 2026-10-27. **Constitution version**: 6.0.0
+
+**Owning directory**: `.specify/memory/`, `Core-Project.txt`, `ROADMAP.md`, `packages/ui` (planned by R1)
+**Owning feature**: R1, Identity and foundation (the frame is built and verified structurally in R1; R4 verifies its runtime behaviour)
+
+**Context.** The shared shell had three surfaces: the header, the sidebar, and the footer band. On a narrow screen the sidebar becomes a drawer, and the header carries no drawer control, so nothing in the frame opened the drawer or carried the merchant's most-used destinations. The constitution's 6.0.0 amendment names the fourth surface and fixes its five slots; the design lab built and measured it. R1 builds the frame but ships no page that renders it, so the surface is verified structurally in R1 and behaviourally by the first slice that ships a page carrying the frame (R4).
+
+**Decision.** Below 1024px the frame carries a bottom navigation bar with five slots: Home, Upload Catalog, a raised search action that opens the Parts page, My Files, and «المزيد». From 1024px up the bar is absent. «المزيد» opens the sidebar drawer and is not its close control; the collapse control inside the drawer closes it, and the header carries neither. The bar is one composition shown identically to a guest and to a signed-in merchant: a guest who activates Upload Catalog or My Files is taken to the sign-in page, and the slot stays present and enabled. On that screen the footer band is not rendered, and its four static-page links sit at the bottom of the drawer. The bar is always visible; the page reserves its height so the bar never covers content, and it does not hide on scroll. The bar is part of the frame's composition, so it is absent from every page that carries no frame. Its labels, measurements, and icon treatment are design values (ADR-128), not product settings; this record fixes the five slots and their behaviour only.
+
+**Alternatives considered.**
+- *A menu button in the header.* Rejected: it would give the drawer two controls for one open, and the header is already at its fixed composition.
+- *A bar whose slots vary by role.* Rejected: the register requires one list shown identically to a guest and a merchant, and a role-varying bar would make the guest's frame a different frame.
+- *A fixed bar with no reserved space.* Rejected: it covers the last row of every table and the end of every form.
+- *A bar that hides on scroll.* Rejected: it adds a state the register does not require, hides the destinations while the merchant is reading, and complicates focus and reduced-motion behaviour. The lab's slide-away gesture is a lab behaviour, not a product rule.
+
+**What this decision does not change.** The nine registered destinations, the twenty-eight pages, the twelve data entities, the sixteen product features, and the fifteen slices. It adds no page, no entity, and no feature: the bar is a frame surface, and the five slots are existing destinations.
+
+**Consequences and migration/backfill.** The constitution is amended in the same change (Product Scope, the shell paragraph, and the Product Fact Clarifications); `Core-Project.txt` mirrors the shell paragraph, the narrow-screen rule, and the guest behaviour; `ROADMAP.md` adds the surface to R1's first obligations; the R1 specification's FR-022, FR-024, and FR-052 carry it; and the Wafar UI layer builds it. No migration or backfill is required because no page renders the frame yet and no code exists. The live `ADR-001 … ADR-126` range strings become `ADR-001 … ADR-129` in the same change that records ADR-127, ADR-128, and ADR-129. Review date: 2026-12-01. This entry is the durable record.
+
+---
+
+## ADR-128 — The Precision design contract: palette, type, shape, density, and rendering rules
+
+**Status**: Accepted — 2026-10-27. **Constitution version**: 6.0.0
+
+**Owning directory**: `packages/ui` (planned by R1), `.specify/memory/`, `docs/design/`
+**Owning feature**: R1, Identity and foundation (the Wafar UI layer); every interface slice consumes the contract
+
+**Context.** The design lab compared six token sets on one composition. The operator adopted «الدقة» / Precision. The lab's own statement is the premise of this record: the frame does not move; what changes between models is colour, type, shape, density, surface, and the icon language. The six models therefore share one composition, and the product's choice is a token set and a set of rendering rules, not a page composition. ADR-098 fixed IconPark, IBM Plex Sans Arabic, the light default, and the marine/sand palette. Precision replaces the palette and the icon treatment; the typeface and the light default remain.
+
+**Decision.** The product adopts Precision as its only token set and rendering contract. The five other models are evidence that the composition is independent of the tokens; they are not shipped and no model switcher exists in the product. The contract is:
+
+1. **Composition is not part of this record.** The pages, their blocks, their order, and their states belong to the specification and to the slice map. This record fixes only the visual values and the rendering rules that apply to whatever composition a slice ships.
+2. **Palette.** The primary ramp is the orange ramp (50–950) the layer records; the light primary is orange-700, `oklch(55.3% 0.195 38.402)`, approximately `#C2410C`, and the dark primary is orange-400, `oklch(75% 0.183 55.934)`. The neutral ramp is gray; the secondary ramp is slate. The light surfaces are `#ffffff`, `#f6f7f8`, `#eef0f3`, and `#101418`; the light borders are `#e4e7eb`, `#f1f3f5`, and `#c3c9d1`; the dark surfaces are `#0e1114`, `#161b20`, `#1e252c`, and `#2a333c`; the dark borders are `#2a333c`, `#1f272f`, and `#3b4650`. The sidebar's active bar is `#c2410c` in light and `#fb923c` in dark; its active surface is `#fff7ed` in light and `#2a1a10` in dark. Token names are the authority; the layer records the full values. Contrast targets are 4.5:1 for text and 3:1 for interface boundaries.
+3. **Type.** IBM Plex Sans Arabic at weights 400, 500, 600, and 700; IBM Plex Mono for numerals. Rendered numerals are Latin. The layer records the size scale and the baseline.
+4. **Shape.** Corner radius is 2px (`0.125rem`); the table grid is 1px; row padding is 8px vertically and 12px horizontally.
+5. **Density and measurements.** Header 3.5rem; sidebar 15rem, rail 4.25rem; content maximum 88rem; footer 3.5rem; bottom bar 60px plus the safe-area inset; raised action 56px, lifted clear of the bar; icons 20px.
+6. **Motion.** The layer records the state and surface durations; `prefers-reduced-motion` is honoured; a moving element whose travel follows the reading mode uses logical direction tokens.
+7. **Focus.** One 2px focus ring; its contrast meets 3:1 against the adjacent surface.
+8. **Tables.** Fixed geometry; a declared width for every column; the header sticks vertically only; no column is pinned horizontally; a drag hint where the table scrolls horizontally; a persistent scrollbar; a minimum height for the toolbar row.
+9. **Loading.** Two systems: a skeleton for content regions and a bar for in-place refresh; the indicator appears after 120ms and stays for at least 300ms; the skeleton's geometry equals the content's geometry; one Arabic sentence per region; the shimmer colour is derived from the ink token; the RTL shimmer direction is a token, not a hard-coded angle.
+10. **Filters.** A collapsed filter button; the panel opens inside the page, not as a modal; rows or a grid; chips for active filters; a count badge; a live count in Arabic number format; the price field is «السعر (د.ل)» with «من» and «إلى».
+11. **Cards.** The Home rhythm: centered rows, 20px and 24px gaps, and a container query so the cards reflow by their own width, not the viewport's.
+12. **Upload.** A drag area on a fine pointer; a 56px action on a coarse pointer; progress, duplicate, and success states.
+13. **Bare layout.** The layer records the bare layout's type, focus ring, and touch floor; its composition — logo, title, content, the way back, and the auth pages' cross-links — belongs to the specification; the 404 page branches on the status code.
+14. **File name.** The Latin extension is isolated inside an Arabic name with bidirectional isolation, so the extension renders in reading order.
+15. **Touch floor.** 44px on any coarse pointer, at any viewport width.
+16. **Appearance.** Light and dark; the default is light (ADR-098 decision 4; ADR-102 decision 5); no flash; one control; its state is carried by name and `aria-pressed`.
+17. **Language.** Interface text is Arabic; the root carries `dir="rtl" lang="ar"`.
+18. **What the layer records.** Token names and values, the component inventory, and the conformance gate.
+19. **What this record does not change.** The twenty-eight pages, the twelve entities, the sixteen features, and the fifteen slices.
+20. **Not adopted.** Category tiles (the register has no category model), page size 10, any email address, the 90-day period counted from upload, account deletion by the merchant, the five other models as product, the model switcher, `useDesign`, `?design=`, and the lab's tools.
+
+**Correction (2026-10-27).** Decision 8's drag hint is horizontal table scrolling, not column resizing: the layer fixes every column's width, and the lab records that sorting, paging, filtering, or a new page of rows cannot resize a column (DESIGN-DECISIONS row 46; `docs/design/slice-map.md` R5). Decision 9's timing is the lab's: the indicator appears after 120ms and stays for at least 300ms (the lab's `useWfLoading`; DESIGN-DECISIONS row 29), not the reverse. Decision 13 states only the bare layout's type, focus ring, and touch floor; the composition belongs to the specification, and the four static-page links belong to the frame's footer/drawer (ADR-096; ADR-127; FR-036).
+
+**Annotation to ADR-098.** This record annotates ADR-098 and changes two of its decisions. Decision 2 (the colour set is the default and the outline set serves dense tables and the dark theme) is replaced: the product consumes the outline cut, and the colour cut is vendored but not consumed. Decision 5 (the marine/petrol primary and the warm sand neutral) is replaced by the Precision palette above. Decision 1 (IconPark, both cuts vendored and pinned), decision 3 (IBM Plex Sans Arabic), and decision 4 (light default, no flash) remain in force. `ROADMAP.md` and `docs/architecture.md` are corrected in the same change so no live text still describes the marine/sand direction or a colour-icon default.
+
+**Alternatives considered.**
+- *Ship the lab's six models with a switcher.* Rejected: the product has one appearance contract; a switcher is a lab tool, and shipping six palettes would multiply the conformance surface by six.
+- *Keep ADR-098's marine/sand palette and treat Precision as a variant.* Rejected: the operator adopted Precision; a variant would leave two authorities for the same token.
+- *Record the README's `#B54708` label instead of the token.* Rejected: the token is the authority, the label is a rounded description, and the lab itself uses `#c2410c` for the active bar.
+- *Put the page composition in this record.* Rejected: composition belongs to the specification and the slice map; a record that fixed it would become a second specification.
+
+**Consequences and migration/backfill.** The Wafar UI layer records the token names and values and consumes the outline cut; R1's plan records the contract and the conformance gate; each interface slice records the states it ships and the baseline set it generates in CI. The visual evidence under `docs/design/` is a reference, not a baseline. No migration or backfill is required because no code exists. Review date: 2026-12-01. This entry is the durable record.
+
+---
+
+## ADR-129 — The design conformance gate and the baseline chain
+
+**Status**: Accepted — 2026-10-27. **Constitution version**: 6.0.0
+
+**Owning directory**: `packages/ui` (planned by R1), `docs/design/`, `.specify/templates/overrides/`
+**Owning feature**: R1, Identity and foundation (the first interface slice); every interface slice consumes the gate
+
+**Context.** Principle IX requires a contract test and a visual baseline for every page state an interface slice ships. The design lab is a reference built outside the repository; its screenshots are evidence of the adopted contract, not a baseline the product can diff against. Without a chain, each slice would invent its own check, and the layer's tokens would drift from the pages that consume them.
+
+**Decision.** The conformance chain is: ADR-128 (the contract) → the Wafar UI layer (token names and values, component inventory) → the slice's specification (the states it ships) → the slice's plan (the baseline set and the gate) → the baseline generated in CI with the same browser and fonts → a slice without the gate is not Converged (Principle IX). The baseline is generated inside the project, never copied from the lab. The target is conformance to the recorded contract, not pixel identity with the lab: pixel identity outside a pinned container is not achievable and is not the requirement. A slice that changes a token or a rendering rule amends ADR-128 first; a slice that adds a page state adds its baseline in the same change.
+
+**Alternatives considered.**
+- *Copy the lab's screenshots as the baseline.* Rejected: the lab carries lab-only content and behaviour, and its environment is not the product's.
+- *No gate; rely on review.* Rejected: Principle IX makes the gate binding, and review without a baseline cannot see a one-pixel drift.
+- *A per-slice ad hoc check.* Rejected: it would let each slice define conformance differently and would not catch a token change that breaks an earlier page.
+
+**Consequences and migration/backfill.** R1's plan records the gate and the first baseline set; each interface slice records its own states and baselines; `docs/design/` carries the reference screenshots and the slice map, clearly marked as reference. No migration or backfill is required because no code exists. Review date: 2026-12-01. This entry is the durable record.
+
+---
+
+## ADR-130 — Part families and the Home category cards
+
+**Status**: Accepted — 2026-10-27. **Constitution version**: 6.1.0
+
+**Owning directory**: `.specify/memory/`, `docs/`, `ROADMAP.md`,
+`Core-Project.txt`
+**Owning feature**: R5, Home (the cards); R3, catalog extraction (fills the
+field)
+
+**Context.** The Home row of the Product Register states that the page carries
+no category tiles, because a part-category model is not registered and adding
+one requires its own amendment. The design lab's Home composes six category
+tiles, and the operator adopted them. The lab's tiles are decorative: each
+carries a sample count and none of them leads anywhere. A sample count is a
+fabricated number, which the project forbids.
+
+**Decision.**
+1. `Part.family` is a field whose value is one of six fixed values — `brakes`,
+   `filters`, `batteries`, `cooling`, `engine`, `suspension` — registered as
+   reference data owned by the parts module. Changing the set is an amendment
+   to this record.
+2. Home carries six family cards, each showing a real count and each opening
+   `/parts?family=<value>`. No page is added and no entity is added: the
+   register's twenty-eight pages and twelve data entities are unchanged.
+3. R3 fills `family` during extraction. A part whose family is unknown is
+   excluded from the cards and remains in the unfiltered parts list; no card
+   carries a sample count and none is invented.
+4. The six counts are one indexed aggregate query, not six queries.
+5. **Annotation to ADR-128.** Decision 20's "Not adopted" list loses "category
+   tiles"; the composition section is unchanged.
+
+**Alternatives considered.**
+- *A `PartFamily` entity.* Rejected: a thirteenth entity holding six rows, when
+  the set is reference data and the register's entity count is fixed.
+- *Decorative tiles carrying sample counts.* Rejected: fabricated numbers, and
+  a tile that leads nowhere.
+- *No tiles.* Rejected: the operator adopted them.
+
+**Consequences and migration/backfill.** The constitution's Home row is
+amended, and so is the sentence that lists Home's card blocks (the family cards
+join the statistical, destination, and latest-file cards); `docs/domain-model.md`
+gains the field and its invariant; `docs/capacity-model.md` records the single
+aggregate query; `ROADMAP.md`'s R5 row and the slice map's R5 entry carry the
+cards; R5's specification adds them when it is written. No migration or backfill
+is required because no code or data exists. Review date: 2026-12-01.
+
+---
+
+## ADR-131 — The 90-day period counted from the upload
+
+**Status**: Accepted — 2026-10-27. **Constitution version**: 6.1.0
+
+**Owning directory**: `.specify/memory/`, `docs/`, `Core-Project.txt`
+**Owning feature**: R15, retention (the job); R11, the privacy text
+
+**Context.** Usage limit 16 fixes automatic deletion at 90 days and reserves the
+point the period is counted from to R15, and the Unresolved product facts table
+records that reservation. While it is open no source may assert the answer, so
+R15 would have had to choose it and R11 could not write the privacy text. The
+design lab's privacy page says the period runs from the upload, and the operator
+settled the question now.
+
+**Decision.**
+1. The period is counted from the catalog file's upload timestamp — not from
+   extraction, not from the last update, and not from the first search.
+2. The retention job deletes the file and its parts at upload + 90 days; the
+   search index is aligned to the same window.
+3. The privacy text says "90 days from upload". A claim that deleting the
+   account deletes the data stays out.
+4. **Annotation to ADR-128.** Decision 20's "Not adopted" list loses "the
+   90-day period counted from upload".
+
+**Alternatives considered.**
+- *From extraction.* Rejected: the upload is the merchant's act; extraction time
+  is the system's, and a failed extraction would restart the clock.
+- *From the last update.* Rejected: a file refreshed daily would never expire,
+  which turns a retention limit into an unbounded one.
+- *Leave it to R15.* Rejected: the operator settled it now, and the reservation
+  blocks every source from asserting the answer until it is settled.
+
+**Consequences and migration/backfill.** Usage limit 16, the Unresolved product
+facts table, and the deletion table are amended; the Index State Management row
+is aligned so the retention job, not the index lifecycle, enforces the
+per-catalog window; `docs/capacity-model.md` §7 carries the trigger; the slice
+map's R11 and R15 entries and the privacy screenshot note carry it; R11's
+specification states the text and R15's plan the job. No migration or backfill
+is required because no code or data exists. Review date: 2026-12-01.
+
+---
+
+## ADR-132 — The shell and appearance: scroll-hide, colour icons, and the system default
+
+**Status**: Accepted — 2026-10-27. **Constitution version**: 6.1.0
+
+**Owning directory**: `.specify/memory/`, `docs/`, `ROADMAP.md`,
+`Core-Project.txt`, `packages/ui` (planned by R1)
+**Owning feature**: R1, Identity and foundation (the frame and the layer)
+
+**Context.** ADR-127 fixed the frame's bottom bar as always visible and not
+hiding on scroll. ADR-128 fixed the appearance at light by default with a stored
+preference, and fixed the outline icon cut after ADR-098. The operator adopted
+three lab behaviours: the bar hides on scroll and returns, the product consumes
+the colour cut, and a first visit follows the device preference.
+
+**Decision.**
+1. **Bottom bar.** It hides after 32px of cumulative downward scroll and returns
+   on the first 16px upward scroll or within 56px of the top; the transition is
+   220ms with no fade; `prefers-reduced-motion` stops the slide and keeps it
+   visible; scrolling inside the drawer is not counted; the page does not
+   reserve the bar's height while it is hidden; the raised action travels with
+   the bar. **Annotation to ADR-127.** This replaces "always visible… does not
+   hide on scroll".
+2. **Icons.** The product consumes the `icon-park` colour cut; the outline cut
+   stays withdrawn; the layer records coverage and contrast; a missing icon is
+   added by a decision record, never substituted. **Annotation to ADR-128.**
+   Decision 2 is replaced once more; ADR-098 decision 2 is amended.
+3. **The `system` default.** A first visit follows `prefers-color-scheme`; a
+   stored preference wins; the preference is per device; there is no flash (an
+   inline script before the first paint). **Annotation to ADR-098 decision 4,
+   ADR-102 decision 5, ADR-128 decision 16.**
+4. **The gate.** The baseline fixes the appearance: a light set and a dark set,
+   with `prefers-color-scheme` pinned in CI. **Annotation to ADR-129.**
+
+**No clause changes.** The constitution does not fix the layer's default
+appearance, does not name an icon cut, and does not state the bar's visibility,
+so this record amends no constitutional clause.
+
+**Alternatives considered.**
+- *Keep the bar always visible.* Rejected: the operator adopted the lab's
+  scroll behaviour, and the bar returns on the first upward scroll.
+- *The bold icon cut.* Rejected: the operator chose colour.
+- *Light by default.* Rejected: the operator chose `system`.
+- *The lab's six-model switcher.* Rejected: one contract, not six.
+
+**Consequences and migration/backfill.** FR-052 is amended through the
+operator's clarification session; FR-025 stays; the slice map's R1 entry, the
+scroll screenshot, and the colour-icon reference gap carry it; R1's plan records
+the coverage check, the pinned `prefers-color-scheme`, and the two baseline
+sets. No migration or backfill is required because no code exists. Review date:
+2026-12-01.

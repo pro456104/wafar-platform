@@ -152,7 +152,9 @@ point is a wish, not a gate.
   assistive technology, and focus MUST NOT be left on a removed element.
 - Focus indication MUST be provided via `:focus-visible` on every interactive
   element and MUST meet the WCAG 2.2 focus-appearance contrast requirement.
-- Touch targets MUST be at least 44px on mobile.
+- Touch targets MUST be at least 44px on any coarse-pointer input device, at
+  any viewport width. A narrow screen alone does not establish the requirement,
+  and a wide screen alone does not remove it.
 - Every interactive surface MUST expose its state to assistive technology
   (loading, empty, error, success, disabled), not only its success state.
 - Verification MUST include an automated accessibility scan and a manual
@@ -234,6 +236,12 @@ surface.
   indicator. An explicit angle is not a physical direction under this rule,
   because it fixes the design instead of reading the writing mode, and that is
   what separates a permitted fixed design from a defect.
+- A moving element whose travel follows the reading mode — a loading sweep, a
+  progress fill, a marquee — MUST travel from the inline-start edge to the
+  inline-end edge, and MUST express the RTL direction logically: through the
+  `inline-start` and `inline-end` position keywords, or through a signed token
+  pair derived from the writing mode. It MUST NOT hard-code a physical
+  direction, and it MUST NOT be read as an indicator when it is decorative.
 
 **Rationale:** The audience is Libyan merchants. A broken RTL layout or an
 Arabic-Indic numeral in a table is not a cosmetic defect; it is a loss of
@@ -350,6 +358,10 @@ parallel design system is prohibited.
 - **No raw values.** Raw Tailwind colours, `#hex` or `rgb()` values outside the
   Wafar UI layer, direct `z-10`/`z-20`/`z-50` values, and arbitrary spacing,
   radius, shadow, or duration values MUST NOT appear in application code.
+- **Conformance gate.** Every interface slice MUST prove its conformance with the
+  Wafar UI layer's recorded values through a committed automated gate: a contract
+  test that asserts the recorded values, and a visual baseline for each page
+  state the slice ships. A slice without that gate is not Converged.
 - **RTL and accessibility.** Responsive behaviour, RTL construction, and
   accessibility remain required by Principles IV and V.
 
@@ -391,12 +403,13 @@ page outside this list requires both an amendment to the Product Register
 (below) and a specification that records the addition under the plan's
 Complexity Tracking table.
 
-The product's shared shell is a header, a sidebar, and the surface that carries
-the links to the static pages; that surface is recorded by the first slice that
-builds a shell page. It appears on the public site and the merchant's
+The product's shared shell is a header, a sidebar, the footer band that carries
+the links to the static pages (ADR-096), and, on a narrow screen, a bottom
+navigation bar (ADR-127). It appears on the public site and the merchant's
 authenticated area; the authentication pages, the 404 page, and the static
-policy/FAQ/contact pages are bare, with no header, no sidebar, and no footer;
-the administrator application carries its own shell.
+policy/FAQ/contact pages are bare, with no header, no sidebar, no bottom
+navigation bar, and no footer; the administrator application carries its own
+shell.
 The sidebar is full on a wide screen, collapses to an icon-only rail, and becomes
 a drawer on a narrow screen; it carries the platform's navigation item list and
 the sidebar-collapse control, and it sits at the inline-start
@@ -413,15 +426,25 @@ notifications control. The default
 appearance is not fixed by this constitution; the Wafar UI layer records it. The
 theme switch itself is part of the frame.
 
-Every data view is a table; the only exception is the four statistical cards on
-the Home page.
+Below 1024px the frame's fourth surface is a bottom navigation bar with five
+slots: Home, Upload Catalog, a raised search action to the Parts page, My Files,
+and «المزيد»; from 1024px up the bar is absent. «المزيد» opens the sidebar
+drawer, which carries the nine registered destinations — Home, Parts, Catalog,
+Upload Catalog, My Files, Cart, Notifications, Messages, and Profile — and the
+header carries no drawer control. On that screen the footer band is not
+rendered, and its four static-page links sit at the bottom of the drawer.
+
+Every data view is a table; the only exception is the Home page, whose blocks —
+the statistical cards, the destination cards, the part-family cards, and the
+latest-file cards — are composed as cards. No other page composes a data view
+outside a table.
 
 ### Public Site (Guest Accessible)
 
 | Page | Content |
 |---|---|
-| Home | Platform name, quick search field, four statistical cards (accounts, files, parts, searches). |
-| Parts | A search field covering part number and original number (partial match), multi-select filters (car model, type, catalog file, supplier, in which no selection means every value of that filter), a price filter taking a minimum and a maximum over the primary price, a parts table showing every column at all times — part number, name, car model, original number, type, price, the supplier's name, and the cart control — pagination (20/50/100), and column sorting on every column except type; the price column renders the primary amount and, when the file prints one, the second amount with its printed label, and the filter and the sort act on the primary price only. Accepts `?file=<id>` to filter by a catalog. The price column, and any filter or sort over it, are rendered for a registered merchant only; a guest receives the same table and the same filters without them. |
+| Home | Platform name, a quick search field with suggestions over part name, part number, and original number, four statistical cards (accounts, files, parts, searches), nine destination cards — one per registered destination — and the three most recently updated catalog files with a «كل الملفات» action to the Catalog page. It carries six part-family cards — brakes, filters, batteries, cooling, engine, and suspension — each with a real count and each opening the Parts page filtered by that family (ADR-130). |
+| Parts («بحث وفر») | A search field covering part name, part number, and original number (partial match), multi-select filters (car model, type, catalog file, supplier, in which no selection means every value of that filter), a price filter taking a minimum and a maximum over the primary price, a parts table showing every column at all times — part number, name, car model, original number, type, price, the supplier's name, and the cart control — pagination (20/50/100), and column sorting on every column except type; the price column renders the primary amount and, when the file prints one, the second amount with its printed label, and the filter and the sort act on the primary price only. Accepts `?file=<id>` to filter by a catalog. The price column, and any filter or sort over it, are rendered for a registered merchant only; a guest receives the same table and the same filters without them. |
 | Catalog | Table of every uploaded catalog file. |
 | Contact | Contact information and a form (name, phone, body) that reaches the administrator. |
 | Log In | Mobile number and password. |
@@ -473,6 +496,7 @@ another country is an amendment to this section, not a configuration change
 The following transitions are required by the product and MUST be supported:
 
 - Home → search → Parts
+- Home → Catalog (the latest-files block's «كل الملفات» action)
 - Catalog → click a file → Parts (filtered by that file)
 - My Files → click a file → Parts (filtered by that file)
 - My Files → Upload Catalog (the way to the intake)
@@ -493,7 +517,7 @@ implemented through a specification that references this list.
 | 4 | Column Normalisation | Across sources, including the merged and overlapping source columns some suppliers print. Every extracted value is assigned to the canonical column the Glossary fixes for a part, and the six canonical columns are the whole of a part: no description is extracted or stored. |
 | 5 | Deduplication | By file, by page, by row. |
 | 6 | Arabic Search | Root-aware (طرمبة → طرمبات). |
-| 7 | Multi-Filter Search | Part number and original number through the search field, plus multi-select filters over car model, type, catalog file, and supplier, in which no selection means every value of that filter, and a price range. |
+| 7 | Multi-Filter Search | Part name, part number, and original number through the search field, plus multi-select filters over car model, type, catalog file, and supplier, in which no selection means every value of that filter, and a price range. |
 | 8 | Tables | Every data view. |
 | 9 | Pagination | 20 / 50 / 100. |
 | 10 | Column Sorting | By clicking the header, on every column of the parts table except `type`, which is free text whose alphabetical order carries no meaning. |
@@ -502,7 +526,7 @@ implemented through a specification that references this list.
 | 13 | Messaging | Single thread with the administrator. |
 | 14 | Admin Application | Full platform management. |
 | 15 | Audit Log | Every administrator operation. |
-| 16 | Automatic Deletion | After 90 days. The period is fixed; the point the 90 days are counted from is not fixed here and is reserved to R15 (Product Register → Unresolved product facts). |
+| 16 | Automatic Deletion | After 90 days, counted from the catalog file's upload timestamp (ADR-131). |
 
 ## Product Register
 
@@ -629,7 +653,7 @@ assertion of the answer.
 
 | Conflict | Sources | Resolve in |
 |---|---|---|
-| `expires_at` is the retention deadline or the supplier's printed expiry date, and the 90-day deadline's trigger point is undecided | Usage Limits and Product Features #16 (the 90-day period) against the Glossary (the supplier's printed expiry date); no source names the point the 90 days are counted from | R15 |
+| `expires_at` is the retention deadline or the supplier's printed expiry date | Usage Limits and Product Features #16 (the 90-day period) against the Glossary (the supplier's printed expiry date) | R15 |
 | Notification retention is undetermined | The product statement defers it ("to be determined later") | R9 |
 | A message's sender is either a merchant or an administrator, and no source fixes how that sender is represented | Authorization and Access Control (the administrator is a separate principal with a separate login); no register row states a sender field, because a one-line meaning registers a field only where the field's existence is itself a product decision | R10 |
 | The administrator's side of a `Conversation` is unrepresented, yet every administrator account sees the same single thread | `Core-Project.txt` (one administrator account type, all administrators see the same conversations); no source fixes whether that side is a reference, a role, or absent | R10 |
@@ -647,8 +671,9 @@ conversation thread and not through user-to-user chat. Recorded in
 `docs/DECISIONS.md` (ADR-028).
 
 **Resolved conflict (2026-10-03).** Home carries four statistical cards
-(accounts, files, parts, searches) across Product Scope and the mirror; R5's
-plan records the choice in the decision register when it plans.
+(accounts, files, parts, searches) across Product Scope and the mirror. The
+Home composition, including those cards, is fixed in Product Scope; it gained
+the nine destination cards and the latest-file cards on 2026-10-27 (ADR-127).
 
 ## File Processing Overview
 
@@ -1021,7 +1046,7 @@ an amendment to this constitution.
 | Administrator-granted monthly ceiling | 500 files per calendar month, per user, exception only |
 | Administrator-granted active ceiling | 1,500 files per user, exception only |
 | Maximum cart size | 99 parts |
-| Automatic file deletion | after 90 days, counted from a trigger point R15 fixes |
+| Automatic file deletion | after 90 days, counted from the catalog file's upload timestamp (ADR-131) |
 | Search latency budget | p95 < 1 s |
 | Cart-add latency budget | p95 < 200 ms |
 | File processing budget | p95 < 5 min |
@@ -1340,7 +1365,7 @@ UI layer.
 | Backend | Hono, OpenAPI, Modular Monolith | the module list is Principle X |
 | Validation | Zod | one schema set, shared by frontend and backend |
 | Database | PostgreSQL 16+, Drizzle ORM, PgDog | PgDog is pre-1.0: a plan using it MUST name a fallback and a review date |
-| Search | OpenSearch, the Arabic analyzer, Index State Management (ISM) | the index is a projection; ISM deletes whole indices by index age, so the per-catalog 90-day deletion is enforced by the retention job (R15), not by the index lifecycle alone |
+| Search | OpenSearch, the Arabic analyzer, Index State Management (ISM) | the index is a projection; ISM deletes whole indices by index age, so the per-catalog 90-day deletion, counted from the upload (ADR-131), is enforced by the retention job (R15), not by the index lifecycle alone |
 | Files | SeaweedFS, BullMQ, Redis | Redis >= 5.0.0 (the BullMQ requirement) |
 | Auth | better-auth | `scim` and `sso` MUST stay disabled (CVE-2026-67330, CVE-2026-80192); better-auth MUST be used with its phone-number extension, or an ADR-recorded alternative |
 | Testing | Vitest, Playwright | unit and integration in Vitest, end-to-end in Playwright |
@@ -1490,7 +1515,7 @@ however obviously the concept belongs to the entity.
 | **DLQ** | Dead-letter queue for jobs that exhaust retries. |
 | **Reprocess** | The administrator's re-run of the file-processing pipeline over a catalog's stored bytes, from the admin Files page (for example after an extraction fix). Distinct from a retry, which the merchant triggers for a failed job. |
 | **Retry** | The merchant's re-enqueue of a failed file's processing job, without re-uploading the bytes. |
-| **Wafar** | The platform's trade name, written «Wafar» (وَفَّر). The mandatory diacritics bind the Arabic form «وَفَّر»; the Latin «Wafar» carries no diacritics. |
+| **Wafar** | The platform's trade name, written «Wafar» (وَفَّر). The mandatory diacritics bind the Arabic form «وَفَّر»; the Latin «Wafar» carries no diacritics. The wordmark and the page titles read «منصة وَفَّر»; the trade name itself remains «وَفَّر». |
 | **SBOM** | Software Bill of Materials produced per build. |
 | **Presigned multipart upload** | Direct-to-object-storage upload in parts, avoiding buffering through the API. |
 | **Merchant isolation** | A tenant is a merchant account. A merchant-reachable query path MUST NOT return another merchant's rows. |
@@ -1588,17 +1613,19 @@ the same force as the principles above.
   any filter or sort over it are rendered for a registered merchant only, and a
   guest's read path projects the part without them. A part with no price reads
   «بدون سعر»; a price in another currency is never converted and never stored.
-- **A part may print two prices, and both are shown.** The column keeps its
-  single header «السعر»; its cell renders the primary amount and, when the file
-  prints one, the second amount, each with the label the supplier printed. The
-  filter and the sort act on the primary price only, as **Price** defines it.
-  A guest receives neither amount.
+- **A part may print two prices, and both are shown.** The column keeps one
+  header that names the denomination once — «السعر (د.ل)» — and no cell repeats
+  a currency; its cell renders the primary amount and, when the file prints one,
+  the second amount, each with the label the supplier printed. The filter and
+  the sort act on the primary price only, as **Price** defines it. A guest
+  receives neither amount.
 - **The parts table shows every column, and hides none.** Part number, name, car
   model, original number, type, price, the supplier's name, and the cart
-  control. Every column is sortable except `type`. Part number and original
-  number are searched through the search field rather than chosen from a list,
-  because a list of every part number in the platform is the size of the table
-  itself; every other filter is a multi-select over its distinct values.
+  control. Every column is sortable except `type`. Part name, part number, and
+  original number are searched through the search field rather than chosen from
+  a list, because a list of every name or part number in the platform is the
+  size of the table itself; every other filter is a multi-select over its
+  distinct values.
 - No email address exists anywhere in the platform: no sign-up email, no
   login email, no transactional email. The mobile number in E.164 form is
   the sole account identifier.
@@ -1622,12 +1649,12 @@ the same force as the principles above.
   yes-or-no confirmation before the session ends. A guest MUST see a login
   action in place of the account control and the notifications control, and MUST
   keep the theme switch. The sidebar-collapse control sits in the sidebar, not
-  the header; it narrows the sidebar to its icon rail on desktop and opens and
-  closes the drawer on mobile; the sidebar itself sits at the inline-start edge
-  (the right edge under the RTL direction), and the navigation item list and
-  that control both sit inside it. The platform logo sits at the header's
-  inline-start edge, and the quick search field lives on the Home page (see
-  Product Scope). Pages without the product's shared shell —
+  the header; it narrows the sidebar to its icon rail on desktop and closes the
+  drawer on mobile, which «المزيد» opens; the sidebar itself sits at the
+  inline-start edge (the right edge under the RTL direction), and the navigation
+  item list and that control both sit inside it. The platform logo sits at the
+  header's inline-start edge, and the quick search field lives on the Home page
+  (see Product Scope). Pages without the product's shared shell —
   authentication, 404, and static pages — carry no header; the administrator
   application carries its own shell and header, and that header carries the
   platform's logo and an account control whose menu offers sign-out only,
@@ -1635,10 +1662,10 @@ the same force as the principles above.
   settings page. The four bare-layout static
   pages — Contact, Privacy Policy, Terms of Use, and FAQ — are reached the same
   way: by a direct link or by an action on a page that carries one, and none of
-  them is a sidebar item. The shell has no footer component today, so the surface
-  that carries those links is a decision of the slice that first builds a shell
-  page, recorded as an ADR; the reachability requirement is binding whichever
-  surface that slice chooses, and an in-scope static page that no in-scope page
+  them is a sidebar item. The surface that carries those links is the footer band
+  inside the frame (ADR-096). On a narrow screen the band is not rendered, and
+  the same four links sit at the bottom of the drawer. The reachability
+  requirement is binding, and an in-scope static page that no in-scope page
   links to is a defect.
 - Every data table's default order is newest first, taken from the record's
   immutable creation timestamp (Schema and Migration Control). Any other order
@@ -1811,4 +1838,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 5.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-25
+**Version**: 6.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-27

@@ -89,7 +89,7 @@ shared package — never through a direct import from one module to another.
 | `auth` | Sign-up, sign-in/out, password recovery, sessions. | Implemented with the designated proven library with `scim` and `sso` disabled (Identity, Authentication, and Session Policy). Password hashing, session timeout, and auth rate limits are recorded per plan in Constitution Mandated Values. Sign-in, registration, and password-recovery responses never reveal whether an account exists; after five consecutive failed sign-in attempts the account locks for fifteen minutes. Every session is revocable server-side, including a "sign out everywhere" operation, and browser-stored tokens are revocable on password change. Registration and contact forms are protected by a honeypot field, a minimum time-to-submit, and a per-client rate limit; CAPTCHA is never used. The administrator account is created by a seeded CLI command with a forced password change at first sign-in. `auth` owns the `Session` entity — the server-side, revocable session store — while the account's identity and profile belong to `users` (ADR-067). |
 | `users` | Merchant accounts and profile data; account edits; optional per-user upload-quota overrides. | Only the account's owner edits the profile; the administrator sets a quota override through the admin surface, and every change is audited. No user may delete an account (roles: see Product Register in `.specify/memory/constitution.md`). |
 | `catalogs` | Uploaded supplier files: metadata (supplier name, issue date, upload date, expiry date), processing status, the `first_page_metadata_incomplete` flag, retention, and the pointer to the stored bytes. | Status is exactly one of `uploaded`, `processing`, `completed`, `failed`; `first_page_metadata_incomplete` is a boolean flag and never a fifth status; automatic deletion after 90 days; duplicates rejected by content hash (File Processing Overview). |
-| `parts` | Extracted part rows: the six canonical columns the constitution's Glossary fixes for a part (`Glossary` → `Part`), including the amount or the two amounts its own catalog printed. The parts table additionally shows the supplier's name, which is read through the `suppliers` module and is not a part column. | A part belongs to exactly one catalog; merchants cannot edit or delete parts, and cannot edit a price — the administrator does, and edits either amount (Authorization and Access Control). The price is per catalog, in Libyan Dinar; the price column carries one amount or two, the primary amount is the sort and filter key, and every guest-reachable read path projects the part without its price column and without either amount. |
+| `parts` | Extracted part rows: the six canonical columns the constitution's Glossary fixes for a part (`Glossary` → `Part`), including the amount or the two amounts its own catalog printed. The parts table additionally shows the supplier's name, which is read through the `suppliers` module and is not a part column. A part also carries `family`, a derived classification over six fixed values that R3 fills and the Home cards count (ADR-130); it is neither a canonical column nor an extracted value. | A part belongs to exactly one catalog; merchants cannot edit or delete parts, and cannot edit a price — the administrator does, and edits either amount (Authorization and Access Control). The price is per catalog, in Libyan Dinar; the price column carries one amount or two, the primary amount is the sort and filter key, and every guest-reachable read path projects the part without its price column and without either amount. |
 | `suppliers` | The supplier named on a catalog's first page, stored in its normalised form, and its associations to catalogs. | One supplier may appear in many catalogs. Normalisation makes two spellings of one name compare equal; it merges nothing, and only the administrator merges (Glossary, File Processing Rules). |
 | `bookmarks` | The "cart": a merchant's personal bookmark list of parts. | Carries no price, no quantity, and no checkout state; maximum 99 parts; capacity is enforced server-side (Principle VI, Usage Limits). |
 | `notifications` | Processing-completed/failed notices, administrative messages, and an administrator's reply to a merchant message; read state. | Failed processing presents a retry action. |
@@ -237,7 +237,7 @@ Read/write notes:
 | `packages/shared` | Validation schemas, types, and contracts shared between frontend and backend. | Single source of the two contracts (Principle II); promoted code only after a second consumer exists. |
 | `packages/db` | Database schema and migrations. | One migration tool only; every migration a single reversible step; destructive changes split into expand/backfill/contract (Schema and Migration Control). |
 | `packages/search` | Search client and index mappings. | Arabic analyzer; time-based indices behind an alias; OpenSearch Index State Management (ISM) deletes a whole index by age, with the per-catalog 90-day deletion enforced by the retention job (R15); one mapping owner per index; shard count from the modelled index (ADR-121). |
-| `packages/ui` | The Wafar UI layer: design tokens, theme, IconPark icons, IBM Plex Sans Arabic, and shared primitives. | Nuxt UI v4 only; IconPark colour + outline, vendored and pinned; IBM Plex Sans Arabic; no app pages; app-specific components stay in the apps; ADR-097/098. IconPark is the ADR-098 choice; the icon set remains a Technology Standards register gap R1 closes (ADR-116). |
+| `packages/ui` | The Wafar UI layer: design tokens, theme, IconPark icons, IBM Plex Sans Arabic, and shared primitives. | Nuxt UI v4 only; IconPark (colour cut consumed; the outline cut is withdrawn; both cuts vendored and pinned, ADR-098 annotated by ADR-128 and ADR-132); IBM Plex Sans Arabic; no app pages; app-specific components stay in the apps; ADR-097/098/128. IconPark is the ADR-098 choice; the icon set remains a Technology Standards register gap R1 closes (ADR-116). |
 | `packages/config` | ESLint, Stylelint, Prettier, TypeScript configuration shared by all workspaces. | Dependency and tooling changes follow Dependency Governance. Stylelint + ESLint fail the build on physical direction properties and on any colour, spacing, radius, shadow, duration, or z-index value that is not supplied by the Wafar UI layer — enforced by the committed configuration, not a review comment (Principle IX). |
 
 ## 5. Environments and operations
@@ -275,7 +275,7 @@ Read/write notes:
   Deferred areas).
 - Decisions and their rationale: the decision register — `docs/DECISIONS.md`
   (index and reading protocol) and `docs/decisions/volume-NN.md` (records),
-  ADR-001 … ADR-126.
+  ADR-001 … ADR-132.
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.
@@ -286,8 +286,9 @@ Read/write notes:
 - UI foundation: Nuxt UI v4 is the component library; the Wafar UI layer is
   `packages/ui`, fixed by ADR-097 (Principle IX); R1 builds it through its plan
   and consumes it.
-  ADR-098 records IconPark, IBM Plex Sans Arabic, the light default, and the
-  marine/sand palette.
+  ADR-098 records IconPark and IBM Plex Sans Arabic; ADR-128 replaces its
+  marine/sand palette with the Precision contract, and ADR-132 replaces the light
+  default with `system` and consumes the colour icon cut.
 - Technology stack: `Project-Technologies.txt`; product scope and roles:
   `Core-Project.txt`.
 - Deferred areas that touch this architecture: extraction algorithm; file

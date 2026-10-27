@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-10-10
-**Refreshed**: 2026-10-22 — after ADR-111 (the recovery flow's verified state, and the bare pages' state announcements), again after the fifth `/speckit.clarify` session of that date (five answers; see Notes), again after the sixth session of that date (five answers; ADR-114), and again after the seventh session of that date (five answers; ADR-115); 2026-10-24 — the Assumptions' scale sentence now names `docs/capacity-model.md` as the planning authority (no requirement, criterion, or count changed)
+**Refreshed**: 2026-10-22 — after ADR-111 (the recovery flow's verified state, and the bare pages' state announcements), again after the fifth `/speckit.clarify` session of that date (five answers; see Notes), again after the sixth session of that date (five answers; ADR-114), and again after the seventh session of that date (five answers; ADR-115); 2026-10-24 — the Assumptions' scale sentence now names `docs/capacity-model.md` as the planning authority (no requirement, criterion, or count changed); 2026-10-27 — the frame's fourth surface (the bottom bar), the drawer's opener and closer, and the footer's narrow-screen rule; 2026-10-27 (second session) — the footer band's surface authority, FR-052's position and citations, and the locked state's copy; 2026-10-27 (third session) — FR-052 moves after FR-051 and names ADR-127 and ADR-128; 2026-10-27 (correction) — ADR-132 corrects the first-visit appearance to the device preference and reverses the bar's visibility to scroll-hide, and the two stale Clarifications answers were corrected to FR-025 and FR-052 (no identifier or count changed)
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -43,7 +43,7 @@
       register is not amended by this specification (ADR-126 amended it, and the
       item list's ninth destination is carried by FR-039, AC-042, and US5)
 - [x] No requirement contradicts an accepted decision record
-- [x] Identifiers are contiguous, stable, and never reused — FR-001 … FR-051,
+- [x] Identifiers are contiguous, stable, and never reused — FR-001 … FR-052,
       AC-001 … AC-055, SC-001 … SC-009, with no gap, no renumbering, and no
       dangling reference
 - [x] Every user story is independently testable and deliverable — US5's
@@ -64,7 +64,7 @@
   slice while this slice binds the frame's absence from them and provides the
   reachability surface, and that the base project's technical composition is a
   plan matter rather than a specification matter.
-- FR-001 … FR-051 (51 requirements) are each covered by at least one AC;
+- FR-001 … FR-052 (52 requirements) are each covered by at least one AC;
   AC-001 … AC-055 (55 criteria) are grouped under their user stories and each
   cites its functional requirement. SC-001 … SC-009 are numeric and
   technology-agnostic.
@@ -102,7 +102,9 @@
   IconPark set for the switch. FR-020, FR-023, FR-025, FR-039, AC-022, AC-025,
   AC-027, and AC-042 now assert the new header composition; the default
   appearance stays light (ADR-098), and no `[NEEDS CLARIFICATION]` marker was
-  raised, and the requirement and criterion counts are unchanged.
+  raised, and the requirement and criterion counts are unchanged. **Corrected
+  2026-10-27:** ADR-132 replaces that default with the device preference
+  (`system`); FR-025 carries the current rule.
 - Refreshed 2026-10-21 (third time): the `/speckit.clarify` session answered five
   questions and ADR-100 recorded the answers — the two landing points of the
   account items, the sign-out-everywhere action in the Profile page's settings
@@ -259,3 +261,61 @@
   checklist item marks the register as amended by ADR-126 rather than by this
   specification. No requirement, criterion, or identifier changed (counts stay
   51 FR, 55 AC, and 9 SC); all 22 checkboxes above stay checked.
+- Refreshed 2026-10-27: the `/speckit.clarify` session recorded the frame's
+  fourth surface. FR-052 fixes the bottom navigation bar — shown below 1024px,
+  absent from 1024px up, with five slots (Home, Upload Catalog, a raised search
+  action to the Parts page, My Files, and «المزيد»), one composition shown
+  identically to a guest and to a signed-in merchant, and a guest's merchant-area
+  slot taking them to sign-in while the slot stays present and enabled. FR-022
+  now says «المزيد» opens the drawer and the collapse control closes it; FR-024
+  hides the footer band on a narrow screen and puts its four links at the bottom
+  of the drawer; FR-021 and AC-023 add the bar to the bare pages' absence;
+  AC-022, AC-024, AC-026, AC-042, US5, the edge cases, SC-005, the Test Coverage
+  Request, and the frame Assumption carry the rule. The counts become 52 FR,
+  55 AC, and 9 SC; no identifier was renumbered, reused, or withdrawn; every FR
+  is cited by at least one AC; and all 22 checkboxes above stay checked.
+- Refreshed 2026-10-27 (second session): a `/speckit.clarify` session answered
+  three questions. The surface that carries the four static-page links is a
+  constitutional fact (ADR-096), so FR-024 and AC-026 now state that this slice
+  builds the fixed footer band and that its decision record fixes the routes
+  alone, rather than claiming that this slice chooses the surface; the
+  Assumptions bullet and the two earlier Clarifications bullets that asserted a
+  choice carry revision notes. FR-052 then kept its place beside the frame
+  requirements it qualified — the section's reading note groups requirements by
+  subject, so position was not numbering — and cited ADR-127 for the fourth
+  surface and its five slots and ADR-128 for the labels, measurements, and icon
+  treatment being fixed design values; the third session of this date supersedes
+  that placement and restates the citations. The locked sign-in state carries no
+  copy
+  of its own: the one uniform failed-sign-in message is the only text shown, no
+  alert, banner, field message, or retry-time hint names the lock, and the design
+  reference's lockout alert is not carried into the product; FR-009, AC-010, the
+  matching edge case, and the Test Coverage Request carry the rule, while the
+  message's wording is a design value the plan records. No identifier was added,
+  renumbered, reused, or withdrawn; the counts stay 52 FR, 55 AC, and 9 SC; every
+  FR is cited by at least one AC; and all 22 checkboxes above stay checked.
+- Refreshed 2026-10-27 (third session): FR-052 moves out of the frame group and
+  now follows FR-051, so no requirement sits inside another requirement's block;
+  it states that the bar is always visible — it does not hide on scroll and the
+  page reserves its height, because the design reference's scroll-hide is not
+  transferred — and it names ADR-127 for the five slots, the drawer behaviour,
+  the always-visible bar, and the reserved height, and ADR-128 for the labels,
+  measurements, and icon treatment. **Corrected 2026-10-27:** ADR-132 reverses
+  that rule — the bar hides after 32px of cumulative downward scroll, returns on
+  the first 16px of upward scroll or within 56px of the top, and the page does
+  not reserve its height while the bar is hidden; FR-052 carries the current
+  rule. FR-022 and AC-026 keep their references to
+  FR-052, the Functional Requirements reading note now describes the placement
+  rule instead of naming FR-052 as sitting beside FR-024, and the second session's
+  note above carries a revision note. No identifier was added, renumbered,
+  reused, or withdrawn; the counts stay 52 FR, 55 AC, and 9 SC; every FR is cited
+  by at least one AC; and all 22 checkboxes above stay checked.
+- Refreshed 2026-10-27 (correction): ADR-132 supersedes the first-visit
+  appearance fixed earlier in this checklist and the bar's always-visible rule.
+  The default is the device preference (`system`), with a stored choice winning
+  (FR-025), and the bar hides after 32px of cumulative downward scroll and
+  returns on the first 16px of upward scroll or within 56px of the top (FR-052).
+  The two stale Clarifications answers in `spec.md` were corrected in the same
+  change. No identifier was added, renumbered, reused, or withdrawn; the counts
+  stay 52 FR, 55 AC, and 9 SC; every FR is cited by at least one AC; and all 22
+  checkboxes above stay checked.

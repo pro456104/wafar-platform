@@ -1,0 +1,607 @@
+{
+  "kind": "reference",
+  "source": "design lab, Precision model",
+  "captured": "2026-10-27",
+  "items": [
+    {
+      "slice": "R1",
+      "page": "signup",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R1/signup--default--1280--light.png",
+      "url": "http://localhost:4321/auth/signup?design=precision&tools=0&theme=light",
+      "note": "sample account; the done state is the reference; the OTP/code state is not captured (recorded gap)"
+    },
+    {
+      "slice": "R1",
+      "page": "signup",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R1/signup--default--375--light.png",
+      "url": "http://localhost:4321/auth/signup?design=precision&tools=0&theme=light",
+      "note": "sample account; the done state is the reference; the OTP/code state is not captured (recorded gap)"
+    },
+    {
+      "slice": "R1",
+      "page": "signin",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R1/signin--default--1280--light.png",
+      "url": "http://localhost:4321/auth/signin?design=precision&tools=0&theme=light",
+      "note": "sample account; the uniform response is the requirement; the post-submit state is not captured (recorded gap)"
+    },
+    {
+      "slice": "R1",
+      "page": "signin",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R1/signin--default--375--light.png",
+      "url": "http://localhost:4321/auth/signin?design=precision&tools=0&theme=light",
+      "note": "sample account; the uniform response is the requirement; the post-submit state is not captured (recorded gap)"
+    },
+    {
+      "slice": "R1",
+      "page": "forgot",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R1/forgot--default--1280--light.png",
+      "url": "http://localhost:4321/auth/forgot?design=precision&tools=0&theme=light",
+      "note": "sample account; the done state is the reference; the OTP/code state is not captured (recorded gap)"
+    },
+    {
+      "slice": "R1",
+      "page": "forgot",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R1/forgot--default--375--light.png",
+      "url": "http://localhost:4321/auth/forgot?design=precision&tools=0&theme=light",
+      "note": "sample account; the done state is the reference; the OTP/code state is not captured (recorded gap)"
+    },
+    {
+      "slice": "R2",
+      "page": "upload",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R2/upload--default--1280--light.png",
+      "url": "http://localhost:4321/upload?design=precision&tools=0&theme=light",
+      "note": "sample upload states; the quota copy is fixed by the specification"
+    },
+    {
+      "slice": "R2",
+      "page": "upload",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R2/upload--default--375--light.png",
+      "url": "http://localhost:4321/upload?design=precision&tools=0&theme=light",
+      "note": "sample upload states; the quota copy is fixed by the specification"
+    },
+    {
+      "slice": "R4",
+      "page": "my-files",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R4/my-files--default--1280--light.png",
+      "url": "http://localhost:4321/my-files?design=precision&tools=0&theme=light",
+      "note": "sample files; page size 20/50/100, not the lab page size 10"
+    },
+    {
+      "slice": "R4",
+      "page": "my-files",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R4/my-files--default--375--light.png",
+      "url": "http://localhost:4321/my-files?design=precision&tools=0&theme=light",
+      "note": "sample files; page size 20/50/100, not the lab page size 10"
+    },
+    {
+      "slice": "R5",
+      "page": "home",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R5/home--default--1280--light.png",
+      "url": "http://localhost:4321/?design=precision&tools=0&theme=light",
+      "note": "category tiles adopted by ADR-130; counts are sample values; sample statistics and files"
+    },
+    {
+      "slice": "R5",
+      "page": "home",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R5/home--default--375--light.png",
+      "url": "http://localhost:4321/?design=precision&tools=0&theme=light",
+      "note": "category tiles adopted by ADR-130; counts are sample values; sample statistics and files; the lab footer is visible at 375; the product hides it and moves its links into the drawer"
+    },
+    {
+      "slice": "R5",
+      "page": "home",
+      "state": "scrolled",
+      "width": 375,
+      "theme": "light",
+      "file": "R5/home--scrolled--375--light.png",
+      "url": "http://localhost:4321/?design=precision&tools=0&theme=light",
+      "note": "the bottom bar is hidden after a downward scroll (ADR-132); the raised action's sliver at the viewport edge is lab-only, the product hides it with the bar; sample statistics and files"
+    },
+    {
+      "slice": "R5",
+      "page": "parts",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R5/parts--default--1280--light.png",
+      "url": "http://localhost:4321/parts?design=precision&tools=0&theme=light",
+      "note": "sample rows; the price column is present for the merchant; the lab shows page size 10; the product uses 20/50/100"
+    },
+    {
+      "slice": "R5",
+      "page": "parts",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R5/parts--default--375--light.png",
+      "url": "http://localhost:4321/parts?design=precision&tools=0&theme=light",
+      "note": "sample rows; the price column is present for the merchant; the lab shows page size 10; the product uses 20/50/100"
+    },
+    {
+      "slice": "R6",
+      "page": "catalogs",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R6/catalogs--default--1280--light.png",
+      "url": "http://localhost:4321/catalogs?design=precision&tools=0&theme=light",
+      "note": "sample catalog files; a row opens Parts filtered by that file"
+    },
+    {
+      "slice": "R6",
+      "page": "catalogs",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R6/catalogs--default--375--light.png",
+      "url": "http://localhost:4321/catalogs?design=precision&tools=0&theme=light",
+      "note": "sample catalog files; a row opens Parts filtered by that file"
+    },
+    {
+      "slice": "R7",
+      "page": "profile",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R7/profile--default--1280--light.png",
+      "url": "http://localhost:4321/profile?design=precision&tools=0&theme=light",
+      "note": "the «نشط» badge is lab-only and not transferred"
+    },
+    {
+      "slice": "R7",
+      "page": "profile",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R7/profile--default--375--light.png",
+      "url": "http://localhost:4321/profile?design=precision&tools=0&theme=light",
+      "note": "the «نشط» badge is lab-only and not transferred"
+    },
+    {
+      "slice": "R8",
+      "page": "cart",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R8/cart--default--1280--light.png",
+      "url": "http://localhost:4321/cart?design=precision&tools=0&theme=light",
+      "note": "sample bookmarks; no price, quantity, or checkout"
+    },
+    {
+      "slice": "R8",
+      "page": "cart",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R8/cart--default--375--light.png",
+      "url": "http://localhost:4321/cart?design=precision&tools=0&theme=light",
+      "note": "sample bookmarks; no price, quantity, or checkout"
+    },
+    {
+      "slice": "R9",
+      "page": "notifications",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R9/notifications--default--1280--light.png",
+      "url": "http://localhost:4321/notifications?design=precision&tools=0&theme=light",
+      "note": "sample notifications; the product adds an explicit empty state"
+    },
+    {
+      "slice": "R9",
+      "page": "notifications",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R9/notifications--default--375--light.png",
+      "url": "http://localhost:4321/notifications?design=precision&tools=0&theme=light",
+      "note": "sample notifications; the product adds an explicit empty state"
+    },
+    {
+      "slice": "R10",
+      "page": "messages",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R10/messages--default--1280--light.png",
+      "url": "http://localhost:4321/messages?design=precision&tools=0&theme=light",
+      "note": "sample thread; the refresh notice is the reference"
+    },
+    {
+      "slice": "R10",
+      "page": "messages",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R10/messages--default--375--light.png",
+      "url": "http://localhost:4321/messages?design=precision&tools=0&theme=light",
+      "note": "sample thread; the refresh notice is the reference"
+    },
+    {
+      "slice": "R11",
+      "page": "contact",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R11/contact--default--1280--light.png",
+      "url": "http://localhost:4321/contact?design=precision&tools=0&theme=light",
+      "note": "the email is removed in the product; the contact data is sample"
+    },
+    {
+      "slice": "R11",
+      "page": "contact",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R11/contact--default--375--light.png",
+      "url": "http://localhost:4321/contact?design=precision&tools=0&theme=light",
+      "note": "the email is removed in the product; the contact data is sample"
+    },
+    {
+      "slice": "R11",
+      "page": "faq",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R11/faq--default--1280--light.png",
+      "url": "http://localhost:4321/faq?design=precision&tools=0&theme=light",
+      "note": "ten reference questions; the final copy is the specification's"
+    },
+    {
+      "slice": "R11",
+      "page": "faq",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R11/faq--default--375--light.png",
+      "url": "http://localhost:4321/faq?design=precision&tools=0&theme=light",
+      "note": "ten reference questions; the final copy is the specification's"
+    },
+    {
+      "slice": "R11",
+      "page": "privacy",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R11/privacy--default--1280--light.png",
+      "url": "http://localhost:4321/privacy?design=precision&tools=0&theme=light",
+      "note": "the 90-day claim is adopted (ADR-131); account deletion is not transferred"
+    },
+    {
+      "slice": "R11",
+      "page": "privacy",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R11/privacy--default--375--light.png",
+      "url": "http://localhost:4321/privacy?design=precision&tools=0&theme=light",
+      "note": "the 90-day claim is adopted (ADR-131); account deletion is not transferred"
+    },
+    {
+      "slice": "R11",
+      "page": "terms",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R11/terms--default--1280--light.png",
+      "url": "http://localhost:4321/terms?design=precision&tools=0&theme=light",
+      "note": "static reference copy; the final legal text is the specification's"
+    },
+    {
+      "slice": "R11",
+      "page": "terms",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R11/terms--default--375--light.png",
+      "url": "http://localhost:4321/terms?design=precision&tools=0&theme=light",
+      "note": "static reference copy; the final legal text is the specification's"
+    },
+    {
+      "slice": "R11",
+      "page": "not-found",
+      "state": "default",
+      "width": 1280,
+      "theme": "light",
+      "file": "R11/not-found--default--1280--light.png",
+      "url": "http://localhost:4321/this-page-does-not-exist?design=precision&tools=0&theme=light",
+      "note": "composition reference only; the lab 404 renders the previous appearance, not Precision; the product composes it from ADR-128"
+    },
+    {
+      "slice": "R11",
+      "page": "not-found",
+      "state": "default",
+      "width": 375,
+      "theme": "light",
+      "file": "R11/not-found--default--375--light.png",
+      "url": "http://localhost:4321/this-page-does-not-exist?design=precision&tools=0&theme=light",
+      "note": "composition reference only; the lab 404 renders the previous appearance, not Precision; the product composes it from ADR-128"
+    },
+    {
+      "slice": "R1",
+      "page": "signin",
+      "state": "locked",
+      "width": 1280,
+      "theme": "light",
+      "file": "R1/signin--locked--1280--light.png",
+      "url": "http://localhost:4321/auth/signin?design=precision&tools=0&theme=light&state=locked",
+      "note": "sample account; lab-only lockout alert; the product shows the uniform refusal"
+    },
+    {
+      "slice": "R1",
+      "page": "signin",
+      "state": "locked",
+      "width": 375,
+      "theme": "light",
+      "file": "R1/signin--locked--375--light.png",
+      "url": "http://localhost:4321/auth/signin?design=precision&tools=0&theme=light&state=locked",
+      "note": "sample account; lab-only lockout alert; the product shows the uniform refusal"
+    },
+    {
+      "slice": "R1",
+      "page": "signup",
+      "state": "done",
+      "width": 1280,
+      "theme": "light",
+      "file": "R1/signup--done--1280--light.png",
+      "url": "http://localhost:4321/auth/signup?design=precision&tools=0&theme=light&state=done",
+      "note": "sample account; the done state is the reference; the OTP/code state is not captured (recorded gap)"
+    },
+    {
+      "slice": "R1",
+      "page": "signup",
+      "state": "done",
+      "width": 375,
+      "theme": "light",
+      "file": "R1/signup--done--375--light.png",
+      "url": "http://localhost:4321/auth/signup?design=precision&tools=0&theme=light&state=done",
+      "note": "sample account; the done state is the reference; the OTP/code state is not captured (recorded gap)"
+    },
+    {
+      "slice": "R1",
+      "page": "forgot",
+      "state": "done",
+      "width": 1280,
+      "theme": "light",
+      "file": "R1/forgot--done--1280--light.png",
+      "url": "http://localhost:4321/auth/forgot?design=precision&tools=0&theme=light&state=done",
+      "note": "sample account; the done state is the reference; the OTP/code state is not captured (recorded gap)"
+    },
+    {
+      "slice": "R1",
+      "page": "forgot",
+      "state": "done",
+      "width": 375,
+      "theme": "light",
+      "file": "R1/forgot--done--375--light.png",
+      "url": "http://localhost:4321/auth/forgot?design=precision&tools=0&theme=light&state=done",
+      "note": "sample account; the done state is the reference; the OTP/code state is not captured (recorded gap)"
+    },
+    {
+      "slice": "R5",
+      "page": "parts",
+      "state": "guest",
+      "width": 1280,
+      "theme": "light",
+      "file": "R5/parts--guest--1280--light.png",
+      "url": "http://localhost:4321/parts?design=precision&tools=0&theme=light&role=guest",
+      "note": "sample rows; the price column is absent for a guest; guest projection; the lab shows page size 10; the product uses 20/50/100"
+    },
+    {
+      "slice": "R5",
+      "page": "parts",
+      "state": "guest",
+      "width": 375,
+      "theme": "light",
+      "file": "R5/parts--guest--375--light.png",
+      "url": "http://localhost:4321/parts?design=precision&tools=0&theme=light&role=guest",
+      "note": "sample rows; the price column is absent for a guest; guest projection; the lab shows page size 10; the product uses 20/50/100"
+    },
+    {
+      "slice": "R5",
+      "page": "parts",
+      "state": "loading",
+      "width": 1280,
+      "theme": "light",
+      "file": "R5/parts--loading--1280--light.png",
+      "url": "http://localhost:4321/parts?design=precision&tools=0&theme=light&state=loading",
+      "note": "sample rows; the price column is present for the merchant; loading surface; the lab shows page size 10; the product uses 20/50/100"
+    },
+    {
+      "slice": "R5",
+      "page": "parts",
+      "state": "loading",
+      "width": 375,
+      "theme": "light",
+      "file": "R5/parts--loading--375--light.png",
+      "url": "http://localhost:4321/parts?design=precision&tools=0&theme=light&state=loading",
+      "note": "sample rows; the price column is present for the merchant; loading surface; the lab shows page size 10; the product uses 20/50/100"
+    },
+    {
+      "slice": "R5",
+      "page": "parts",
+      "state": "refetch",
+      "width": 1280,
+      "theme": "light",
+      "file": "R5/parts--refetch--1280--light.png",
+      "url": "http://localhost:4321/parts?design=precision&tools=0&theme=light&state=refetch",
+      "note": "sample rows; the price column is present for the merchant; refetch surface; the lab shows page size 10; the product uses 20/50/100"
+    },
+    {
+      "slice": "R5",
+      "page": "parts",
+      "state": "refetch",
+      "width": 375,
+      "theme": "light",
+      "file": "R5/parts--refetch--375--light.png",
+      "url": "http://localhost:4321/parts?design=precision&tools=0&theme=light&state=refetch",
+      "note": "sample rows; the price column is present for the merchant; refetch surface; the lab shows page size 10; the product uses 20/50/100"
+    },
+    {
+      "slice": "R5",
+      "page": "home",
+      "state": "loading",
+      "width": 1280,
+      "theme": "light",
+      "file": "R5/home--loading--1280--light.png",
+      "url": "http://localhost:4321/?design=precision&tools=0&theme=light&state=loading",
+      "note": "category tiles adopted by ADR-130; counts are sample values; sample statistics and files; loading surface"
+    },
+    {
+      "slice": "R5",
+      "page": "home",
+      "state": "loading",
+      "width": 375,
+      "theme": "light",
+      "file": "R5/home--loading--375--light.png",
+      "url": "http://localhost:4321/?design=precision&tools=0&theme=light&state=loading",
+      "note": "category tiles adopted by ADR-130; counts are sample values; sample statistics and files; loading surface; the lab footer is visible at 375; the product hides it and moves its links into the drawer"
+    },
+    {
+      "slice": "R4",
+      "page": "my-files",
+      "state": "loading",
+      "width": 1280,
+      "theme": "light",
+      "file": "R4/my-files--loading--1280--light.png",
+      "url": "http://localhost:4321/my-files?design=precision&tools=0&theme=light&state=loading",
+      "note": "sample files; page size 20/50/100, not the lab page size 10; loading surface"
+    },
+    {
+      "slice": "R4",
+      "page": "my-files",
+      "state": "loading",
+      "width": 375,
+      "theme": "light",
+      "file": "R4/my-files--loading--375--light.png",
+      "url": "http://localhost:4321/my-files?design=precision&tools=0&theme=light&state=loading",
+      "note": "sample files; page size 20/50/100, not the lab page size 10; loading surface"
+    },
+    {
+      "slice": "R9",
+      "page": "notifications",
+      "state": "loading",
+      "width": 1280,
+      "theme": "light",
+      "file": "R9/notifications--loading--1280--light.png",
+      "url": "http://localhost:4321/notifications?design=precision&tools=0&theme=light&state=loading",
+      "note": "sample notifications; the product adds an explicit empty state; loading surface"
+    },
+    {
+      "slice": "R9",
+      "page": "notifications",
+      "state": "loading",
+      "width": 375,
+      "theme": "light",
+      "file": "R9/notifications--loading--375--light.png",
+      "url": "http://localhost:4321/notifications?design=precision&tools=0&theme=light&state=loading",
+      "note": "sample notifications; the product adds an explicit empty state; loading surface"
+    },
+    {
+      "slice": "R8",
+      "page": "cart",
+      "state": "full",
+      "width": 1280,
+      "theme": "light",
+      "file": "R8/cart--full--1280--light.png",
+      "url": "http://localhost:4321/cart?design=precision&tools=0&theme=light&state=full",
+      "note": "sample bookmarks; no price, quantity, or checkout; full-cart notice"
+    },
+    {
+      "slice": "R8",
+      "page": "cart",
+      "state": "full",
+      "width": 375,
+      "theme": "light",
+      "file": "R8/cart--full--375--light.png",
+      "url": "http://localhost:4321/cart?design=precision&tools=0&theme=light&state=full",
+      "note": "sample bookmarks; no price, quantity, or checkout; full-cart notice"
+    },
+    {
+      "slice": "R5",
+      "page": "parts",
+      "state": "filters",
+      "width": 1280,
+      "theme": "light",
+      "file": "R5/parts--filters--1280--light.png",
+      "url": "http://localhost:4321/parts?design=precision&tools=0&theme=light",
+      "note": "sample rows; the price column is present for the merchant; filter panel open; the lab shows page size 10; the product uses 20/50/100"
+    },
+    {
+      "slice": "R5",
+      "page": "parts",
+      "state": "filters",
+      "width": 375,
+      "theme": "light",
+      "file": "R5/parts--filters--375--light.png",
+      "url": "http://localhost:4321/parts?design=precision&tools=0&theme=light",
+      "note": "sample rows; the price column is present for the merchant; filter panel open; the lab shows page size 10; the product uses 20/50/100"
+    },
+    {
+      "slice": "R5",
+      "page": "home",
+      "state": "default",
+      "width": 1280,
+      "theme": "dark",
+      "file": "R5/home--default--1280--dark.png",
+      "url": "http://localhost:4321/?design=precision&tools=0&theme=dark",
+      "note": "category tiles adopted by ADR-130; counts are sample values; sample statistics and files"
+    },
+    {
+      "slice": "R5",
+      "page": "parts",
+      "state": "default",
+      "width": 1280,
+      "theme": "dark",
+      "file": "R5/parts--default--1280--dark.png",
+      "url": "http://localhost:4321/parts?design=precision&tools=0&theme=dark",
+      "note": "sample rows; the price column is present for the merchant; the lab shows page size 10; the product uses 20/50/100"
+    },
+    {
+      "slice": "R1",
+      "page": "signin",
+      "state": "default",
+      "width": 1280,
+      "theme": "dark",
+      "file": "R1/signin--default--1280--dark.png",
+      "url": "http://localhost:4321/auth/signin?design=precision&tools=0&theme=dark",
+      "note": "sample account; the uniform response is the requirement; the post-submit state is not captured (recorded gap)"
+    }
+  ]
+}
