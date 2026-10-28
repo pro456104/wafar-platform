@@ -1014,3 +1014,197 @@ scroll screenshot, and the colour-icon reference gap carry it; R1's plan records
 the coverage check, the pinned `prefers-color-scheme`, and the two baseline
 sets. No migration or backfill is required because no code exists. Review date:
 2026-12-01.
+
+---
+
+## ADR-133 — The design evidence registered: `docs/design` in References and ADR-128/129 in Principle IX
+
+**Status**: Accepted — 2026-10-28. **Constitution version**: 6.2.0
+
+**Owning directory**: `.specify/memory/`, `docs/`, `AGENTS.md`,
+`.specify/templates/overrides/`, `governance-drift-check.mjs`
+**Owning feature**: none — governance decision; ratified by the repository owner.
+R1, Identity and foundation, consumes it.
+
+**Context.** Principle IX made the conformance gate non-negotiable — a contract
+test that asserts the recorded values, and a visual baseline for each page state
+a slice ships — but named no source for the recorded values or for the baseline
+chain. `docs/design/` carried the slice map and the reference screenshots without
+being registered in References, and ADR-128 and ADR-129 were absent from the
+constitution. Single-Reference Sufficiency requires every project-level source to
+be named in References, and a rule that cannot be discharged without reading a
+referenced source to name that source where the rule is stated. `/speckit.plan`
+reads the specification and the constitution, and neither named the evidence, so
+a plan could be written without the contract or the gate.
+
+**Decision.**
+1. **References.** `docs/design/` is registered as the design contract's
+   reference evidence: the slice map for the fifteen slices and twenty-eight
+   pages, and the reference screenshots it names. Reference, not a visual
+   baseline; evidence, not a source of rules.
+2. **Principle IX.** The "Conformance gate" bullet names ADR-128 for the
+   recorded values and ADR-129 for the baseline chain.
+3. **The operational wiring.** `/speckit.plan` loads the slice's map entry and
+   its reference images; the plan template's Gate 1 row for Principle IX carries
+   the gate, and the plan records the states the slice ships, the baseline set
+   it generates in CI, and the gate; `governance-drift-check.mjs` asserts that
+   the References row and the two ADR names remain.
+
+**What deliberately did not change.** No principle is removed or redefined; no
+page, entity, role, feature, or limit is added; the UI values stay in
+`packages/ui` and are not copied into the constitution.
+
+**Alternatives considered.**
+- *Copy the tokens and the baseline values into the constitution.* Rejected: a
+  register is a map, not a copy, and the values live in the Wafar UI layer.
+- *Register `docs/design/` in `AGENTS.md` alone.* Rejected: no command reads
+  `AGENTS.md`, and its precedence is below the constitution's.
+- *Leave the gate as it stands.* Rejected: a non-negotiable gate that no
+  artifact is asked to discharge is unenforceable.
+
+**Consequences and migration/backfill.** The constitution moves to 6.2.0;
+`version.json`, the footer, the ADR range strings, `Project-Technologies.txt`'s
+header list, and the index row move in the same change. R1's plan records the
+contract, the gate, and the first baseline set. No migration or backfill is
+required because no code exists. Review date: 2026-12-01. This entry is the
+durable record.
+
+---
+
+## ADR-134 — The slice map and the roadmap reach the commands that need them
+
+**Status**: Accepted — 2026-10-28. **Constitution version**: 6.2.0 (unchanged)
+
+**Owning directory**: `AGENTS.md`, `.specify/templates/overrides/`
+**Owning feature**: none — governance decision; ratified by the repository owner.
+Every slice consumes it.
+
+**Context.** ADR-133 registered `docs/design/` in References and named ADR-128
+and ADR-129 in Principle IX, and wired the slice map and its reference images
+into `/speckit.plan`. An audit of the nine commands found three holes it did not
+close: `/speckit.specify` did not read the slice map although
+`docs/design/README.md` names the map as "the reference material a specification
+and a plan read" and `slice-map.md` carries "the open questions a specification
+must answer"; `AGENTS.md` §3 carried no `/speckit.clarify` entry at all; and no
+command read `ROADMAP.md`, so a slice's scope, dependencies, and exclusions were
+reached only through the description a person typed.
+
+**Decision.**
+1. **`/speckit.specify`.** It loads `docs/design/slice-map.md` (the slice's
+   entry: composition, states, copy, and the open questions the specification
+   must answer) and `ROADMAP.md` (the slice's scope, dependencies, and what the
+   slice does not do).
+2. **`/speckit.clarify`.** `AGENTS.md` §3 gains its entry: `spec.md`, the
+   constitution sections the spec cites, and the slice map's open questions.
+3. **`/speckit.plan` and `/speckit.analyze`.** Both load `ROADMAP.md` — the
+   slice's dependencies and deferred items for the plan, its scope boundary for
+   the consistency pass.
+4. **`/speckit.checklist`.** It loads the slice map's states and copy, because
+   the requirements-quality items it writes are grounded in them.
+5. **The template.** The spec template's binding block names
+   `docs/design/slice-map.md` among the sources a specification reads, so the
+   duty reaches the command even when `AGENTS.md` is not loaded.
+
+**What deliberately did not change.** No constitutional clause, page, entity,
+role, limit, or feature changes, so the constitution stays at 6.2.0. The slice
+map remains a reference and not a source of rules; the binding version of every
+page stays the slice's specification. `/speckit.tasks`, `/speckit.implement`,
+and `/speckit.converge` are untouched: they work from the plan, which already
+carries the states and the baseline set.
+
+**Alternatives considered.**
+- *Read the slice map in every command.* Rejected: the plan carries the states
+  and the baseline set forward, and repeating the map at tasks and implement
+  adds a second copy that drifts.
+- *Leave `AGENTS.md` as it was.* Rejected: `clarify` had no load map, and the
+  map reached the plan alone.
+- *Rewrite ADR-133.* Rejected: a ratified record is annotated by a later one,
+  never rewritten.
+
+**Consequences and migration/backfill.** `AGENTS.md` §3 and the spec template
+move in this change; the live ADR range strings move to ADR-134 and
+`Project-Technologies.txt`'s header list gains 134. The constitution, its footer,
+and `version.json` stay at 6.2.0, because no clause changed. No migration or
+backfill is required because no code exists. Review date: 2026-12-01. This entry
+is the durable record.
+
+---
+
+## ADR-135 — The post-6.2.0 audit fix set: ten document corrections
+
+**Status**: Accepted — 2026-10-28. **Constitution version**: 6.2.0 (unchanged)
+
+**Owning directory**: `docs/`, `docs/design/`, `Core-Project.txt`,
+`Project-Technologies.txt`, `ROADMAP.md`, `specs/001-identity-foundation/`,
+repository root
+**Owning feature**: none — governance and documentation correction; requested
+and approved by the repository owner on 2026-10-28
+
+**Context.** A whole-set audit was carried out after 6.2.0 and before R1's plan.
+It read the constitution, the two mirrors, the roadmap, the design evidence, the
+capacity model, the sample analysis, the single specification and its checklist,
+the eight volumes, and the governance tooling, and it compared every source with
+the constitution and with every other source. Ten defects were reproduced
+against the working tree. Each is invisible to `governance-drift-check.mjs`:
+nine are semantic, and the tenth is a Markdown table break the check reads past
+because it matches index rows line by line.
+
+Four of the ten share one failure: a decision landed in one place and its
+consequences were not carried to every source. ADR-131 fixed the retention
+trigger and ADR-132 the icon cut, and four of the ten are statements those two
+records left behind. The remainder are one stale index structure, one mirror
+rule that over-generalised, one role enumeration that lost a duty, one wording
+defect, one stale status note, and one diagram label that reads against the
+rule it illustrates.
+
+**Decision.**
+1. **The decision index is a table again.** The design-system note and its `---`
+   separator moved below the last row, so the records after the split are rows of
+   the one table rather than bare lines after a horizontal rule.
+2. **`docs/capacity-model.md` §12 stops reserving a decided point.** The sizing
+   assumption now names the upload timestamp as both the assumption and the
+   trigger (ADR-131), matching §7 in the same file.
+3. **R1's checklist stops counting a resolved fact.** The 90-day trigger leaves
+   the enumeration of the constitution's open rows; `expires_at` remains the R15
+   row it always was.
+4. **`docs/pdf-sample-analysis.md` §2.9 records the decision.** The sample's
+   finding is the decided answer, not a reservation R15 still owns.
+5. **`Core-Project.txt`'s table rule names what the register grants.** The
+   blanket "dropdown" filter and the unconditional search field become a
+   multi-select filter and a search field "where the register grants it". That
+   removes the conflict with the slice map's in-page filter panel and the
+   unowned filter obligation on My Files and the administrator tables.
+6. **R13's scope carries account deletion.** The Users page soft-deletes an
+   account (the merchant cannot delete their own), which `docs/domain-model.md`
+   already assigned to R13 and the mirror already implied.
+7. **`Project-Technologies.txt` records the icon cut.** The IconPark row names
+   the colour cut as consumed and the outline cut as withdrawn (ADR-132), as
+   `docs/architecture.md` and the roadmap already do.
+8. **The slice map's handoff is current.** It no longer describes three records
+   as pending when they landed, and it names the records that registered the
+   evidence with the commands that read it.
+9. **The administrator seed command reads as Arabic.** «مُبذر» becomes «بذر»,
+   the noun the method is named for.
+10. **The architecture diagram stops naming a 90-day index lifecycle.** The
+    database-to-search note says ISM deletes whole indices by age, which is the
+    rule the paragraph below the diagram and Technology Standards already state.
+
+**Alternatives considered.**
+- *Annotate the stale statements instead of correcting them.* Rejected: Product
+  Fact Clarifications states that a source asserting a decided answer is itself
+  the defect, and that the fix is a correction, not an annotation.
+- *Correct only the ADR-131 and ADR-132 leftovers.* Rejected: the audit found
+  six further defects, and a partial set leaves the next reader with the same
+  cost.
+- *Amend the constitution.* Rejected: no clause changed. The constitution's own
+  Home-card sentence and its resolved-conflict note are consistent with the
+  2026-10-27 amendment that wrote them.
+- *One record per correction.* Rejected: ADR-075's form — one audited fix set
+  with every item reproduced — keeps the trail in one place.
+
+**Consequences and migration/backfill.** The files named by the decisions above
+move in this change, together with the range-string sites this change advances.
+The live ADR range strings move to ADR-135 and `Project-Technologies.txt`'s
+header list gains 135. The constitution, its footer, and `version.json` stay at
+6.2.0, because no clause changed. No migration or backfill is required because
+no code exists. Review date: 2026-12-01. This entry is the durable record.

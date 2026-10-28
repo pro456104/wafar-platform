@@ -117,6 +117,7 @@
 - **N+1 inspection**: [Every data-fetching path this feature introduces — inspected: yes; result: none found / findings and fix]
 - **Caching**: [If a cache is introduced: what is cached, the TTL, and the invalidation trigger — a cache without a stated invalidation rule MUST NOT be introduced]
 - **Accessibility verification**: [automated scan tool + manual keyboard-only pass — WCAG 2.2 AA]
+- **Design conformance**: [the page states this slice ships; the baseline set it generates in CI with the product's browser and fonts; the gate (ADR-129); any state the reference set does not capture, recorded in Complexity Tracking]
 - **Budget check**: [the measurement point for the p50/p95 and max-query numbers above; a measured regression above 10% against the branching version blocks release]
 
 ## Constitution Check
@@ -135,7 +136,7 @@
 | VI. Catalog-Only Scope *(NON-NEGOTIABLE)* | | [no payment/purchase/RFQ/wallet; cart is a bookmark list carrying no price or quantity; single admin conversation thread only] |
 | VII. Specification-First and Documentation Separation *(NON-NEGOTIABLE)* | | [spec.md reviewed for absence of technical detail; this plan holds the technical detail] |
 | VIII. User Story Independence *(NON-NEGOTIABLE)* | | [priorities assigned; the P1 set forms the shippable MVP; no circular story dependencies] |
-| IX. UI Foundation Fidelity *(NON-NEGOTIABLE)* | | [Nuxt UI v4 is the only component library; the Wafar UI layer is `packages/ui`; project values, IconPark (colour + outline), IBM Plex Sans Arabic, and tokens live there; no second component library, no parallel design system, no raw values or direct z-index values; no emoji; every state rendered; the apps' `app/` paths appear in the Ownership Map] |
+| IX. UI Foundation Fidelity *(NON-NEGOTIABLE)* | | [Nuxt UI v4 is the only component library; the Wafar UI layer is `packages/ui`; project values, IconPark (colour + outline), IBM Plex Sans Arabic, and tokens live there; no second component library, no parallel design system, no raw values or direct z-index values; no emoji; every state rendered; the apps' `app/` paths appear in the Ownership Map; the conformance gate (ADR-128/ADR-129): a contract test and a visual baseline for every page state this slice ships] |
 | X. Modular Monolith Architecture | | [owning module named per change; one responsibility per module; no direct cross-module imports — communication through the shared package] |
 
 *Every row is filled. A principle that does not apply is marked "not applicable" with a reason; never left blank.*

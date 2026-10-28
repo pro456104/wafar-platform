@@ -444,8 +444,8 @@ These are assumptions, not final measurements:
 - 20% of the 50,000 accounts upload in the stress month.
 - The share of text PDFs whose text layer is corrupted, and therefore needs an
   alternate extractor or OCR, is not yet measured beyond the sample.
-- 90 days counted from the upload date for sizing only; R15 owns the real
-  trigger.
+- 90 days counted from the catalog file's upload timestamp, as both the sizing
+  assumption and the retention trigger (ADR-131).
 - No OCR technology is selected; OCR runs locally first, and a cloud service is
   a later approved option (ADR-122).
 - The per-user quota overrides are optional fields on `User` (ADR-118); R2

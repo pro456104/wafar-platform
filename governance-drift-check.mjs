@@ -1008,6 +1008,33 @@ if (volumeFiles.length === 0) {
   );
 }
 
+/* ---- N. the design evidence is registered and named (ADR-133) -------------- */
+// Principle IX makes the conformance gate non-negotiable, and Single-Reference
+// Sufficiency requires the source the rule depends on to be named in References
+// and in the rule itself. Without this check the row and the two citations can
+// be removed and every other check still passes.
+const designRow = /\|\s*`docs\/design\/`\s*\|/.test(constitution);
+const gateBullet = constitution.match(
+  /- \*\*Conformance gate\.\*\*[\s\S]*?(?=\n- \*\*)/,
+);
+const gateText = gateBullet ? gateBullet[0] : '';
+if (!designRow) {
+  failures.push('N: the constitution\'s References carries no `docs/design/` row');
+}
+if (!gateBullet) {
+  failures.push('N: Principle IX carries no "Conformance gate" bullet');
+} else {
+  if (!/ADR-128/.test(gateText)) {
+    failures.push('N: the conformance gate does not name ADR-128');
+  }
+  if (!/ADR-129/.test(gateText)) {
+    failures.push('N: the conformance gate does not name ADR-129');
+  }
+}
+if (designRow && gateBullet && /ADR-128/.test(gateText) && /ADR-129/.test(gateText)) {
+  notes.push('N: design evidence registered in References and named in Principle IX');
+}
+
 /* ---- report --------------------------------------------------------------- */
 console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106, ADR-125)');
 console.log('=====================================');

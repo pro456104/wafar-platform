@@ -359,9 +359,10 @@ parallel design system is prohibited.
   Wafar UI layer, direct `z-10`/`z-20`/`z-50` values, and arbitrary spacing,
   radius, shadow, or duration values MUST NOT appear in application code.
 - **Conformance gate.** Every interface slice MUST prove its conformance with the
-  Wafar UI layer's recorded values through a committed automated gate: a contract
-  test that asserts the recorded values, and a visual baseline for each page
-  state the slice ships. A slice without that gate is not Converged.
+  Wafar UI layer's recorded values (ADR-128) through a committed automated gate:
+  a contract test that asserts the recorded values, and a visual baseline for
+  each page state the slice ships (ADR-129). A slice without that gate is not
+  Converged.
 - **RTL and accessibility.** Responsive behaviour, RTL construction, and
   accessibility remain required by Principles IV and V.
 
@@ -1539,6 +1540,7 @@ however obviously the concept belongs to the entity.
 | `docs/architecture.md` | The repository layout, module map, and data-flow descriptions. | `docs/`. |
 | `docs/capacity-model.md` | The capacity and load envelope: the six-month plan, the ingestion envelope, and the starting point a plan's Scale/Scope records. The planning authority for the envelope only; this constitution wins on every conflict (ADR-117, ADR-119, ADR-121, ADR-122). | `docs/`. |
 | `docs/pdf-sample-analysis.md` | The measured sample evidence behind the capacity model's baseline (the 19-file sample of 2026-10-23). Evidence, not a source of rules (ADR-119, ADR-122). | `docs/`. |
+| `docs/design/` | The design contract's reference evidence: the slice map for the fifteen slices and twenty-eight pages, and the reference screenshots it names. Reference, not a visual baseline; the contract is ADR-128 and the conformance gate is ADR-129. Evidence, not a source of rules (ADR-128, ADR-129). | `docs/`. |
 | `.specify/templates/exception-register.md` | The exception register required by Governance. | `.specify/templates/`. |
 | `.specify/templates/overrides/` | Template overrides required by Single-Reference Sufficiency and by Governance. | `.specify/templates/overrides/`. |
 | `.specify/memory/constitution.md` | This document. | `.specify/memory/`. |
@@ -1838,4 +1840,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 6.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-27
+**Version**: 6.2.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-28

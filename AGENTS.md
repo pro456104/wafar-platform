@@ -29,7 +29,7 @@ and a feature artifact references it rather than restating it.
 | UI foundation — component library and the project layer | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1 builds it through its plan and consumes it |
 | Product detail (roles, pages, acceptance criteria) — mirror | `Core-Project.txt`; the constitution's Product Register and Product Scope win on conflict |
 | Accepted decisions | the decision register: `docs/DECISIONS.md` (the index and reading protocol) and `docs/decisions/volume-NN.md` (the records) |
-| Design contract and per-slice visual reference | ADR-128 (the token and rendering contract); ADR-130 (part families and the Home cards); ADR-131 (the retention trigger); ADR-132 (the shell: scroll-hide, colour icons, `system`); `docs/design/` (the slice map and the reference screenshots) |
+| Design contract and per-slice visual reference | ADR-128 (the token and rendering contract); ADR-129 (the conformance gate and the baseline chain); ADR-130 (part families and the Home cards); ADR-131 (the retention trigger); ADR-132 (the shell: scroll-hide, colour icons, `system`); `docs/design/` (the slice map and the reference screenshots) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -44,14 +44,26 @@ Reading protocol mirrors this map, and the constitution MUST NOT be read end to
 end for a feature command. Where a list names `docs/DECISIONS.md`, read its index
 and the volume that holds the records the command needs (ADR-071, ADR-125).
 
+A source this section names is reachable from the constitution's References
+(Single-Reference Sufficiency); a source that is not registered there is not
+loaded by any command.
+
 - `/speckit.specify` → the constitution (Product Scope, Product Register, the
   Usage Limits table in Performance Budgets and Verification, Glossary),
-  `Core-Project.txt`, `docs/domain-model.md`, and
+  `Core-Project.txt`, `docs/domain-model.md`, `docs/design/slice-map.md` (the
+  slice's entry: composition, states, copy, and the open questions this
+  specification must answer), `ROADMAP.md` (the slice's scope, dependencies, and
+  what this slice does not do), and
   `docs/DECISIONS.md`. **Not** the
   technical sources: a specification stays technology-agnostic (Principle VII).
+- `/speckit.clarify` → `spec.md`, the constitution sections the spec cites, and
+  `docs/design/slice-map.md` (the slice's entry, whose open questions this
+  command resolves).
 - `/speckit.plan` → the constitution's registers (Technology Standards,
   Product Register) plus `docs/architecture.md`, `docs/domain-model.md`,
-  `docs/capacity-model.md`, `Project-Technologies.txt`, `Core-Project.txt`, and
+  `docs/capacity-model.md`, `Project-Technologies.txt`, `Core-Project.txt`,
+  `docs/design/` (the slice's map entry and its reference images),
+  `ROADMAP.md` (the slice's dependencies and deferred items), and
   `docs/DECISIONS.md`. The plan is the only artifact that carries technical
   detail, its `Scale/Scope` starts from the capacity model, and its Ownership
   Map must match `docs/architecture.md`.
@@ -61,10 +73,12 @@ and the volume that holds the records the command needs (ADR-071, ADR-125).
   Every path a task touches must appear in the plan's ownership map.
 - `/speckit.checklist` → the constitution (Product Scope, Product Register,
   and the binding sections its checklist names), `Core-Project.txt`,
-  `docs/domain-model.md`, and `docs/DECISIONS.md`.
+  `docs/domain-model.md`, `docs/design/slice-map.md` (the slice's states and
+  copy), and `docs/DECISIONS.md`.
 - `/speckit.implement` → `plan.md`, `tasks.md`, and the constitution sections
   its plan's Constitution Check cites.
-- `/speckit.analyze` → `spec.md`, `plan.md`, `tasks.md`, and the constitution
+- `/speckit.analyze` → `spec.md`, `plan.md`, `tasks.md`, `ROADMAP.md` (the
+  slice's scope boundary), and the constitution
   sections the artifacts under review cite; it also reads `docs/DECISIONS.md`
   and `docs/domain-model.md` for the consistency pass, because a conflict with
   an accepted ADR or a model invariant is a blocking finding (Artifact Workflow
@@ -170,7 +184,7 @@ and its `requires.integrations.any` list must stay correctly nested under
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-132` range string — in the required files, in the top-level
+live `ADR-001 … ADR-135` range string — in the required files, in the top-level
 `docs/` files, in the two Arabic mirrors, in the template overrides, and in the
 feature specifications — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading in

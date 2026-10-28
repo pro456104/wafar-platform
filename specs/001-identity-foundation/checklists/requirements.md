@@ -34,7 +34,7 @@
 
 - [x] No requirement asserts an answer the constitution reserves to another
       slice — the five open rows of the constitution's Unresolved product
-      facts (`expires_at` and the 90-day trigger → R15, notification retention
+      facts (`expires_at` → R15, notification retention
       → R9, the message sender and the `Conversation` administrator reference →
       R10, the multi-separator printed price → R3) are untouched
 - [x] The specification adds nothing outside the four registers — no page

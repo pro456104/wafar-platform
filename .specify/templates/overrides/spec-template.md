@@ -34,8 +34,12 @@
        - `Core-Project.txt` — the product definition: roles and their
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
+       - `docs/design/slice-map.md` — the slice's entry: its blocks and order,
+         its states, its copy, and the open questions this specification must
+         answer. Reference, not a source of rules; the binding version is this
+         specification.
        - the decision register — `docs/DECISIONS.md`'s index and the volumes
-         under `docs/decisions/` (ADR-001 … ADR-132). A specification that
+         under `docs/decisions/` (ADR-001 … ADR-135). A specification that
          contradicts one is a blocking defect.
        - `docs/domain-model.md` — the entities a Key Entities section may name,
          and the invariants such a specification MUST NOT contradict. A

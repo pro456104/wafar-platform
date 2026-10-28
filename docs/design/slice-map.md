@@ -589,7 +589,9 @@ whole map.
 ## Handoff
 
 The map is ready for R1's plan. `/speckit.clarify` was applied to R1 on
-2026-10-27; the next step is `/speckit.plan` for R1, after the three records
-(ADR-130, ADR-131, ADR-132) land. The plan consumes ADR-128 and this map, and
-records the conformance gate ADR-129. No specification text is edited here; the
-clarification session recorded the corrections in the specification itself.
+2026-10-27, and ADR-130, ADR-131, and ADR-132 landed the same day. ADR-133
+registered `docs/design` in References and ADR-134 made this map reach the
+commands that read it. The next step is `/speckit.plan` for R1. The plan consumes
+ADR-128 and this map, and records the conformance gate ADR-129. No specification
+text is edited here; the clarification session recorded the corrections in the
+specification itself.

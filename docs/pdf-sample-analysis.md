@@ -137,8 +137,8 @@ not this sample.
 The sample contains files dated 2026-01-27 and 2026-04-16, while the inspection
 date is 2026-10-23. If the 90-day clock ran from the supplier's issue date, the
 January file would have been deleted before it could be uploaded. The practical
-retention trigger is the upload date; the issue date belongs in display,
-freshness ranking, and a stale warning. R15 still owns the decision.
+retention trigger is the upload date, fixed by ADR-131 on 2026-10-27; the
+issue date belongs in display, freshness ranking, and a stale warning.
 
 ## 3. Canonical model check
 

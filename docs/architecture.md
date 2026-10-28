@@ -148,7 +148,7 @@ The canonical chain is **web → api → PostgreSQL for the system of record; la
  packages/db          packages/search     SeaweedFS
  (PostgreSQL 16+)     (OpenSearch +       (object storage)
        ▲               Arabic analyzer,
-       │               ISM 90 days)
+       │               ISM by age)
        │                   ▲
        │                   │ index writes
 ┌──────┴───────────────────┴──────────────────────────────────┐
@@ -275,7 +275,7 @@ Read/write notes:
   Deferred areas).
 - Decisions and their rationale: the decision register — `docs/DECISIONS.md`
   (index and reading protocol) and `docs/decisions/volume-NN.md` (records),
-  ADR-001 … ADR-132.
+  ADR-001 … ADR-135.
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.

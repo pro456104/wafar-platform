@@ -166,13 +166,6 @@ constitution's Documentation section and enforced by `governance-drift-check.mjs
 | [ADR-122](decisions/volume-08.md#adr-122--local-first-ocr-and-the-extraction-evidence-gap) | Local-first OCR and the extraction evidence gap | 2026-10-24 | 4.1.0 (unchanged) |
 | [ADR-123](decisions/volume-08.md#adr-123--the-420-audit-fix-set-references-the-exception-register-and-four-document-corrections) | The 4.2.0 audit fix set: References, the exception register, and four document corrections | 2026-10-24 | 4.2.0 |
 | [ADR-124](decisions/volume-08.md#adr-124--the-blocked-recovery-confirmation-the-replacement-codes-full-period-the-single-security-notice-and-the-journey-criterias-delivery-boundary) | The blocked recovery confirmation, the replacement code's full period, the single security notice, and the journey criteria's delivery boundary | 2026-10-24 | 4.2.0 (unchanged) |
-
-**Design-system note (ADR-093).** Every provision of the removed custom design
-system in an earlier record is superseded by ADR-093. Their other provisions,
-including the non-visual shell rules and the icon set, remain in force. The
-records themselves are not rewritten.
-
----
 | [ADR-125](decisions/volume-08.md#adr-125--the-decision-register-split-into-an-index-and-eight-volumes) | The decision register split into an index and eight volumes | 2026-10-24 | 5.0.0 |
 | [ADR-126](decisions/volume-08.md#adr-126--the-upload-catalog-page-the-twenty-eighth-page-and-the-ninth-sidebar-destination) | The Upload Catalog page: the twenty-eighth page and the ninth sidebar destination | 2026-10-25 | 5.1.0 |
 | [ADR-127](decisions/volume-08.md#adr-127--the-frames-fourth-surface-the-narrow-screen-bottom-navigation-bar) | The frame's fourth surface: the narrow-screen bottom navigation bar | 2026-10-27 | 6.0.0 |
@@ -181,3 +174,11 @@ records themselves are not rewritten.
 | [ADR-130](decisions/volume-08.md#adr-130--part-families-and-the-home-category-cards) | Part families and the Home category cards | 2026-10-27 | 6.1.0 |
 | [ADR-131](decisions/volume-08.md#adr-131--the-90-day-period-counted-from-the-upload) | The 90-day period counted from the upload | 2026-10-27 | 6.1.0 |
 | [ADR-132](decisions/volume-08.md#adr-132--the-shell-and-appearance-scroll-hide-colour-icons-and-the-system-default) | The shell and appearance: scroll-hide, colour icons, and the system default | 2026-10-27 | 6.1.0 |
+| [ADR-133](decisions/volume-08.md#adr-133--the-design-evidence-registered-docsdesign-in-references-and-adr-128129-in-principle-ix) | The design evidence registered: `docs/design` in References and ADR-128/129 in Principle IX | 2026-10-28 | 6.2.0 |
+| [ADR-134](decisions/volume-08.md#adr-134--the-slice-map-and-the-roadmap-reach-the-commands-that-need-them) | The slice map and the roadmap reach the commands that need them | 2026-10-28 | 6.2.0 (unchanged) |
+| [ADR-135](decisions/volume-08.md#adr-135--the-post-620-audit-fix-set-ten-document-corrections) | The post-6.2.0 audit fix set: ten document corrections | 2026-10-28 | 6.2.0 (unchanged) |
+
+**Design-system note (ADR-093).** Every provision of the removed custom design
+system in an earlier record is superseded by ADR-093. Their other provisions,
+including the non-visual shell rules and the icon set, remain in force. The
+records themselves are not rewritten.
