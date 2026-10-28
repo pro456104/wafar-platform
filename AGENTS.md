@@ -117,8 +117,9 @@ replace them with the core templates.
 - No emoji in anything a person reads inside the platform: every screen,
   including the administrator application, and the body of every SMS
   (Principle V). An icon is an SVG from the approved open-source icon set, and
-  an emoji glyph is not an icon. The set is **IconPark** (colour and outline),
-  chosen by ADR-098 and vendored under `packages/ui/vendor`; the Technology
+  an emoji glyph is not an icon. The set is **IconPark** (the colour cut is
+  consumed; the outline cut is withdrawn), chosen by ADR-098 and annotated by
+  ADR-132; both cuts are vendored under `packages/ui/vendor`; the Technology
   Standards register gap for the icon set is still open and owned by R1, so no
   other slice may choose a set of its own or add a second family, and R1 closes
   the gap through the register-gap process.
