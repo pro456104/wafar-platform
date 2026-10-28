@@ -20,6 +20,9 @@
      - `.specify/memory/constitution.md` — principles and governance.
      - `Core-Project.txt` — the product definition: roles, pages, file
        processing, and acceptance criteria.
+     - `docs/design/slice-map.md` — the slice's states and copy; reference, not
+       a source of rules, and the binding version is the slice's specification
+       (ADR-134).
      - the decision register — `docs/DECISIONS.md`'s index and the volumes
        under `docs/decisions/` (ADR-001 … ADR-135).
        An item that contradicts one is a blocking defect.

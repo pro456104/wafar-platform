@@ -38,6 +38,8 @@
          its states, its copy, and the open questions this specification must
          answer. Reference, not a source of rules; the binding version is this
          specification.
+       - `ROADMAP.md` — the slice's scope, dependencies, and what this slice
+         does not do (ADR-134).
        - the decision register — `docs/DECISIONS.md`'s index and the volumes
          under `docs/decisions/` (ADR-001 … ADR-135). A specification that
          contradicts one is a blocking defect.

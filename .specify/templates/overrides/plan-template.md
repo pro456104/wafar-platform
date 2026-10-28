@@ -24,6 +24,11 @@
     registers (Technology Standards, Product Register),
     `docs/domain-model.md` (the entities, their relationships, and their
     invariants, which the plan's Phase 1 `data-model.md` MUST NOT contradict),
+    `docs/design/` (the slice's map entry and its reference images: the
+    composition, the states, the copy, and the open questions this plan must
+    answer; reference evidence, not a visual baseline, ADR-128, ADR-129,
+    ADR-133), `ROADMAP.md` (the slice's scope, dependencies, and the items this
+    slice does not do, ADR-134),
     `Project-Technologies.txt` (a mirror),
     `Core-Project.txt`, `docs/DECISIONS.md`. Read the sections named; for
     `docs/DECISIONS.md` read its index and the volume that holds the records
