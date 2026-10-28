@@ -407,7 +407,8 @@ service layer re-checks the ones a constraint cannot express.
 
 The one-time codes and the pending sign-up or password-reset request are
 **transient verification state, not an entity**. They carry a per-number
-identity, an expiry, a replacement rule, and a bound on incorrect entries, and
+identity, an expiry, a replacement rule, a count of the new codes the live
+request has asked for, and a bound on incorrect entries, and
 they live in an expiring store outside the entity register rather than as a
 thirteenth entity. The `users` module owns the store.
 
@@ -417,6 +418,12 @@ thirteenth entity. The `users` module owns the store.
   state of the pending request, including the recovery flow's verified state:
   that state ends at once and can no longer set a password, so two authorities
   never coexist for one number.
+- **The re-request limit is counted per pending request.** A fresh sign-up or
+  recovery request for the same number begins a new verification with a full
+  allowance of new-code requests, because the operation's own rate limit bounds
+  how often a fresh request can start; the spent allowance is not carried across
+  requests, and the store carries the live request's re-request count alongside
+  its expiry and its incorrect-entry count.
 - **Exactly one code is valid at any moment.** A new code replaces the previous
   one only when the messaging channel accepts its message; a refusal at
   acceptance leaves the previous code valid, the request live, and the
