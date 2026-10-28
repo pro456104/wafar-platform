@@ -58,8 +58,8 @@ behaviours are not the product's contract and are flagged in the manifest:
    visible at the viewport edge. The product hides the action with the bar
    (ADR-132).
 
-The footer band is not among them: it is not rendered below 1024px
-(`main.css`), and an earlier reading of the 375 capture mistook the statistics
+The footer band is not among them: it is not rendered below 1024px, as the 375
+capture shows, and an earlier reading of that capture mistook the statistics
 strip for the footer.
 
 ## Not transferred
@@ -536,7 +536,7 @@ Captured: P0 for all seventeen non-administrator surfaces at 1280 and 375 light
 loading (Home, Parts, My Files, Notifications), refetch, full cart — at both
 widths (20), the filter panel at both widths (2), the dark appearance for Home,
 Parts, and Sign In (3), and the Home page scrolled at 375 with the bottom bar
-hidden (1). Total: 60 images, 2.21 MB.
+hidden (1). Total: 60 images, 2.2 MB.
 
 Both rules the contract fixes have a lab reference: the outline icon cut and the
 light default are what every capture renders. The baseline is still generated in

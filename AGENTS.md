@@ -269,16 +269,17 @@ runner (R1) wires it into continuous integration.
   requires recording the owner and the requirement it serves. It is reserved,
   not an open gap.
 
-- **Twenty-four decision records carry no `Alternatives considered` section
-  (closed 2026-10-09, ADR-090).** The Documentation rule now states its own
-  subject: the field reaches a non-trivial technical decision, and a governance
-  record — one whose subject is the constitution's own text, a register, the
-  process, or the governance tooling — is outside its reach. The twenty-four
-  are governance records, so the field never reached them and no section is
-  reconstructed; the debt is closed. ADR-092, recorded after ADR-090, is the
-  twenty-fourth and falls under the same reading, which ADR-090's annotation
-  records (ADR-102). The entry is kept so a reader meets the closure without
-  reading `docs/DECISIONS.md` → ADR-090.
+- **Thirty-one decision records carry no `Alternatives considered` section
+  (the twenty-four closed 2026-10-09 by ADR-090, plus seven added since).** The
+  Documentation rule now states its own subject: the field reaches a
+  non-trivial technical decision, and a governance record — one whose subject is
+  the constitution's own text, a register, the process, or the governance
+  tooling — is outside its reach. They are governance records, so the field
+  never reached them and no section is reconstructed; the debt is closed.
+  ADR-092, recorded after ADR-090, is the twenty-fourth; the seven governance
+  records added since fall under the same reading, which ADR-090's annotation
+  records (ADR-102), and the register's index names them. The entry is kept so
+  a reader meets the closure without reading `docs/DECISIONS.md` → ADR-090.
 
 - **The constitution's stamp-site list stays in the constitution (decided
   2026-10-09, ADR-091).** ADR-064 deferred moving it as "a Governance amendment

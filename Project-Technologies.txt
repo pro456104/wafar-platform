@@ -143,7 +143,7 @@ apps/admin/
 |---|---|
 | **IconPark** | مجموعتا `icon-park` (ملوّنة) و`icon-park-outline` (أحادية)، 2,658 أيقونة لكل منهما؛ Apache-2.0 من ByteDance؛ تُضمَّن داخل `packages/ui/vendor` وتُثبَّت بـ SHA-256؛ يُستهلك `icon-park-outline` (القطعة الخطّية)، والملوّن مُضمَّن وغير مستهلك (ADR-137)؛ ADR-098. |
 | **IBM Plex Sans Arabic** | OFL؛ self-hosted WOFF2 بأوزان 400/500/600/700؛ `font-display: swap`؛ ADR-098. |
-| **Nuxt UI icons** | `@iconify-json/icon-park` و`@iconify-json/icon-park-outline`؛ ربط داخلي في `app.config.ts`؛ لا Iconify API وقت التشغيل. |
+| **Nuxt UI icons** | `@iconify-json/icon-park-outline` هو المستهلك في `app.config.ts`؛ و`@iconify-json/icon-park` مُضمَّن وغير مستهلك (ADR-137)؛ لا Iconify API وقت التشغيل. |
 
 ---
 

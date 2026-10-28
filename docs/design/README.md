@@ -45,7 +45,8 @@ against.
 
 ## Reading order
 
-1. ADR-128 for the token names, values, and rendering rules.
+1. ADR-128 for the contract and the rendering rules; the layer records the full
+   values (ADR-128 decision 2).
 2. `slice-map.md` for the composition and the states of the slice in hand.
 3. The slice's specification for the binding requirements.
 4. The slice's plan for the baseline set and the gate.
