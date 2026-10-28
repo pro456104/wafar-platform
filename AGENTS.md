@@ -120,10 +120,9 @@ replace them with the core templates.
   an emoji glyph is not an icon. The set is **IconPark** (the outline cut is
   consumed; the colour cut is vendored but not consumed), chosen by ADR-098 and
   annotated by ADR-137; both cuts are vendored under `packages/ui/vendor`; the
-  Technology
-  Standards register gap for the icon set is still open and owned by R1, so no
-  other slice may choose a set of its own or add a second family, and R1 closes
-  the gap through the register-gap process.
+  Technology Standards register gap for the icon set is still open and owned by
+  R1, so no other slice may choose a set of its own or add a second family, and
+  R1 closes the gap through the register-gap process.
 - Registration is Libya only: every account is a +218 number and sign-up offers
   no dial-code selector (ADR-041).
 

@@ -202,7 +202,7 @@ table with its status, date, size, and actions; the empty state; the loading
 state; the delete dialog; the retry action for a failed file.
 
 **States.** Loaded, loading, empty, failed with retry, delete dialog, warning.
-The table's pagination is 20/50/100.
+The table's pagination is 20/50/100, with 20 as the default (ADR-137).
 
 **Copy.** The table headers and the status labels are the lab's reference; the
 specification fixes the final strings. The delete confirmation names the file
@@ -245,7 +245,8 @@ same table and filters without the price column, its filter, and its sort.
 **Behaviour.** Root-aware Arabic search over the three fields by partial match;
 multi-select filters over car model, type, catalog file, and supplier; a price
 range over the primary amount; sorting on every column except type; pagination
-20/50/100; `?file=<id>` filters by one catalog; the filter panel opens inside
+20/50/100 with 20 as the default (ADR-137); `?file=<id>` filters by one catalog;
+the filter panel opens inside
 the page, not as a modal; the table geometry is fixed and no column is pinned
 horizontally.
 
