@@ -1353,3 +1353,68 @@ templates' live range strings, the R1 specification, the requirements checklist,
 the slice map, and `docs/design/README.md` are corrected in the same change; the
 manifest's footer note is corrected. No code or data exists, so no migration or
 backfill is required. Review date: 2026-12-01.
+
+---
+
+## ADR-138 — The 6.2.1 clarifications: the typeface, two terms, and the appearance citation
+
+**Status**: Accepted — 2026-10-28. **Constitution version**: 6.2.1
+**Owning directory**: `.specify/memory/`, `docs/`, `docs/decisions/`,
+`.specify/templates/overrides/`, `AGENTS.md`, `README.md`, `ROADMAP.md`,
+`Project-Technologies.txt`, `specs/001-identity-foundation/`
+**Owning feature**: none — governance amendment; ratified by the repository owner.
+
+**Context.** After ADR-137 settled the appearance, a deep read of the constitution
+found four registration gaps rather than product defects. The mirror names IBM
+Plex Sans Arabic, but the Technology Standards register neither approved the
+typeface nor listed it under "Register gaps a slice MUST close", so the mirror
+named a technology the register did not carry. Principle IX requires project
+values to live in "the Wafar UI layer" and forbids a "token file" outside it,
+but the Glossary defined neither term. The References row for `docs/design/`
+and the Principle IX conformance gate named ADR-128 and ADR-129 but not ADR-137,
+the record that filled the appearance the constitution delegates to the layer.
+The pagination clause named 20, 50, and 100 rows but not the default 20 that
+ADR-137 fixed.
+
+**Affected principles and in-flight work.** Principle IX gains the ADR-137
+citation in its conformance gate; no other principle changes. The only in-flight
+feature is R1, whose specification is untouched except for its live range line;
+its plan is not blocked, and no artifact already produced is invalidated.
+
+**Decision.**
+1. **Layer assets.** The typeface and the icon set are assets of the Wafar UI
+   layer, not rows of the Approved register. The register's gap table gains a
+   generic "typeface used by the interface" row, recorded in Complexity
+   Tracking, required by Principle V's Arabic-first interfaces and the layer,
+   and owned by R1; the icon set's existing gap row is unchanged. A paragraph
+   after the gap tables states both are layer assets, that ADR-098 records both
+   choices and ADR-137 fixes the consumed cut, and that R1 closes both gaps at
+   its acceptance. Naming the exact family and cuts stays in the mirror and in
+   those records.
+2. **Two terms.** The Glossary defines **Wafar UI layer** (the single layer at
+   `packages/ui`, its contents, its fixed path, and the prohibition on a
+   parallel layer and on a token file outside it) and **Token** (a named UI
+   value recorded once by the layer and consumed by name; a raw value outside
+   the layer is not a token). No value is restated.
+3. **The appearance citation.** The References row for `docs/design/` names
+   ADR-137 as the appearance authority, and the Principle IX conformance gate
+   requires conformance with the recorded values (ADR-128) and the recorded
+   appearance (ADR-137). ADR-128 and ADR-129 keep their places.
+4. **The page-size default.** Product Fact Clarifications records that a data
+   table's page size defaults to 20 rows, that the control offers 20, 50, and
+   100, and that changing it returns to the first page (ADR-137). The
+   Pagination clause is unchanged.
+5. **Scope and version.** This is a PATCH: clarifications and wording, no new
+   principle, section, page, entity, role, limit, feature, slice, `FR`, `AC`, or
+   `SC`. The constitution moves to 6.2.1 and `version.json` moves with it. No
+   code exists and no migration or backfill is required.
+
+**Consequences and migration/backfill.** The constitution's footer and
+`version.json` read 6.2.1. The live range strings in `AGENTS.md`, `README.md`,
+`ROADMAP.md`, `docs/architecture.md`, the spec and checklist template
+overrides, and the R1 specification move to ADR-138, and
+`Project-Technologies.txt`'s header list gains 138. The index gains this row.
+`AGENTS.md`'s debt entry counts thirty-two records without an alternatives
+section, because this governance record carries none. The drift check reports
+clean. No migration or backfill is required because no code or data exists.
+Review date: 2026-12-01. This entry is the durable record.

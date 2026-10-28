@@ -179,6 +179,7 @@ constitution's Documentation section and enforced by `governance-drift-check.mjs
 | [ADR-135](decisions/volume-08.md#adr-135--the-post-620-audit-fix-set-ten-document-corrections) | The post-6.2.0 audit fix set: ten document corrections | 2026-10-28 | 6.2.0 (unchanged) |
 | [ADR-136](decisions/volume-08.md#adr-136--the-post-620-audit-fix-set-ii-the-icon-cut-the-template-load-map-and-the-checks-self-description) | The post-6.2.0 audit fix set II: the icon cut, the template load map, and the check's self-description | 2026-10-28 | 6.2.0 (unchanged) |
 | [ADR-137](decisions/volume-08.md#adr-137--the-appearance-authority-the-outline-icon-cut-the-light-default-the-focus-line-and-the-page-size-default) | The appearance authority: the outline icon cut, the light default, the focus line, and the page-size default | 2026-10-28 | 6.2.0 (unchanged) |
+| [ADR-138](decisions/volume-08.md#adr-138--the-621-clarifications-the-typeface-two-terms-and-the-appearance-citation) | The 6.2.1 clarifications: the typeface, two terms, and the appearance citation | 2026-10-28 | 6.2.1 |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,

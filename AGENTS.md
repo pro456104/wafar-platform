@@ -185,7 +185,7 @@ and its `requires.integrations.any` list must stay correctly nested under
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-137` range string — in the required files, in the top-level
+live `ADR-001 … ADR-138` range string — in the required files, in the top-level
 `docs/` files, in the two Arabic mirrors, in the template overrides, and in the
 feature specifications — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading in
@@ -269,14 +269,14 @@ runner (R1) wires it into continuous integration.
   requires recording the owner and the requirement it serves. It is reserved,
   not an open gap.
 
-- **Thirty-one decision records carry no `Alternatives considered` section
-  (the twenty-four closed 2026-10-09 by ADR-090, plus seven added since).** The
+- **Thirty-two decision records carry no `Alternatives considered` section
+  (the twenty-four closed 2026-10-09 by ADR-090, plus eight added since).** The
   Documentation rule now states its own subject: the field reaches a
   non-trivial technical decision, and a governance record — one whose subject is
   the constitution's own text, a register, the process, or the governance
   tooling — is outside its reach. They are governance records, so the field
   never reached them and no section is reconstructed; the debt is closed.
-  ADR-092, recorded after ADR-090, is the twenty-fourth; the seven governance
+  ADR-092, recorded after ADR-090, is the twenty-fourth; the eight governance
   records added since fall under the same reading, which ADR-090's annotation
   records (ADR-102), and the register's index names them. The entry is kept so
   a reader meets the closure without reading `docs/DECISIONS.md` → ADR-090.

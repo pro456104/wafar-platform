@@ -359,7 +359,8 @@ parallel design system is prohibited.
   Wafar UI layer, direct `z-10`/`z-20`/`z-50` values, and arbitrary spacing,
   radius, shadow, or duration values MUST NOT appear in application code.
 - **Conformance gate.** Every interface slice MUST prove its conformance with the
-  Wafar UI layer's recorded values (ADR-128) through a committed automated gate:
+  Wafar UI layer's recorded values (ADR-128) and its recorded appearance
+  (ADR-137) through a committed automated gate:
   a contract test that asserts the recorded values, and a visual baseline for
   each page state the slice ships (ADR-129). A slice without that gate is not
   Converged.
@@ -1431,6 +1432,7 @@ for the other:
 | Transactional SMS provider for OTP and password reset | Constitution Mandated Values (transactional SMS transport) | Yes |
 | Continuous-integration provider | Constitution Mandated Values (continuous-integration provider) | Yes |
 | Icon set used by the interface | Constitution Mandated Values (icon set) | Yes |
+| Typeface used by the interface | Complexity Tracking | — |
 | Redis client library | Complexity Tracking | — |
 | OpenSearch client library | Complexity Tracking | — |
 | Arabic analyzer configuration and verification | Complexity Tracking | — |
@@ -1454,12 +1456,20 @@ for the other:
 | Backup and restore tooling | Deployment and Observability | R1 (the slice that introduces persistent storage) |
 | Log pipeline | Deployment and Observability | R12 (the first deploying slice) |
 | Icon set used by the interface: an open-source set under a permissive licence (MIT, Apache-2.0, ISC, or BSD), self-hosted as SVG, with no emoji standing in for an icon | Product Scope; Principle V; the Wafar UI layer | R1 |
+| Typeface used by the interface: an open-source family under a permissive licence (OFL or equivalent), self-hosted as WOFF2 | Principle V's Arabic-first interfaces; the Wafar UI layer | R1 |
 | Redis client library | Files register row (BullMQ, Redis); Deployment and Observability's worker-durability rules | R3 |
 | OpenSearch client library | Search register row; `packages/search`; the worker's index-write path (R3 indexes the parts, so R3 is the first slice to need the client) | R3 |
 | Automated accessibility checker | Principle IV's verification MUST | R1 |
 | Arabic analyzer configuration and verification | Principle V's root-aware search; Search register row | R5 |
 | SBOM generator | Deployment and Observability's supply-chain controls; Glossary (SBOM) | R1 (the slice that establishes the release build) |
 | Load-test tool | Performance Budgets and Verification (load testing before the first public release) | R12 |
+
+The typeface and the icon set are assets of the Wafar UI layer, not rows of the
+Approved register. The layer records the family and the cut it consumes; the
+icon-set and typeface gap rows above carry the register duty until R1 closes both
+at acceptance. ADR-098 records both choices, and ADR-137 fixes the consumed cut;
+the mirror names the exact family and cuts, and this register does not restate
+them.
 
 ### Licence treatment for infrastructure services
 
@@ -1520,6 +1530,8 @@ however obviously the concept belongs to the entity.
 | **SBOM** | Software Bill of Materials produced per build. |
 | **Presigned multipart upload** | Direct-to-object-storage upload in parts, avoiding buffering through the API. |
 | **Merchant isolation** | A tenant is a merchant account. A merchant-reachable query path MUST NOT return another merchant's rows. |
+| **Wafar UI layer** | The project's single interface layer at `packages/ui`: the design tokens, the theme configuration, the icon set, the Arabic typeface, and the shared primitives every interface consumes. Its path is fixed by ADR-097; it is not a row of the Technology Standards topology, and no parallel layer or token file outside it may be created (Principle IX). |
+| **Token** | A named UI value — a colour, a type size, a spacing, a radius, a shadow, or a duration — recorded once by the Wafar UI layer and consumed by name. A raw value outside the layer is not a token, and a token file outside the layer is prohibited (Principle IX, ADR-128). |
 | **Technical Context** | The per-feature block in `plan.md` that records the stack, version pins, and constraints for this feature. |
 | **Complexity Tracking** | The per-plan table that records justified deviations from a binding rule, each with an owner and a review date. |
 | **Ownership Map** | The per-plan table that assigns every file, route, migration, and test to the plan that introduces it. |
@@ -1540,7 +1552,7 @@ however obviously the concept belongs to the entity.
 | `docs/architecture.md` | The repository layout, module map, and data-flow descriptions. | `docs/`. |
 | `docs/capacity-model.md` | The capacity and load envelope: the six-month plan, the ingestion envelope, and the starting point a plan's Scale/Scope records. The planning authority for the envelope only; this constitution wins on every conflict (ADR-117, ADR-119, ADR-121, ADR-122). | `docs/`. |
 | `docs/pdf-sample-analysis.md` | The measured sample evidence behind the capacity model's baseline (the 19-file sample of 2026-10-23). Evidence, not a source of rules (ADR-119, ADR-122). | `docs/`. |
-| `docs/design/` | The design contract's reference evidence: the slice map for the fifteen slices and twenty-eight pages, and the reference screenshots it names. Reference, not a visual baseline; the contract is ADR-128 and the conformance gate is ADR-129. Evidence, not a source of rules (ADR-128, ADR-129). | `docs/`. |
+| `docs/design/` | The design contract's reference evidence: the slice map for the fifteen slices and twenty-eight pages, and the reference screenshots it names. Reference, not a visual baseline; the contract is ADR-128, the conformance gate is ADR-129, and the appearance authority is ADR-137. Evidence, not a source of rules (ADR-128, ADR-129, ADR-137). | `docs/`. |
 | `.specify/templates/exception-register.md` | The exception register required by Governance. | `.specify/templates/`. |
 | `.specify/templates/overrides/` | Template overrides required by Single-Reference Sufficiency and by Governance. | `.specify/templates/overrides/`. |
 | `.specify/memory/constitution.md` | This document. | `.specify/memory/`. |
@@ -1673,6 +1685,8 @@ the same force as the principles above.
   immutable creation timestamp (Schema and Migration Control). Any other order
   beyond the table's own sortable columns is a deferred area (Retrieval
   interface), owned by R5.
+- A data table's page size defaults to 20 rows, and its control offers 20, 50,
+  and 100; changing the page size returns to the first page (ADR-137).
 - The Libyan city list is one dataset, named once. Sign Up selects from it:
   every Libyan governorate, city, and area, searchable, with Libya (+218) as
   the default country. R1 records the list once as reference data of the
@@ -1840,4 +1854,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 6.2.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-28
+**Version**: 6.2.1 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-28
