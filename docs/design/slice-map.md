@@ -108,10 +108,13 @@ the mobile number, the code step, the new password, and the done state.
 response is uniform whether or not the account exists; five consecutive failed
 attempts lock the account for fifteen minutes.
 
-**Copy.** The lab's Arabic labels are the reference; the specification fixes the
-rules, not the literal strings. The literal strings are fixed design values
-taken from the reference and recorded in the plan. The OTP expiry copy is a plan
-value; there is no lockout copy.
+**Copy.** The lab's Arabic labels are the reference. The specification fixes the
+literal strings it names — the account control and menu («حسابي»، «إعدادات»،
+«تسجيل الخروج») and the bottom bar's «المزيد» — and leaves the rest to the
+reference. Where it deliberately leaves the wording open — the uniform sign-in
+refusal, the expired or superseded code's refusal, each password-policy reason,
+and the OTP expiry copy — the literal text is a fixed design value taken from
+the reference and recorded in the plan. There is no lockout copy.
 
 **Behaviour.** OTP at sign-up; no OTP at sign-in; the city list is one fixed
 dataset; a successful password change ends every session; the frame's routes are
@@ -538,7 +541,7 @@ Captured: P0 for all seventeen non-administrator surfaces at 1280 and 375 light
 loading (Home, Parts, My Files, Notifications), refetch, full cart — at both
 widths (20), the filter panel at both widths (2), the dark appearance for Home,
 Parts, and Sign In (3), and the Home page scrolled at 375 with the bottom bar
-hidden (1). Total: 60 images, 2.2 MB.
+hidden (1). Total: 60 images, 2.31 MB (2.21 MiB).
 
 Both rules the contract fixes have a lab reference: the outline icon cut and the
 light default are what every capture renders. The baseline is still generated in

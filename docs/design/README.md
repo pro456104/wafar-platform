@@ -15,12 +15,12 @@ Home (ADR-130), the 90-day retention trigger (ADR-131), and the shell's
 scroll-hide bar (ADR-132). The outline icon cut and the light default are not
 departures: they are what the reference images render (ADR-137).
 
-The external design lab is a frozen reference. It is not a dependency, no
-filesystem path to it appears in this repository, and nothing here is copied
-from it as code. The manifest's `http://localhost:4321` URLs record the capture
-source as provenance, not a dependency. Its screenshots are evidence that the
-contract was rendered and measured; they are not a baseline the product diffs
-against.
+The external design lab is a reference frozen at its capture date. It is not a
+dependency, no filesystem path to it appears in this repository, and nothing
+here is copied from it as code. The manifest's `http://localhost:4321` URLs
+record the capture source as provenance, not a dependency. Its screenshots are
+evidence that the contract was rendered and measured; they are not a baseline
+the product diffs against.
 
 Capture drift: the screenshots were captured on 2026-10-27. The lab's shared
 `:root` gained ten skeleton tokens on 2026-10-28, after the capture, so the
