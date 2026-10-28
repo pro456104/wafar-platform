@@ -12,7 +12,8 @@ ADR-129. The pages, their blocks, their order, and their states belong to the
 specification and to the slice map; ADR-128 deliberately does not fix them.
 Three adopted departures sit beside the contract: the six part-family cards on
 Home (ADR-130), the 90-day retention trigger (ADR-131), and the shell's
-scroll-hide bar, colour icon cut, and `system` appearance default (ADR-132).
+scroll-hide bar (ADR-132). The outline icon cut and the light default are not
+departures: they are what the reference images render (ADR-137).
 
 The external design lab is a frozen reference. It is not a dependency, no
 filesystem path to it appears in this repository, and nothing here is copied

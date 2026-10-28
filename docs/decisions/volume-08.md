@@ -1278,3 +1278,77 @@ ADRs and checks N and O. The constitution, its footer, and `version.json` stay
 at 6.2.0, because no clause changed. No migration or backfill is required
 because no code exists. Review date: 2026-12-01. This entry is the durable
 record.
+
+---
+
+## ADR-137 — The appearance authority: the outline icon cut, the light default, the focus line, and the page-size default
+
+**Status**: Accepted — 2026-10-28. **Constitution version**: 6.2.0 (unchanged)
+**Owning directory**: `packages/ui` (planned by R1), `docs/`, `.specify/templates/overrides/`, `AGENTS.md`, `ROADMAP.md`, `Core-Project.txt`, `specs/001-identity-foundation/`
+**Owning feature**: R1, Identity and foundation (the Wafar UI layer and the frame); every interface slice consumes the contract
+
+**Context.** The design lab's Precision model is the appearance the operator
+adopted: it renders IconPark's outline cut at 20px and a light first visit with
+a two-state switch. ADR-132 had replaced ADR-128's outline cut with the colour
+cut and the light default with `system`, so the adopted record and the adopted
+appearance disagreed. The operator has now settled the appearance: outline
+icons, a light default with dark available, a 20-row default with 20/50/100, and
+the lab's rendering of the focus line. The constitution does not fix the
+default appearance — it states that the Wafar UI layer records it — and it does
+not name an icon cut; it fixes pagination at 20, 50, and 100 rows.
+
+**Decision.**
+1. **Reference.** The lab's Precision model is the visual authority for the
+   composition and for the rendering rules; the five other models remain
+   evidence that composition is independent of the token set; no model
+   switcher, `useDesign`, or `?design` ships.
+2. **Icons.** The product consumes `icon-park-outline` (the outline cut) at
+   20px. Both cuts are vendored and pinned under `packages/ui/vendor` (ADR-098
+   decision 1); the colour cut is vendored but not consumed; the derived bold
+   cut is lab-only. A missing icon is added by a decision record, never
+   substituted. **Annotation to ADR-132** decision 2 (replaced) and to ADR-136
+   decision 1 (its live statement is superseded; the historical record keeps
+   its wording). **Restores ADR-128** decision 2.
+3. **Appearance.** Two appearances, light and dark. A first visit is light; a
+   stored choice wins over it; the choice is per device; the switch is a
+   two-state control whose state is carried by name and `aria-pressed`; the
+   appearance is applied before the first paint so neither appearance flashes;
+   no `system` option exists; no appearance is stored on the account.
+   **Annotation to ADR-132** decision 3 (replaced). **Restores ADR-098**
+   decision 4, **ADR-102** decision 5, and **ADR-128** decision 16.
+4. **Gate.** The baseline captures both appearances; the default is light;
+   `prefers-color-scheme` is not read. **Annotation to ADR-132** decision 4.
+   ADR-129 is otherwise unchanged.
+5. **Focus.** One 2px line: an outer ring with a 2px offset on controls and
+   links, and an inset ring on fields so the ring is not clipped by the field's
+   own boundary; its contrast meets 3:1 against the adjacent surface.
+   **Completes ADR-128** decision 7; the layer records the measurement.
+6. **Page size.** The default is 20; the control offers 20, 50, and 100;
+   changing it returns to page 1; the lab's 10 is withdrawn. The constitution's
+   clause (20, 50, 100) is unchanged; the binding home of the default is the
+   Parts specification (R5).
+7. **Scope.** No page, entity, limit, role, feature, or slice count changes. The
+   lab's sample content, tools, and sample values are not transferred.
+
+**Annotations.** ADR-098 decisions 2 and 4; ADR-102 decision 5; ADR-128
+decisions 2, 7, and 16; ADR-129; ADR-132 decisions 2, 3, and 4; ADR-136
+decision 1.
+
+**Alternatives considered.**
+- *Keep ADR-132 (colour cut and `system`).* Rejected: the operator chose the
+  lab's appearance, and the lab renders the outline cut and a light default.
+- *Make the lab a source of rules.* Rejected: it is outside the repository, and
+  Single-Reference Sufficiency requires a registered source; the rules live in
+  this record and the screenshots stay evidence (ADR-133).
+- *Adopt page size 10.* Rejected: it is a sample value, and adopting it would
+  amend the constitution for a non-visual number.
+- *Copy the lab's stylesheet as the contract.* Rejected: no code is transferred;
+  the layer records the values (Principle IX).
+
+**Consequences and migration/backfill.** The layer records the outline mapping,
+the light default, the focus line, and 20/50/100. The live texts in `AGENTS.md`,
+`Project-Technologies.txt`, `Core-Project.txt`, `docs/architecture.md`,
+`ROADMAP.md`, the plan template, the R1 specification, the requirements
+checklist, the slice map, and `docs/design/README.md` are corrected in the same
+change; the manifest's footer note is corrected. No code or data exists, so no
+migration or backfill is required. Review date: 2026-12-01.

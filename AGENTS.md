@@ -29,7 +29,7 @@ and a feature artifact references it rather than restating it.
 | UI foundation — component library and the project layer | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1 builds it through its plan and consumes it |
 | Product detail (roles, pages, acceptance criteria) — mirror | `Core-Project.txt`; the constitution's Product Register and Product Scope win on conflict |
 | Accepted decisions | the decision register: `docs/DECISIONS.md` (the index and reading protocol) and `docs/decisions/volume-NN.md` (the records) |
-| Design contract and per-slice visual reference | ADR-128 (the token and rendering contract); ADR-129 (the conformance gate and the baseline chain); ADR-130 (part families and the Home cards); ADR-131 (the retention trigger); ADR-132 (the shell: scroll-hide, colour icons, `system`); `docs/design/` (the slice map and the reference screenshots) |
+| Design contract and per-slice visual reference | ADR-128 (the token and rendering contract); ADR-129 (the conformance gate and the baseline chain); ADR-130 (part families and the Home cards); ADR-131 (the retention trigger); ADR-132 (the shell: scroll-hide), annotated by ADR-137 (the outline icon cut and the light default); `docs/design/` (the slice map and the reference screenshots) |
 | Slice order for the MVP | `ROADMAP.md` |
 
 **Prohibited:** creating a feature numbered after a project-level concern (for
@@ -117,9 +117,10 @@ replace them with the core templates.
 - No emoji in anything a person reads inside the platform: every screen,
   including the administrator application, and the body of every SMS
   (Principle V). An icon is an SVG from the approved open-source icon set, and
-  an emoji glyph is not an icon. The set is **IconPark** (the colour cut is
-  consumed; the outline cut is withdrawn), chosen by ADR-098 and annotated by
-  ADR-132; both cuts are vendored under `packages/ui/vendor`; the Technology
+  an emoji glyph is not an icon. The set is **IconPark** (the outline cut is
+  consumed; the colour cut is vendored but not consumed), chosen by ADR-098 and
+  annotated by ADR-137; both cuts are vendored under `packages/ui/vendor`; the
+  Technology
   Standards register gap for the icon set is still open and owned by R1, so no
   other slice may choose a set of its own or add a second family, and R1 closes
   the gap through the register-gap process.
@@ -185,7 +186,7 @@ and its `requires.integrations.any` list must stay correctly nested under
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-136` range string — in the required files, in the top-level
+live `ADR-001 … ADR-137` range string — in the required files, in the top-level
 `docs/` files, in the two Arabic mirrors, in the template overrides, and in the
 feature specifications — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading in

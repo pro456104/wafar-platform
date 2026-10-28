@@ -39,23 +39,28 @@ owns the binding version of each page.
 
 ## Lab defects seen in the reference set
 
-The reference images are captured from the lab as it stands. Seven lab
+The reference images are captured from the lab as it stands. Six lab
 behaviours are not the product's contract and are flagged in the manifest:
 
 1. The 404 page renders the previous appearance (teal), not Precision. The
-   image is a composition reference only; the product composes the page from
-   ADR-128.
-2. The footer band is visible at 375 on the Home page. The product does not
-   render it below 1024px and moves its four links into the drawer (ADR-127).
-3. The parts table shows page size 10. The product uses 20/50/100.
-4. The notifications list has no explicit empty state. The product adds one.
-5. The profile shows a «نشط» badge. The product does not.
-6. The contact page shows an email address, and the privacy page carries the
-   90-day claim and the account-deletion claim. The product transfers none of
-   them.
-7. When the lab's bottom bar hides, the raised search action's top edge stays
+   cause is that `error.vue` renders outside `app.vue` and carries no
+   `data-design`, so the layer's root tokens paint it; the product makes
+   Precision the layer's root, not an override, and composes the page from
+   ADR-128. The image is a composition reference only.
+2. The parts table shows page size 10. The product uses 20/50/100, with 20 as
+   the default (ADR-137).
+3. The notifications list has no explicit empty state. The product adds one.
+4. The profile shows a «نشط» badge. The product does not.
+5. The contact page shows an email address; the product transfers none of it.
+   The privacy page's retention sentence is adopted (90 days from the upload,
+   ADR-131); its account-deletion claim is not transferred.
+6. When the lab's bottom bar hides, the raised search action's top edge stays
    visible at the viewport edge. The product hides the action with the bar
    (ADR-132).
+
+The footer band is not among them: it is not rendered below 1024px
+(`main.css`), and an earlier reading of the 375 capture mistook the statistics
+strip for the footer.
 
 ## Not transferred
 
@@ -73,6 +78,7 @@ behaviours are not the product's contract and are flagged in the manifest:
 | Accessibility | The 404 title is fixed | The product branches on the status code |
 | Content | The «نشط» badge on the profile | An administrator concept |
 | Content | The fixed «آخر تحديث 2026-10-25» line | Removed or made a real date |
+| Content | The sample statistics and sample family counts (1248, 316, 48217, 9034; 6210 …) | Placeholder values; ADR-130 forbids an invented count |
 | Naming | «رفع ملف» versus «رفع كتالوج» | «رفع ملف» is the short visible action; «رفع كتالوج» is the destination and page name |
 
 ## How to read an entry
@@ -109,8 +115,8 @@ final strings. The OTP expiry copy is a plan value; there is no lockout copy.
 dataset; a successful password change ends every session; the frame's routes are
 fixed by the frame's decision record. The frame's bottom bar hides after
 downward scroll and returns on the first upward scroll (ADR-132); a first visit
-follows the device preference and a stored preference wins (ADR-132); the icons
-are IconPark's colour cut (ADR-132).
+is light and a stored preference wins (ADR-137); the icons are IconPark's
+outline cut (ADR-137).
 
 **Not transferred.** The lab's tools (`?role=`, `?state=`, `?slow=`, the lab
 bar) and the sample accounts.
@@ -531,11 +537,10 @@ widths (20), the filter panel at both widths (2), the dark appearance for Home,
 Parts, and Sign In (3), and the Home page scrolled at 375 with the bottom bar
 hidden (1). Total: 60 images, 2.21 MB.
 
-Two adopted rules have no lab reference. The colour icon cut is rendered by no
-lab model, so no screenshot shows it; its baseline is generated in the project
-(ADR-132). The appearance default is `system`, while every capture pins
-`theme=light` or `theme=dark` explicitly; the baseline fixes both sets and pins
-`prefers-color-scheme` in continuous integration (ADR-132).
+Both rules the contract fixes have a lab reference: the outline icon cut and the
+light default are what every capture renders. The baseline is still generated in
+the project, never copied from the lab (ADR-129); the gate captures both
+appearances and does not read `prefers-color-scheme` (ADR-137).
 
 Not yet captured: the interaction-driven states named in the entries — R1's
 OTP/code step and its post-submit uniform-response state; upload

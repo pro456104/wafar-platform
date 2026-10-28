@@ -319,3 +319,10 @@
   change. No identifier was added, renumbered, reused, or withdrawn; the counts
   stay 52 FR, 55 AC, and 9 SC; every FR is cited by at least one AC; and all 22
   checkboxes above stay checked.
+- Refreshed 2026-10-28: ADR-137 restores the light default and the outline icon
+  cut, and it adds the page-size default (20) and the focus line to the layer's
+  record. FR-025 carries the appearance rule; the checklist's earlier
+  `system` note is superseded, not deleted. No identifier was added,
+  renumbered, reused, or withdrawn; the counts stay 52 FR, 55 AC, and 9 SC;
+  every FR is cited by at least one AC; and all 22 checkboxes above stay
+  checked.

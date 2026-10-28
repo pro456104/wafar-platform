@@ -275,7 +275,7 @@ Read/write notes:
   Deferred areas).
 - Decisions and their rationale: the decision register — `docs/DECISIONS.md`
   (index and reading protocol) and `docs/decisions/volume-NN.md` (records),
-  ADR-001 … ADR-136.
+  ADR-001 … ADR-137.
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.
@@ -287,8 +287,9 @@ Read/write notes:
   `packages/ui`, fixed by ADR-097 (Principle IX); R1 builds it through its plan
   and consumes it.
   ADR-098 records IconPark and IBM Plex Sans Arabic; ADR-128 replaces its
-  marine/sand palette with the Precision contract, and ADR-132 replaces the light
-  default with `system` and consumes the colour icon cut.
+  marine/sand palette with the Precision contract, and ADR-132 keeps the
+  scroll-hide bar; ADR-137 restores the light default and consumes the outline
+  icon cut.
 - Technology stack: `Project-Technologies.txt`; product scope and roles:
   `Core-Project.txt`.
 - Deferred areas that touch this architecture: extraction algorithm; file

@@ -100,7 +100,7 @@
 | 8 | Recovery Time Objective (RTO) | [number, or "not introduced — no persistent storage"] |
 | 9 | Recovery Point Objective (RPO) | [number, or "not introduced — no persistent storage"] |
 | 10 | Runtime version | [pinned version, or "not introduced — no runtime surface"] |
-| 11 | Icon set | [IconPark (colour cut consumed; the outline cut is withdrawn; both cuts vendored under `packages/ui/vendor` and pinned), Apache-2.0, no emoji, licence and vulnerability scan (ADR-098 annotated by ADR-128 and ADR-132); or "not introduced — no icon surface"] |
+| 11 | Icon set | [IconPark (outline cut consumed; the colour cut vendored and not consumed; both cuts vendored under `packages/ui/vendor` and pinned), Apache-2.0, no emoji, licence and vulnerability scan (ADR-098 annotated by ADR-128 and ADR-137); or "not introduced — no icon surface"] |
 | 12 | Extraction libraries | [the approved libraries, or "not introduced — no extraction surface"] |
 | 13 | Transactional SMS transport | [the approved transport, or "not introduced — no SMS surface"] |
 | 14 | Continuous-integration provider | [the approved provider, or "not introduced — CI unchanged"] |
@@ -141,7 +141,7 @@
 | VI. Catalog-Only Scope *(NON-NEGOTIABLE)* | | [no payment/purchase/RFQ/wallet; cart is a bookmark list carrying no price or quantity; single admin conversation thread only] |
 | VII. Specification-First and Documentation Separation *(NON-NEGOTIABLE)* | | [spec.md reviewed for absence of technical detail; this plan holds the technical detail] |
 | VIII. User Story Independence *(NON-NEGOTIABLE)* | | [priorities assigned; the P1 set forms the shippable MVP; no circular story dependencies] |
-| IX. UI Foundation Fidelity *(NON-NEGOTIABLE)* | | [Nuxt UI v4 is the only component library; the Wafar UI layer is `packages/ui`; project values, IconPark (colour cut consumed, outline cut withdrawn), IBM Plex Sans Arabic, and tokens live there; no second component library, no parallel design system, no raw values or direct z-index values; no emoji; every state rendered; the apps' `app/` paths appear in the Ownership Map; the conformance gate (ADR-128/ADR-129): a contract test and a visual baseline for every page state this slice ships] |
+| IX. UI Foundation Fidelity *(NON-NEGOTIABLE)* | | [Nuxt UI v4 is the only component library; the Wafar UI layer is `packages/ui`; project values, IconPark (outline cut consumed, colour cut vendored and not consumed), IBM Plex Sans Arabic, and tokens live there; no second component library, no parallel design system, no raw values or direct z-index values; no emoji; every state rendered; the apps' `app/` paths appear in the Ownership Map; the conformance gate (ADR-128/ADR-129): a contract test and a visual baseline for every page state this slice ships] |
 | X. Modular Monolith Architecture | | [owning module named per change; one responsibility per module; no direct cross-module imports — communication through the shared package] |
 
 *Every row is filled. A principle that does not apply is marked "not applicable" with a reason; never left blank.*

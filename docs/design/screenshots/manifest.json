@@ -121,7 +121,7 @@
       "theme": "light",
       "file": "R5/home--default--375--light.png",
       "url": "http://localhost:4321/?design=precision&tools=0&theme=light",
-      "note": "category tiles adopted by ADR-130; counts are sample values; sample statistics and files; the lab footer is visible at 375; the product hides it and moves its links into the drawer"
+      "note": "category tiles adopted by ADR-130; counts are sample values; sample statistics and files"
     },
     {
       "slice": "R5",
@@ -491,7 +491,7 @@
       "theme": "light",
       "file": "R5/home--loading--375--light.png",
       "url": "http://localhost:4321/?design=precision&tools=0&theme=light&state=loading",
-      "note": "category tiles adopted by ADR-130; counts are sample values; sample statistics and files; loading surface; the lab footer is visible at 375; the product hides it and moves its links into the drawer"
+      "note": "category tiles adopted by ADR-130; counts are sample values; sample statistics and files; loading surface"
     },
     {
       "slice": "R4",
