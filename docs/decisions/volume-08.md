@@ -1362,7 +1362,7 @@ backfill is required. Review date: 2026-12-01.
 **Owning directory**: `.specify/memory/`, `docs/`, `docs/decisions/`,
 `.specify/templates/overrides/`, `AGENTS.md`, `README.md`, `ROADMAP.md`,
 `Project-Technologies.txt`, `specs/001-identity-foundation/`
-**Owning feature**: none — governance amendment; ratified by the repository owner.
+**Owning feature**: none — governance decision; ratified by the repository owner.
 
 **Context.** After ADR-137 settled the appearance, a deep read of the constitution
 found four registration gaps rather than product defects. The mirror names IBM
@@ -1403,7 +1403,11 @@ its plan is not blocked, and no artifact already produced is invalidated.
 4. **The page-size default.** Product Fact Clarifications records that a data
    table's page size defaults to 20 rows, that the control offers 20, 50, and
    100, and that changing it returns to the first page (ADR-137). The
-   Pagination clause is unchanged.
+   Pagination clause is unchanged. **Annotation to ADR-137** decision 6: the
+   constitution now records the default for every data table; the phrase "the
+   binding home of the default is the Parts specification (R5)" is superseded
+   as the binding home, and R5 remains the implementation owner of the Parts
+   table.
 5. **Scope and version.** This is a PATCH: clarifications and wording, no new
    principle, section, page, entity, role, limit, feature, slice, `FR`, `AC`, or
    `SC`. The constitution moves to 6.2.1 and `version.json` moves with it. No

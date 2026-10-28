@@ -7,7 +7,7 @@ manifest that names them.
 
 ## The authority
 
-The token set and the rendering rules are ADR-128. The conformance gate is
+The token contract and the rendering rules are ADR-128. The conformance gate is
 ADR-129. The pages, their blocks, their order, and their states belong to the
 specification and to the slice map; ADR-128 deliberately does not fix them.
 Three adopted departures sit beside the contract: the six part-family cards on
@@ -21,6 +21,11 @@ from it as code. The manifest's `http://localhost:4321` URLs record the capture
 source as provenance, not a dependency. Its screenshots are evidence that the
 contract was rendered and measured; they are not a baseline the product diffs
 against.
+
+Capture drift: the screenshots were captured on 2026-10-27. The lab's shared
+`:root` gained ten skeleton tokens on 2026-10-28, after the capture, so the
+loading references predate those tokens. The layer records the final values;
+the screenshots remain evidence, not a baseline.
 
 ## Reference versus baseline
 
@@ -49,7 +54,9 @@ against.
    values (ADR-128 decision 2).
 2. `slice-map.md` for the composition and the states of the slice in hand.
 3. The slice's specification for the binding requirements.
-4. The slice's plan for the baseline set and the gate.
+4. The slice's plan for the baseline set and the gate, and for any literal
+   Arabic copy the specification leaves open; the token values live in the
+   layer, not in the plan.
 
 ## Status
 

@@ -109,7 +109,9 @@ response is uniform whether or not the account exists; five consecutive failed
 attempts lock the account for fifteen minutes.
 
 **Copy.** The lab's Arabic labels are the reference; the specification fixes the
-final strings. The OTP expiry copy is a plan value; there is no lockout copy.
+rules, not the literal strings. The literal strings are fixed design values
+taken from the reference and recorded in the plan. The OTP expiry copy is a plan
+value; there is no lockout copy.
 
 **Behaviour.** OTP at sign-up; no OTP at sign-in; the city list is one fixed
 dataset; a successful password change ends every session; the frame's routes are
@@ -124,10 +126,10 @@ bar) and the sample accounts.
 **Tokens.** ADR-128; the bare layout's type, focus ring, and touch floor.
 
 **Screenshots.** P0 at 1280 and 375 light; P1 for the done state and the
-lab-only locked state; P2 for the dark sign-in. The OTP/code state and the
-post-submit uniform-response state are not captured; the slice's plan must
-record the gap in its Complexity Tracking table with an owner and a review date
-(the rule in `README.md`).
+lab-only locked state; P2 for the 1280 dark sign-in. The reference set does not
+capture the code, error, loading, disabled, post-submit, or 375 dark states;
+the slice's plan must record each gap in its Complexity Tracking table with an
+owner and a review date (the rule in `README.md`).
 
 **Resolved 2026-10-27.** The clarification session settled the R1 questions
 recorded for it, and the specification now carries the binding answers: FR-024
