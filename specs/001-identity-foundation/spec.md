@@ -35,8 +35,14 @@
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
        - the decision register — `docs/DECISIONS.md`'s index and the volumes
-         under `docs/decisions/` (ADR-001 … ADR-138). A specification that
+         under `docs/decisions/` (ADR-001 … ADR-139). A specification that
          contradicts one is a blocking defect.
+       - `docs/design/slice-map.md` — the slice's entry: its blocks and order,
+         its states, its copy, and the open questions this specification must
+         answer. Reference, not a source of rules; the binding version is this
+         specification.
+       - `ROADMAP.md` — the slice's scope, dependencies, and what this slice
+         does not do (ADR-134).
        - `docs/domain-model.md` — the entities a Key Entities section may name,
          and the invariants such a specification MUST NOT contradict. A
          specification MUST NOT invent an entity, and MUST NOT restate the
@@ -170,7 +176,7 @@
 
 ### Session 2026-10-21
 
-- Q: The operator has fixed the shared shell's composition: what does the header carry, where do the theme switch and the sidebar-collapse control live, and what happens when the account control is used? → A: The header carries only the platform's logo/home control at its inline-start edge and the account control at its inline-end edge, with no page-navigation link, no notifications control, no theme switch, and no sidebar-collapse control; the theme switch and the collapse control sit in the sidebar; the account control opens a menu carrying «حسابي»، «إعدادات»، and «تسجيل الخروج»، and the sign-out item asks for a yes-or-no confirmation. A guest sees the sign-in action in place of the account control only. «إعدادات» is a section inside the Profile page, so no page is added and the Product Register stays at twenty-seven pages. The frame's composition and the menu are verified structurally here; the runtime behaviour lands with the first page that carries the frame (R4), and the destinations land with R7. FR-020, FR-022 … FR-025, FR-039, FR-047, AC-022, AC-024, AC-025, AC-027, AC-042, and AC-051 carry the rule; ADR-099 is the decision record. (Revised 2026-10-21 by ADR-102: the header carries the logo/home control at its inline-start edge and, at its inline-end edge, the notifications control, the theme switch, and the account control; the sidebar carries the navigation item list and the collapse control; a guest keeps the theme switch, and the sign-in action replaces the account and notifications controls.) (Revised 2026-10-25 by ADR-126: the register gains the Upload Catalog page and stays at twenty-eight pages, and the item list gains its ninth destination.)
+- Q: The operator has fixed the shared shell's composition: what does the header carry, where do the theme switch and the sidebar-collapse control live, and what happens when the account control is used? → A: The header carries only the platform's logo/home control at its inline-start edge and the account control at its inline-end edge, with no page-navigation link, no notifications control, no theme switch, and no sidebar-collapse control; the theme switch and the collapse control sit in the sidebar; the account control opens a menu carrying «حسابي»، «إعدادات»، and «تسجيل الخروج»، and the sign-out item asks for a yes-or-no confirmation. A guest sees the sign-in action in place of the account control only. «إعدادات» is a section inside the Profile page, so no page is added and the Product Register stays at twenty-seven pages. The frame's composition and the menu are verified structurally here; the runtime behaviour lands with the first page that carries the frame (R2), and the destinations land with R7. FR-020, FR-022 … FR-025, FR-039, FR-047, AC-022, AC-024, AC-025, AC-027, AC-042, and AC-051 carry the rule; ADR-099 is the decision record. (Revised 2026-10-21 by ADR-102: the header carries the logo/home control at its inline-start edge and, at its inline-end edge, the notifications control, the theme switch, and the account control; the sidebar carries the navigation item list and the collapse control; a guest keeps the theme switch, and the sign-in action replaces the account and notifications controls.) (Revised 2026-10-25 by ADR-126: the register gains the Upload Catalog page and stays at twenty-eight pages, and the item list gains its ninth destination.) (Corrected 2026-10-29 by ADR-139: the first page carrying the frame is R2, the Upload Catalog page; R4 is the first table, not the first page inside the merchant area.)
 - Q: What does the «إعدادات» item show, and how does it differ from «حسابي»? → A: «حسابي» opens the Profile page at its top, where the account's identity and status are shown, and «إعدادات» opens the settings section of that same page, where the account details are edited and the password is changed; the two items share the one Profile route the frame's decision record fixes, the settings section being identified by an anchor, so no page and no entity is added. FR-047 and AC-051 carry the rule.
 - Q: After the account menu settled on three items, where does a merchant trigger the action that ends every session of their account at once? → A: In the settings section of the Profile page, beside the account details and the password change, so the account menu keeps its three items; the action is delivered by the Profile slice (R7), and the Profile page's content in the constitution's Product Scope and its `Core-Project.txt` mirror carry it. FR-047 carries the rule.
 - Q: The sidebar's item list is the same for a guest and a signed-in merchant, so a guest can press an item that names a merchant-area destination — what does the platform show then? → A: The sign-in page: the platform takes the guest there, because the register gives a guest no cart, no upload, no message, and no merchant area; the item itself stays present and enabled, since the list is not varied by role, and the three items that name a public destination — Home, Parts, and Catalog — open their own pages as they do for a merchant. The rule adds no page, no route, and no stored state, and whether the merchant returns to the item they wanted after signing in is a decision of the slice that ships the merchant area's pages. FR-048 and AC-052 carry the rule.
@@ -184,11 +190,11 @@
 
 ### Session 2026-10-21 (2)
 
-- Q: The Assumptions said sign-out has no surface in this slice, yet FR-041, FR-047, AC-051, and ADR-099's decision 6 say the account menu's third item and its confirmation are built and verified structurally here. Which is true? → A: The frame's composition is true: the control that offers sign-out is the account menu's third item with its yes-or-no confirmation, and this slice builds and verifies it structurally, because no page this slice ships renders the frame (ADR-099). Only its runtime behaviour lands with the slice that ships the first page carrying the frame (R4), and the action that ends every session of the account at once is the profile page's settings action (R7). The stale Assumption is replaced rather than supplemented, and FR-041 and US2's Independent Test are reworded to the same boundary. (Revised 2026-10-21.)
+- Q: The Assumptions said sign-out has no surface in this slice, yet FR-041, FR-047, AC-051, and ADR-099's decision 6 say the account menu's third item and its confirmation are built and verified structurally here. Which is true? → A: The frame's composition is true: the control that offers sign-out is the account menu's third item with its yes-or-no confirmation, and this slice builds and verifies it structurally, because no page this slice ships renders the frame (ADR-099). Only its runtime behaviour lands with the slice that ships the first page carrying the frame (R2), and the action that ends every session of the account at once is the profile page's settings action (R7). The stale Assumption is replaced rather than supplemented, and FR-041 and US2's Independent Test are reworded to the same boundary. (Revised 2026-10-21.)
 - Q: FR-029's hidden-field refusal says it returns the same response a successful submission receives, starts no pending request, dispatches no code, and that the silence covers the response and the following step. Which of these can hold together? → A: The guarantee is about the response alone, and the flow stops at that response: no pending request is started, no one-time code is dispatched, and the code step is not reached. The absent code is a consequence of the refusal rather than a signal of it, the submission still consumes the account-creation budget, and the form still cannot be turned into a way to send SMS to numbers the submitter does not control. FR-029, AC-031, and the matching edge case are reworded to the same rule. (Revised 2026-10-21.)
 - Q: FR-020 said the icon set did not exist yet and that this slice must choose it, but ADR-098 already chose the set. What does this slice still owe? → A: The set is chosen and recorded (ADR-098); what the register still leaves open is the record itself. This slice records the chosen set in the technology register, records it in the plan's Constitution Mandated Values, and executes the register-gap decision record, the licence-obligation record, the vulnerability scan, and the vendoring the register requires. FR-020 and the matching Assumption are reworded to that rule. (Revised 2026-10-21.)
 - Q: FR-048, FR-049, AC-027, AC-052, and AC-053 assert runtime behaviour, yet no page in this slice renders the frame. Who verifies them? → A: This slice verifies the frame's composition and the presence of its controls structurally, and the slice that ships the first page carrying the frame verifies the runtime behaviour — the same boundary the neighbouring requirements and criteria already carry. The five are given that clause, so none of them asserts behaviour this slice cannot exercise. (Revised 2026-10-21.)
-- Q: FR-024 chooses the footer band as the surface carrying the four static-page links, but the constitution binds the reachability requirement to the slice that chooses the surface, and this slice ships no page that carries the frame. How is the requirement discharged? → A: It is discharged by the slice that ships the first page carrying the frame (R4), because the surface this slice chooses renders on no page of its own. This slice builds the surface, fixes the four routes, and binds the rule; its plan records that deferral in the Complexity Tracking table with an owner and a review date. FR-024, AC-026, and the matching Assumption carry the deferral, and the constitution is left as it is. (Revised 2026-10-21; revised 2026-10-27: the constitution fixes the surface as the footer band (ADR-096) and ADR-127 its narrow-screen placement, so the deferral rests on no page here carrying the frame rather than on this slice choosing the surface.)
+- Q: FR-024 chooses the footer band as the surface carrying the four static-page links, but the constitution binds the reachability requirement to the slice that chooses the surface, and this slice ships no page that carries the frame. How is the requirement discharged? → A: It is discharged by the slice that ships the first page carrying the frame (R2), because the surface this slice chooses renders on no page of its own. This slice builds the surface, fixes the four routes, and binds the rule; its plan records that deferral in the Complexity Tracking table with an owner and a review date. FR-024, AC-026, and the matching Assumption carry the deferral, and the constitution is left as it is. (Revised 2026-10-21; revised 2026-10-27: the constitution fixes the surface as the footer band (ADR-096) and ADR-127 its narrow-screen placement, so the deferral rests on no page here carrying the frame rather than on this slice choosing the surface.)
 - Q: The specification named two implementation details in a file that must name none — the client's identity was fixed by a transport-specific term, and the output-encoding rule named a platform technology as its default. What replaces them? → A: The client is identified by the request's network origin, which FR-033 already used, and the output-encoding rule is satisfied by a default the platform provides rather than by this requirement, with a test that fails when the encoding is removed. Neither rewrite changes the rule. (Revised 2026-10-21.)
 - Q: The pending verification state and the three new account fields are not tracked anywhere a reviewer can read. What records them? → A: The transient verification store is recorded in `docs/domain-model.md` as transient, non-entity state owned by the `users` module, with its invariants, so it is documented without entering the entity register; and the account-level amendment's content is named explicitly as exactly three fields on `User` — the consecutive-failed-attempt count, the lock's expiry, and the requirement to change the password at first sign-in — with the amendment tracked in the plan's Ownership Map and Complexity Tracking. (Revised 2026-10-21.)
 - Q: FR-018 and AC-020 named the retention job as a way personal data is removed, while the register fixes no period and R15 owns the retention trigger. What does the specification now say? → A: The account's personal data is removed only by an administrator action; the specification fixes no retention period and asserts no trigger, and the retention job's scope over account rows is not asserted here either. (Revised 2026-10-21.)
@@ -238,7 +244,7 @@
 ### Session 2026-10-27
 
 - Q: The header now carries no drawer control, so what opens the sidebar drawer on a narrow screen, and what closes it? → A: The bottom navigation bar's «المزيد» slot opens the drawer, and the sidebar-collapse control inside the drawer closes it; «المزيد» does not toggle it, and the header carries neither control, so one control opens and a different one closes. FR-022, FR-023, FR-052, AC-024, and AC-042 carry the rule (decided 2026-10-27, Clarifications).
-- Q: The footer band carries the four static-page links, but the frame now has a bottom bar on a narrow screen — is the band still rendered there, and where do its links go? → A: On a narrow screen the band is not rendered, and the same four links sit at the bottom of the drawer the bottom bar's «المزيد» slot opens, so the reachability requirement is unchanged and is still discharged by the slice that ships the first page carrying the frame (R4). FR-024, FR-052, AC-026, and the matching edge case carry the rule (decided 2026-10-27, Clarifications).
+- Q: The footer band carries the four static-page links, but the frame now has a bottom bar on a narrow screen — is the band still rendered there, and where do its links go? → A: On a narrow screen the band is not rendered, and the same four links sit at the bottom of the drawer the bottom bar's «المزيد» slot opens, so the reachability requirement is unchanged and is still discharged by the slice that ships the first page carrying the frame (R2). FR-024, FR-052, AC-026, and the matching edge case carry the rule (decided 2026-10-27, Clarifications).
 - Q: Does the bottom bar carry the same five slots for a guest and for a signed-in merchant, or does its composition vary by role? → A: It is one composition shown identically to both — Home, Upload Catalog, the raised search action to the Parts page, My Files, and «المزيد». A guest who activates a merchant-area slot — Upload Catalog or My Files — is taken to the sign-in page on FR-048's terms while the slot stays present and enabled, exactly as the sidebar's list is not varied by role. FR-052, FR-048, AC-042, and AC-052 carry the rule (decided 2026-10-27, Clarifications).
 - Q: FR-052 sits between FR-024 and FR-025 and cites neither ADR-127 nor ADR-128, although ADR-127's consequences name FR-052. Where does it belong, and what must it cite? → A: It moves after FR-051, so the functional requirements read in numeric order and no requirement sits inside another requirement's block. It cites ADR-127 for the five slots and the drawer behaviour, ADR-132 for the scroll rule and the raised action's travel, and ADR-128 for the labels, measurements, and icon treatment. One sentence states the scroll rule ADR-132 fixes — the bar hides after 32px of cumulative downward scroll and returns on the first 16px of upward scroll or within 56px of the top. FR-022 and AC-026 keep their references to FR-052, and no identifier is renumbered. FR-052, FR-022, and AC-026 carry the rule (decided 2026-10-27, Clarifications; ADR-127; ADR-128; ADR-132).
 - Q: FR-024 says "This slice chooses the surface that carries them", but the constitution and ADR-096 already fix that surface as the footer band inside the frame. What does this slice still owe, and how must FR-024 and AC-026 read? → A: The surface is fixed, not chosen here: it is the footer band inside the frame (constitution, Product Scope; ADR-096 decision 2). This slice builds the band inside the frame and records the routes it links to in a decision record, as FR-024 already requires; no second surface choice is recorded. FR-024 is reworded to "The surface is the footer band (ADR-096); this slice builds it and records the routes it links to in a decision record", AC-026's "the surface that carries those links is chosen and built in this slice" becomes "the surface that carries those links is the footer band fixed by ADR-096 and built in this slice", and every earlier bullet that still says this slice chooses the surface gains a revision note naming ADR-096. FR-024, AC-026, and the matching Assumption carry the rule (decided 2026-10-27, Clarifications; ADR-096).
@@ -447,7 +453,12 @@ behaviour, and the menu's behaviour are not
 exercised at runtime in this slice: they are verified by the slice that ships
 the first page carrying the frame, and this slice verifies the controls'
 presence in the frame's composition (decided 2026-10-11; revised 2026-10-21,
-Clarifications; revised 2026-10-27, Clarifications).
+Clarifications; revised 2026-10-27, Clarifications). The structural-only
+verification is recorded as exception `EX-007` in
+`.specify/templates/exception-register.md`, with its exact scope, the repository
+owner as approver, and a review date, because Principle VIII is
+NON-NEGOTIABLE and a Complexity Tracking row is not the instrument for it
+(ADR-139).
 
 **Acceptance Scenarios**: covered by AC-022 – AC-028, AC-039, AC-042, AC-044, AC-051, AC-052, and AC-053 in the Acceptance Criteria section.
 
@@ -493,7 +504,7 @@ arrives with a later slice.
 
 ---
 
-### User Story 7 - Sign-up resists automated abuse without a CAPTCHA (Priority: P3)
+### User Story 7 - Sign-up resists automated abuse without a CAPTCHA (Priority: P1)
 
 The sign-up form is protected against automated submission by a hidden field a
 person leaves empty, a minimum time between the form being shown and being
@@ -507,8 +518,12 @@ request forgery, every value a person supplies is encoded for its output context
 and every response carries the security headers the constitution names (decided
 2026-10-11, Clarifications).
 
-**Why this priority**: It is a protection layer over sign-up rather than a
-merchant journey of its own, but it must exist with the form it protects.
+**Why this priority**: It is the protection layer the constitution requires of
+the first browser-facing feature, and this slice ships that feature, so the
+control set is P1: the form and its controls ship together or not at all. The
+story sits last in this file because requirement identifiers are fixed, not
+because its priority is lower; the P1 checkpoint includes its integration tests
+(ADR-139).
 
 **Independent Test**: Can be fully tested by submitting the form with the hidden
 field filled, before the minimum time has passed, and more often than the limit,
@@ -679,6 +694,14 @@ Acceptance Criteria section.
 - A person who has just set a new password tries to use the same one-time code
   again. The pending request has ended, so the code is refused and a fresh
   request is needed (AC-036, FR-034).
+- A merchant changes the password from inside the account while a
+  password-recovery request for their number is live, or while its verified
+  new-password step is live. The change ends the recovery request and its
+  verified state at once, so the code already delivered and the new-password
+  step can no longer set a password, and the person starts a fresh recovery;
+  the change's own session endings and security notice are unaffected. A
+  successful sign-in alone ends nothing, because it does not change the
+  credential (AC-016, FR-013, FR-014, FR-034).
 - A +218 number that is not a mobile number (for example a landline) is
   submitted. It is refused, because the account identifier is a Libyan *mobile*
   number (AC-003).
@@ -1191,8 +1214,8 @@ serves, and each criterion names the requirements it asserts (decided
   cannot keep a session alive indefinitely and the timeout keeps its meaning.
   Both values are stated numerically under
   Constitution Mandated Values. A session survives the browser being closed and
-  reopened: the browser retains the reference that proves the session, while the
-  session itself stays on the server and is never recoverable from browser
+  reopened: the browser retains only the reference that proves the session, and
+  the session itself is never recoverable from browser
   storage, so a merchant who
   returns before the session's absolute maximum lifetime is still signed in, and
   only the session timeout or the absolute maximum lifetime ends it; closing the
@@ -1645,7 +1668,7 @@ serves, and each criterion names the requirements it asserts (decided
   2026-10-11; revised 2026-10-21, Clarifications; revised 2026-10-25,
   ADR-126). The reachability requirement
   itself — that an in-scope static page no in-scope page links to is a defect —
-  is discharged by the slice that ships the first page carrying the frame (R4),
+  is discharged by the slice that ships the first page carrying the frame (R2),
   because this slice ships no page that carries the frame and the fixed surface
   therefore renders on no page of its own; this slice builds the surface,
   fixes the four routes, and binds the rule, and its plan records that deferral
@@ -1964,9 +1987,10 @@ serves, and each criterion names the requirements it asserts (decided
    failure, as the rule above states (decided 2026-10-11, Clarifications). In the
    password-recovery flow the
   correct code MUST end its own validity at once, and the pending request MUST
-  end when the new password is set or when a new request replaces it, so a
-  verified code cannot authorise a second reset (decided 2026-10-22,
-  Clarifications). The same rule governs the sign-up
+  end when the new password is set, when a new request replaces it, or when the
+  account's password changes by another path (FR-014), so a verified code cannot
+  authorise a second reset and a reset authority created before a password change
+  never survives it (decided 2026-10-22 and 2026-10-29, Clarifications). The same rule governs the sign-up
   path's own outcome: when the correct code is entered for a number that already
   has an account, the pending request MUST end once the outcome is stated, so no
   live request survives an outcome the platform has already reported
@@ -2052,6 +2076,13 @@ serves, and each criterion names the requirements it asserts (decided
   type, and a restriction naming which frames may embed the page. Their presence
   MUST be asserted by an automated test, because this slice is the first
   browser-facing feature the policy names (decided 2026-10-11, Clarifications).
+
+- **FR-053**: Every merchant-scoped read and write MUST pass through the single
+  shared entry point that applies the account's scope, so that no path — the
+  session lookup this slice serves or any path a later slice adds — can return
+  another account's row. The scope MUST be asserted by an automated test that
+  fails when the scope is removed, because `Session` is a merchant-scoped table
+  and this slice is the first slice to read one (ADR-139).
 
 ### Test Coverage Request *(mandatory)*
 
@@ -2143,7 +2174,11 @@ serves, and each criterion names the requirements it asserts (decided
   lasts no longer than the pending request's own lifetime, it survives a
   reload, and setting the new password ends it — or a new request replaces the
   pending request, which ends the verified state at once — so the same code
-  cannot authorise a second reset (decided 2026-10-22, Clarifications) — the
+  cannot authorise a second reset (decided 2026-10-22, Clarifications), and the
+  ending of a live recovery request and its verified state when the account's
+  password changes by another path, while a successful sign-in alone ends
+  nothing because it does not change the credential (decided 2026-10-29,
+  Clarifications) — the
   verified state's ending at the end of its lifetime, with the page returning to
   the flow's first step and a password submitted after it refused and setting no
   password (decided 2026-10-28, Clarifications), and the indivisibility of the
@@ -2226,7 +2261,10 @@ serves, and each criterion names the requirements it asserts (decided
   (decided 2026-10-11, Clarifications), and including the combined case where
   that account is also blocked — the role refuses the reset and the block is not
   reported, because the role ground closes the credential path first (decided
-  2026-10-29, Clarifications) — and the
+  2026-10-29, Clarifications), and including the ending of a live recovery
+  request and its verified state when the account's password changes by another
+  path, while a successful sign-in alone ends nothing (decided 2026-10-29,
+  Clarifications) — and the
   session store's revocation paths — including the withdrawal that follows an
   account's block, with the blocked state set directly because this slice
   carries no act of blocking, and including the account's own change-password
@@ -2333,8 +2371,13 @@ runtime scan and keyboard-only pass belong to the slice that ships the first
   Clarifications). US2's sign-out,
   sign-out-of-every-device, and
   other session-ending paths — which no surface offers in this slice — together
-  with US4, US6, and US7, are covered by the unit and integration tests named
-  above. The journeys are measured on SC-001's and SC-003's terms, excluding the
+  with US4 and US6, are covered by the unit and integration tests named
+  above, while US7's rate limit, hidden
+  field, minimum time-to-submit, request-forgery protection, output encoding,
+  and security headers are integration tests that gate this slice's P1
+  checkpoint rather than travelling with the deferred journeys, because the
+  first browser-facing feature cannot ship without them (ADR-139). The journeys
+  are measured on SC-001's and SC-003's terms, excluding the
   time a code spends in delivery after the messaging channel accepts it
   (decided 2026-10-24, Clarifications). The three bare pages are exercised at the
   smallest supported width of 320 CSS px as well as at a wide width of 1024px or
@@ -2350,7 +2393,12 @@ runtime scan and keyboard-only pass belong to the slice that ships the first
   and covered by the slice that exercises
   them, while the frame's composition and the presence of its controls remain
   covered here by the structural verification (decided 2026-10-22,
-  Clarifications).
+  Clarifications). Both this exclusion and SC-009's measurement ceiling — up to
+  10,000 registered accounts, 500 concurrent sessions, and 10 authentication
+  requests per second, against the capacity model's larger envelope — are
+  deviations from a binding rule, so the plan MUST carry each as a Complexity
+  Tracking row with an owner and a review date; naming them here does not
+  discharge them (ADR-139).
 
 ### Key Entities *(include if the feature involves data)*
 
@@ -2368,7 +2416,7 @@ runtime scan and keyboard-only pass belong to the slice that ships the first
   directly, with no one-time code and no verification step (decided 2026-10-11,
   Clarifications). Its
   relationship to this feature is one account to many sessions.
-- **Session**: one server-side session for an account. It represents the proof
+- **Session**: one session for an account, held by the platform. It represents the proof
   that a merchant is signed in, and it is revocable on its own or all at once
   ("sign out of every device"). This feature creates it and relies on the
   invariants that a session belongs to exactly one account, that it is revoked
@@ -2383,8 +2431,8 @@ runtime scan and keyboard-only pass belong to the slice that ships the first
   signing in never revokes an existing session, and "sign out of every device"
   is the action an account uses to end them all at once (decided 2026-10-11,
   Clarifications). A session outlives the page and the browser that created it:
-  the browser retains the reference that proves it while the session itself stays
-  on the server and is never recoverable from browser storage, and it ends only
+  the browser retains only the reference that proves it, the session is
+  never recoverable from browser storage, and it ends only
   when the session timeout elapses with no
   activity or when it reaches its absolute maximum lifetime, so closing the
   browser neither ends it nor resets either clock (decided 2026-10-11,
@@ -2395,8 +2443,9 @@ entity: the constitution names it as one dataset held for accounts, and every
 later slice reads it rather than writing its own.
 
 No third entity is introduced (decided 2026-10-10, Clarifications). The pending
-sign-up data and the one-time codes are transient verification state, held in an
-expiring store outside the entity register rather than as an entity; because the
+sign-up data and the one-time codes are transient verification state held
+outside the entity register as state that carries an expiry rather than as an
+entity; because the
 store carries a per-number identity, an expiry, a replacement rule, a count of
 the new codes the live request has asked for, and a bound on incorrect entries
 that counts only a wrong value for the live code — an
@@ -2407,8 +2456,8 @@ change that records the decision — so the store is documented without entering
 the entity register (decided 2026-10-21 and 2026-10-22, Clarifications). The pending sign-up
 request carries the details the form collected, so that the account can be
 created when the correct code is entered; the password among them is held only
-in the same irreversibly protected form a stored password has, never in
-plaintext, and it is discarded when the request is replaced or ends (decided
+in the same protected form a stored password has, which cannot be reversed — never in
+plaintext — and it is discarded when the request is replaced or ends (decided
 2026-10-22, Clarifications). Exactly one
 pending request is live per mobile number: a new sign-up or recovery request for
 a number that already has a live pending request replaces it and invalidates its
@@ -2421,10 +2470,13 @@ channel refuses changes neither the code nor the expiry (decided 2026-10-24,
 Clarifications). In the password-recovery flow,
 entering the correct code moves the pending request to a verified state that
 carries the new-password step alone, lasts no longer than the pending request's
-own lifetime, survives a reload, and ends when the new password is set or when a
-new request replaces the pending request — so the
-same code cannot authorise a second reset and a replaced request leaves no
-verified state behind (decided 2026-10-22, Clarifications). When that lifetime
+own lifetime, survives a reload, and ends when the new password is set, when a
+new request replaces the pending request, or when the account's password changes
+by another path — so the
+same code cannot authorise a second reset, a replaced request leaves no
+verified state behind, and a reset authority created before a password change
+never survives it, while a successful sign-in alone ends nothing because it does
+not change the credential (decided 2026-10-22 and 2026-10-29, Clarifications). When that lifetime
 elapses while the person is still on the new-password step, the state ends at
 that moment and the page returns to the flow's first step, so an expired state
 never sets a password (decided 2026-10-28, Clarifications).
@@ -2436,14 +2488,13 @@ request and no usable code outlive the step that would have carried them
 the account itself carries — the consecutive-failed-attempt count, the lock, and
 the requirement to change the password at first sign-in, which the change made
 at that first sign-in clears and no other path clears — is an account
-property: the shape that carries it is a field-level change recorded through
-`docs/domain-model.md` and a decision record, with the register's `User` row
-amended in the same change rather than extended silently. That amendment's
-content is exactly three fields on `User` — the consecutive-failed-attempt
-count, the lock's expiry, and the requirement to change the password at first
-sign-in — and the amendment is this slice's, recorded in its plan's Ownership
-Map and Complexity Tracking so it is not left to be inferred (decided 2026-10-21,
-Clarifications).
+property: three fields on `User` — the consecutive-failed-attempt count, the
+lock's expiry, and the requirement to change the password at first sign-in — and
+they are already registered: ADR-105 amended the register's `User` row and
+`docs/domain-model.md` in the same change. This feature implements them and makes
+no second amendment, so its plan cites ADR-105 in the Ownership Map and
+Complexity Tracking rather than recording the change again (decided 2026-10-21,
+Clarifications; corrected 2026-10-29, ADR-139).
 
 ## Acceptance Criteria *(mandatory)*
 
@@ -2549,7 +2600,7 @@ Clarifications).
    the number has an account; the password is not shown back in any form —
    neither re-displayed, nor echoed, nor rendered masked — so a submitted
    password never returns to the browser, and the pending request holds it only
-   in the same irreversibly protected form a stored password has, so no
+   in the same protected form a stored password has, which cannot be reversed, so no
    plaintext password is held while the request lives *(FR-038)*; **And given**
    the code step, **Then**
    it carries a control that requests a new one-time code, subject to the limit
@@ -2776,7 +2827,13 @@ Clarifications).
     **Then** the confirmation states both that the password was changed and that
     the account is blocked, so sign-in stays refused until an administrator
     returns the account to active, and nothing about the block is disclosed
-    before the code is verified *(FR-014, FR-017)*
+    before the code is verified *(FR-014, FR-017)*; **And given** the account's
+    password changes by another path while a recovery request for its number is
+    live — or while its verified new-password step is live — **Then** that change
+    ends the request and its verified state at once, the code already delivered
+    and the step can no longer set a password, and the person must start a fresh
+    recovery, while a successful sign-in alone ends nothing *(FR-013, FR-014,
+    FR-034)*
 24. **AC-017**: **Given** a password-recovery request, **When** the number has no
     account, **Then** the request's response, the following step, and the sending
     of the code do not reveal whether an account exists and match those for a
@@ -3055,7 +3112,7 @@ Clarifications).
      binds that composition and delivers nothing of it, and the slice that
      ships the administrator application builds and verifies it *(FR-050)*
 
-### User Story 7 — Sign-up resists automated abuse without a CAPTCHA (P3)
+### User Story 7 — Sign-up resists automated abuse without a CAPTCHA (P1)
 
 46. **AC-031**: **Given** the sign-up form, **When** it is submitted with the
     hidden field filled in, **Then** no account is created and the response is
@@ -3213,6 +3270,14 @@ Clarifications).
      value rule has passed *(FR-051, FR-001, FR-005, FR-035)*; **And given** a
      submission refused at one step, **Then** no later check runs and no earlier
      refusal is replaced *(FR-051)*
+
+### Cross-cutting — merchant-scoped data access
+
+1. **AC-056**: **Given** the shared entry point every merchant-scoped read and
+   write passes through, **When** a session is looked up by its reference,
+   **Then** the query carries the account's scope, and an automated test that
+   reads another account's session through the same entry point fails when the
+   scope is removed *(FR-053)*
 
 ## Success Criteria *(mandatory)*
 
@@ -3505,11 +3570,16 @@ Clarifications).
   administrator account (decided 2026-10-11, Clarifications). The administrator's separate login
   surface — the page — belongs to the slice that ships the administrator
   application.
-- **The base project is established by this slice.** The repository workspaces,
-  the shared configuration, the test runner, the account and authentication
-  capabilities, and the supporting infrastructure the rules require
-  (including the SMS channel that carries the one-time codes) are created here;
-  their technical composition is fixed in the plan, not in this specification.
+- **The base project is established by R1's foundation phase, and the identity
+  work begins after its checkpoint.** The repository workspaces,
+  the shared configuration, the test runner, and the supporting infrastructure
+  the rules require (including the SMS channel that carries the one-time codes)
+  are created in a phase that runs before the account and authentication work,
+  and the phase is accepted before any identity requirement is verified. It is a
+  phase of this slice's plan, not a separate slice and not work that precedes
+  R1: `ROADMAP.md` names it once and retires the phrase "pre-R1 foundation"
+  (ADR-139). Their technical composition is fixed in the plan, not in this
+  specification.
 - **SMS delivery time is outside the platform's control** and is excluded from
   the timing criteria: SC-001 and SC-003 measure the person's own actions and the
   platform's responses, excluding the time a code spends in delivery after the
@@ -3534,19 +3604,20 @@ Clarifications).
   Policy page will state — what sign-up collects, that the mobile number is the
   sole identifier, and that no merchant can delete their own account — while the
   page's wording belongs to the slice that ships it.
-- **No third entity, and the account-level state is an amendment (decided
-  2026-10-10, Clarifications; revised 2026-10-21, Clarifications).** The pending sign-up data and the one-time codes
-  are transient verification state held in an expiring store outside the entity
-  register, so this feature names no entity beyond `User` and `Session`; the
+- **No third entity, and the account-level state is already registered (decided
+  2026-10-10, Clarifications; revised 2026-10-21 and 2026-10-29,
+  Clarifications).** The pending sign-up data and the one-time codes
+  are transient verification state held outside the entity register as state that
+  carries an expiry, so this feature names no entity beyond `User` and `Session`; the
   store is recorded in `docs/domain-model.md` as transient, non-entity state
   owned by the `users` module, with its invariants, so it is documented without
   entering the entity register. The
   failed-attempt count, the lock, and the forced-password-change requirement are
-  account properties: this feature adds them through a field-level change
-  recorded in `docs/domain-model.md` and a decision record, with the register's
-  `User` row amended in the same change rather than left implicit; the
-  amendment's content is exactly those three fields, and the amendment is
-  tracked in this slice's plan's Ownership Map and Complexity Tracking.
+  account properties, and they are already registered: ADR-105 amended the
+  register's `User` row and `docs/domain-model.md` in the same change, so this
+  feature implements those fields and makes no second amendment; its plan cites
+  ADR-105 in the Ownership Map and Complexity Tracking (corrected 2026-10-29,
+  ADR-139).
 - **The sign-out control is the frame's, and no page here renders it (decided
   2026-10-10, Clarifications; revised 2026-10-21, Clarifications).** Sign-out
   and sign-out-of-every-device are delivered as behaviour and verified by the
@@ -3554,7 +3625,7 @@ Clarifications).
   third item with its yes-or-no confirmation — a part of the frame's
   composition, which this slice builds and verifies structurally here, because
   no page this slice ships renders the frame (ADR-099). Its runtime behaviour
-  lands with the slice that ships the first page carrying the frame (R4), and
+  lands with the slice that ships the first page carrying the frame (R2), and
   the action that ends every session of the account at once is the profile
   page's settings action (R7); the US2 end-to-end journey is correspondingly
   narrowed to sign-in.

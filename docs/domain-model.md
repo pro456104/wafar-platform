@@ -452,11 +452,16 @@ thirteenth entity. The `users` module owns the store.
   When the correct code is entered in the password-recovery flow, the code stops
   being usable at once and the pending request moves to a verified state that
   carries the new-password step alone, lasts no longer than the pending
-  request's own lifetime, and ends when the new password is set or when a new
-  request replaces the pending request, so the same
-  code cannot authorise a second reset. A reload while the state lives shows the
-  new-password step again; once the password is set the page returns to its
-  first step. (ADR-111, ADR-115.)
+  request's own lifetime, and ends when the new password is set, when a new
+  request replaces the pending request, or when the account's password changes
+  by another path — the account's own change action or the administrator's
+  forced first change — so the same
+  code cannot authorise a second reset and a reset authority created before a
+  password change never survives it. A successful sign-in alone does not end the
+  request, because it does not change the credential. A reload while the state
+  lives shows the new-password step again; once the password is set the page
+  returns to its first step. (ADR-111, ADR-115; decided 2026-10-29,
+  Clarifications.)
 - **Nothing here is an account.** No `User` row exists until the correct code is
   entered, so `User.status` stays the closed two-value set and the register's
   twelve entities stay twelve. The store's rows carry no merchant identity and

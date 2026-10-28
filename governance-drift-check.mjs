@@ -586,7 +586,7 @@ if (!proseCount) {
 const structuralCounts = [
   { id: 'G1', label: 'slices (R1–R15)', want: 15, file: 'ROADMAP.md',
     got: () => countMatches(read('ROADMAP.md'), /^\| R\d+ \|/gm) },
-  { id: 'G2', label: 'exception rows (EX-###)', want: 6,
+  { id: 'G2', label: 'exception rows (EX-###)', want: 7,
     file: '.specify/templates/exception-register.md',
     got: () => countMatches(read('.specify/templates/exception-register.md'), /^\| EX-\d{3} \|/gm) },
   { id: 'G3', label: 'principles', want: 10,

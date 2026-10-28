@@ -8,9 +8,11 @@ the constitution wins. The data model's entities and their owning modules are
 stated in `docs/domain-model.md`, which this document does not restate.
 
 **Status**: baseline for a repository where production code does not exist yet.
-Directories are created by the first feature or the pre-R1 foundation that owns
-them, and every directory holding production code is registered in that plan's
-Project Structure > Ownership Map (Project Structure and Debt Control).
+Directories are created by the first feature that owns them, or by R1's
+foundation phase for the workspace and the layer; the phrase "pre-R1 foundation"
+is retired (ADR-139). Every directory holding production code is registered in
+that plan's Project Structure > Ownership Map (Project Structure and Debt
+Control).
 
 ## 1. Repository layout (Monorepo)
 
@@ -275,7 +277,7 @@ Read/write notes:
   Deferred areas).
 - Decisions and their rationale: the decision register — `docs/DECISIONS.md`
   (index and reading protocol) and `docs/decisions/volume-NN.md` (records),
-  ADR-001 … ADR-138.
+  ADR-001 … ADR-139.
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.

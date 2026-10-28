@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-10-10
-**Refreshed**: 2026-10-22 — after ADR-111 (the recovery flow's verified state, and the bare pages' state announcements), again after the fifth `/speckit.clarify` session of that date (five answers; see Notes), again after the sixth session of that date (five answers; ADR-114), and again after the seventh session of that date (five answers; ADR-115); 2026-10-24 — the Assumptions' scale sentence now names `docs/capacity-model.md` as the planning authority (no requirement, criterion, or count changed); 2026-10-27 — the frame's fourth surface (the bottom bar), the drawer's opener and closer, and the footer's narrow-screen rule; 2026-10-27 (second session) — the footer band's surface authority, FR-052's position and citations, and the locked state's copy; 2026-10-27 (third session) — FR-052 moves after FR-051 and names ADR-127 and ADR-128; 2026-10-27 (correction) — ADR-132 corrects the first-visit appearance to the device preference and reverses the bar's visibility to scroll-hide, and the two stale Clarifications answers were corrected to FR-025 and FR-052 (no identifier or count changed); 2026-10-28 — ADR-137 restores the light default and the outline icon cut, and adds the page-size default (20) and the focus line (no identifier or count changed)
+**Refreshed**: 2026-10-22 — after ADR-111 (the recovery flow's verified state, and the bare pages' state announcements), again after the fifth `/speckit.clarify` session of that date (five answers; see Notes), again after the sixth session of that date (five answers; ADR-114), and again after the seventh session of that date (five answers; ADR-115); 2026-10-24 — the Assumptions' scale sentence now names `docs/capacity-model.md` as the planning authority (no requirement, criterion, or count changed); 2026-10-27 — the frame's fourth surface (the bottom bar), the drawer's opener and closer, and the footer's narrow-screen rule; 2026-10-27 (second session) — the footer band's surface authority, FR-052's position and citations, and the locked state's copy; 2026-10-27 (third session) — FR-052 moves after FR-051 and names ADR-127 and ADR-128; 2026-10-27 (correction) — ADR-132 corrects the first-visit appearance to the device preference and reverses the bar's visibility to scroll-hide, and the two stale Clarifications answers were corrected to FR-025 and FR-052 (no identifier or count changed); 2026-10-28 — ADR-137 restores the light default and the outline icon cut, and adds the page-size default (20) and the focus line (no identifier or count changed); 2026-10-29 — ADR-139's repair set: US7 raised to P1, FR-053 and AC-056 added for merchant-scoped access, R2 named as the first page carrying the frame, `EX-007` recorded for US5's structural verification, the account fields cited to ADR-105, the binding block completed, and the two deviations (the frame's runtime coverage, the measurement ceiling) named where the specification states them
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -28,6 +28,10 @@
 - [x] All functional requirements have clear acceptance criteria
 - [x] User scenarios cover primary flows
 - [x] Feature meets measurable outcomes defined in Success Criteria
+- [x] The P1 set satisfies every applicable MUST — the rate limit and the three
+      access controls (US7: FR-033, FR-044, FR-045, FR-046) gate the P1
+      checkpoint, so the first browser-facing feature does not ship without them
+      (ADR-139)
 - [x] No implementation details leak into specification
 
 ## Constitutional Compliance
@@ -43,13 +47,15 @@
       register is not amended by this specification (ADR-126 amended it, and the
       item list's ninth destination is carried by FR-039, AC-042, and US5)
 - [x] No requirement contradicts an accepted decision record
-- [x] Identifiers are contiguous, stable, and never reused — FR-001 … FR-052,
-      AC-001 … AC-055, SC-001 … SC-009, with no gap, no renumbering, and no
+- [x] Identifiers are contiguous, stable, and never reused — FR-001 … FR-053,
+      AC-001 … AC-056, SC-001 … SC-009, with no gap, no renumbering, and no
       dangling reference
 - [x] Every user story is independently testable and deliverable — US5's
-      independent test is structural, and the strain its deferred runtime
-      behaviour places on Principle VIII is recorded here for the plan's
-      Constitution Check
+      independent test is structural, and that deviation is now governed rather
+      than noted: `EX-007` records it with the repository owner as approver and
+      2026-12-01 as the review date, and it ends when R2 renders the frame and
+      verifies its runtime, its accessibility scan, and its keyboard-only pass
+      (ADR-139)
 - [x] The specification names no framework, library, database, product, or
       architectural pattern
 
@@ -326,3 +332,14 @@
   renumbered, reused, or withdrawn; the counts stay 52 FR, 55 AC, and 9 SC;
   every FR is cited by at least one AC; and all 22 checkboxes above stay
   checked.
+- Refreshed 2026-10-29 (second session): a `/speckit.clarify` session answered
+  one question — a password change made from any other path (the account's own
+  change action or the administrator's forced first change) ends a live
+  password-recovery request and its verified new-password state, so a reset
+  authority created before the change never survives it, while a successful
+  sign-in alone does not end the request. FR-013, FR-014, FR-034, AC-016, the
+  Key Entities note, an edge case, the Test Coverage Request, and
+  `docs/domain-model.md`'s transient-verification-state section carry the rule.
+  No identifier was added, renumbered, reused, or withdrawn; the counts stay
+  52 FR, 55 AC, and 9 SC; every FR is cited by at least one AC; and all 22
+  checkboxes above stay checked.

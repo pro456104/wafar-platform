@@ -134,20 +134,31 @@ capture the code, error, loading, disabled, post-submit, or 375 dark states;
 the slice's plan must record each gap in its Complexity Tracking table with an
 owner and a review date (the rule in `README.md`).
 
-**Resolved 2026-10-27.** The clarification session settled the R1 questions
-recorded for it, and the specification now carries the binding answers: FR-024
+**Resolved 2026-10-27, and revised 2026-10-29.** The clarification session
+settled the R1 questions recorded for it, and the specification now carries the
+binding answers: FR-024
 states that the surface is the constitution's (the footer band under ADR-096,
 with ADR-127's narrow-screen placement) and that this slice fixes the routes
 alone; FR-052 moved after FR-051 so the functional requirements read in numeric
 order, and cites ADR-127 and ADR-128; and the locked state carries no copy of its
 own, the uniform failed-sign-in message being the only text shown, so this map's
-lockout alert is not carried into the product. The literal copy the
+lockout alert is not carried into the product. The 2026-10-28/29 sessions
+settled the failed-attempt boundary, the one-time-code re-request allowance, and
+the account fields' registration (ADR-105, not a new amendment); ADR-139 records
+the repairs that followed. The literal copy the
 specification leaves open is a plan value, not a map question. The specification
 and its Clarifications section are the authority.
 
 ## R2 — File intake
 
-**Page.** Upload Catalog.
+**Page.** Upload Catalog. It is the **first page the product renders inside the
+shared frame**, so R2 is where the frame's runtime is first exercised: the
+menu's open and confirm behaviour, the sidebar's two-width behaviour, the bottom
+bar's drawer (opened by «المزيد», closed by the collapse control, Escape, or an
+outside activation, with focus returning to «المزيد»), the frame's accessibility
+scan and keyboard-only pass, and the static-page reachability the footer band
+carries. R1 fixes the composition and the routes; R2 proves them on a rendered
+page (ADR-139), which ends exception `EX-007`.
 
 **Blocks and order.** The page header; the monthly and active quota state; the
 drop area on a fine pointer or the single 56px «رفع ملف» action on a coarse
@@ -600,9 +611,13 @@ whole map.
 ## Handoff
 
 The map is ready for R1's plan. `/speckit.clarify` was applied to R1 on
-2026-10-27, and ADR-130, ADR-131, and ADR-132 landed the same day. ADR-133
+2026-10-27, and ADR-130, ADR-131, and ADR-132 landed the same day; two further
+clarification sessions followed on 2026-10-28 and 2026-10-29, and ADR-139
+repaired the defects the 2026-10-29 audit found. ADR-133
 registered `docs/design` in References and ADR-134 made this map reach the
-commands that read it. The next step is `/speckit.plan` for R1. The plan consumes
+commands that read it. R2 is the first page that renders the frame, so the
+frame's runtime evidence begins there and exception `EX-007` ends with it. The
+next step is `/speckit.plan` for R1. The plan consumes
 ADR-128 and this map, and records the conformance gate ADR-129. No specification
-text is edited here; the clarification session recorded the corrections in the
+text is edited here; the clarification sessions recorded the corrections in the
 specification itself.
