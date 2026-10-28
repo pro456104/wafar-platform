@@ -1435,7 +1435,8 @@ serves, and each criterion names the requirements it asserts (decided
   a product setting: neither a merchant nor the administrator chooses a
   background or a colour, and no such preference is stored on the account or in
   the platform's settings (decided 2026-10-21, Clarifications; ADR-098; ADR-128;
-  revised 2026-10-21, ADR-102; revised 2026-10-27, ADR-132).
+  revised 2026-10-21, ADR-102; revised 2026-10-27, ADR-132; revised 2026-10-28,
+   ADR-137).
 - **FR-026**: Every page MUST be presented in Arabic and right-to-left, with
   Latin numerals, and every icon MUST come from the product's icon set and MUST
   NOT be an emoji. The body of every message the platform sends by SMS MUST

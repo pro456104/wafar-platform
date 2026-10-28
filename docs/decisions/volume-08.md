@@ -1347,8 +1347,9 @@ decision 1.
 
 **Consequences and migration/backfill.** The layer records the outline mapping,
 the light default, the focus line, and 20/50/100. The live texts in `AGENTS.md`,
-`Project-Technologies.txt`, `Core-Project.txt`, `docs/architecture.md`,
-`ROADMAP.md`, the plan template, the R1 specification, the requirements
-checklist, the slice map, and `docs/design/README.md` are corrected in the same
-change; the manifest's footer note is corrected. No code or data exists, so no
-migration or backfill is required. Review date: 2026-12-01.
+`Project-Technologies.txt`, `Core-Project.txt`, `README.md`,
+`docs/architecture.md`, `ROADMAP.md`, the plan template, the spec and checklist
+templates' live range strings, the R1 specification, the requirements checklist,
+the slice map, and `docs/design/README.md` are corrected in the same change; the
+manifest's footer note is corrected. No code or data exists, so no migration or
+backfill is required. Review date: 2026-12-01.
