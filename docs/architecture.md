@@ -275,7 +275,7 @@ Read/write notes:
   Deferred areas).
 - Decisions and their rationale: the decision register — `docs/DECISIONS.md`
   (index and reading protocol) and `docs/decisions/volume-NN.md` (records),
-  ADR-001 … ADR-135.
+  ADR-001 … ADR-136.
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.

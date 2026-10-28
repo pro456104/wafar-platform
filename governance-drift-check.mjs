@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * governance-drift-check.mjs — Wafar governance drift check
- * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106, ADR-125)
+ * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106, ADR-125, ADR-133, ADR-136)
  * -------------------------------------------------------------------
  * Read-only. Dependency-free. Runs on the pinned Node runtime.
  *
@@ -48,6 +48,12 @@
  *   M. the decision register's volumes (ADR-125): contiguous ADR numbers, one
  *      record per number, index hrefs that resolve to the volume that holds the
  *      heading, a volume cap, and an index cap
+ *   N. the design evidence is registered in References and the conformance gate
+ *      names ADR-128 and ADR-129 (ADR-133)
+ *   O. each binding template names the project-level sources its command reads:
+ *      `docs/design/` and `ROADMAP.md` in the plan template, the slice map in
+ *      the checklist template, and the slice map and `ROADMAP.md` in the spec
+ *      template (ADR-134, ADR-136)
  *   G10. the Constitution Mandated Values count the constitution states equals
  *      the count the plan template's prose states, and its table's row count
  *      equals the row count that prose states
@@ -1035,8 +1041,62 @@ if (designRow && gateBullet && /ADR-128/.test(gateText) && /ADR-129/.test(gateTe
   notes.push('N: design evidence registered in References and named in Principle IX');
 }
 
+/* ---- O. each binding template names its command's sources (ADR-134/136) ---- */
+// The load map lives in AGENTS.md, but the binding text a command copies is the
+// template. A source removed from the template is a source the command no longer
+// reads, so the check asserts that the three templates keep naming what their
+// commands are told to read.
+const checklistTpl = read('.specify/templates/overrides/checklist-template.md');
+const specTpl = read('.specify/templates/overrides/spec-template.md');
+const templateSources = (text) => {
+  const block = text.match(/Project Context Sources[\s\S]*?(?=\n\s*-->)/);
+  return block ? block[0] : '';
+};
+const planSources = templateSources(planTpl);
+const checklistSources = templateSources(checklistTpl);
+const specSources = templateSources(specTpl);
+if (!planSources) {
+  failures.push('O: the plan template carries no "Project Context Sources" block');
+} else {
+  if (!/docs\/design\//.test(planSources)) {
+    failures.push("O: the plan template's Project Context Sources does not name docs/design/");
+  }
+  if (!/ROADMAP\.md/.test(planSources)) {
+    failures.push("O: the plan template's Project Context Sources does not name ROADMAP.md");
+  }
+}
+if (!checklistSources) {
+  failures.push('O: the checklist template carries no "Project Context Sources" block');
+} else if (!/docs\/design\/slice-map\.md/.test(checklistSources)) {
+  failures.push(
+    "O: the checklist template's Project Context Sources does not name docs/design/slice-map.md",
+  );
+}
+if (!specSources) {
+  failures.push('O: the spec template carries no "Project Context Sources" block');
+} else {
+  if (!/docs\/design\/slice-map\.md/.test(specSources)) {
+    failures.push(
+      "O: the spec template's Project Context Sources does not name docs/design/slice-map.md",
+    );
+  }
+  if (!/ROADMAP\.md/.test(specSources)) {
+    failures.push("O: the spec template's Project Context Sources does not name ROADMAP.md");
+  }
+}
+if (
+  planSources &&
+  /docs\/design\//.test(planSources) &&
+  /ROADMAP\.md/.test(planSources) &&
+  /docs\/design\/slice-map\.md/.test(checklistSources) &&
+  /docs\/design\/slice-map\.md/.test(specSources) &&
+  /ROADMAP\.md/.test(specSources)
+) {
+  notes.push('O: each binding template names the sources its command reads');
+}
+
 /* ---- report --------------------------------------------------------------- */
-console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106, ADR-125)');
+console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106, ADR-125, ADR-133, ADR-136)');
 console.log('=====================================');
 for (const n of notes) console.log(`  ok   ${n}`);
 if (failures.length === 0) {

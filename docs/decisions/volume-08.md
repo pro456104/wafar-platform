@@ -1208,3 +1208,73 @@ The live ADR range strings move to ADR-135 and `Project-Technologies.txt`'s
 header list gains 135. The constitution, its footer, and `version.json` stay at
 6.2.0, because no clause changed. No migration or backfill is required because
 no code exists. Review date: 2026-12-01. This entry is the durable record.
+
+---
+
+## ADR-136 — The post-6.2.0 audit fix set II: the icon cut, the template load map, and the check's self-description
+
+**Status**: Accepted — 2026-10-28. **Constitution version**: 6.2.0 (unchanged)
+**Owning directory**: `.specify/templates/overrides/`, `AGENTS.md`, `README.md`,
+`docs/`, `governance-drift-check.mjs`, `Project-Technologies.txt`, `ROADMAP.md`,
+`specs/001-identity-foundation/`
+**Owning feature**: none — governance correction; ratified by the repository owner.
+
+**Context.** A deep audit after 6.2.0 read the whole governance set and ran the
+committed drift check, which reported clean at 6.2.0. It found three live-text
+defects the check cannot see, the class ADR-074 describes: a statement that
+contradicts another statement, and a source that is named in a load map but not
+in the binding text a command reads. The plan template's Constitution Mandated
+Values row 11 and its Gate 1 row for Principle IX still described IconPark as
+"colour + outline", although ADR-132 decision 2 withdrew the outline cut and
+ADR-128 decision 2 had been replaced once already. `AGENTS.md` §3 said the
+template overrides carry each command's load map as binding text, but the plan
+template named neither `docs/design/` nor `ROADMAP.md`, and the checklist
+template did not name the slice map. The check's own ADR list and its header
+description stopped before section N, which ADR-133 added.
+
+**Decision.**
+1. **The icon cut.** The plan template's row 11 and Gate 1 row IX, and
+   `AGENTS.md`'s icon paragraph, state the live rule: the product consumes the
+   `icon-park` colour cut; the outline cut is withdrawn; both cuts are vendored
+   and pinned (ADR-098, annotated by ADR-128 and ADR-132). No accepted record is
+   reopened; the historical records keep the superseded wording.
+2. **The template load map.** The plan template's binding block names
+   `docs/design/` (the slice's map entry and its reference images; reference
+   evidence, not a visual baseline) and `ROADMAP.md` (the slice's scope,
+   dependencies, and what the slice does not do). The checklist template's
+   binding block names `docs/design/slice-map.md` (the slice's states and copy).
+   The spec template's binding block names `ROADMAP.md`. This carries ADR-134
+   decisions 1–4 into the template layer and makes `AGENTS.md` §3's sentence
+   true.
+3. **The check's self-description.** The five ADR enumerations (the check's
+   header and banner, the constitution's References row, `README.md`, and
+   `AGENTS.md`) gain ADR-133 and ADR-136. The check's header comment describes
+   checks N and O, and the constitution's and `README.md`'s descriptions name
+   the design-evidence check.
+4. **The check O.** The drift check gains a text-presence check: the plan
+   template's binding block names `docs/design/` and `ROADMAP.md`, the checklist
+   template's names the slice map, and the spec template's names the slice map
+   and `ROADMAP.md`. A later edit that removes a source fails the check.
+5. **No clause changes.** No principle, page, entity, role, limit, feature,
+   `FR`, `AC`, or `SC` changes. The constitution, its footer, and `version.json`
+   stay at 6.2.0.
+
+**Alternatives considered.**
+- *Leave the templates as they are and rely on `AGENTS.md`.* Rejected: the
+  templates are the binding text a command copies, `AGENTS.md` is below the
+  constitution, and ADR-133's premise was that a plan could be written without
+  the evidence.
+- *Rewrite ADR-132, ADR-133, or ADR-134.* Rejected: a ratified record is
+  annotated by a later one, never rewritten.
+- *Add no check.* Rejected: the three defects would return silently on the next
+  edit, which is the failure ADR-071 exists to prevent.
+- *Copy the icon wording from the historical records.* Rejected: the records
+  preserve the superseded decision; the live rule is ADR-132.
+
+**Consequences and migration/backfill.** The files named above move in this
+change. The live ADR range strings move to ADR-136 and
+`Project-Technologies.txt`'s header list gains 136. The check reports twenty-six
+ADRs and checks N and O. The constitution, its footer, and `version.json` stay
+at 6.2.0, because no clause changed. No migration or backfill is required
+because no code exists. Review date: 2026-12-01. This entry is the durable
+record.
