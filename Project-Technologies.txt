@@ -42,7 +42,7 @@ wafar/
 │   ├── shared/           # Zod schemas + الأنواع + العقود
 │   ├── db/               # Drizzle schema + migrations
 │   ├── search/           # OpenSearch client + mappings
-│   ├── ui/               # Wafar UI layer: tokens + theme + IconPark + IBM Plex Sans Arabic + primitives (ADR-097/098)
+│   ├── ui/               # Wafar UI layer: tokens + theme + IconPark + IBM Plex Sans Arabic + IBM Plex Mono + primitives (ADR-097/098/128)
 │   └── config/           # ESLint + Stylelint + Prettier + TS config
 ├── pnpm-workspace.yaml
 ├── turbo.json
@@ -143,6 +143,7 @@ apps/admin/
 |---|---|
 | **IconPark** | مجموعتا `icon-park` (ملوّنة) و`icon-park-outline` (أحادية)، 2,658 أيقونة لكل منهما؛ Apache-2.0 من ByteDance؛ تُضمَّن داخل `packages/ui/vendor` وتُثبَّت بـ SHA-256؛ يُستهلك `icon-park-outline` (القطعة الخطّية)، والملوّن مُضمَّن وغير مستهلك (ADR-137)؛ ADR-098. |
 | **IBM Plex Sans Arabic** | OFL؛ self-hosted WOFF2 بأوزان 400/500/600/700؛ `font-display: swap`؛ ADR-098. |
+| **IBM Plex Mono** | OFL؛ self-hosted WOFF2؛ خط الأرقام اللاتينية؛ ADR-128 قرار 3. |
 | **Nuxt UI icons** | `@iconify-json/icon-park-outline` هو المستهلك في `app.config.ts`؛ و`@iconify-json/icon-park` مُضمَّن وغير مستهلك (ADR-137)؛ لا Iconify API وقت التشغيل. |
 
 ---

@@ -41,8 +41,9 @@ owns the binding version of each page.
 
 ## Lab defects seen in the reference set
 
-The reference images are captured from the lab as it stands. Six lab
-behaviours are not the product's contract and are flagged in the manifest:
+The reference images are captured from the lab as it stands. Nine lab
+behaviours are not the product's contract: six are flagged in the manifest, and
+three are read from the captures themselves:
 
 1. The 404 page renders the previous appearance (teal), not Precision. The
    cause is that `error.vue` renders outside `app.vue` and carries no
@@ -59,10 +60,33 @@ behaviours are not the product's contract and are flagged in the manifest:
 6. When the lab's bottom bar hides, the raised search action's top edge stays
    visible at the viewport edge. The product hides the action with the bar
    (ADR-132).
+7. The captures show the vertical scrollbar at the right edge of an RTL
+   composition, where a root carrying `dir="rtl"` would place it at the left;
+   the lab's root is LTR. The product's root carries `dir="rtl" lang="ar"` on
+   every page, the bare pages included (Principle V; ADR-128 decision 17).
+8. The guest Parts view mixes a cart state into the table: the remove (trash)
+   control appears on rows beside the add (`+`) control, although a guest has no
+   cart and cannot hold a bookmark. The product shows the cart control to a
+   guest, as the Parts row in Product Scope requires, but never a cart state the
+   account does not have: the guest's activation of the control follows the
+   sign-in rule (FR-048; R8).
+9. The type column («النوع») carries the same up/down sort indicator as every
+   other header, although the product sorts every column **except type**
+   (Product Scope → Public Site (Guest Accessible) → Parts). The product
+   renders no sort affordance on that column, and the indicator on every other
+   column marks the active column and its direction (R5).
 
 The footer band is not among them: it is not rendered below 1024px, as the 375
 capture shows, and an earlier reading of that capture mistook the statistics
 strip for the footer.
+
+**Measurements are not evidence.** The captures are evidence of composition, not
+of measurement: the lab's footer band renders at 51–53px and its expanded
+sidebar at 240px, while ADR-128 decision 5 fixes the footer at 3.5rem (56px) and
+the sidebar at 15rem (240px). The footer diverges; the sidebar agrees. An earlier
+254px reading included the 15px page scrollbar and is withdrawn. The contract
+governs, and the product's baseline is generated in the project (ADR-129), not
+diffed against the lab.
 
 ## Not transferred
 
@@ -141,8 +165,9 @@ settled the R1 questions recorded for it, and the specification now carries the
 binding answers: FR-024
 states that the surface is the constitution's (the footer band under ADR-096,
 with ADR-127's narrow-screen placement) and that this slice fixes the routes
-alone; FR-052 moved after FR-051 so the functional requirements read in numeric
-order, and cites ADR-127 and ADR-128; and the locked state carries no copy of its
+alone; FR-052 moved after FR-051 so it sits outside another requirement's block
+(the list stays grouped by subject; see the specification's «Reading the list»),
+and cites ADR-127 and ADR-128; and the locked state carries no copy of its
 own, the uniform failed-sign-in message being the only text shown, so this map's
 lockout alert is not carried into the product. The 2026-10-28/29 sessions
 settled the failed-attempt boundary, the one-time-code re-request allowance, and

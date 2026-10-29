@@ -159,10 +159,13 @@ service layer re-checks the ones a constraint cannot express.
   index that does not lead with the scoping column cannot serve the scoped read
   without a filter the planner has to apply after the fact.
 - **A query path reachable from a merchant session MUST NOT return another
-  merchant's rows**, and the test that proves it fails the build. R2 owns that
-  test, as the first slice whose merchant-scoped read surface returns
-  merchant-owned rows: R1's `Session` read is keyed by the session token, so it
-  cannot return another account's rows and is not the surface this test covers.
+  merchant's rows**, and the test that proves it fails the build. R1 owns that
+  test: it creates the single shared entry point through which merchant scoping
+  passes, with `Session` as its first caller, and the test fails when the scope
+  is removed from that path (ADR-139). `Session` is merchant-scoped, so R1 is the
+  first slice whose merchant-scoped path reads merchant-owned rows; every later
+  slice adds its merchant-scoped paths to the same entry point and the same test
+  rather than writing a second one (FR-053).
 
 ### Catalog
 
@@ -441,6 +444,11 @@ thirteenth entity. The `users` module owns the store.
   correct code is entered; the password among them is irreversibly protected at
   submission, in the same form a stored password has, and the request holds that
   value rather than the plaintext. Replacing or ending the request discards it.
+  The one-time code is held the same way: the store carries the irreversibly
+  protected value computed when the code is dispatched, an entered code is
+  verified through that form alone, and a replacement's protected value replaces
+  the previous one at the accepted dispatch, so the store never holds a usable
+  code in plaintext.
 - **A pending request expires.** The expiry, the re-request limit, and the
   incorrect-entry bound are numbers the plan records under Constitution
   Mandated Values; this section fixes the rules, not the numbers. A dispatch the

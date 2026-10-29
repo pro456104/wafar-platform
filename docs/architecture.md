@@ -27,7 +27,7 @@ wafar/
 │   ├── shared/           # Validation schemas + types + contracts (Zod) shared by frontend and backend
 │   ├── db/               # Database schema + migrations (Drizzle), single migration mechanism
 │   ├── search/           # Search client + index mappings (OpenSearch)
-│   ├── ui/               # Wafar UI layer: tokens, theme, IconPark icons, IBM Plex Sans Arabic, shared primitives (ADR-097, ADR-098)
+│   ├── ui/               # Wafar UI layer: tokens, theme, IconPark icons, IBM Plex Sans Arabic, IBM Plex Mono, shared primitives (ADR-097, ADR-098, ADR-128)
 │   └── config/           # ESLint + Stylelint + Prettier + TypeScript shared configuration
 ├── pnpm-workspace.yaml
 ├── turbo.json
@@ -239,7 +239,7 @@ Read/write notes:
 | `packages/shared` | Validation schemas, types, and contracts shared between frontend and backend. | Single source of the two contracts (Principle II); promoted code only after a second consumer exists. |
 | `packages/db` | Database schema and migrations. | One migration tool only; every migration a single reversible step; destructive changes split into expand/backfill/contract (Schema and Migration Control). |
 | `packages/search` | Search client and index mappings. | Arabic analyzer; time-based indices behind an alias; OpenSearch Index State Management (ISM) deletes a whole index by age, with the per-catalog 90-day deletion enforced by the retention job (R15); one mapping owner per index; shard count from the modelled index (ADR-121). |
-| `packages/ui` | The Wafar UI layer: design tokens, theme, IconPark icons, IBM Plex Sans Arabic, and shared primitives. | Nuxt UI v4 only; IconPark (outline cut consumed; the colour cut vendored and not consumed; both cuts vendored and pinned, ADR-098 annotated by ADR-128 and ADR-137); IBM Plex Sans Arabic; no app pages; app-specific components stay in the apps; ADR-097/098/128/137. IconPark is the ADR-098 choice; the icon set and the typeface remain Technology Standards register gaps R1 closes (ADR-116; ADR-138). |
+| `packages/ui` | The Wafar UI layer: design tokens, theme, IconPark icons, IBM Plex Sans Arabic, IBM Plex Mono, and shared primitives. | Nuxt UI v4 only; IconPark (outline cut consumed; the colour cut vendored and not consumed; both cuts vendored and pinned, ADR-098 annotated by ADR-128 and ADR-137); IBM Plex Sans Arabic and IBM Plex Mono; no app pages; app-specific components stay in the apps; ADR-097/098/128/137. IconPark is the ADR-098 choice; the icon set and the typeface remain Technology Standards register gaps R1 closes (ADR-116; ADR-138). |
 | `packages/config` | ESLint, Stylelint, Prettier, TypeScript configuration shared by all workspaces. | Dependency and tooling changes follow Dependency Governance. Stylelint + ESLint fail the build on physical direction properties and on any colour, spacing, radius, shadow, duration, or z-index value that is not supplied by the Wafar UI layer — enforced by the committed configuration, not a review comment (Principle IX). |
 
 ## 5. Environments and operations
@@ -288,10 +288,10 @@ Read/write notes:
 - UI foundation: Nuxt UI v4 is the component library; the Wafar UI layer is
   `packages/ui`, fixed by ADR-097 (Principle IX); R1 builds it through its plan
   and consumes it.
-  ADR-098 records IconPark and IBM Plex Sans Arabic; ADR-128 replaces its
-  marine/sand palette with the Precision contract, and ADR-132 keeps the
-  scroll-hide bar; ADR-137 restores the light default and consumes the outline
-  icon cut.
+  ADR-098 records IconPark and IBM Plex Sans Arabic; ADR-128 adds IBM Plex Mono
+  for numerals and replaces ADR-098's marine/sand palette with the Precision
+  contract, and ADR-132 keeps the scroll-hide bar; ADR-137 restores the light
+  default and consumes the outline icon cut.
 - Technology stack: `Project-Technologies.txt`; product scope and roles:
   `Core-Project.txt`.
 - Deferred areas that touch this architecture: extraction algorithm; file

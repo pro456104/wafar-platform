@@ -172,7 +172,7 @@
 - Q: When the account's own change-password action succeeds — the current password is correct — after failed attempts have accumulated, does the success clear the consecutive-failed-attempt count the way a successful sign-in does, and does it lift a lock already running? → A: It clears the count: the count measures a run of failures with no successful password verification in between, and the change action's own failures are counted (FR-009), so its successes end the run exactly as a successful sign-in does. It does not lift a lock already running: the lock is a time bound and keeps its full fifteen minutes whatever the password is set to, exactly as a successful reset through the recovery flow does not lift it. FR-009, AC-010, SC-007, and the Test Coverage Request carry the rule.
 - Q: FR-004, FR-007, and FR-014 require each page to render a confirmation in place after a successful action, while FR-041 and AC-044 require the same three pages to render identically for a signed-in person and for a guest with no signed-in-specific surface — how do the two rules coexist, and what does a person see if they reload the page after the confirmation? → A: The confirmation is the outcome of an action taken on the page, not a surface the page carries for a signed-in person: FR-041 governs what the page shows when it is opened, so a person who opens the sign-up, sign-in, or password-recovery page sees the page exactly as a guest does whatever their session state, and the confirmation appears only in place of the step the action was taken from. Once the action is complete — the pending request consumed at sign-up, the session created at sign-in, the password set in recovery — reloading or reopening the page returns it to its first step with no confirmation and no redirect, exactly as FR-038 already provides for a reload while the pending request is still live. FR-004, FR-007, FR-014, FR-041, AC-004, AC-008, AC-016, AC-044, and the matching Assumption carry the rule.
 - Q: Does the operator's provisioning action, which sets the administrator account's initial password, also send the security notice FR-043 requires on a password change? → A: No — FR-043 governs a change to the password of an account that already holds one, so that its owner learns out of band of a change they did not make; the provisioning action sets the account's first password rather than changing an existing one, and the operator who supplies it is the party the notice would inform. The provisioning stays recorded as the structured security event FR-037 names, so the privileged creation is not silent. FR-028, FR-037, FR-043, AC-030, AC-047, and the Test Coverage Request carry the rule.
-- Q: Do submissions refused by the sign-up form's own protections — the hidden field and the minimum time-to-submit — consume the account-creation budget FR-029 and FR-033 share, or are they outside every budget? → A: They consume it: the account-creation budget is applied to every submission that reaches the sign-up form, including one refused by the hidden field or by the minimum time-to-submit, so the honeypot cannot be turned into an unbounded entry point and a client that only fills the hidden field is still bounded; the refusals themselves are unchanged — the hidden field's stays silent and returns the same response a successful submission receives, the minimum-time refusal stays explicit and retryable, and the budget's own refusal stays the distinct, explicit limit refusal outside SC-004. FR-029, FR-033, AC-031, AC-032, AC-033, and the Test Coverage Request carry the rule.
+- Q: Do submissions refused by the sign-up form's own protections — the hidden field and the minimum time-to-submit — consume the account-creation budget FR-029 and FR-033 share, or are they outside every budget? → A: They consume it: the account-creation budget is applied to every submission that reaches the sign-up form, including one refused by the hidden field or by the minimum time-to-submit, so the honeypot cannot be turned into an unbounded entry point and a client that only fills the hidden field is still bounded; the refusals themselves are unchanged — the hidden field's stays silent and returns the same response a successful submission receives, the minimum-time refusal stays explicit and retryable, and the budget's own refusal stays the distinct, explicit limit refusal outside SC-004. FR-029, FR-033, AC-031, AC-032, AC-033, and the Test Coverage Request carry the rule. (Revised 2026-10-29: the budget counts the form's own submission alone, so the code step's entry and the new-password submission are outside it and are bounded by FR-034's own limits — see Session 2026-10-29 (3).)
 
 ### Session 2026-10-21
 
@@ -246,7 +246,7 @@
 - Q: The header now carries no drawer control, so what opens the sidebar drawer on a narrow screen, and what closes it? → A: The bottom navigation bar's «المزيد» slot opens the drawer, and the sidebar-collapse control inside the drawer closes it; «المزيد» does not toggle it, and the header carries neither control, so one control opens and a different one closes. FR-022, FR-023, FR-052, AC-024, and AC-042 carry the rule (decided 2026-10-27, Clarifications).
 - Q: The footer band carries the four static-page links, but the frame now has a bottom bar on a narrow screen — is the band still rendered there, and where do its links go? → A: On a narrow screen the band is not rendered, and the same four links sit at the bottom of the drawer the bottom bar's «المزيد» slot opens, so the reachability requirement is unchanged and is still discharged by the slice that ships the first page carrying the frame (R2). FR-024, FR-052, AC-026, and the matching edge case carry the rule (decided 2026-10-27, Clarifications).
 - Q: Does the bottom bar carry the same five slots for a guest and for a signed-in merchant, or does its composition vary by role? → A: It is one composition shown identically to both — Home, Upload Catalog, the raised search action to the Parts page, My Files, and «المزيد». A guest who activates a merchant-area slot — Upload Catalog or My Files — is taken to the sign-in page on FR-048's terms while the slot stays present and enabled, exactly as the sidebar's list is not varied by role. FR-052, FR-048, AC-042, and AC-052 carry the rule (decided 2026-10-27, Clarifications).
-- Q: FR-052 sits between FR-024 and FR-025 and cites neither ADR-127 nor ADR-128, although ADR-127's consequences name FR-052. Where does it belong, and what must it cite? → A: It moves after FR-051, so the functional requirements read in numeric order and no requirement sits inside another requirement's block. It cites ADR-127 for the five slots and the drawer behaviour, ADR-132 for the scroll rule and the raised action's travel, and ADR-128 for the labels, measurements, and icon treatment. One sentence states the scroll rule ADR-132 fixes — the bar hides after 32px of cumulative downward scroll and returns on the first 16px of upward scroll or within 56px of the top. FR-022 and AC-026 keep their references to FR-052, and no identifier is renumbered. FR-052, FR-022, and AC-026 carry the rule (decided 2026-10-27, Clarifications; ADR-127; ADR-128; ADR-132).
+- Q: FR-052 sits between FR-024 and FR-025 and cites neither ADR-127 nor ADR-128, although ADR-127's consequences name FR-052. Where does it belong, and what must it cite? → A: It moves after FR-051, so it sits outside another requirement's block; the list stays grouped by subject rather than by identifier (see «Reading the list»), and no identifier is renumbered or reordered. It cites ADR-127 for the five slots and the drawer behaviour, ADR-132 for the scroll rule and the raised action's travel, and ADR-128 for the labels, measurements, and icon treatment. One sentence states the scroll rule ADR-132 fixes — the bar hides after 32px of cumulative downward scroll and returns on the first 16px of upward scroll or within 56px of the top. FR-022 and AC-026 keep their references to FR-052, and no identifier is renumbered. (Corrected 2026-10-29: the earlier wording said the requirements read in numeric order; they are grouped by subject instead. See «Reading the list».) FR-052, FR-022, and AC-026 carry the rule (decided 2026-10-27, Clarifications; ADR-127; ADR-128; ADR-132).
 - Q: FR-024 says "This slice chooses the surface that carries them", but the constitution and ADR-096 already fix that surface as the footer band inside the frame. What does this slice still owe, and how must FR-024 and AC-026 read? → A: The surface is fixed, not chosen here: it is the footer band inside the frame (constitution, Product Scope; ADR-096 decision 2). This slice builds the band inside the frame and records the routes it links to in a decision record, as FR-024 already requires; no second surface choice is recorded. FR-024 is reworded to "The surface is the footer band (ADR-096); this slice builds it and records the routes it links to in a decision record", AC-026's "the surface that carries those links is chosen and built in this slice" becomes "the surface that carries those links is the footer band fixed by ADR-096 and built in this slice", and every earlier bullet that still says this slice chooses the surface gains a revision note naming ADR-096. FR-024, AC-026, and the matching Assumption carry the rule (decided 2026-10-27, Clarifications; ADR-096).
 - Q: The specification fixes the uniform sign-in refusal, the one-time code's expiry, and each password-policy reason, but not their literal Arabic text — and the design reference shows a distinct fifteen-minute lockout alert. Does the product show a distinct locked state, and does the specification fix the literal text? → A: The product has no distinct locked state and no lockout text: an attempt made while the account is locked receives the same uniform refusal as a wrong password or an unknown number, so the reference's lockout alert is not transferred and no lockout string exists. No alert, banner, field message, or retry-time hint names the lock or invites the person back later. The literal Arabic text of the uniform refusal, the expired-code message, and the password-policy messages is not a specification value: the slice fixes it from the design reference in Arabic with Latin numerals and no emoji, and no acceptance criterion asserts a specific string — the criteria assert that the same case receives the same text. FR-008, FR-009, FR-026, FR-034, and FR-035 keep the rules, and no requirement or acceptance criterion is added (decided 2026-10-27, Clarifications).
 
@@ -286,6 +286,13 @@
 ### Session 2026-10-29 (2)
 
 - Q: When a merchant changes the password from inside the account while a password-recovery request for their number is still live — or has already reached the verified new-password step — does that change end the recovery request, or can the recovery still set another password? → A: The change ends it: a password change made from any other path — the account's own change action (FR-013) or the administrator's forced first change (FR-028) — ends a live recovery request for that number and any verified state it holds, so a reset authority created before the change never survives it, and the person starts a fresh recovery; a successful sign-in alone does not end it, because it does not change the credential. FR-013, FR-014, FR-034, AC-016, the Key Entities note, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-29, Clarifications).
+
+### Session 2026-10-29 (3)
+
+- Q: The pending request holds the one-time code, and the specification fixes the protected form of the password it holds but never says what form the code itself is held in — is the code held in an irreversibly protected form, or as it was dispatched? → A: It is held in an irreversibly protected form: the code is protected when it is dispatched, the pending request carries only that protected value, and an entered code is verified through the same form alone, so the store never holds a usable code in plaintext and a store that is read hands no one a live code; a replacement's protected value replaces the previous one at the accepted dispatch, and the value is discarded when the request is replaced or ends. FR-034, AC-036, the Key Entities note, and the Test Coverage Request carry the rule (decided 2026-10-29, Clarifications).
+- Q: FR-051 applies the operation's rate limit first on every submission a page makes, while FR-033's budget is the account-creation, sign-in, or recovery operation's limit — do the later steps of a page (the one-time-code entry and the new-password submission) consume that budget, or are they refused by it when it is spent? → A: Neither: the budget is consumed by the request that starts the operation alone — the sign-up form's submission, the sign-in submission, and the password-recovery request — and the later steps of the same page neither consume it nor are refused by it, because they are bounded by the code's own incorrect-entry bound and the limit on requesting a new code (FR-034); FR-051's step (1) therefore decides the initiating request, and a later step is decided by the remaining steps of that order. FR-029, FR-033, FR-034, FR-051, AC-035, AC-036, the matching edge case, and the Test Coverage Request carry the rule (decided 2026-10-29, Clarifications).
+- Q: In password recovery, once the correct code is verified and the reset cannot proceed — the number has no account, or its account holds the administrator role — the specification requires the platform to state the outcome but never says what the page does with it; does the code step become the message, or does the page return to the flow's first step? → A: The code step is replaced in place by the outcome message, with no navigation and no new route, and the person stays on that message; a reload or a fresh opening returns the page to the flow's first step, because the pending request has ended, and the message carries no retry control because there is nothing to retry — the page's cross-link to sign-in (FR-036) remains the way forward, and sign-in carries the way to sign-up. FR-014, FR-036, FR-038, AC-016, AC-017, the matching edge cases, and the Test Coverage Request carry the rule (decided 2026-10-29, Clarifications).
+- Q: The drawer closes on Escape or an outside activation with the focus returning to «المزيد», and the account menu closes when focus leaves it, but the specification never says where focus goes when either surface opens — does it stay on the opener, or move into the surface? → A: It moves into the surface: opening the drawer moves focus to its first focusable control and keeps it within the drawer until it closes, and opening the account menu moves focus to its first item, after which the menu still closes when focus leaves it (FR-047); in both cases the focus returns to the control that opened the surface when it closes. The rule is bound here and its runtime is verified by the slice that ships the first page carrying the frame, at the same boundary as the surfaces' other behaviour. FR-022, FR-047, AC-024, AC-051, SC-006, and the Test Coverage Request carry the rule (decided 2026-10-29, Clarifications).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -568,6 +575,9 @@ Acceptance Criteria section.
 - A person asks to reset the password of a number that has no account and enters
   the delivered code correctly. Ownership of the number is proven, no password is
   set, and the platform states explicitly that no account exists for that number;
+  the code step is replaced in place by that message, with no navigation and no
+  retry control, the person stays on it, and a reload or a fresh opening returns
+  the page to its first step, because the pending request has ended;
   the request's response, the following step, and the code dispatch were already
   indistinguishable from those for a number that has an account (AC-017).
 - A one-time code is entered incorrectly several times, after it has expired, or
@@ -726,6 +736,9 @@ Acceptance Criteria section.
   administrator role and enters the delivered code correctly: ownership of the
   number is proven, no password is set, no session is created, and the platform
   states explicitly that the credential cannot be reset on this surface; the
+  code step is replaced in place by that message, with no navigation and no
+  retry control, and a reload or a fresh opening returns the page to its first
+  step, because the pending request has ended; the
   request, the following step, and the code dispatch were already
   indistinguishable from those for a number with no account (AC-016).
 - The account of the mobile number is both blocked and holds the administrator
@@ -734,7 +747,8 @@ Acceptance Criteria section.
   states that the credential cannot be reset on this surface, without mentioning
   the block, because the credential path is closed on the role ground before the
   status could matter — and the request, the following step, and the dispatch
-  stayed indistinguishable (AC-016, FR-014, FR-027).
+  stayed indistinguishable; the code step is replaced in place by that message
+  on the same terms as the administrator case above (AC-016, FR-014, FR-027).
 - An account is locked and the merchant submits the correct password before the
   fifteen minutes elapse: the attempt is refused exactly like any other failed
   sign-in, and nothing distinguishes that refusal from a wrong password or from
@@ -758,6 +772,11 @@ Acceptance Criteria section.
   sidebar collapse control remains available in the sidebar, so a guest can
   still change the appearance, open the sidebar from the bottom bar's «المزيد»
   slot, and close it from the collapse control (AC-025, AC-042).
+- A keyboard user activates «المزيد» or the account control: the focus moves into
+  the opened surface — the drawer's first focusable control, or the menu's first
+  item — the drawer keeps it until it closes, the menu closes when focus leaves
+  it, and the focus returns to the control that opened the surface when it
+  closes (AC-024, AC-051).
 - A guest presses a sidebar item that needs an account, such as «سلة المشتريات»
   or «الملف الشخصي», or the bottom bar's Upload Catalog or My Files slot: the
   sign-in page is shown, and the item or slot itself stays present and enabled
@@ -823,7 +842,11 @@ Acceptance Criteria section.
   that the limit was exceeded and that they may retry later, and is not the
   uniform refusal a failed sign-in receives, because it depends on the client's
   own request history and reveals nothing about whether an account exists
-  (AC-033, AC-035).
+  (AC-033, AC-035). The budget belongs to the request that starts the
+  operation: a person who has spent it is refused the operation's next
+  initiating request, while a code entry or a new-password submission on the
+  same page neither consumes it nor is refused by it, because those steps are
+  bounded by the code's own limits (AC-035, AC-036).
 - A merchant changes their password, or ends every session of the account at
   once, and the notice cannot be sent — the messaging channel fails. The change
   and the ending of the sessions stand, the failure is recorded as the dispatch
@@ -1332,8 +1355,13 @@ serves, and each criterion names the requirements it asserts (decided
   code is entered (FR-015, FR-027; decided 2026-10-29, Clarifications). Where the reset cannot proceed — because
   the number has no account, or because its account holds the administrator
   role — the pending request MUST end once the outcome is stated, so no verified
-  state outlives the step it would have carried (decided 2026-10-22,
-  Clarifications). Setting the new password MUST render its
+  state outlives the step it would have carried, and the code step MUST be
+  replaced in place by the outcome message, with no navigation and no new route,
+  so the person stays on the message; a reload or a fresh opening then returns
+  the page to the flow's first step, the message carries no retry control
+  because there is nothing to retry, and the page's cross-link to sign-in
+  (FR-036) remains the way forward (decided 2026-10-22, Clarifications; revised
+  2026-10-29, Clarifications). Setting the new password MUST render its
   confirmation in place on the password-recovery page — the step is replaced by a
   confirmation that the password was changed and, for an account that is not
   blocked, that the merchant must sign in with it, while a blocked account's
@@ -1489,7 +1517,12 @@ serves, and each criterion names the requirements it asserts (decided
   terms (decided 2026-10-11, Clarifications; revised 2026-10-22 and 2026-10-29,
   Clarifications). When the bound on incorrect entries is reached, the code step
   ends and the page returns to the flow's first step with the notice FR-034
-  requires (decided 2026-10-28, Clarifications).
+  requires (decided 2026-10-28, Clarifications). The outcome message FR-014
+  requires when the reset cannot proceed is the one case that does not return
+  the page to the first step: it replaces the code step in place and stays there
+  until a reload or a fresh opening, because it reports a terminal outcome
+  rather than a request the person may retry (decided 2026-10-29,
+  Clarifications).
 - **FR-041**: The three bare pages this slice ships — sign-up, sign-in, and
   password recovery — MUST render identically for a signed-in person and for a
   guest: no redirect is introduced and no signed-in-specific surface is shown on
@@ -1514,7 +1547,10 @@ serves, and each criterion names the requirements it asserts (decided
   focus MUST return to the «المزيد» slot that opened it; the collapse control
   remains the control that closes the drawer, and Escape and an outside
   activation are dismissals rather than controls (decided 2026-10-28,
-  Clarifications). The collapse control
+  Clarifications). When the drawer opens, the focus MUST move into it — to its
+  first focusable control — and MUST remain within it until it closes, so a
+  keyboard user is never left on the «المزيد» slot behind an open drawer
+  (decided 2026-10-29, Clarifications). The collapse control
   sits in the sidebar itself, beside the navigation item list (decided
   2026-10-21; revised 2026-10-27, Clarifications; ADR-127). The rail's width is
   a fixed design value this slice records, and the shell's desktop collapsed
@@ -1589,8 +1625,12 @@ serves, and each criterion names the requirements it asserts (decided
   slice that ships the first page carrying the frame, and the data behind
   «حسابي» and «إعدادات» belongs to the Profile slice (R7), which also delivers
   the settings section's own actions. The menu MUST be
-  reachable by keyboard, and each item MUST carry an accessible name and a role
-  (decided 2026-10-21, Clarifications; ADR-099, ADR-100).
+  reachable by keyboard, and each item MUST carry an accessible name and a role.
+  When the menu opens, the focus MUST move to its first item, so the menu is
+  usable from the keyboard the moment it opens; the focus may then leave it, and
+  leaving it closes it without action as this requirement provides (decided
+  2026-10-21, Clarifications; revised 2026-10-29, Clarifications; ADR-099,
+  ADR-100).
 - **FR-048**: When a guest activates a sidebar item that names a merchant-area
   destination — My Files, Cart, Notifications, Messages, or Profile — the
   platform MUST take the guest to the sign-in page, because the register gives a
@@ -1827,10 +1867,15 @@ serves, and each criterion names the requirements it asserts (decided
   states for the account-existence case is not extended to it. A submission refused by the
   hidden field or by the minimum time-to-submit MUST still consume the
   account-creation budget FR-033 keys, because that budget is applied to every
-  submission that reaches the sign-up form; the honeypot therefore cannot be
+  submission of the form itself; the honeypot therefore cannot be
   turned into an unbounded entry point, while the refusals themselves are
   unchanged and the budget's own refusal stays the distinct, explicit limit
-  refusal (decided 2026-10-11, Clarifications). A submission refused by
+  refusal (decided 2026-10-11, Clarifications; revised 2026-10-29,
+  Clarifications). The budget is the form's own submission alone: the code
+  step's entry and its re-request control are not counted against it, because
+  the re-request limit is its own (FR-034) and the entry is bounded by the
+  incorrect-entry bound, exactly as FR-033 provides (decided 2026-10-29,
+  Clarifications). A submission refused by
   the minimum time-to-submit MUST receive an explicit, retryable refusal, because
   a real person may legitimately submit quickly; no account is created in either
   case. A submission refused by the rate limit MUST receive a distinct, explicit
@@ -1847,9 +1892,16 @@ serves, and each criterion names the requirements it asserts (decided
   budget (decided 2026-10-11, Clarifications). The sign-up form's own limit
   (FR-029) is the account-creation operation's limit: one per-origin budget
   governs account creation, and the form carries no second, overlapping budget:
-  that budget counts every submission that reaches the form, including one the
+  that budget counts every submission of the form itself, including one the
   form's own hidden field or minimum time-to-submit refuses, so the honeypot is
-  not an unbounded entry point (decided 2026-10-11, Clarifications). The client is identified the same
+  not an unbounded entry point. It is consumed by the request that starts an
+  operation alone — the sign-up form's submission, the sign-in submission, and
+  the password-recovery request — while the later steps of the same page, the
+  one-time-code entry and the new-password submission, neither consume it nor
+  are refused by it when it is spent, because they are bounded by FR-034's
+  incorrect-entry bound and limit on requesting a new code; FR-051's step (1)
+  therefore decides the initiating request alone (decided 2026-10-11,
+  Clarifications; revised 2026-10-29, Clarifications). The client is identified the same
   way FR-029 fixes — by the request's network origin — and each budget is
   additionally keyed on the normalized mobile number the request submits, so each
   origin carries its own budget for each of the three operations and each
@@ -1907,7 +1959,13 @@ serves, and each criterion names the requirements it asserts (decided
   new code is never delivered with only the remainder of the request it
   replaced, and the limit on requesting a new code is what bounds repeated
   extension; a dispatch the channel refuses changes neither the code nor that
-  expiry (decided 2026-10-24, Clarifications). The bound on
+  expiry (decided 2026-10-24, Clarifications). The code MUST be held only in an
+  irreversibly protected form: the pending request carries the protected value
+  computed when the code is dispatched, and an entered code MUST be verified
+  through that same form alone, so the store never holds a usable code in
+  plaintext; a replacement's protected value replaces the previous one at the
+  accepted dispatch, and the value is discarded when the request is replaced or
+  ends (decided 2026-10-29, Clarifications). The bound on
   incorrect entries MUST be counted over the whole verification, not per code, so
   that a new code does not reset it, and it MUST count only a wrong value entered
   for the code that is currently valid: an expired code, and a code that a
@@ -1997,8 +2055,12 @@ serves, and each criterion names the requirements it asserts (decided
   (decided 2026-10-22, Clarifications).
 - **FR-051**: When more than one refusal applies to a submission, System MUST
   decide them in one fixed order, applied identically on every page this slice
-  ships: (1) the operation's rate limit, refused with the distinct, explicit
-  limit refusal (FR-033); (2) at sign-up only, the form's hidden field, refused
+  ships: (1) the operation's rate limit, decided for the request that starts the
+  operation — the sign-up form's submission, the sign-in submission, or the
+  password-recovery request — and refused with the distinct, explicit limit
+  refusal (FR-033), while a later step of the same page (the one-time-code entry
+  or the new-password submission) is not decided by it and is bounded by
+  FR-034's own limits; (2) at sign-up only, the form's hidden field, refused
   with the silent response whose flow stops at it (FR-029); (3) at sign-up only,
   the minimum time-to-submit, refused with the explicit, retryable refusal
   (FR-029); (4) the value rules — the mobile-number format (FR-042, FR-003), the
@@ -2152,9 +2214,11 @@ serves, and each criterion names the requirements it asserts (decided
   spending no number's budget and being decided by the next step in FR-051's
   order unless that origin's budget is spent — decided 2026-10-28,
   Clarifications), the
-  account-creation budget counting every submission that reaches the sign-up
-  form, including one the form's hidden field or minimum time-to-submit refuses
-  (decided 2026-10-11, Clarifications), the replacement of a live pending request
+  account-creation budget counting every submission of the form itself,
+  including one the form's hidden field or minimum time-to-submit refuses, while
+  the code entry and the new-password step are outside it and bounded by the
+  code's own limits (decided 2026-10-11, Clarifications; revised 2026-10-29,
+  Clarifications), the replacement of a live pending request
   for a number, the re-request limit counted per pending request, so a fresh
   request begins a new verification with a full allowance (decided 2026-10-28,
   Clarifications), the dispatch-conditioned replacement of a one-time code — a
@@ -2163,7 +2227,13 @@ serves, and each criterion names the requirements it asserts (decided
   moment the new message is accepted (decided 2026-10-22, Clarifications), and
   that accepted dispatch restarts the pending request's expiry so the new code
   carries a full period while a refused dispatch changes neither (decided
-  2026-10-24, Clarifications) — the
+  2026-10-24, Clarifications), the code held only in an irreversibly protected
+  form, so the store never carries a usable code in plaintext and an entered
+  code is verified through that form alone (decided 2026-10-29,
+  Clarifications), and the rate limit's scope — the request that starts an
+  operation alone consumes and is refused by its budget, while the code entry
+  and the new-password submission are neither counted nor refused by it and are
+  bounded by the code's own limits (decided 2026-10-29, Clarifications) — the
   ending of a pending request when the bound on incorrect
   entries is reached, the page returning to the flow's first step with the
   notice FR-034 requires (decided 2026-10-28, Clarifications), the bound
@@ -2368,6 +2438,9 @@ runtime scan and keyboard-only pass belong to the slice that ships the first
   navigate to (decided 2026-10-11, Clarifications), and keeps the step the
   person submitted with every non-password value retained and the password fields
   cleared, a refused one-time code cleared as well (decided 2026-10-28,
+  Clarifications). The recovery flow's outcome message, when the reset cannot
+  proceed, is exercised in place of the code step with no navigation, and a
+  reload returns the page to its first step (decided 2026-10-29,
   Clarifications). US2's sign-out,
   sign-out-of-every-device, and
   other session-ending paths — which no surface offers in this slice — together
@@ -2389,7 +2462,8 @@ runtime scan and keyboard-only pass belong to the slice that ships the first
   frame-carrying slice — the account menu's open and confirm behaviour, the
   sidebar's two-width behaviour, the bottom bar's drawer-opening behaviour,
   the drawer's dismissal by Escape or an outside activation and the focus return
-  to «المزيد», and the header controls' behaviour — which are excluded from this slice's target
+  to «المزيد», the drawer's focus entry and containment and the account menu's
+  focus entry, and the header controls' behaviour — which are excluded from this slice's target
   and covered by the slice that exercises
   them, while the frame's composition and the presence of its controls remain
   covered here by the structural verification (decided 2026-10-22,
@@ -2458,7 +2532,12 @@ request carries the details the form collected, so that the account can be
 created when the correct code is entered; the password among them is held only
 in the same protected form a stored password has, which cannot be reversed — never in
 plaintext — and it is discarded when the request is replaced or ends (decided
-2026-10-22, Clarifications). Exactly one
+2026-10-22, Clarifications). The one-time code itself is held the same way: the
+store carries the irreversibly protected value computed when the code was
+dispatched, an entered code is verified through that form alone, and a
+replacement's protected value replaces the previous one at the accepted
+dispatch, so the store never holds a usable code in plaintext (decided
+2026-10-29, Clarifications). Exactly one
 pending request is live per mobile number: a new sign-up or recovery request for
 a number that already has a live pending request replaces it and invalidates its
 code at once in every state, including the recovery flow's verified state, which
@@ -2833,14 +2912,22 @@ Clarifications; corrected 2026-10-29, ADR-139).
     ends the request and its verified state at once, the code already delivered
     and the step can no longer set a password, and the person must start a fresh
     recovery, while a successful sign-in alone ends nothing *(FR-013, FR-014,
-    FR-034)*
+    FR-034)*; **And given** the reset cannot proceed — the number has no account,
+    or its account holds the administrator role — **Then** the code step is
+    replaced in place by the outcome message, with no navigation and no new
+    route, the person stays on it, no retry control is offered, and a reload or
+    a fresh opening returns the page to the flow's first step *(FR-014, FR-036,
+    FR-038)*
 24. **AC-017**: **Given** a password-recovery request, **When** the number has no
     account, **Then** the request's response, the following step, and the sending
     of the code do not reveal whether an account exists and match those for a
     number that has an account, and that indistinguishability is bounded to those
     steps; **And when** the correct code is entered, **Then** ownership of the
     number is proven and the platform states explicitly that no account exists
-    for that number, so no password is set *(FR-015)*
+    for that number, so no password is set; **And then** the code step is
+    replaced in place by that message, with no navigation, and a reload or a
+    fresh opening returns the page to its first step, on the terms AC-016 states
+    *(FR-014, FR-015, FR-036, FR-038)*
 25. **AC-038**: **Given** a merchant completes a password reset through the
     recovery flow, **When** the new password is set, **Then** every existing
     session of the account ends, and, for an account that is not blocked, the
@@ -2914,9 +3001,13 @@ Clarifications; corrected 2026-10-29, ADR-139).
     the drawer closes; **And when** the person presses Escape or activates
     something outside the drawer, **Then** it closes and the focus returns to
     «المزيد»; the header carries no drawer control;
+    **And given** «المزيد» opens the drawer, **Then** the focus moves into it,
+    to its first focusable control, and remains within it until it closes,
+    returning to «المزيد» when it does;
     in this slice the controls are verified as part of the frame's composition,
     and the behaviour itself is verified by the slice that ships the first page
-    carrying the frame, because no page here renders it *(FR-022, FR-023, FR-052)*
+    carrying the frame, because no page here renders it *(FR-022, FR-023,
+    FR-052)*
 33. **AC-025**: **Given** the frame as delivered, **When** its header is
     inspected, **Then** it carries the logo/home control at its inline-start
     edge and, at its inline-end edge, the notifications control, the theme
@@ -3015,7 +3106,10 @@ Clarifications; corrected 2026-10-29, ADR-139).
      without action and the focus returns to the account control;
      **And given** the «تسجيل الخروج» item is
      activated, **Then** a yes-or-no confirmation is shown, cancelling it leaves
-     the session untouched, and confirming it ends the session; the composition
+     the session untouched, and confirming it ends the session; **And given** the
+     account control opens the menu, **Then** the focus moves
+     to its first item, and the menu still closes when focus leaves it, with the
+     focus returning to the account control; the composition
      and the confirmation markup are verified structurally in this slice, while
      the runtime pass waits for the slice that ships the first page carrying the
      frame *(FR-047)*
@@ -3159,7 +3253,11 @@ Clarifications; corrected 2026-10-29, ADR-139).
     and, unless that origin's budget is already spent, the limit does not decide
     it: the refusal comes from the next step in FR-051's order, the format
     refusal at sign-in and in password recovery or the sign-up form's own steps
-    *(FR-033, FR-042, FR-051)*
+    *(FR-033, FR-042, FR-051)*; **And given** a submission on a later step of the
+    same page — a one-time-code entry or a new-password submission — **Then** it
+    neither consumes the operation's budget nor is refused by it when the budget
+    is spent, because those steps are bounded by the code's own limits
+    *(FR-033, FR-034, FR-051)*
 51. **AC-036**: **Given** a one-time code, **When** it has expired, or a new code
     is requested beyond the allowed limit, or it is entered incorrectly more than
     the allowed number of times, **Then** the platform refuses it and grants no
@@ -3235,7 +3333,12 @@ Clarifications; corrected 2026-10-29, ADR-139).
     password *(FR-014, FR-034, FR-038)*; **And given** the
     reset cannot proceed because the number has no account or because the account
     holds the administrator role, **Then** the pending request ends once the
-    outcome is stated and no verified state remains *(FR-014, FR-034, FR-015)*
+    outcome is stated and no verified state remains *(FR-014, FR-034, FR-015)*;
+    **And given** a one-time code is dispatched, **Then** the pending request
+    holds it only in an irreversibly protected form, so no plaintext code is
+    stored and an entered code is verified through that form alone, and a
+    replacement's protected value replaces the previous one at the accepted
+    dispatch *(FR-034)*
 52. **AC-048**: **Given** any action this slice ships that changes state — the
      sign-up submission, the sign-in submission, the password-recovery request,
      the entry of a one-time code, or the account's own change-password action —
@@ -3353,7 +3456,11 @@ Clarifications; corrected 2026-10-29, ADR-139).
   (decided 2026-10-11, Clarifications). On the three bare pages this slice
   ships, the scan and the keyboard-only pass also assert that each state change
   is announced and that focus lands on the step now shown rather than on a
-  control the previous step carried (decided 2026-10-22, Clarifications).
+  control the previous step carried (decided 2026-10-22, Clarifications). On the
+  surfaces this slice builds, the keyboard-only pass that belongs to the slice
+  shipping the first page carrying the frame also asserts that opening the
+  drawer or the account menu moves the focus into it, as FR-022 and FR-047
+  provide (decided 2026-10-29, Clarifications).
 - **SC-007**: The lock triggers on the fifth consecutive failed sign-in attempt,
   lifts after fifteen minutes, and clears the consecutive-failed-attempt count at
   that point — with attempts made during the lock neither counted nor extending
@@ -3611,7 +3718,9 @@ Clarifications; corrected 2026-10-29, ADR-139).
   carries an expiry, so this feature names no entity beyond `User` and `Session`; the
   store is recorded in `docs/domain-model.md` as transient, non-entity state
   owned by the `users` module, with its invariants, so it is documented without
-  entering the entity register. The
+  entering the entity register. The store holds the submitted password and the
+  live one-time code only in irreversibly protected forms, so it never carries a
+  plaintext credential (decided 2026-10-29, Clarifications). The
   failed-attempt count, the lock, and the forced-password-change requirement are
   account properties, and they are already registered: ADR-105 amended the
   register's `User` row and `docs/domain-model.md` in the same change, so this

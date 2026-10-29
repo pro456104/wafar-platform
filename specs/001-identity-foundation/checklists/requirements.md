@@ -2,7 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-10-10
-**Refreshed**: 2026-10-22 — after ADR-111 (the recovery flow's verified state, and the bare pages' state announcements), again after the fifth `/speckit.clarify` session of that date (five answers; see Notes), again after the sixth session of that date (five answers; ADR-114), and again after the seventh session of that date (five answers; ADR-115); 2026-10-24 — the Assumptions' scale sentence now names `docs/capacity-model.md` as the planning authority (no requirement, criterion, or count changed); 2026-10-27 — the frame's fourth surface (the bottom bar), the drawer's opener and closer, and the footer's narrow-screen rule; 2026-10-27 (second session) — the footer band's surface authority, FR-052's position and citations, and the locked state's copy; 2026-10-27 (third session) — FR-052 moves after FR-051 and names ADR-127 and ADR-128; 2026-10-27 (correction) — ADR-132 corrects the first-visit appearance to the device preference and reverses the bar's visibility to scroll-hide, and the two stale Clarifications answers were corrected to FR-025 and FR-052 (no identifier or count changed); 2026-10-28 — ADR-137 restores the light default and the outline icon cut, and adds the page-size default (20) and the focus line (no identifier or count changed); 2026-10-29 — ADR-139's repair set: US7 raised to P1, FR-053 and AC-056 added for merchant-scoped access, R2 named as the first page carrying the frame, `EX-007` recorded for US5's structural verification, the account fields cited to ADR-105, the binding block completed, and the two deviations (the frame's runtime coverage, the measurement ceiling) named where the specification states them
+**Refreshed**: 2026-10-22 — after ADR-111 (the recovery flow's verified state, and the bare pages' state announcements), again after the fifth `/speckit.clarify` session of that date (five answers; see Notes), again after the sixth session of that date (five answers; ADR-114), and again after the seventh session of that date (five answers; ADR-115); 2026-10-24 — the Assumptions' scale sentence now names `docs/capacity-model.md` as the planning authority (no requirement, criterion, or count changed); 2026-10-27 — the frame's fourth surface (the bottom bar), the drawer's opener and closer, and the footer's narrow-screen rule; 2026-10-27 (second session) — the footer band's surface authority, FR-052's position and citations, and the locked state's copy; 2026-10-27 (third session) — FR-052 moves after FR-051 and names ADR-127 and ADR-128; 2026-10-27 (correction) — ADR-132 corrects the first-visit appearance to the device preference and reverses the bar's visibility to scroll-hide, and the two stale Clarifications answers were corrected to FR-025 and FR-052 (no identifier or count changed); 2026-10-28 — ADR-137 restores the light default and the outline icon cut, and adds the page-size default (20) and the focus line (no identifier or count changed); 2026-10-29 — ADR-139's repair set: US7 raised to P1, FR-053 and AC-056 added for merchant-scoped access, R2 named as the first page carrying the frame, `EX-007` recorded for US5's structural verification, the account fields cited to ADR-105, the binding block completed, and the two deviations (the frame's runtime coverage, the measurement ceiling) named where the specification states them; 2026-10-29 (fourth session) — the live counts corrected to 53 FR / 56 AC, the 2026-10-21 R4 references corrected to R2, and the numeric-order claim corrected to the subject grouping (no identifier changed)
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -70,8 +70,8 @@
   slice while this slice binds the frame's absence from them and provides the
   reachability surface, and that the base project's technical composition is a
   plan matter rather than a specification matter.
-- FR-001 … FR-052 (52 requirements) are each covered by at least one AC;
-  AC-001 … AC-055 (55 criteria) are grouped under their user stories and each
+- FR-001 … FR-053 (53 requirements) are each covered by at least one AC;
+  AC-001 … AC-056 (56 criteria) are grouped under their user stories and each
   cites its functional requirement. SC-001 … SC-009 are numeric and
   technology-agnostic.
 - The spec names only entities registered in `docs/domain-model.md` (`User`,
@@ -152,7 +152,9 @@
   counts are unchanged at 50 FR, 54 AC, and 9 SC; no identifier was renumbered
   or reused; no `[NEEDS CLARIFICATION]` marker was raised; and the six
   constitutional checks above were added to cover what the earlier checklist
-  omitted.
+  omitted. (Corrected 2026-10-29 by ADR-139: the first page carrying the frame is
+  R2, not R4, so the runtime behaviour and the static pages' reachability are
+  discharged there; R4 is the first table.)
 - Refreshed 2026-10-21 (seventh time): the same session continued. The four
   acceptance criteria that three earlier sessions had appended to the end of the
   specification's last section — the account menu, the guest's redirection, the
@@ -352,3 +354,12 @@
   identifier was added, renumbered, reused, or withdrawn, and the counts are
   unchanged; every FR remains cited by at least one AC; and every checkbox above
   stays checked.
+- Refreshed 2026-10-29 (fourth session): the live count block is corrected to
+  53 FR and 56 AC, the counts ADR-139's FR-053 and AC-056 produce; the notes
+  that state 52 FR / 55 AC predate those two identifiers. The sixth-time note's
+  R4 references are corrected to R2 above, and the specification's clarification
+  that FR-052 makes the requirements read in numeric order is corrected to say
+  the list stays grouped by subject, with FR-052 outside another requirement's
+  block; the slice map carries the same correction. No identifier was added,
+  renumbered, reused, or withdrawn; every FR is cited by at least one AC; and
+  every checkbox above stays checked.
