@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /*
  * governance-drift-check.mjs — Wafar governance drift check
- * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106, ADR-125, ADR-133, ADR-136)
+ * (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106, ADR-125, ADR-133, ADR-136, ADR-140)
  * -------------------------------------------------------------------
  * Read-only. Dependency-free. Runs on the pinned Node runtime.
  *
@@ -490,7 +490,7 @@ if (constitution.includes('## Design System Standards')) {
 notes.push('E: wafar.single.css is absent and the constitution carries no Design System Standards section');
 
 /* ---- G. structural counts the governance text states in prose ------------- */
-// The governance text states countable facts ("fifteen slices", "six exception
+// The governance text states countable facts ("seventeen slices", "six exception
 // rows", "ten principles", "twelve entities", "eighteen
 // binding sections", "ten API modules", "twenty-eight pages", "sixteen product
 // features"). None was machine-checked before ADR-075.
@@ -584,7 +584,7 @@ if (!proseCount) {
 }
 
 const structuralCounts = [
-  { id: 'G1', label: 'slices (R1–R15)', want: 15, file: 'ROADMAP.md',
+  { id: 'G1', label: 'slices (R1–R17)', want: 17, file: 'ROADMAP.md',
     got: () => countMatches(read('ROADMAP.md'), /^\| R\d+ \|/gm) },
   { id: 'G2', label: 'exception rows (EX-###)', want: 7,
     file: '.specify/templates/exception-register.md',
@@ -1096,7 +1096,7 @@ if (
 }
 
 /* ---- report --------------------------------------------------------------- */
-console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106, ADR-125, ADR-133, ADR-136)');
+console.log('Wafar governance drift check (ADR-071, ADR-072, ADR-073, ADR-074, ADR-075, ADR-080, ADR-082, ADR-083, ADR-086, ADR-088, ADR-092, ADR-093, ADR-096, ADR-097, ADR-098, ADR-099, ADR-100, ADR-101, ADR-102, ADR-103, ADR-104, ADR-105, ADR-106, ADR-125, ADR-133, ADR-136, ADR-140)');
 console.log('=====================================');
 for (const n of notes) console.log(`  ok   ${n}`);
 if (failures.length === 0) {

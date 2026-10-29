@@ -64,7 +64,7 @@ above exists to prevent.
 The entity names, their relationships, and their invariants below are **not**
 deferred: the product already fixes them in `Core-Project.txt` and the
 constitution's Product Register, and the slice order depends on them — R1
-through R15 all read this document before planning.
+through R17 all read this document before planning.
 
 ## Entity map
 
@@ -470,9 +470,10 @@ thirteenth entity. The `users` module owns the store.
 ## Soft deletion
 
 `Core-Project.txt` states that deletion is soft for files and users, and that
-deleting a file withdraws its parts and its index entries. Three slices depend
+deleting a file withdraws its parts and its index entries. Four slices depend
 on it — R4 (a merchant deletes a file they uploaded), R13 (an administrator
-deletes a file or an account), and R15 (automatic deletion after 90 days) — and
+blocks or soft-deletes an account), R16 (an administrator deletes a file), and
+R15 (automatic deletion after 90 days) — and
 none of them could state the rule without it. It was absent from the
 constitution's Product Register, which meant the rule existed in the product
 mirror and nowhere a feature could be held to. The register now carries it, and
@@ -520,7 +521,7 @@ product mirror; any use of them is a reference to this table, not to the mirror.
 | 2 | Whether `Conversation` carries an administrator reference when every administrator account sees the same thread. | The thread is single and shared; whether the administrator side is a reference, a role, or absent is a schema decision. | R10 |
 | 3 | Whether `expires_at` is the retention deadline or the supplier's printed expiry date. The point the 90-day retention is counted from is settled: the catalog file's upload timestamp (ADR-131). | Two product sources disagree on the field; the trigger point, once part of this row, is now fixed. | R15 |
 | 4 | Notification retention. | The product statement defers it. | R9 |
-| 5 | ~~Whether a contact message becomes a conversation or is read in its own inbox.~~ Resolved 2026-10-03 by ADR-028: a dedicated administrator "Contact messages" page. | — | ADR-028 (owning slice: R13) |
+| 5 | ~~Whether a contact message becomes a conversation or is read in its own inbox.~~ Resolved 2026-10-03 by ADR-028: a dedicated administrator "Contact messages" page. | — | ADR-028 (owning slice: R17) |
 | 6 | ~~Whether an administrator is a distinct entity or a role on `User`.~~ Resolved 2026-10-07 by ADR-067: the administrator is a **role on `User`**, not a distinct entity. | — | ADR-067 |
 | 7 | ~~What state an account carries, and whether a blocked merchant is a state or a separate flag.~~ Resolved 2026-10-07 by ADR-067: `User.status` is a closed two-value set, `active` or `blocked` — a state, not a separate flag. | — | ADR-067 |
 | 8 | ~~Whether the `auth` module owns any stored entity of its own.~~ Resolved 2026-10-07 by ADR-067: `auth` owns `Session`, the server-side revocable session store; the account's identity and profile belong to `users`. | — | ADR-067 |

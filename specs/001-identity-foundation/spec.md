@@ -35,7 +35,7 @@
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
        - the decision register — `docs/DECISIONS.md`'s index and the volumes
-         under `docs/decisions/` (ADR-001 … ADR-139). A specification that
+         under `docs/decisions/` (ADR-001 … ADR-140). A specification that
          contradicts one is a blocking defect.
        - `docs/design/slice-map.md` — the slice's entry: its blocks and order,
          its states, its copy, and the open questions this specification must
@@ -3410,8 +3410,8 @@ Clarifications; corrected 2026-10-29, ADR-139).
   features themselves belong to the slices that own them (File Upload and
   Automated Extraction to R2 and R3, Arabic Search and Multi-Filter Search to
   R5, the Cart to R8, Notifications to R9, Messaging to R10, the Admin
-  Application to R13, the Audit Log to R13 and R14, and Automatic Deletion to
-  R15).
+  Application to R13, R16 and R17, the Audit Log to R13 and R14, and Automatic
+  Deletion to R15).
 - **The pages this slice delivers are bare, and no page renders the frame here
   (decided 2026-10-10, Clarifications).** The sign-up, sign-in, and
   password-recovery pages are the only pages this slice delivers, and all three

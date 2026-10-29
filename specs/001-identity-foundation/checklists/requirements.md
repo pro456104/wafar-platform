@@ -343,3 +343,12 @@
   No identifier was added, renumbered, reused, or withdrawn; the counts stay
   52 FR, 55 AC, and 9 SC; every FR is cited by at least one AC; and all 22
   checkboxes above stay checked.
+- Refreshed 2026-10-29 (third session): ADR-140 split the administrator block
+  into R13 (the gate: application, shell, login, `AuditLog` recorder, Settings,
+  Users), R14 (the audit-log page), R16 (catalog management) and R17
+  (communication and oversight), and left R15 untouched. This specification
+  changes only its feature-to-slice sentence — the Admin Application is now
+  R13, R16 and R17 — and its live range string. No requirement, criterion, or
+  identifier was added, renumbered, reused, or withdrawn, and the counts are
+  unchanged; every FR remains cited by at least one AC; and every checkbox above
+  stays checked.

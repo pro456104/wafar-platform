@@ -97,7 +97,7 @@ shared package — never through a direct import from one module to another.
 | `notifications` | Processing-completed/failed notices, administrative messages, and an administrator's reply to a merchant message; read state. | Failed processing presents a retry action. |
 | `messages` | The conversation thread between a merchant and the administrator: a user has at most one (Product Register). Whether it carries an administrator reference, and whether every administrator account reads the same thread, is unresolved fact #2 in `docs/domain-model.md`, owned by R10 — never user-to-user. | Direct user-to-user messaging is prohibited (Principle VI). |
 | `support` | Support content and assistance flows: FAQ, privacy policy, terms of use; contact intake that reaches the administrator. | Public pages from Product Scope. |
-| `admin` | Administrator operations: users (view/block/edit/set upload quota), files (review/delete/reprocess), suppliers, parts (edit/add), message replies, broadcasts, settings, contact messages. | Every administrator operation is recorded in the append-only audit log (Authorization and Access Control). The administrator is a `User` holding the administrator role. The Settings page reads and writes `PlatformSetting`, owned by `admin` (ADR-067); it never carries a Usage Limit. The module is created by R11 for the public Contact page's read of `PlatformSetting` (its schema and its public read projection), and R13 extends it with the administrator's write surface and the remaining operations (ADR-077). |
+| `admin` | Administrator operations: users (view/block/edit/set upload quota), files (review/delete/reprocess), suppliers, parts (edit/add), message replies, broadcasts, settings, contact messages. | Every administrator operation is recorded in the append-only audit log (Authorization and Access Control). The administrator is a `User` holding the administrator role. The Settings page reads and writes `PlatformSetting`, owned by `admin` (ADR-067); it never carries a Usage Limit. The module is created by R11 for the public Contact page's read of `PlatformSetting` (its schema and its public read projection), and R13, R16 and R17 extend it with the administrator's write surface and the remaining operations (ADR-077, annotated by ADR-140). |
 
 Cross-cutting rules for every module:
 
@@ -277,7 +277,7 @@ Read/write notes:
   Deferred areas).
 - Decisions and their rationale: the decision register — `docs/DECISIONS.md`
   (index and reading protocol) and `docs/decisions/volume-NN.md` (records),
-  ADR-001 … ADR-139.
+  ADR-001 … ADR-140.
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.

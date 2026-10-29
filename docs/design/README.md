@@ -38,7 +38,7 @@ the screenshots remain evidence, not a baseline.
 
 ## Contents
 
-- `slice-map.md` — the fifteen slices and the twenty-eight pages, with each
+- `slice-map.md` — the seventeen slices and the twenty-eight pages, with each
   page's blocks, order, states, copy, behaviour, the lab-only material that is
   not transferred, the token reference, the screenshots, and the open questions
   a specification must answer. The eleven administrator pages are marked as

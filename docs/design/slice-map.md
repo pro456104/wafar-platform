@@ -1,10 +1,10 @@
-# Slice map — the Precision contract across the fifteen slices
+# Slice map — the Precision contract across the seventeen slices
 
 **Status**: reference map, not a specification. It describes what the external
 design lab shows and what the constitution fixes; it does not bind a slice.
 **Contract**: ADR-128 (tokens and rendering rules).
 **Gate**: ADR-129 (the baseline chain).
-**Scope**: fifteen slices and twenty-eight pages. Sixteen non-administrator
+**Scope**: seventeen slices and twenty-eight pages. Sixteen non-administrator
 pages have a full lab reference; the 404 is a composition reference only; the
 eleven administrator pages do not and are composed from the contract.
 
@@ -33,9 +33,11 @@ owns the binding version of each page.
 | R10 Messaging | Messages | yes | reference |
 | R11 Support surfaces | Contact, FAQ, Privacy Policy, Terms of Use, 404 | yes; the 404 is composition only | reference |
 | R12 Delivery and operations | none | none | no page |
-| R13 Admin application | Log In, Dashboard, Users, Files, Suppliers, Parts, Messages, Notifications, Settings, Contact messages | none | composed from the contract |
+| R13 Admin application foundation | Log In, Users, Settings | none | composed from the contract |
 | R14 Audit log | Audit Log | none | composed from the contract |
 | R15 Retention | none | none | no page |
+| R16 Admin catalog management | Files, Suppliers, Parts | none | composed from the contract |
+| R17 Admin communication and oversight | Messages, Notifications, Contact messages, Dashboard | none | composed from the contract |
 
 ## Lab defects seen in the reference set
 
@@ -454,27 +456,31 @@ not product pages.
 
 **Open questions.** None for the visual map.
 
-## R13 — Admin application
+## R13 — Admin application foundation
 
-**Pages.** Log In, Dashboard, Users, Files, Suppliers, Parts, Messages,
-Notifications, Settings, Contact messages. Eleven administrator pages in total
-with R14's Audit Log.
+**Pages.** Log In, Users, Settings. Three of the eleven administrator pages; the
+Audit Log is R14's, Files, Suppliers and Parts are R16's, and Messages,
+Notifications, Contact messages and Dashboard are R17's.
 
 **Blocks and order.** The administrator application carries its own shell and
 header: the platform's logo and an account control whose menu offers sign-out
 only, because there is no administrator profile or merchant settings page. The
-pages are table-first, with forms and dialogs where an action needs them; the
-Dashboard carries the statistics and reports.
+shell's navigation carries only the pages that exist and grows with R14, R16 and
+R17. The pages are table-first, with a form or a dialog where an action needs
+one; the Settings page is one form over `PlatformSetting`, and the Users page is
+a table with the block, soft-delete and quota controls.
 
-**States.** Loading, empty, error, success, disabled, and the confirmation
-dialog for destructive actions.
+**States.** Loading, empty, error, success, disabled, and the confirmation dialog
+for destructive actions.
 
 **Copy.** The page titles and actions are the register's; the final strings are
-fixed by the administrator slice's specification.
+fixed by this slice's specification.
 
-**Behaviour.** Separate login; full platform management; every administrator
-operation writes the audit log; a blocked user keeps the data and loses
-sign-in.
+**Behaviour.** Separate login; the Users operations (view, block and unblock,
+soft-delete, per-user quota override) and the Settings write; every one of them
+writes the audit log in the same operation; a blocked user keeps the data and
+loses sign-in; the account holding the administrator role cannot be blocked or
+soft-deleted.
 
 **Not transferred.** There is no lab reference; nothing is copied. The
 composition comes from the contract and the register.
@@ -482,10 +488,10 @@ composition comes from the contract and the register.
 **Tokens.** ADR-128; the table, form, dialog, and shell rules.
 
 **Screenshots.** None from the lab. Baselines are generated in the project when
-the administrator slice ships.
+the slice ships.
 
-**Open questions.** The administrator shell's composition; the Dashboard cards;
-each table's columns; the permission boundaries.
+**Open questions.** The administrator shell's composition; the Users table's
+columns; the permission boundaries.
 
 ## R14 — Audit log
 
@@ -496,11 +502,13 @@ administrator operation.
 
 **States.** Loading, empty, error.
 
-**Copy.** The column names and the empty-state sentence are fixed by the
-administrator slice's specification.
+**Copy.** The column names and the empty-state sentence are fixed by this
+slice's specification.
 
 **Behaviour.** Append-only; read-only; every administrator operation writes a
-row.
+row; the action vocabulary is open-ended and the page derives its filter values
+from the record, so a later administrator slice adds an action type without
+changing this page.
 
 **Not transferred.** There is no lab reference.
 
@@ -531,6 +539,61 @@ search index aligned to the same window.
 **Screenshots.** None.
 
 **Open questions.** The deletion notice.
+
+## R16 — Admin catalog management
+
+**Pages.** Files, Suppliers, Parts.
+
+**Blocks and order.** The administrator shell; a table-first page per entity,
+with the review, delete and reprocess actions on Files, the manage and merge
+actions on Suppliers, and the edit, price and manual-add actions on Parts.
+
+**States.** Loading, empty, error, success, disabled, and the confirmation dialog
+for destructive actions.
+
+**Copy.** The page titles and actions are the register's; the final strings are
+fixed by this slice's specification.
+
+**Behaviour.** The file delete runs the catalog-delete cascade R4 wrote; a
+reprocess re-queues without a new upload; a supplier merge merges names only; a
+manual part add names an existing catalog and stores the six canonical columns,
+no description, and a family or none.
+
+**Not transferred.** There is no lab reference.
+
+**Tokens.** ADR-128; the table, form, and dialog rules.
+
+**Screenshots.** None from the lab; generated in the project.
+
+**Open questions.** Each table's columns; the merge semantics; the manual-add
+form.
+
+## R17 — Admin communication and oversight
+
+**Pages.** Messages, Notifications, Contact messages, Dashboard.
+
+**Blocks and order.** The administrator shell; the message thread with the reply
+composer; the broadcast form; the contact-message table with its status and note;
+the Dashboard's statistics table.
+
+**States.** Loading, empty, error, success, disabled.
+
+**Copy.** The page titles and actions are the register's; the final strings are
+fixed by this slice's specification.
+
+**Behaviour.** The reply delivers the notification for it; the broadcast goes out
+in bounded batches; the contact-message status and note are written; the
+Dashboard reads the statistics of registered entities as a table — it composes no
+cards, because only Home composes cards.
+
+**Not transferred.** There is no lab reference.
+
+**Tokens.** ADR-128; the table, form, and thread rules.
+
+**Screenshots.** None from the lab; generated in the project.
+
+**Open questions.** Each table's columns; the Dashboard's statistic set; the
+broadcast's scope and batching.
 
 ## Screenshot matrix
 
@@ -582,8 +645,8 @@ entries name them so the gap is visible.
 | R10 | `screenshots/R10/` |
 | R11 | `screenshots/R11/` |
 
-R3, R12, R13, R14, and R15 have no reference image: the first two have no page,
-and the administrator pages are composed from the contract.
+R3, R12, R13, R14, R15, R16, and R17 have no reference image: the first two have
+no page, and the administrator pages are composed from the contract.
 
 ## Open questions index
 
@@ -604,16 +667,20 @@ whole map.
 | R9 | Empty copy; kind labels |
 | R10 | Empty-thread copy; refresh-notice wording |
 | R11 | Final legal copy; contact-information source; non-404 status copy |
-| R13 | Administrator shell; Dashboard cards; table columns; permissions |
+| R13 | Administrator shell; Users table columns; permission boundaries |
 | R14 | Columns; filters; export |
 | R15 | The deletion notice |
+| R16 | Table columns for Files, Suppliers and Parts; merge semantics; manual-add form |
+| R17 | Table columns for Messages, Notifications and Contact messages; the Dashboard statistic set; broadcast scope and batching |
 
 ## Handoff
 
 The map is ready for R1's plan. `/speckit.clarify` was applied to R1 on
 2026-10-27, and ADR-130, ADR-131, and ADR-132 landed the same day; two further
 clarification sessions followed on 2026-10-28 and 2026-10-29, and ADR-139
-repaired the defects the 2026-10-29 audit found. ADR-133
+repaired the defects the 2026-10-29 audit found. ADR-140 split the administrator
+block into R13, R14, R16 and R17 the same day, so the map carries seventeen
+slices and the eleven administrator pages are four entries. ADR-133
 registered `docs/design` in References and ADR-134 made this map reach the
 commands that read it. R2 is the first page that renders the frame, so the
 frame's runtime evidence begins there and exception `EX-007` ends with it. The
