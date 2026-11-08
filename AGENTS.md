@@ -120,9 +120,9 @@ replace them with the core templates.
   an emoji glyph is not an icon. The set is **IconPark** (the outline cut is
   consumed; the colour cut is vendored but not consumed), chosen by ADR-098 and
   annotated by ADR-137; both cuts are vendored under `packages/ui/vendor`; the
-  Technology Standards register gap for the icon set is still open and owned by
-  R1, so no other slice may choose a set of its own or add a second family, and
-  R1 closes the gap through the register-gap process.
+  set and the typeface are assets of that layer, not rows of the Approved
+  register, and ADR-146 records both gap rows closed at R1's acceptance, so no
+  other slice may choose a set or a family of its own.
 - Registration is Libya only: every account is a +218 number and sign-up offers
   no dial-code selector (ADR-041).
 
@@ -185,7 +185,7 @@ and its `requires.integrations.any` list must stay correctly nested under
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-140` range string — in the required files, in the top-level
+live `ADR-001 … ADR-159` range string — in the required files, in the top-level
 `docs/` files, in the two Arabic mirrors, in the template overrides, and in the
 feature specifications — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading in

@@ -383,16 +383,29 @@ service layer re-checks the ones a constraint cannot express.
   Product Register names.** They are the consecutive failed sign-in attempt
   count, the sign-in lock's expiry, and the requirement to change the password
   at first sign-in. R1 adds them; the register's `User` row names them, so they
-  are registered fields rather than schema inventions.
-  - **The attempt count is consecutive, and only a failed password
-    verification increments it.** A refusal produced by a rate limit, by a value
-    that is not a valid Libyan mobile number, or by a blocked account MUST NOT
-    increment it, so the count measures exactly what its name says. A successful
-    sign-in clears it to zero.
+  are registered fields rather than schema inventions. The count's registered
+  name is the register's label for one counter; what it counts is a **failed
+  password verification** — a password check that runs against an existing,
+  active account and does not match — on exactly three paths: sign-in, the
+  account's own change-password action, and the administrator's forced first
+  change.
+  - **The count is consecutive, and one set increments it.** A failed password
+    verification on any of the three paths adds one, and nothing else does: a
+    refusal produced by a rate limit, by a value that is not a valid Libyan
+    mobile number, by a blocked account, by an administrator account on the
+    merchant sign-in surface, by a value rule before the check runs, or by the
+    lock MUST NOT increment it, because none of them is a counted failed password
+    verification: the refusals never reach a password check against an active
+    account, and the lock withholds the count from the check it refuses.
+  - **A success on any of the three paths clears the count to zero**, and the
+    lock's expiry clears it too. A password reset through the recovery flow
+    clears neither the count nor the lock.
   - **The lock is a time bound alone.** It is applied after five consecutive
-    failed attempts, runs for fifteen minutes, ends nothing else, and at its
-    expiry the count clears. An attempt refused while the lock is in force is not
-    counted as a further failed attempt and never extends the lock.
+    failed password verifications, runs for fifteen minutes, ends nothing else,
+    and at its expiry the count clears. A refusal made while the lock is in force
+    is not counted as a further failed password verification and never extends
+    the lock; the lock withholds acceptance on the three paths and ends no
+    session.
   - **The forced-password-change requirement is cleared by that change and by no
     other path.** The change must set a value different from the initial
     password and must supply the current password — the initial password the

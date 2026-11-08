@@ -239,7 +239,7 @@ Read/write notes:
 | `packages/shared` | Validation schemas, types, and contracts shared between frontend and backend. | Single source of the two contracts (Principle II); promoted code only after a second consumer exists. |
 | `packages/db` | Database schema and migrations. | One migration tool only; every migration a single reversible step; destructive changes split into expand/backfill/contract (Schema and Migration Control). |
 | `packages/search` | Search client and index mappings. | Arabic analyzer; time-based indices behind an alias; OpenSearch Index State Management (ISM) deletes a whole index by age, with the per-catalog 90-day deletion enforced by the retention job (R15); one mapping owner per index; shard count from the modelled index (ADR-121). |
-| `packages/ui` | The Wafar UI layer: design tokens, theme, IconPark icons, IBM Plex Sans Arabic, IBM Plex Mono, and shared primitives. | Nuxt UI v4 only; IconPark (outline cut consumed; the colour cut vendored and not consumed; both cuts vendored and pinned, ADR-098 annotated by ADR-128 and ADR-137); IBM Plex Sans Arabic and IBM Plex Mono; no app pages; app-specific components stay in the apps; ADR-097/098/128/137. IconPark is the ADR-098 choice; the icon set and the typeface remain Technology Standards register gaps R1 closes (ADR-116; ADR-138). |
+| `packages/ui` | The Wafar UI layer: design tokens, theme, IconPark icons, IBM Plex Sans Arabic, IBM Plex Mono, and shared primitives. | Nuxt UI v4 only; IconPark (outline cut consumed; the colour cut vendored and not consumed; both cuts vendored and pinned, ADR-098 annotated by ADR-128 and ADR-137); IBM Plex Sans Arabic and IBM Plex Mono; no app pages; app-specific components stay in the apps; ADR-097/098/128/137. IconPark is the ADR-098 choice; the icon set and the typeface are assets of this layer, not rows of the Approved register: ADR-098 records both choices, ADR-137 fixes the consumed cut, and ADR-146 records the two gap rows closed at R1's acceptance. |
 | `packages/config` | ESLint, Stylelint, Prettier, TypeScript configuration shared by all workspaces. | Dependency and tooling changes follow Dependency Governance. Stylelint + ESLint fail the build on physical direction properties and on any colour, spacing, radius, shadow, duration, or z-index value that is not supplied by the Wafar UI layer — enforced by the committed configuration, not a review comment (Principle IX). |
 
 ## 5. Environments and operations
@@ -277,7 +277,7 @@ Read/write notes:
   Deferred areas).
 - Decisions and their rationale: the decision register — `docs/DECISIONS.md`
   (index and reading protocol) and `docs/decisions/volume-NN.md` (records),
-  ADR-001 … ADR-140.
+  ADR-001 … ADR-159.
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.

@@ -41,7 +41,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | UI foundation (component library and project layer) | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1 builds it through its plan and consumes it; ADR-098 records the visual foundation, ADR-128 records the Precision contract that annotates it, and ADR-137 fixes the appearance (outline icon cut, light default) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | the decision register: `docs/DECISIONS.md` (index, ADR-001 … ADR-140) and `docs/decisions/` (records) |
+| Accepted decisions | the decision register: `docs/DECISIONS.md` (index, ADR-001 … ADR-159) and `docs/decisions/` (records) |
 
 A slice named "Architecture", "UI Foundation", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide
@@ -137,7 +137,7 @@ requirement is verified before that checkpoint passes (ADR-139).
 | The resolution of the sidebar conflict | Resolved 2026-10-03 in ADR-017: sidebar required fixed on desktop; auth/404/static pages bare; `Core-Project.txt` now defines the shell | Closed by ADR-017 |
 | Setup, testing, and deployment documentation | R1 | Documentation (first feature that creates the workspace) |
 | Staging parity, error tracker, secret management, TLS, log pipeline, dependency update process, load test | R12 | Deployment and Observability ("the first deploying slice"); Dependency Governance (dependency update process); Performance Budgets and Verification (load test) |
-| The documentation-drift test for the first public interface, and the first N+1 query-count assertion | R2 | Documentation; Performance Budgets and Verification. R1's public surface is covered by OpenAPI generation from the Hono routes (ADR-002), so the first standalone drift test appears in R2. |
+| The documentation-drift test for the first public interface | R2 | Documentation; Performance Budgets and Verification. R1's public surface is covered by OpenAPI generation from the Hono routes (ADR-002), so the first standalone drift test appears in R2 (ADR-031 item 4). The first N+1 query-count assertion is **R1's**, not R2's: R1 asserts the query count of a sign-in request (T058) and records the SHOULD's status in its plan's Complexity Tracking, as the note below and ADR-139 state; the two obligations are separate and neither discharges the other (ADR-139). |
 | The committed Stylelint + ESLint configuration that fails the build on physical direction properties and raw colour/spacing/radius/shadow/duration/z-index values outside the Wafar UI layer | R1 | Principle IX; Technology Standards (Quality) |
 | The seeded CLI command that creates the administrator account, the forced password change, and the anti-enumeration/lockout responses | R1 | Identity, Authentication, and Session Policy |
 | Automated detection of weak password hashing, and the "sign out everywhere" / browser-token revocation on password change | R1 | Identity, Authentication, and Session Policy |
@@ -245,7 +245,8 @@ Each names the slice that closes it.
   before R2's table does. R1's plan records the assertion's status — met, or an
   unmet SHOULD with its reason and a review date — in Complexity Tracking, and
   R2 owns the first standalone documentation-drift test for the public
-  interface; the two are separate obligations and neither discharges the other.
+  interface (ADR-031 item 4); the two are separate obligations and neither
+  discharges the other.
 - **Independent verification.** Each slice is independently testable: R1 alone
   yields a working account and the shell's composed frame verified structurally,
   R2 alone yields an accepted and stored file, R5 alone yields a searchable parts

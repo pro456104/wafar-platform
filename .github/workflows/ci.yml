@@ -1,0 +1,372 @@
+# The continuous-integration gate (CMV 14, ADR-143). Jobs run offline against
+# local services and the fake SMS transport; the dependency-install step is the
+# only networked step.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  governance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+      - run: node governance-drift-check.mjs
+
+  lint-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: node scripts/check/module-headers.mjs
+
+  unit:
+    needs: lint-typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec vitest run --project shared --project api --project ui --project web --coverage
+      - run: node --test scripts/check/__tests__/coverage-gate.test.mjs
+
+  integration:
+    needs: lint-typecheck
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wafar
+          POSTGRES_PASSWORD: wafar
+          POSTGRES_DB: wafar
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wafar" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Apply the first migration
+        run: pnpm --filter @wafar/db migrate
+        env:
+          DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+      - name: Exercise the down migration
+        run: psql "postgres://wafar:wafar@localhost:5432/wafar" -f packages/db/migrations/0001_identity_foundation.down.sql && pnpm --filter @wafar/db migrate
+        env:
+          PGPASSWORD: wafar
+      - run: pnpm test:integration
+        env:
+          DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+          BETTER_AUTH_SECRET: ci-only-secret-value-000000
+          SMS_TRANSPORT: fake
+
+  # The coverage gate's blocking moment (T155): the combined run's V8 report,
+  # the measurable changed production lines against the branch point, and the
+  # ≥ 80% threshold. The report is attached; the frame's page-level runtime is excluded
+  # only by EX-007.
+  coverage:
+    needs: integration
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wafar
+          POSTGRES_PASSWORD: wafar
+          POSTGRES_DB: wafar
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wafar" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Apply the first migration
+        run: pnpm --filter @wafar/db migrate
+        env:
+          DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+      - name: The coverage run
+        run: pnpm test:coverage
+        env:
+          DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+          BETTER_AUTH_SECRET: ci-only-secret-value-000000
+          SMS_TRANSPORT: fake
+      - name: The changed-line gate
+        run: node scripts/check/coverage-gate.mjs
+        env:
+          COVERAGE_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+      - name: Keep the coverage report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: coverage
+          path: coverage/
+
+  # The enumeration run's reproducibility protocol (T163, CHK032): one host class,
+  # one build, one database, the suites serial, coverage off, and one re-run on
+  # the same runner when the first run fails. Both reports are kept and the
+  # second is the verdict; a second failure is a failure.
+  enumeration:
+    needs: integration
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wafar
+          POSTGRES_PASSWORD: wafar
+          POSTGRES_DB: wafar
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wafar" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Apply the first migration
+        run: pnpm --filter @wafar/db migrate
+        env:
+          DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+      - name: Enumeration, first run
+        id: first
+        continue-on-error: true
+        run: pnpm test:enumeration -- --reporter=json --outputFile=enumeration-first.json
+        env:
+          DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+          BETTER_AUTH_SECRET: ci-only-secret-value-000000
+          SMS_TRANSPORT: fake
+          SMS_FAKE_ACCEPT_MS: '0'
+      - name: Enumeration, the one re-run
+        id: second
+        if: steps.first.outcome == 'failure'
+        continue-on-error: true
+        run: pnpm test:enumeration -- --reporter=json --outputFile=enumeration-second.json
+        env:
+          DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+          BETTER_AUTH_SECRET: ci-only-secret-value-000000
+          SMS_TRANSPORT: fake
+          SMS_FAKE_ACCEPT_MS: '0'
+      - name: Keep both reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: enumeration-reports
+          path: enumeration-*.json
+      - name: A second failure is a failure
+        if: steps.first.outcome == 'failure' && steps.second.outcome == 'failure'
+        run: exit 1
+
+  e2e:
+    needs: integration
+    runs-on: ubuntu-latest
+    # The class's fixed environment (plan → The test classes' environments):
+    # the production build, the local API, PostgreSQL, and the fake transport.
+    env:
+      DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+      BETTER_AUTH_SECRET: ci-only-secret-value-000000
+      SMS_TRANSPORT: fake
+      NODE_ENV: production
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wafar
+          POSTGRES_PASSWORD: wafar
+          POSTGRES_DB: wafar
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wafar" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Apply the first migration
+        run: pnpm --filter @wafar/db migrate
+      - name: Build the artifacts the classes serve
+        run: pnpm build
+        env:
+          API_BASE: http://127.0.0.1:3001
+          NUXT_PUBLIC_API_BASE: http://127.0.0.1:3001
+      - run: pnpm test:e2e
+      - run: pnpm test:a11y
+      - run: pnpm test:visual
+
+  lighthouse:
+    needs: e2e
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wafar
+          POSTGRES_PASSWORD: wafar
+          POSTGRES_DB: wafar
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wafar" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install chromium
+      - name: Apply the first migration
+        run: pnpm --filter @wafar/db migrate
+        env:
+          DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+      - name: Build for the budgets
+        run: pnpm build
+        env:
+          NUXT_PUBLIC_API_BASE: http://127.0.0.1:3001
+      - name: The INP user flow
+        run: pnpm test:inp
+        env:
+          DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+          SMS_TRANSPORT: fake
+          WEB_ORIGIN: http://127.0.0.1:3000
+          API_ORIGIN: http://127.0.0.1:3001
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: inp-user-flow
+          path: apps/web/reports/inp-user-flow.json
+      - run: pnpm exec lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+  # The registered SC-009 measurement (T117). The profile binds one loopback
+  # source address per virtual user (127.0.0.2 - 127.0.0.22); Linux assigns the
+  # whole 127.0.0.0/8 block to the loopback interface, so ubuntu-24.04 is the
+  # measurement host class plan.md fixes. A run on any other host is a
+  # development check, not the registered verdict. The job runs the committed
+  # seeder, then the load script, which starts its own API with the declared
+  # 50 ms acceptance wait, and keeps the report either way.
+  load:
+    needs: integration
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wafar
+          POSTGRES_PASSWORD: wafar
+          POSTGRES_DB: wafar
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wafar" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Apply the first migration
+        run: pnpm --filter @wafar/db migrate
+        env:
+          DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+      - name: Seed the deterministic load fixture
+        run: pnpm load:seed
+        env:
+          DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+      - name: The SC-009 load run
+        run: pnpm load:auth
+        env:
+          DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+          NODE_ENV: test
+          WEB_ORIGIN: http://127.0.0.1:3000
+      - name: Keep the load report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sc-009-load
+          path: reports/sc-009-load.json
+
+  build-sbom:
+    needs: lint-typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm sbom
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sbom
+          path: sbom.cdx.json
+
+  security-scan:
+    needs: lint-typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: osv-scanner
+        uses: google/osv-scanner-action/osv-scanner-action@764c91816374ff2d8fc2095dab36eecd42d61638 # v1.9.2
+        with:
+          scan-args: |-
+            --lockfile=pnpm-lock.yaml
+      - name: Semgrep
+        run: |
+          python3 -m pip install semgrep
+          semgrep ci --config=p/typescript

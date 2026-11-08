@@ -1,0 +1,275 @@
+{
+  "$comment": "The fixed Libyan city and area list. SOURCE: the Libyan administrative-division reference (22 governorates, the 2007 baladiyat set). Version 1.0.0 (2026-11-01). Every entry is one Arabic name; a name that recurs in another governorate carries a qualifier inside the name so the list has no duplicate.",
+  "version": "1.0.0",
+  "updated": "2026-11-01",
+  "source": "Libyan administrative-division reference, 22 governorates",
+  "governorateCount": 22,
+  "entryCount": 66,
+  "entries": [
+    {
+      "name": "طبرق",
+      "governorate": "البطنان"
+    },
+    {
+      "name": "الجغبوب",
+      "governorate": "البطنان"
+    },
+    {
+      "name": "أمساعد",
+      "governorate": "البطنان"
+    },
+    {
+      "name": "درنة",
+      "governorate": "درنة"
+    },
+    {
+      "name": "القبة",
+      "governorate": "درنة"
+    },
+    {
+      "name": "تميمي",
+      "governorate": "درنة"
+    },
+    {
+      "name": "البيضاء",
+      "governorate": "الجبل الأخضر"
+    },
+    {
+      "name": "شحات",
+      "governorate": "الجبل الأخضر"
+    },
+    {
+      "name": "القبة الجبل",
+      "governorate": "الجبل الأخضر"
+    },
+    {
+      "name": "المرج",
+      "governorate": "المرج"
+    },
+    {
+      "name": "الأبيار",
+      "governorate": "المرج"
+    },
+    {
+      "name": "توكرة",
+      "governorate": "المرج"
+    },
+    {
+      "name": "بنغازي",
+      "governorate": "بنغازي"
+    },
+    {
+      "name": "قاريونس",
+      "governorate": "بنغازي"
+    },
+    {
+      "name": "الليثي",
+      "governorate": "بنغازي"
+    },
+    {
+      "name": "أجدابيا",
+      "governorate": "الواحات"
+    },
+    {
+      "name": "الكفرة",
+      "governorate": "الواحات"
+    },
+    {
+      "name": "جالو",
+      "governorate": "الواحات"
+    },
+    {
+      "name": "الكفرة الجنوبية",
+      "governorate": "الكفرة"
+    },
+    {
+      "name": "تازربو",
+      "governorate": "الكفرة"
+    },
+    {
+      "name": "الزوية",
+      "governorate": "الكفرة"
+    },
+    {
+      "name": "سرت",
+      "governorate": "سرت"
+    },
+    {
+      "name": "هراوة",
+      "governorate": "سرت"
+    },
+    {
+      "name": "بوقرين",
+      "governorate": "سرت"
+    },
+    {
+      "name": "الجفرة",
+      "governorate": "الجفرة"
+    },
+    {
+      "name": "هون",
+      "governorate": "الجفرة"
+    },
+    {
+      "name": "ودان",
+      "governorate": "الجفرة"
+    },
+    {
+      "name": "مصراتة",
+      "governorate": "مصراتة"
+    },
+    {
+      "name": "زليتن",
+      "governorate": "مصراتة"
+    },
+    {
+      "name": "بني وليد",
+      "governorate": "مصراتة"
+    },
+    {
+      "name": "الخمس",
+      "governorate": "المرقب"
+    },
+    {
+      "name": "مسلاتة",
+      "governorate": "المرقب"
+    },
+    {
+      "name": "تاورغاء",
+      "governorate": "المرقب"
+    },
+    {
+      "name": "طرابلس",
+      "governorate": "طرابلس"
+    },
+    {
+      "name": "تاجوراء",
+      "governorate": "طرابلس"
+    },
+    {
+      "name": "جنزور",
+      "governorate": "طرابلس"
+    },
+    {
+      "name": "الجفارة",
+      "governorate": "الجفارة"
+    },
+    {
+      "name": "العزيزية",
+      "governorate": "الجفارة"
+    },
+    {
+      "name": "السواني",
+      "governorate": "الجفارة"
+    },
+    {
+      "name": "الزاوية",
+      "governorate": "الزاوية"
+    },
+    {
+      "name": "صرمان",
+      "governorate": "الزاوية"
+    },
+    {
+      "name": "الزاوية الغربية",
+      "governorate": "الزاوية"
+    },
+    {
+      "name": "زوارة",
+      "governorate": "النقاط الخمس"
+    },
+    {
+      "name": "العجيلات",
+      "governorate": "النقاط الخمس"
+    },
+    {
+      "name": "جميل",
+      "governorate": "النقاط الخمس"
+    },
+    {
+      "name": "غريان",
+      "governorate": "الجبل الغربي"
+    },
+    {
+      "name": "مزدة",
+      "governorate": "الجبل الغربي"
+    },
+    {
+      "name": "يفرن",
+      "governorate": "الجبل الغربي"
+    },
+    {
+      "name": "نالوت",
+      "governorate": "نالوت"
+    },
+    {
+      "name": "بدر",
+      "governorate": "نالوت"
+    },
+    {
+      "name": "القلعة",
+      "governorate": "نالوت"
+    },
+    {
+      "name": "غات",
+      "governorate": "غات"
+    },
+    {
+      "name": "أوباري",
+      "governorate": "غات"
+    },
+    {
+      "name": "البركت",
+      "governorate": "غات"
+    },
+    {
+      "name": "وادي الشاطئ",
+      "governorate": "وادي الشاطئ"
+    },
+    {
+      "name": "براك الشاطئ",
+      "governorate": "وادي الشاطئ"
+    },
+    {
+      "name": "إدري الشاطئ",
+      "governorate": "وادي الشاطئ"
+    },
+    {
+      "name": "سبها",
+      "governorate": "سبها"
+    },
+    {
+      "name": "سمنو",
+      "governorate": "سبها"
+    },
+    {
+      "name": "الجديد",
+      "governorate": "سبها"
+    },
+    {
+      "name": "وادي الحياة",
+      "governorate": "وادي الحياة"
+    },
+    {
+      "name": "غدوة",
+      "governorate": "وادي الحياة"
+    },
+    {
+      "name": "بنت بية",
+      "governorate": "وادي الحياة"
+    },
+    {
+      "name": "مرزق",
+      "governorate": "مرزق"
+    },
+    {
+      "name": "تراغن",
+      "governorate": "مرزق"
+    },
+    {
+      "name": "القطرون",
+      "governorate": "مرزق"
+    }
+  ],
+  "sha256": "a4b33dc401b5a05a1070b0858c25ff9274be00fc0164dea6aa9b472ad3420eaf"
+}

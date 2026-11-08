@@ -490,8 +490,8 @@ if (constitution.includes('## Design System Standards')) {
 notes.push('E: wafar.single.css is absent and the constitution carries no Design System Standards section');
 
 /* ---- G. structural counts the governance text states in prose ------------- */
-// The governance text states countable facts ("seventeen slices", "six exception
-// rows", "ten principles", "twelve entities", "eighteen
+// The governance text states countable facts ("seventeen slices", "twelve
+// exception rows", "ten principles", "twelve entities", "eighteen
 // binding sections", "ten API modules", "twenty-eight pages", "sixteen product
 // features"). None was machine-checked before ADR-075.
 //
@@ -586,7 +586,7 @@ if (!proseCount) {
 const structuralCounts = [
   { id: 'G1', label: 'slices (R1–R17)', want: 17, file: 'ROADMAP.md',
     got: () => countMatches(read('ROADMAP.md'), /^\| R\d+ \|/gm) },
-  { id: 'G2', label: 'exception rows (EX-###)', want: 7,
+  { id: 'G2', label: 'exception rows (EX-###)', want: 12,
     file: '.specify/templates/exception-register.md',
     got: () => countMatches(read('.specify/templates/exception-register.md'), /^\| EX-\d{3} \|/gm) },
   { id: 'G3', label: 'principles', want: 10,

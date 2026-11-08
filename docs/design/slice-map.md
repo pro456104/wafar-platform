@@ -700,7 +700,8 @@ whole map.
 
 ## Handoff
 
-The map is ready for R1's plan. `/speckit.clarify` was applied to R1 on
+The map served R1's plan, which is generated at
+`specs/001-identity-foundation/plan.md`. `/speckit.clarify` was applied to R1 on
 2026-10-27, and ADR-130, ADR-131, and ADR-132 landed the same day; two further
 clarification sessions followed on 2026-10-28 and 2026-10-29, and ADR-139
 repaired the defects the 2026-10-29 audit found. ADR-140 split the administrator
@@ -709,7 +710,9 @@ slices and the eleven administrator pages are four entries. ADR-133
 registered `docs/design` in References and ADR-134 made this map reach the
 commands that read it. R2 is the first page that renders the frame, so the
 frame's runtime evidence begins there and exception `EX-007` ends with it. The
-next step is `/speckit.plan` for R1. The plan consumes
-ADR-128 and this map, and records the conformance gate ADR-129. No specification
+next step is `/speckit.analyze` over the generated specification, plan, and
+tasks, then implementation. The plan consumes
+ADR-128 and this map, records the conformance gate ADR-129, and was re-evaluated
+on 2026-10-30. No specification
 text is edited here; the clarification sessions recorded the corrections in the
 specification itself.
