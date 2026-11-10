@@ -341,6 +341,13 @@ jobs:
           NODE_ENV: test
           TZ: UTC
           WEB_ORIGIN: http://127.0.0.1:3000
+          # The profile's hashing concurrency: the API's async scrypt calls run
+          # on libuv's pool, and the default four threads saturate before the
+          # profile's 10 requests/second (the 2026-11-08 development check
+          # measured eight as the best value: 8.6 hashes/s against 4 threads'
+          # lower figure). The value is a measurement-environment setting, not a
+          # limit: it changes no budget and disables nothing.
+          UV_THREADPOOL_SIZE: 8
       - name: Keep the load report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
