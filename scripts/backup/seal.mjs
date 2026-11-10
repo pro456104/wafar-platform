@@ -51,11 +51,17 @@ function open(input) {
   const tag = input.subarray(offset, (offset += 16));
   const ciphertext = input.subarray(offset);
 
-  const unwrapper = createDecipheriv('aes-256-gcm', kek(), wrapIv);
+  const unwrapper = createDecipheriv('aes-256-gcm', kek(), wrapIv, {
+    // 16 bytes is the tag length the format reserves below; pinning it stops a
+    // truncated tag from being accepted (semgrep gcm-no-tag-length, T282).
+    authTagLength: 16,
+  });
   unwrapper.setAuthTag(wrapTag);
   const dataKey = Buffer.concat([unwrapper.update(wrapped), unwrapper.final()]);
 
-  const decipher = createDecipheriv('aes-256-gcm', dataKey, dataIv);
+  const decipher = createDecipheriv('aes-256-gcm', dataKey, dataIv, {
+    authTagLength: 16,
+  });
   decipher.setAuthTag(tag);
   return Buffer.concat([decipher.update(ciphertext), decipher.final()]);
 }

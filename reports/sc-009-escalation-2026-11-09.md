@@ -151,3 +151,39 @@ development run was promoted to the registered verdict, and no report was
 fabricated. The Phase 25 convergence pass re-checked the host and appended T272
 with the same blocker, so the decision recorded in §5 stands and its next action
 moves to whoever provides the runner.
+
+## 8. Registered runs after ADR-162 — 2026-11-10 implement session
+
+**Run `42776605743`** (commit `f56bc39`) is the first registered verdict: 600/600
+accepted, 0 refused, the 21st-submission probe refused `429 RATE_LIMITED`,
+aggregate p50 249.5 ms and p95 456.9 ms, `account_creation` p50 411.6,
+`sign_in` p50 155.7, `recovery` p50 249.5, the quickest measured request
+148.4 ms, the slowest 487.4 ms, and a window that closed in 60,112 ms against
+the 60-second schedule. `profile.host` records `platform: linux`,
+`release: 7.0.0-1017-azure`, `verdictScope: registered measurement host`. This is
+the run §5 records and ADR-162 answers.
+
+**Run `42787877288`** (commit `24bc841`) is the first run with the amended
+bounds. Its `sc-009-load` artifact records `verdict: fail` on a host of the same
+class and image (`platform: linux`, `release: 7.0.0-1017-azure`,
+`verdictScope: registered measurement host`): 600/600 accepted, 0 refused, the
+probe refused, but aggregate p50 1932.3 ms and p95 3869.3 ms, with
+`account_creation` p50 3794.1, `sign_in` p50 1896.8, `recovery` p50 1909.2, the
+quickest measured request 253.8 ms, the slowest 13,805.7 ms, and a window that
+took 77,591 ms for the 60-second schedule — every figure about eight times the
+run nine minutes earlier, including the fixed 50 ms acceptance wait and the
+single hash `sign_in` performs. The commit carries no request-path change: the
+API, the schema, the lockfile, and the load script's measurement are untouched
+between the two runs, and that commit's `unit`, `integration`, `enumeration`,
+`coverage`, `e2e`, `lighthouse`, `lint-typecheck`, and `governance` jobs pass.
+A schedule the client cannot hold and a fastest request five times the earlier
+run's are the signature of a degraded measurement host, not of the code, so this
+report does not read the run as a verdict on the criterion and does not close a
+task on it. It is recorded because the criterion's evidence trail must show
+every registered run, including the ones that do not count.
+
+The verdict is taken from the next registered run on a host that sustains the
+profile's 10 requests per second. If a second run on the same class reproduces
+the slowdown, the finding is about the registered host class rather than about
+one instance, and it reopens §5 with evidence instead of being retried away.
+
