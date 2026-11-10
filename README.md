@@ -141,7 +141,12 @@ networked step. `ENUMERATION_SAMPLES` shortens the enumeration run locally; the
 verdict run uses the fixed 200 samples.
 
 The SC-009 verdict is the `load` CI job's run on `ubuntu-24.04`, which writes
-`reports/sc-009-load.json` and attaches it to the run as `sc-009-load`. A run on
+`reports/sc-009-load.json` and attaches it to the run as `sc-009-load`. The
+registered verdict is committed at `reports/sc-009-load.json`: run `42835176455`
+(commit `6e9cfac`, 2026-11-10) records `verdict: pass` with
+`profile.host.verdictScope: registered measurement host`, 600/600 accepted, no
+refusal, aggregate p50 283.1 ms, p95 418.5 ms, and a work-only p95 of 387.9 ms
+against the 500 ms ceiling (ADR-162, ADR-164). A run on
 another host is a development check, not the verdict:
 `reports/sc-009-load-development.json` records the 2026-11-07 Windows run, which
 verified the 10,000-account fixture, the 300 → 500 session ceiling, the planned

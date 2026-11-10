@@ -352,14 +352,24 @@ latency instead of two, and the honeypot’s discarded copy runs beside the
 password’s hash for the same reason. A sign-up’s service cost on the
 four-vCPU class drops from about 476 ms to about 300 ms.
 
-**What closes the thread.** The next `load` run on `ubuntu-24.04` is read
-against this profile. Its `sc-009-load` artifact must report `verdict: pass`,
-`verdictScope: registered measurement host`, 600/600 accepted, zero refusals,
-the limiter probe refused, and p50 / p95 / work-only p95 inside the bounds; only
-then is it copied to `reports/sc-009-load.json` and T279 and
-T254/T257/T261/T262/T267/T270/T272 close. If the run still misses a bound, the
-shortfall is recorded in a new decision; no bound and no limit in the script is
-lowered to absorb it.
+**The registered verdict — run `42835176455` (commit `6e9cfac`), 2026-11-10.**
+**PASS.** The `load` job's `sc-009-load` artifact reports `verdict: pass` with
+`profile.host.verdictScope: registered measurement host`: 600/600 accepted, 0
+refused, the 120,075 ms window at 5 requests/second with a 200 ms stagger,
+aggregate p50 283.1 ms, p95 418.5 ms, work-only p95 387.9 ms; `account_creation`
+p50 293.0 / work-only p95 365.3, `sign_in` p50 244.9 / work-only p95 407.2,
+`recovery` p50 278.2 / work-only p95 390.0. The limiter was live: the probe's
+21st account-creation submission was refused `429 RATE_LIMITED` with
+`Retry-After`, and the session population rose from 300 to the 500 ceiling. The
+host was the GitHub-hosted `ubuntu-24.04` class (4 CPUs, AMD EPYC 9V74, load
+average 2.4, 4.7 scrypt hashes/second at CMV row 2's cost). The report is
+attached at `reports/sc-009-load.json`.
+
+**What closed the thread.** T279 and T283 and the chain
+T254/T257/T261/T262/T267/T270/T272 close on that report, and R1's acceptance
+condition 4 (SC-009) has its verdict. The bounds, the rate, the key plan, and
+the scrypt profile stand as ADR-162 and ADR-164 fixed them; nothing in this
+thread lowered a limit, promoted a development run, or fabricated a report.
 
 
 

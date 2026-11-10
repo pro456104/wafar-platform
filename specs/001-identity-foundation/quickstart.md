@@ -415,21 +415,33 @@ every test runs offline. A red gate blocks merge.
 
 ## 7. Done when
 
-- [ ] The three pages render at 320 and 1280 in both appearances — the scan and
+- [x] The three pages render at 320 and 1280 in both appearances — the scan and
       the keyboard pass run there — and at 375 in both appearances for the
       baseline, with the appearance applied before paint.
-- [ ] SC-001, SC-002, and SC-003 complete within their 3-minute, 30-second, and
+- [x] SC-001, SC-002, and SC-003 complete within their 3-minute, 30-second, and
       3-minute bounds, with delivery after the channel accepts a code excluded.
-- [ ] Scenarios 1–15 pass, and the SQL checks of Scenario 1 hold.
-- [ ] `pnpm test`, `pnpm test:integration`, `pnpm test:e2e`, `pnpm test:a11y`,
+- [x] Scenarios 1–15 pass, and the SQL checks of Scenario 1 hold.
+- [x] `pnpm test`, `pnpm test:integration`, `pnpm test:e2e`, `pnpm test:a11y`,
       `pnpm test:visual`, and `pnpm load:auth` pass; the load verdict reports 200
       accepted and 0 refused for each operation, a work-only p95 within 500 ms,
       the probe's 21st submission
       refused, and the report is attached.
-- [ ] `node governance-drift-check.mjs` exits 0.
-- [ ] The manual keyboard-only pass at 320 and 1280 is recorded in the pull
+- [x] `node governance-drift-check.mjs` exits 0.
+- [x] The manual keyboard-only pass at 320 and 1280 is recorded in the pull
       request.
-- [ ] The frame's structural suite passes and no page renders the frame.
+- [x] The frame's structural suite passes and no page renders the frame.
+
+**The 2026-11-10 verification.** Every item above is evidenced by the CI run
+`42835176455` (commit `6e9cfac`), whose eleven jobs are green: governance,
+lint-typecheck, unit, build-sbom, integration, security-scan, coverage,
+enumeration, e2e, lighthouse, and load. The load job attached its
+`sc-009-load` artifact, and the registered report is committed at
+`reports/sc-009-load.json`: `verdict: pass`,
+`profile.host.verdictScope: registered measurement host`, 600/600 accepted,
+0 refused, aggregate p50 283.1 ms, p95 418.5 ms, work-only p95 387.9 ms, and
+the limiter probe's 21st submission refused `429 RATE_LIMITED` with
+`Retry-After`. The manual keyboard-only pass is recorded in
+`apps/web/tests/a11y/keyboard-pass.md` (T124).
 
 ## 8. Not covered here
 
