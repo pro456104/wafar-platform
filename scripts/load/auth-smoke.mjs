@@ -14,10 +14,11 @@
 // host; the report states the host it ran on, and a run on another host is a
 // development check rather than the registered verdict.
 import { spawn } from 'node:child_process';
+import { randomBytes, scryptSync } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import http from 'node:http';
 import { createRequire } from 'node:module';
-import { release } from 'node:os';
+import { cpus, loadavg, release, totalmem } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -223,6 +224,38 @@ function percentile(values, percentage) {
 
 function round(value) {
   return Math.round(value * 10) / 10;
+}
+
+// A host-throughput sample beside the verdict (T279). The service time of every
+// measured operation is dominated by one scrypt hash at CMV row 2's cost, so a
+// sample of that hash on the measurement host separates a slow host from a slow
+// application: when the observed p50 is many times this figure the queue is the
+// host's, not the code's. It reports a fact and moves no bound.
+function probeHost() {
+  const samples = 5;
+  const salt = randomBytes(16);
+  const startedAt = performance.now();
+  for (let i = 0; i < samples; i += 1) {
+    scryptSync('wafar-load-host-probe', salt, 64, {
+      N: 32768,
+      r: 8,
+      p: 3,
+      maxmem: 128 * 1024 * 1024,
+    });
+  }
+  const elapsedMs = performance.now() - startedAt;
+  return {
+    cpus: cpus().length,
+    cpuModel: cpus()[0]?.model ?? null,
+    loadAverage: loadavg().map((value) => round(value)),
+    memoryMb: Math.round(totalmem() / (1024 * 1024)),
+    scrypt: {
+      cost: { N: 32768, r: 8, p: 3, keyLength: 64 },
+      samples,
+      elapsedMs: round(elapsedMs),
+      hashesPerSecond: round((samples * 1000) / elapsedMs),
+    },
+  };
 }
 
 function summarise(samples) {
@@ -723,6 +756,7 @@ const report = {
   window: result.window,
   operations: operationsReport,
   aggregate,
+  hostProbe: probeHost(),
   counters: {
     rows: [...result.counters.entries()].map(([key, count]) => ({ key, count })),
     totalRows: result.counters.size,
@@ -758,6 +792,12 @@ for (const operation of operations) {
 }
 console.log(
   `  host: ${report.profile.host.platform} ${report.profile.host.release} — ${report.profile.host.verdictScope}`,
+);
+console.log(
+  `  host probe: ${report.hostProbe.cpus} cpus (${report.hostProbe.cpuModel}), ` +
+    `load ${report.hostProbe.loadAverage.join('/')}, ` +
+    `scrypt ${report.hostProbe.scrypt.hashesPerSecond} hashes/s ` +
+    `(${report.hostProbe.scrypt.elapsedMs} ms for ${report.hostProbe.scrypt.samples})`,
 );
 console.log(
   `  limiter probe: ${probeAccepted}/${result.probe.length} accepted, the 21st ` +
