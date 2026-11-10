@@ -206,6 +206,7 @@ constitution's Documentation section and enforced by `governance-drift-check.mjs
 | [ADR-162](decisions/volume-09.md#adr-162--sc-009s-p50-bound-and-work-only-margin-raised-to-500-ms) | SC-009's p50 bound and work-only margin raised to 500 ms | 2026-11-10 | 6.3.2 (unchanged) |
 | [ADR-163](decisions/volume-10.md#adr-163--the-registered-measurement-host-is-a-self-hosted-8-vcpu-runner) | The registered measurement host is a self-hosted 8-vCPU runner | 2026-11-10 | 6.3.2 (unchanged) |
 | [ADR-164](decisions/volume-10.md#adr-164--sc-009s-peak-rate-is-5-authentication-requests-per-second) | SC-009's peak rate is 5 authentication requests per second | 2026-11-10 | 6.3.2 (unchanged) |
+| [ADR-165](decisions/volume-10.md#adr-165--the-sign-up-path-hashes-the-password-and-the-one-time-code-concurrently) | The sign-up path hashes the password and the one-time code concurrently | 2026-11-10 | 6.3.2 (unchanged) |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,

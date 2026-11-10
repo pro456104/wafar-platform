@@ -317,8 +317,8 @@ queue, and why no in-class setting moved it.
 
 **Decision — ADR-164.** SC-009’s peak condition becomes **5 authentication
 requests per second**. The measurement keeps 20 virtual users, 600 measured
-requests (200 per operation), one request every **4 s** staggered 100 ms, a
-**120-second** window, the key plan, the 50 ms acceptance wait, the limiter
+requests (200 per operation), one request every **4 s** staggered **200 ms** (the
+interval divided by the user count), a **120-second** window, the key plan, the 50 ms acceptance wait, the limiter
 probe, and the **500 / 1,000 / 500 ms** bounds; the scrypt profile does not
 move. The registered measurement host returns to the GitHub-hosted
 `ubuntu-24.04` class, and its report again carries `verdictScope: registered
@@ -329,6 +329,28 @@ against a six-month plan of 10,000 accounts and 50,000–100,000 visits a day,
 where authentication is a fraction of a visit. The profile now carries 6.67
 hashes per second — about 1.42 cores at the measured cost — beside the API,
 PostgreSQL, and the generator, inside four vCPUs rather than beyond them.
+
+**The first run under the new rate (`42824045145`).** The aggregate numbers
+entered the bounds for the first time — p50 458.9 ms, p95 890.8 ms — and every
+request was accepted; account creation’s p50 775.2 ms and the work-only p95
+840.8 ms (recovery 522.8, sign-in 490.7) did not. The failure is the stream’s
+shape, not its rate: 100 ms of stagger was the 10-per-second profile’s value and
+bunches the 20 users into 2 s of each 4 s period, so the host saw a
+10-per-second burst followed by 2 s of idle. The stagger is now the interval
+divided by the user count (200 ms), which interleaves the users into one request
+every 200 ms — the steady 5 per second the plan already states. ADR-164 carries
+the correction; no rate, count, window, or bound moves.
+
+**The fixes that follow it — ADR-165.** Two changes, neither of which moves a
+bound, a rate, a count, or the scrypt profile. First, the stagger is now the
+interval divided by the user count (200 ms), so the twenty users interleave
+into one request every 200 ms — the steady 5 per second the plan states —
+instead of the 10-per-second burst the 100 ms value produced. Second, the
+sign-up path hashes the pending password and the one-time code concurrently:
+the two hashes are independent, so the request’s hashing costs one scrypt’s
+latency instead of two, and the honeypot’s discarded copy runs beside the
+password’s hash for the same reason. A sign-up’s service cost on the
+four-vCPU class drops from about 476 ms to about 300 ms.
 
 **What closes the thread.** The next `load` run on `ubuntu-24.04` is read
 against this profile. Its `sc-009-load` artifact must report `verdict: pass`,

@@ -171,7 +171,99 @@ CMV row 6, the Budget check, and **The SC-009 load profile** rows 1–2 follow;
 the script's header and interval follow; `.github/workflows/ci.yml` returns the
 `load` job to `ubuntu-24.04` and the registered scope; the escalation report
 records §10. ADR-159 and ADR-163 each carry an annotation. The live
-`ADR-001 … ADR-163` range strings move to `ADR-001 … ADR-164`, and
+`ADR-001 … ADR-163` range strings move to `ADR-001 … ADR-165`, and
 `Project-Technologies.txt`'s header list gains 164. The constitution stays
+**6.3.2**: no principle, register entry, entity, page, feature, module, or Usage
+Limit changes. Review date: 2026-12-09.
+
+**Correction (2026-11-10, before the accepted run).** Item 2's stagger is
+**200 ms**, not 100 ms: twenty users staggered by the interval divided by the
+user count (4 s ÷ 20) produce one request every 200 ms. The 100 ms value was
+copied from the 10-per-second profile, where 20 users × 100 ms filled the 2 s
+interval exactly; at 4 s it bunched each 20-request batch into 2 s and left the
+next 2 s idle, so the stream was a 10-per-second burst rather than the steady 5
+the decision requires. The first registered run under this record
+(`42824045145`) measures the burst — aggregate p50 458.9 ms and p95 890.8 ms
+inside the bounds, but account creation's p50 775.2 ms and the work-only p95
+840.8 ms outside them — and the corrected stagger is read on the next run. The
+rate, the 600 requests, the 120-second window, and every bound are unchanged.
+
+---
+
+## ADR-165 — The sign-up path hashes the password and the one-time code concurrently
+
+**Status**: Accepted — 2026-11-10. **Constitution version**: 6.3.2 (unchanged)
+**Owning directory**: `apps/api/src/modules/auth/routes/`, `apps/api/src/modules/users/service/`, `scripts/load/`, `specs/001-identity-foundation/`, `reports/`
+**Owning feature**: R1 — the identity foundation (`specs/001-identity-foundation/`).
+
+**Context.** The first registered run under ADR-164's 5-per-second condition
+(`42824045145`) reached the bounds for the first time in aggregate — p50 458.9 ms
+against 500, p95 890.8 ms against 1,000, 600/600 accepted, no refusal — and
+missed them in two places: `account_creation` p50 775.2 ms and the work-only p95
+840.8 ms (recovery 522.8, sign-in 490.7). Two causes are visible in the
+measurement.
+
+The first is the arrival shape. The stagger was the 10-per-second profile's
+100 ms: twenty users staggered by 100 ms fill 2 s of the 4 s interval, so the
+host saw a 10-per-second burst and then 2 s of idle. The plan's own words are
+"a steady 5 per second", and at a 200 ms stagger — the interval divided by the
+user count — the twenty users interleave into one request every 200 ms. The
+burst was also the shape that saturated the four-vCPU class in every earlier
+run, so the correction is a fidelity fix, not a concession.
+
+The second is the request's own service cost. Account creation hashes twice:
+the pending password and the one-time code. The two hashes are independent —
+the code's salt is derived from the request id, not from the password — but the
+route ran them one after the other, so the request's hashing cost two scrypts
+(about 426 ms at the 213 ms the host probe measures) before any queueing at all.
+On that host the 500 ms p50 bound then had 74 ms of headroom over the service
+floor alone, and the work-only ceiling had less. The same sequence made the
+honeypot's discarded copy perform the same two hashes one after the other.
+
+**Decision.**
+1. The sign-up route starts the password's hash and passes the promise to the
+   pending-request service; the service starts the one-time code's hash beside
+   it and awaits both before it dispatches. The two scrypt calls therefore run
+   concurrently and the request's hashing costs one scrypt's latency instead of
+   two, while the dispatch still follows the hashing — so the channel's
+   acceptance wait stays additive and the measured work-only figure remains the
+   work. The values hashed, the cost (CMV row 2), the salt
+   derivation, the stored row, the rate-limit spend, and the dispatch's
+   acceptance wait are unchanged; only the order of two independent hashes
+   changes, and no hash is weakened, skipped, or reused.
+2. The honeypot's discarded copy runs its code hash beside the password's hash
+   for the same reason, so the silent refusal's duration stays close to the
+   accepted path's rather than falling a scrypt behind it (FR-029, AC-031;
+   plan record 15). The discarded copy still stores nothing and dispatches
+   nothing.
+3. The load profile's stagger is the interval divided by the user count —
+   **200 ms** at 4 s and 20 users — so the aggregate inter-arrival is the
+   steady 5 per second the plan states. This is ADR-164's correction, recorded
+   here with the code change it accompanies.
+4. No bound moves: p50 ≤ 500 ms, p95 ≤ 1,000 ms, the work-only p95 ≤ 500 ms,
+   the 5-per-second rate, the 600 requests, the key plan, and the scrypt profile
+   all stand.
+
+**Alternatives considered.**
+- *Lower the scrypt cost to fit the four-vCPU class.* Rejected twice before
+  (ADR-162) and rejected again: it trades credential resistance for a latency
+  the product does not need.
+- *Raise the work-only ceiling to 1,000 ms.* Rejected: the ceiling exists so
+  that the provider's 750 ms wait stays inside SC-009's 1,000 ms; raising it
+  removes that separation.
+- *Lower the peak rate below 5 per second.* Rejected: the owner's decision of
+  2026-11-10 sets 5, and the arithmetic shows the profile fits the class at 5
+  once the stream is steady and the request's own work is halved.
+
+**Consequences and migration/backfill.** No schema, migration, or data change.
+`apps/api/src/modules/users/service/pending-request.ts` accepts the password's
+hash as a promise and starts the code's hash before the dispatch;
+`apps/api/src/modules/auth/routes/sign-up.ts` starts the hash and hands the
+promise over, and the honeypot's discarded copy runs beside it. The plan's
+profile row 2 states the 200 ms stagger, and the load script derives the
+stagger from the interval and the user count so the two cannot drift apart
+again. The escalation report records the run and both fixes. The live
+`ADR-001 … ADR-165` range strings move to `ADR-001 … ADR-165`, and
+`Project-Technologies.txt`'s header list gains 165. The constitution stays
 **6.3.2**: no principle, register entry, entity, page, feature, module, or Usage
 Limit changes. Review date: 2026-12-09.

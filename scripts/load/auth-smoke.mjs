@@ -1,7 +1,7 @@
 // The SC-009 load run (T117, plan.md -> The SC-009 load profile): 600 measured
 // requests over 120 s at 5 per second — 200 account-creation submissions, 200
 // sign-ins, and 200 recovery requests — from 20 virtual users bound to
-// 127.0.0.2 … 127.0.0.21, each issuing one request every 4 s staggered 100 ms
+// 127.0.0.2 … 127.0.0.21, each issuing one request every 4 s staggered 200 ms
 // apart. The script seeds the deterministic fixture, starts its own API with the
 // fake transport's declared 50 ms acceptance wait, warms up one account-creation
 // submission per virtual user outside the 600, runs the timed window, then reads
@@ -50,7 +50,10 @@ const acceptMs = 50;
 const virtualUsers = 20;
 const rounds = 10;
 const intervalMs = 4_000;
-const staggerMs = 100;
+// The stagger is the interval divided by the user count (4 s / 20 = 200 ms),
+// so the 20 users' request times interleave into one request every 200 ms: a
+// steady 5 per second rather than a 2 s burst followed by 2 s of idle.
+const staggerMs = intervalMs / virtualUsers;
 const operations = ['account_creation', 'sign_in', 'recovery'];
 const successStatus = { account_creation: 202, sign_in: 200, recovery: 202 };
 const dispatchWait = { account_creation: acceptMs, sign_in: 0, recovery: acceptMs };
@@ -414,7 +417,7 @@ async function main() {
     const warmUpAccepted = warmUp.filter((response) => response.status === 202).length;
 
     // The timed window: 30 requests per virtual user at 4 s intervals, staggered
-    // 100 ms apart, so the aggregate inter-arrival is a steady 5 per second.
+    // 200 ms apart, so the aggregate inter-arrival is a steady 5 per second.
     const windowStart = Date.now() + 500;
     const windowStartIso = new Date(windowStart).toISOString();
     await Promise.all(

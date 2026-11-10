@@ -35,7 +35,7 @@
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
        - the decision register — `docs/DECISIONS.md`'s index and the volumes
-         under `docs/decisions/` (ADR-001 … ADR-164). A specification that
+         under `docs/decisions/` (ADR-001 … ADR-165). A specification that
          contradicts one is a blocking defect.
        - `docs/design/slice-map.md` — the slice's entry: its blocks and order,
          its states, its copy, and the open questions this specification must

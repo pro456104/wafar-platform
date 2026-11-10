@@ -47,7 +47,13 @@ export interface StartInput {
   fullName?: string;
   city?: string;
   shopName?: string;
-  passwordHash?: string;
+  /**
+   * The pending sign-up password's hash. A caller that has already started the
+   * hashing may pass the promise instead of the value: the one-time code's own
+   * hash then runs beside it rather than after it, so the request's hashing
+   * costs one scrypt's latency instead of two (ADR-165).
+   */
+  passwordHash?: string | Promise<string>;
   now: Date;
 }
 
@@ -98,10 +104,21 @@ export function createPendingRequestService(store: PendingStore, sms: SmsTranspo
   return {
     async start(input: StartInput): Promise<StartResult> {
       const code = newCode();
+      const id = randomUUID();
+      // The one-time code's hash starts beside the caller's password hash, so
+      // the request's hashing costs one scrypt's latency rather than two
+      // (ADR-165). The dispatch still runs after both hashes, so the channel's
+      // acceptance wait stays additive and the measured work-only figure stays
+      // the work. The handler attached here keeps a rejection from being
+      // reported as unhandled while the awaits below are still pending.
+      const codeHash = hashOneTimeCode(code, id);
+      codeHash.catch(() => undefined);
+      const passwordHash =
+        input.passwordHash === undefined ? undefined : await input.passwordHash;
+      const codeHashValue = await codeHash;
       const accepted = await dispatch(input.phoneNumber, input.purpose, code);
       if (!accepted) return { status: 'send_failed' };
 
-      const id = randomUUID();
       const resumeToken = randomBytes(32).toString('base64url');
       const { codeExpiresAt, requestExpiresAt } = expiries(input.now);
       const row: PendingRow = {
@@ -109,7 +126,7 @@ export function createPendingRequestService(store: PendingStore, sms: SmsTranspo
         phoneNumber: input.phoneNumber,
         purpose: input.purpose,
         state: 'pending',
-        codeHash: await hashOneTimeCode(code, id),
+        codeHash: codeHashValue,
         previousCodeHash: null,
         codeExpiresAt,
         requestExpiresAt,
@@ -120,7 +137,7 @@ export function createPendingRequestService(store: PendingStore, sms: SmsTranspo
         city: input.purpose === 'sign_up' ? (input.city ?? null) : null,
         shopName: input.purpose === 'sign_up' ? (input.shopName ?? null) : null,
         passwordHash:
-          input.purpose === 'sign_up' ? truncateHash(input.passwordHash) : null,
+          input.purpose === 'sign_up' ? truncateHash(passwordHash) : null,
         verifiedAt: null,
       };
       await store.upsert(row);

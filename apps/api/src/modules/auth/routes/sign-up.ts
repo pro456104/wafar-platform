@@ -60,8 +60,13 @@ export function registerSignUpRoute(
     // channel's current acceptance duration, so it is not observably faster
     // (FR-029, AC-031; plan record 15).
     if (input.website !== undefined && input.website !== '') {
-      await dependencies.auth.hashPassword(input.password).catch(() => undefined);
-      await discardedPreDispatch();
+      // The discarded copy's work runs beside the password's hash, so the
+      // refusal's duration stays close to the accepted path's instead of
+      // falling a scrypt behind it (FR-029, AC-031; plan record 15).
+      await Promise.all([
+        dependencies.auth.hashPassword(input.password).catch(() => undefined),
+        discardedPreDispatch(),
+      ]);
       const wait = dependencies.sms.acceptanceEstimateMs();
       if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
       const requestId = randomUUID();
@@ -144,7 +149,13 @@ export function registerSignUpRoute(
       );
     }
 
-    const passwordHash = await dependencies.auth.hashPassword(input.password);
+    // The password's hash starts here and the service awaits it beside the
+    // one-time code's own hash, so the request's two scrypt calls run
+    // concurrently and the request's hashing costs one scrypt's latency rather
+    // than two (ADR-165). The handler keeps a rejection from being reported as
+    // unhandled while the service is still awaiting it.
+    const passwordHash = dependencies.auth.hashPassword(input.password);
+    passwordHash.catch(() => undefined);
     const store = createPhoneVerificationsRepository(dependencies.db);
     const service = createPendingRequestService(store, dependencies.sms);
     const started = await service.start({
