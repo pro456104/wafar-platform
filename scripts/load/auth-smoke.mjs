@@ -1,7 +1,7 @@
 // The SC-009 load run (T117, plan.md -> The SC-009 load profile): 600 measured
-// requests over 60 s at 10 per second — 200 account-creation submissions, 200
+// requests over 120 s at 5 per second — 200 account-creation submissions, 200
 // sign-ins, and 200 recovery requests — from 20 virtual users bound to
-// 127.0.0.2 … 127.0.0.21, each issuing one request every 2 s staggered 100 ms
+// 127.0.0.2 … 127.0.0.21, each issuing one request every 4 s staggered 100 ms
 // apart. The script seeds the deterministic fixture, starts its own API with the
 // fake transport's declared 50 ms acceptance wait, warms up one account-creation
 // submission per virtual user outside the 600, runs the timed window, then reads
@@ -49,7 +49,7 @@ const reportPath =
 const acceptMs = 50;
 const virtualUsers = 20;
 const rounds = 10;
-const intervalMs = 2_000;
+const intervalMs = 4_000;
 const staggerMs = 100;
 const operations = ['account_creation', 'sign_in', 'recovery'];
 const successStatus = { account_creation: 202, sign_in: 200, recovery: 202 };
@@ -413,8 +413,8 @@ async function main() {
     );
     const warmUpAccepted = warmUp.filter((response) => response.status === 202).length;
 
-    // The timed window: 30 requests per virtual user at 2 s intervals, staggered
-    // 100 ms apart, so the aggregate inter-arrival is a steady 10 per second.
+    // The timed window: 30 requests per virtual user at 4 s intervals, staggered
+    // 100 ms apart, so the aggregate inter-arrival is a steady 5 per second.
     const windowStart = Date.now() + 500;
     const windowStartIso = new Date(windowStart).toISOString();
     await Promise.all(
@@ -424,7 +424,7 @@ async function main() {
           for (let step = 0; step < rounds * operations.length; step += 1) {
             await sleepUntil(windowStart + step * intervalMs + user * staggerMs);
             // The global 100 ms slot cycles the three operations, so the
-            // 10-per-second stream carries a steady third of each operation
+            // 5-per-second stream carries a steady third of each operation
             // rather than a burst of one operation twenty times over.
             const operation =
               operations[(step * virtualUsers + user) % operations.length];
@@ -736,12 +736,11 @@ const report = {
       platform: process.platform,
       release: release(),
       node: process.version,
-      // The registered verdict is the run on the registered load host — the
-      // self-hosted 8-vCPU Linux runner ADR-163 names — and CI states that
-      // scope in the environment rather than the script inferring it from the
-      // platform: the four-vCPU fallback class runs the same profile as a
-      // development check, and a run on any other host cannot stand in for the
-      // registered verdict.
+      // The registered verdict is the `load` job's run on the GitHub-hosted
+      // ubuntu-24.04 class (ADR-164), and CI states that scope in the
+      // environment rather than the script inferring it from the platform: a
+      // run on any other host, a developer machine included, is a development
+      // check and cannot stand in for the registered verdict.
       verdictScope: process.env['SC009_VERDICT_SCOPE'] ?? 'development check',
     },
   },

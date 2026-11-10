@@ -35,7 +35,7 @@
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
        - the decision register — `docs/DECISIONS.md`'s index and the volumes
-         under `docs/decisions/` (ADR-001 … ADR-163). A specification that
+         under `docs/decisions/` (ADR-001 … ADR-164). A specification that
          contradicts one is a blocking defect.
        - `docs/design/slice-map.md` — the slice's entry: its blocks and order,
          its states, its copy, and the open questions this specification must
@@ -140,7 +140,7 @@
 - Q: The frame's links must reach destinations whose pages ship in later slices, and the frame is verified structurally — does this slice fix the route strings those links point at, or does it point at routes a later slice chooses? → A: This slice fixes them: the frame's decision record fixes the route of every destination the frame links to — the eight sidebar destinations, the four static-page routes, and the Profile page's settings section that «إعدادات» opens — so every link has a definite target and a later slice ships its page at the route fixed here rather than choosing one of its own; a later slice therefore cannot move a route the frame already points at. FR-024, FR-039, AC-026, AC-042, and the matching Assumptions bullet carry the rule. (Revised 2026-10-25 by ADR-126: the sidebar destinations are nine, with Upload Catalog at `/upload`.)
 - Q: FR-006 requires the platform to direct a person whose number already has an account to sign in or to recover the password — is that direction a message on the code step carrying the two links, or a redirect to another page? → A: It is a message on the code step that names the two options and offers the link to the sign-in page and the link to the password-recovery page, which the bare pages already carry; no redirect is introduced, consistent with the rule that the three bare pages render identically for a signed-in person and for a guest. FR-006, AC-006, and the matching edge case carry the rule. (Revised 2026-11-01 (5), Clarifications: the message replaces the code step in place and stays there until a reload or a fresh opening, because the pending request ends once the outcome is stated.)
 - Q: Which refusals count toward an account's consecutive failed sign-in attempts — every refusal, or only a refusal produced by a failed password verification? → A: Only a failed password verification against an existing, active account counts: a refusal produced by a rate limit, a refusal of a value that is not a valid Libyan mobile number, and the refusal a blocked account receives MUST NOT increment the count, so the count measures exactly what a consecutive failed sign-in attempt is and the lock cannot be driven by requests that never verified a password. FR-009, FR-017, AC-010, and SC-007 carry the rule. (Widened 2026-11-01 (6): the same rule governs the current-password check of the account's own change action and the administrator's forced first change.)
-- Q: What scale are this specification's success criteria and performance budget measured against? → A: A modest, explicit ceiling is stated in Assumptions — up to 10,000 registered accounts, up to 500 concurrent sessions, and a peak of no more than 10 authentication requests per second — and SC-009 and the stated capacity envelope are measured against it, rather than the criterion staying load-independent.
+- Q: What scale are this specification's success criteria and performance budget measured against? → A: A modest, explicit ceiling is stated in Assumptions — up to 10,000 registered accounts, up to 500 concurrent sessions, and a peak of no more than 10 authentication requests per second — and SC-009 and the stated capacity envelope are measured against it, rather than the criterion staying load-independent. (The peak is 5 requests per second since ADR-164, 2026-11-10.)
 - Q: Does this slice fix the routes of the three bare pages it ships and the destination of the frame's guest sign-in action, or leave them to be fixed elsewhere? → A: This slice fixes them, by extending the frame's decision record (FR-024) to cover them as well — the destination of the header's guest sign-in action and the routes of sign-up, sign-in, and password recovery — so every link this slice builds has a definite target rather than the bare pages and the sign-in action being the only links left without one.
 - Q: Does an account carry a cap on the number of concurrent sessions, or are they unlimited? → A: Unlimited — signing in creates a new session and ends no session the account already holds, no cap is applied, and a session is removed only by its own end (its timeout, its absolute maximum lifetime, an explicit sign-out, or a revocation); "sign out of every device" is the action an account uses to end them all at once. (Revised 2026-11-04, Clarifications: "its own end" is not the only removal — an account-level end also ends every session of the account, namely a sign-out of every device (FR-011), a password change or reset (FR-013), or a block (FR-019); see Session 2026-11-04 (7) and AC-058.)
 - Q: Does this specification impose any constraint on the two free-text fields — the full name and the optional shop name — or leave them unbounded? → A: Both are bounded: the full name is required and must not be empty or spaces alone, each field carries a maximum length stated in the recorded values, and within those bounds a value is accepted as typed — letters and numerals alike — with no alphabetic-shape rule imposed, so the requirement is testable and reusable by the profile slice (R7).
@@ -2400,7 +2400,7 @@ keeps the decision it recorded (decided 2026-11-03, Clarifications).
   R1's acceptance condition rather than a P1 condition. SC-009 is an aggregate
   ceiling, not one client's rate: 600 measured requests — 200 per operation —
   are presented by 20 independent origin keys with one distinct number key per
-  request, so no origin or number exhausts its own budget and the 10-per-second
+  request, so no origin or number exhausts its own budget and the 5-per-second
   figure is the aggregate. The run fails when any measured request is refused,
   when an operation's accepted count is not 200, when a dispatch is faster than
   the declared 50 ms channel-acceptance wait, when the work-only p95 exceeds
@@ -2454,7 +2454,8 @@ keeps the decision it recorded (decided 2026-11-03, Clarifications).
   ceiling, while a request the platform cannot serve is FR-040's unnamed
   failure, rendered on the page that made it. The Assumptions carry the rule;
   no FR, AC, or SC is added, and no identifier moves (decided 2026-11-05,
-  Clarifications).
+  Clarifications). The rate is 5 requests per second since ADR-164
+  (2026-11-10); the rule stands.
 - Q: Does SC-009's p50/p95 budget bound the three pages' rendering as well as a
   request's server-side completion? → A: No — SC-009 bounds a request's
   server-side completion alone. The three pages carry a separate rendering
@@ -5994,7 +5995,7 @@ unclear is a defect in this request rather than a second home.
   condition: it passes on the named US1, US2, and US7 cases above, while this
   gate is R1's separate acceptance condition under Principle III. Both this
   exclusion and SC-009's measurement ceiling — up to 10,000 registered accounts,
-  500 concurrent sessions, and 10 authentication requests per second, against the
+  500 concurrent sessions, and 5 authentication requests per second, against the
   capacity model's larger envelope — are deviations from a binding rule, so each
   MUST be recorded as a deviation with an owner and a review date; naming them
   here does not discharge them (ADR-139; numerator, baseline, blocking point, and
@@ -7542,7 +7543,7 @@ recording the change again (decided 2026-10-21, Clarifications; corrected
 - **SC-009**: Every sign-up, sign-in, and password-recovery step completes with
   p50 ≤ 500 ms and p95 ≤ 1,000 ms, measured under the scale stated in
   Assumptions (up to 10,000 registered accounts, up to 500 concurrent sessions,
-  and a peak of no more than 10 authentication requests per second), excluding
+  and a peak of no more than 5 authentication requests per second), excluding
   the time the SMS takes to arrive. The time a request spends waiting for the
   messaging channel to accept a message is inside that budget and is not
   excluded: the send is attempted inside the request that asks for the code, so
@@ -7550,7 +7551,10 @@ recording the change again (decided 2026-10-21, Clarifications; corrected
   delivery that fails after acceptance is outside the platform's observation and
   does not turn the request into a failure (decided 2026-10-11 and 2026-10-22,
   Clarifications; p50 bound added 2026-11-03, Clarifications, and raised from
-  150 ms to 500 ms on 2026-11-10, ADR-162). A wait for
+  150 ms to 500 ms on 2026-11-10, ADR-162; the peak lowered from 10 requests
+  per second to 5 on 2026-11-10, ADR-164, because the figure was an authored
+  ceiling rather than a capacity-model derivation and 5 per second is 432,000
+  requests a day, far above the product envelope). A wait for
   acceptance that reaches the platform's request timeout is refused within that
   budget with the explicit, retryable failure FR-034 states, so an
   unresponsive channel neither leaves the step waiting beyond the budget nor
@@ -7558,7 +7562,7 @@ recording the change again (decided 2026-10-21, Clarifications; corrected
   measurement is an aggregate ceiling, not one client's rate: 600 measured
   requests — 200 per operation — are presented by 20 independent origin keys with
   one distinct number key per request, so no origin or number exhausts its own
-  budget and the 10-per-second figure is the aggregate. The run fails when any
+  budget and the 5-per-second figure is the aggregate. The run fails when any
   measured request is refused, when an operation's accepted count is not 200,
   when a dispatch is faster than the declared 50 ms channel-acceptance wait, when
   the work-only p95 exceeds 500 ms, or when p50 exceeds 500 ms or p95 exceeds
@@ -7771,8 +7775,13 @@ recording the change again (decided 2026-10-21, Clarifications; corrected
 - **A modest measurement ceiling is assumed, and the success criteria are
   measured against it (decided 2026-10-11, Clarifications).** SC-009 is measured
   under up to 10,000 registered accounts, up to 500 concurrent sessions, and a
-  peak of no more than 10 authentication requests per second across the three
-  authentication operations. The three figures are a measurement condition, not
+  peak of no more than 5 authentication requests per second across the three
+  authentication operations. (The peak was 10 per second when the assumption was
+  made; ADR-164 lowered it to 5 on 2026-11-10 because the figure was an authored
+  ceiling, not a derivation from `docs/capacity-model.md` §3.1, and 10 per second
+  needed 2.8 cores of hashing alone on the registered four-vCPU class. Five per
+  second is 432,000 requests a day, far above the product envelope.) The three
+  figures are a measurement condition, not
   a service limit: no request is refused for reaching them, and above them
   FR-033's per-key budgets still decide each request exactly as they do below the
   ceiling, while a request the platform cannot serve is FR-040's unnamed failure,

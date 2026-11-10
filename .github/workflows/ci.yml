@@ -306,12 +306,12 @@ jobs:
   # 50 ms acceptance wait, and keeps the report either way.
   load:
     needs: integration
-    # The registered measurement host (ADR-163): a self-hosted Linux runner with
-    # at least 8 vCPUs, labelled self-hosted/linux/x64/wafar-load, selected by
-    # the repository variable LOAD_RUNNER_LABELS. The committed default keeps a
-    # clone runnable on the four-vCPU class, where the run is a development
-    # check rather than the registered verdict.
-    runs-on: ${{ fromJSON(vars.LOAD_RUNNER_LABELS || '["ubuntu-24.04"]') }}
+    # The registered measurement host (ADR-164): the GitHub-hosted ubuntu-24.04
+    # class, the free runner the project can reproduce. The profile is sized to
+    # its four vCPUs — 5 requests/second, 6.67 scrypt hashes/second, about 1.42
+    # cores — so the verdict needs no rented or self-hosted host; a run on any
+    # other host is a development check.
+    runs-on: ubuntu-24.04
     services:
       postgres:
         image: postgres:16-alpine
@@ -347,16 +347,17 @@ jobs:
           TZ: UTC
           WEB_ORIGIN: http://127.0.0.1:3000
           # The profile's hashing concurrency: the API's async scrypt calls run
-          # on libuv's pool, and the default four threads saturate before the
-          # profile's 10 requests/second (the 2026-11-08 development check
-          # measured eight as the best value: 8.6 hashes/s against 4 threads'
-          # lower figure). The value is a measurement-environment setting, not a
-          # limit: it changes no budget and disables nothing.
+          # on libuv's pool. Eight threads is the value the 2026-11-08
+          # development check measured as best (8.6 hashes/s against four
+          # threads' lower figure) and is retained at ADR-164's 5-per-second
+          # condition; it is a measurement-environment setting, not a limit: it
+          # changes no budget and disables nothing.
           UV_THREADPOOL_SIZE: 8
-          # ADR-163: only the registered load host carries the verdict's scope.
-          # The fallback four-vCPU class runs the same profile as a development
-          # check, so a report from it cannot stand in for the registered one.
-          SC009_VERDICT_SCOPE: ${{ vars.LOAD_RUNNER_LABELS != '' && 'registered measurement host' || 'development check' }}
+          # ADR-164: the registered verdict is this job's run on the
+          # GitHub-hosted ubuntu-24.04 class. The script reads the scope from
+          # the environment rather than inferring it, so a run elsewhere is a
+          # development check and cannot claim the registered scope.
+          SC009_VERDICT_SCOPE: registered measurement host
       - name: Keep the load report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

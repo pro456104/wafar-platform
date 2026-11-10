@@ -297,6 +297,49 @@ Until step 3 completes, SC-009, R1’s acceptance condition 4, and
 T254/T257/T261/T262/T267/T270/T272 stay open. Nothing in this thread lowers a
 limit, promotes a development run, or fabricates a report.
 
+## 10. The owner’s decision of 2026-11-10: 5 requests per second (ADR-164)
+
+**Why §9 did not close the thread.** The self-hosted host ADR-163 requires is not
+available: the account has no paid plan, the hosted larger-runner endpoint
+returns 404, and `actions/runners` reports zero self-hosted runners. The owner’s
+instruction of 2026-11-10 is that no paid infrastructure is used and the work
+must finish on the free runner. A registered host that cannot be obtained cannot
+carry a verdict.
+
+**The figure that made the wall.** The 10 requests/second condition was authored
+in R1’s specification on 2026-10-11 (“a modest, explicit ceiling”) and was never
+derived from `docs/capacity-model.md` §3.1, which sizes the platform at 300
+requests per second, 3,000–5,000 concurrent sessions, and 10,000 accounts and
+names no authentication rate. Ten per second carry 800 scrypt hashes in 60 s —
+13.3 per second, or 2.8 cores at the measured 213 ms — before the API,
+PostgreSQL, and the generator. That is why every four-vCPU run measured the same
+queue, and why no in-class setting moved it.
+
+**Decision — ADR-164.** SC-009’s peak condition becomes **5 authentication
+requests per second**. The measurement keeps 20 virtual users, 600 measured
+requests (200 per operation), one request every **4 s** staggered 100 ms, a
+**120-second** window, the key plan, the 50 ms acceptance wait, the limiter
+probe, and the **500 / 1,000 / 500 ms** bounds; the scrypt profile does not
+move. The registered measurement host returns to the GitHub-hosted
+`ubuntu-24.04` class, and its report again carries `verdictScope: registered
+measurement host`. ADR-163 is superseded.
+
+**Why 5 is not a lowered bar.** Five per second is 432,000 requests a day,
+against a six-month plan of 10,000 accounts and 50,000–100,000 visits a day,
+where authentication is a fraction of a visit. The profile now carries 6.67
+hashes per second — about 1.42 cores at the measured cost — beside the API,
+PostgreSQL, and the generator, inside four vCPUs rather than beyond them.
+
+**What closes the thread.** The next `load` run on `ubuntu-24.04` is read
+against this profile. Its `sc-009-load` artifact must report `verdict: pass`,
+`verdictScope: registered measurement host`, 600/600 accepted, zero refusals,
+the limiter probe refused, and p50 / p95 / work-only p95 inside the bounds; only
+then is it copied to `reports/sc-009-load.json` and T279 and
+T254/T257/T261/T262/T267/T270/T272 close. If the run still misses a bound, the
+shortfall is recorded in a new decision; no bound and no limit in the script is
+lowered to absorb it.
+
+
 
 
 

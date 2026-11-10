@@ -185,7 +185,7 @@ and its `requires.integrations.any` list must stay correctly nested under
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-163` range string — in the required files, in the top-level
+live `ADR-001 … ADR-164` range string — in the required files, in the top-level
 `docs/` files, in the two Arabic mirrors, in the template overrides, and in the
 feature specifications — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading in

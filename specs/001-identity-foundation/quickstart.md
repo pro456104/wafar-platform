@@ -359,7 +359,7 @@ covers what the three bare pages and the message bodies render.
 | `pnpm test:e2e` | Playwright against `pnpm dev` with the fake transport | The three pages end to end, the step changes, focus and announcements, the session surviving a browser restart, CSRF and headers |
 | `pnpm test:a11y` | `@axe-core/playwright` | Every delivered state at 320 and 1280, in both appearances |
 | `pnpm test:visual` | Playwright screenshots | The baseline set of ui-contracts §10 at 1280 and 375, both appearances, plus the 320 light reflow |
-| `pnpm load:auth` | `scripts/load/auth-smoke.mjs` (built-in `http`, one `localAddress` per virtual user) | 600 requests over 60 s at 10/second — 200 per operation — from 20 origin keys and 600 number keys, against 10,000 accounts and 300 seeded sessions; prints p50, p95, the work-only p95, the slowest statement, and the accepted/refused counts |
+| `pnpm load:auth` | `scripts/load/auth-smoke.mjs` (built-in `http`, one `localAddress` per virtual user) | 600 requests over 120 s at 5/second — 200 per operation — from 20 origin keys and 600 number keys, against 10,000 accounts and 300 seeded sessions; prints p50, p95, the work-only p95, the slowest statement, and the accepted/refused counts |
 | `node governance-drift-check.mjs` | The committed governance check | Zero drift; run it before every commit |
 | `pnpm build` | Web and API production builds | A clean strict-mode build and the SBOM job's input |
 | `pnpm sbom` | `@cyclonedx/cyclonedx-npm` | One CycloneDX SBOM per release |
@@ -369,7 +369,7 @@ lines (V8 provider). The frame's page-level runtime is excluded per plan →
 Complexity Tracking row 2.
 
 **Load acceptance**: `pnpm load:auth` runs the SC-009 profile — 600 requests over
-60 s, 200 per operation, from 20 virtual users on `127.0.0.2` … `127.0.0.21` (one
+120 s, 200 per operation, from 20 virtual users on `127.0.0.2` … `127.0.0.21` (one
 origin key each, one number key per request) against 10,000 accounts and 300
 seeded live sessions, which the 200 sign-ins raise to the 500-session ceiling. The
 API must run the fake with `SMS_FAKE_ACCEPT_MS=50`, the declared nominal wait, so
