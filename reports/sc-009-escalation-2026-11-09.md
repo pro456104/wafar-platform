@@ -187,3 +187,39 @@ profile's 10 requests per second. If a second run on the same class reproduces
 the slowdown, the finding is about the registered host class rather than about
 one instance, and it reopens §5 with evidence instead of being retried away.
 
+**Run `42793001674`** (commit `e063df9`) is the second run with the amended
+bounds, and it reproduces the slowdown: same host class and image
+(`platform: linux`, `release: 7.0.0-1017-azure`,
+`verdictScope: registered measurement host`), 600/600 accepted, 0 refused, the
+probe refused, aggregate p50 1658.1 ms and p95 3311.6 ms, `account_creation`
+p50 3260 / p95 3348.4, `sign_in` p50 1639.7 / p95 1688, `recovery` p50 1647.9 /
+p95 1709.6, the quickest measured request 264.5 ms, the slowest 7619.9 ms, and
+a window of 67,594 ms. The same run's `security-scan`, `unit`, `integration`,
+`coverage`, `e2e`, `lighthouse`, `lint-typecheck`, `governance`, and
+`build-sbom` jobs pass, so the commit is sound and the criterion's failure is
+confined to CPU-bound measurement.
+
+The three runs' job durations isolate the cause. In all three, `unit` takes
+0.8–0.9 minutes and `integration` 3.1–4.1 minutes — the suites that hash
+passwords and touch the database run at the same speed in every run. In the
+same three runs, `enumeration` — 400 sequential requests per case, each one
+scrypt-bound — takes 10.1 minutes, then 30.6, then 30.7, and in the last two
+the hidden-field timing pair exceeds its 300-second timeout (`sign-up-abuse`
+takes 269,845 ms and the other three enumeration cases 162,700–162,726 ms each
+in run `42793001674`). A suite whose database work is unchanged cannot slow by
+three times while its per-request hash work does: the difference is the
+measurement host's CPU throughput, and the load run's queue is that same
+difference amplified by 20 concurrent users. Two consecutive runs on the
+registered class reproduce it, so §5's premise is now in question: the class is
+not a stable measurement host, and a bound calibrated on run `42776605743`
+cannot be read as reachable on it.
+
+To make the next verdict attribute the queue instead of inferring it,
+`scripts/load/auth-smoke.mjs` now records a `hostProbe` beside the verdict —
+`cpus`, the CPU model, the load average, memory, and the elapsed time and
+hashes-per-second of five scrypt hashes at CMV row 2's cost — and prints the
+same line into the job log. It reports a fact, moves no bound, and changes no
+measurement; a p50 many times the sampled hash cost is the host's queue, and a
+p50 near it is the code's.
+
+
