@@ -1,0 +1,58 @@
+# A temporary regeneration surface for T281: it runs the visual project on the
+# Linux class the gate measures and uploads the refreshed baselines. The file is
+# removed from the default branch once the captures are committed.
+name: refresh-visual
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: The branch whose visual baselines are regenerated
+        required: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+      BETTER_AUTH_SECRET: ci-only-secret-value-000000
+      SMS_TRANSPORT: fake
+      NODE_ENV: production
+      TZ: UTC
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wafar
+          POSTGRES_PASSWORD: wafar
+          POSTGRES_DB: wafar
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wafar" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @wafar/web exec playwright install --with-deps chromium
+      - name: Apply the migrations
+        run: pnpm --filter @wafar/db migrate
+      - name: Build the artifacts the classes serve
+        run: pnpm build
+        env:
+          API_BASE: http://127.0.0.1:3001
+          NUXT_PUBLIC_API_BASE: http://127.0.0.1:3001
+      - name: Regenerate the visual baselines on the Linux class
+        run: pnpm --filter @wafar/web exec playwright test --config tests/playwright.config.ts --project=visual --update-snapshots
+      - name: Keep the refreshed baselines
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: visual-baselines
+          path: apps/web/tests/e2e/__screenshots__/
