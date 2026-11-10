@@ -379,10 +379,11 @@ attempted, accepted, and refused counts and the refusal codes per operation and
 in total; it fails on any refusal (so a refusal-dominated run cannot pass), on an
 accepted count other than 200 for an operation, when the work-only p95 — each
 accepted dispatch's duration less the declared wait, a sign-in's duration as it
-stands — exceeds 250 ms per operation or in aggregate, or when p50 exceeds
-150 ms or p95 exceeds 1,000 ms per operation or in aggregate, computed over
-accepted requests. The 250 ms is the share of SC-009's 1,000 ms that leaves the
-provider's 750 ms ceiling inside the budget (plan → The SC-009 load profile). It
+stands — exceeds 500 ms per operation or in aggregate, or when p50 exceeds
+500 ms or p95 exceeds 1,000 ms per operation or in aggregate, computed over
+accepted requests (p50 and the work-only margin raised by ADR-162; the 500 ms
+work-only bound is an independent ceiling, not a share of the 1,000 ms — plan →
+The SC-009 load profile). It
 also prints the slowest `pg_stat_statements` query and
 the rate-limit rows the run created, and a post-run probe must be refused: a
 fresh origin (`127.0.0.22`) spends its 20-request account-creation budget and the
@@ -422,7 +423,7 @@ every test runs offline. A red gate blocks merge.
 - [ ] Scenarios 1–15 pass, and the SQL checks of Scenario 1 hold.
 - [ ] `pnpm test`, `pnpm test:integration`, `pnpm test:e2e`, `pnpm test:a11y`,
       `pnpm test:visual`, and `pnpm load:auth` pass; the load verdict reports 200
-      accepted and 0 refused for each operation, a work-only p95 within 250 ms,
+      accepted and 0 refused for each operation, a work-only p95 within 500 ms,
       the probe's 21st submission
       refused, and the report is attached.
 - [ ] `node governance-drift-check.mjs` exits 0.

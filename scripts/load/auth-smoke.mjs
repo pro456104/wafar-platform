@@ -558,14 +558,14 @@ for (const operation of operations) {
       `${operation}: a measured dispatch took ${stats.fastest} ms, faster than the declared ${dispatchWait[operation]} ms wait`,
     );
   }
-  if (!(stats.p50 <= 150)) {
-    failures.push(`${operation}: p50 ${stats.p50} ms exceeds 150 ms`);
+  if (!(stats.p50 <= 500)) {
+    failures.push(`${operation}: p50 ${stats.p50} ms exceeds 500 ms`);
   }
   if (!(stats.p95 <= 1_000)) {
     failures.push(`${operation}: p95 ${stats.p95} ms exceeds 1000 ms`);
   }
-  if (!(stats.workP95 <= 250)) {
-    failures.push(`${operation}: work-only p95 ${stats.workP95} ms exceeds 250 ms`);
+  if (!(stats.workP95 <= 500)) {
+    failures.push(`${operation}: work-only p95 ${stats.workP95} ms exceeds 500 ms`);
   }
 }
 
@@ -585,15 +585,15 @@ const aggregate = {
   ),
   ...aggregateStats,
 };
-if (!(aggregateStats.p50 <= 150)) {
-  failures.push(`aggregate: p50 ${aggregateStats.p50} ms exceeds 150 ms`);
+if (!(aggregateStats.p50 <= 500)) {
+  failures.push(`aggregate: p50 ${aggregateStats.p50} ms exceeds 500 ms`);
 }
 if (!(aggregateStats.p95 <= 1_000)) {
   failures.push(`aggregate: p95 ${aggregateStats.p95} ms exceeds 1000 ms`);
 }
-if (!(aggregateStats.workP95 <= 250)) {
+if (!(aggregateStats.workP95 <= 500)) {
   failures.push(
-    `aggregate: work-only p95 ${aggregateStats.workP95} ms exceeds 250 ms`,
+    `aggregate: work-only p95 ${aggregateStats.workP95} ms exceeds 500 ms`,
   );
 }
 

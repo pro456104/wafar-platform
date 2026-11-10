@@ -26,7 +26,7 @@
        a source of rules, and the binding version is the slice's specification
        (ADR-134).
      - the decision register - `docs/DECISIONS.md`'s index and the volumes
-       under `docs/decisions/` (ADR-001 … ADR-161).
+       under `docs/decisions/` (ADR-001 … ADR-162).
        An item that contradicts one is a blocking defect.
      - `docs/domain-model.md` - the entities a checklist may reference,
        and the invariants it MUST NOT contradict.

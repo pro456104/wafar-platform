@@ -1453,3 +1453,70 @@ moves to ADR-161, and `Project-Technologies.txt`'s header list gains 161. The
 constitution stays **6.3.2**: no principle, register entry, entity, page,
 feature, module, or Usage Limit changes. A future change to the names or the
 envelope is an amendment to this record rather than an edit inside a feature.
+
+---
+
+## ADR-162 — SC-009's p50 bound and work-only margin raised to 500 ms
+
+**Status**: Accepted — 2026-11-10. **Constitution version**: 6.3.2 (unchanged)
+**Owning directory**: `scripts/load/`, `specs/001-identity-foundation/`, `reports/`
+**Owning feature**: R1 — the identity foundation (`specs/001-identity-foundation/`).
+
+**Context.** ADR-159 fixed the SC-009 load profile and its verdict, and SC-009
+with plan CMV row 6 fixed the bounds the verdict asserts: p50 ≤ 150 ms,
+p95 ≤ 1,000 ms, and a work-only p95 ≤ 250 ms. The first complete CI run on the
+registered `ubuntu-24.04` class (run `42776605743`, PR #1) produced the
+`sc-009-load` artifact with `verdict: fail` and `verdictScope: registered
+measurement host`: 600/600 accepted, 0 refused, the 21st-submission probe
+`429 RATE_LIMITED`, p95 456.9 ms inside the 1,000 ms bound, but aggregate
+p50 249.5 ms against 150 ms and work-only p95 406.9 ms against 250 ms —
+`account_creation` p50 411.6 / work-only p95 416.7, `sign_in` p50 155.7, and
+`recovery` p50 249.5. One scrypt verification at CMV row 2's cost (N = 32768,
+r = 8, p = 3) costs about 155 ms on that runner, so a p50 bound of 150 ms sits
+below a single hash and no implementation change can meet it; the development
+host recorded the same hardware bound in the 2026-11-08 development check. On
+2026-11-10 the repository owner selected the escalation report's Resolution B
+and raised the bound rather than lowering the credential-storage cost.
+
+**Decision.**
+1. SC-009's p50 bound becomes **≤ 500 ms**; its p95 bound stays **≤ 1,000 ms**.
+2. The work-only p95 bound becomes **≤ 500 ms**, per operation and in
+   aggregate. The 250 ms reading is superseded: the margin is no longer read as
+   a 250 + 750 = 1,000 decomposition. The work-only bound is an independent
+   ceiling on the work, and a dispatch that both waited the provider's 750 ms
+   ceiling and did 500 ms of work would exceed the 1,000 ms p95 and fail the
+   binding end-to-end assertion.
+3. The scrypt profile is unchanged: CMV row 2's N = 32768, r = 8, p = 3,
+   64-byte derived key, and 16-byte salt stay as recorded.
+4. The bounds move in one change: `spec.md` SC-009 and its measurement note,
+   `plan.md`'s Performance Goals, CMV row 6, budget check, and load profile,
+   `scripts/load/auth-smoke.mjs`'s two assertions, and the escalation report's
+   §5. No other limit is lowered, and the profile's condition, keys, limiter
+   probe, and accepted/refused verdict are untouched.
+5. The registered verdict is re-run on `ubuntu-24.04` after the change and its
+   passing report is attached at `reports/sc-009-load.json` with the run
+   identifier, host, and environment.
+
+**Alternatives considered.**
+- *Lower the scrypt cost to N = 16384 or p = 1.* Rejected: it weakens the
+  credential-storage cost the security policy fixes, and the account-creation
+  path's database work would still keep its p50 above 150 ms even at about
+  77 ms per hash, so the target would not be met without a second change.
+- *Change the registered host class to a faster runner.* Rejected for now: the
+  plan fixes the GitHub-hosted `ubuntu-24.04` class as the one host the project
+  can reproduce, and the p50 is a single-request median that would need a core
+  roughly 2.6 times faster to pass; a host change is a larger decision than the
+  bound the measurement already disproved.
+- *Keep the fail open and leave SC-009 unmet.* Rejected: R1's acceptance
+  condition 4 requires the passing verdict, and an open criterion is not an
+  acceptance state.
+
+**Consequences.** The criterion, the plan, the script's assertions, and the
+escalation record state 500 ms and 500 ms; the profile, the limiter, and the
+scrypt profile are unchanged. The registered verdict is re-run and attached.
+Every live `ADR-001 … ADR-161` range string moves to ADR-162, and
+`Project-Technologies.txt`'s header list gains 162. The constitution stays
+**6.3.2**: no principle, register entry, entity, page, feature, module, or
+Usage Limit changes. Review date: 2026-12-09; the tripwire is a p50 or
+work-only p95 that regresses above 10% against this baseline, or a future
+credential-cost change that makes the 500 ms bound the wrong place to carry.

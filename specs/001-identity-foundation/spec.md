@@ -35,7 +35,7 @@
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
        - the decision register — `docs/DECISIONS.md`'s index and the volumes
-         under `docs/decisions/` (ADR-001 … ADR-161). A specification that
+         under `docs/decisions/` (ADR-001 … ADR-162). A specification that
          contradicts one is a blocking defect.
        - `docs/design/slice-map.md` — the slice's entry: its blocks and order,
          its states, its copy, and the open questions this specification must
@@ -1822,6 +1822,11 @@ keeps the decision it recorded (decided 2026-11-03, Clarifications).
   for them. The measurement condition, the scale, the exclusion of delivery
   after acceptance, and the timeout refusal are unchanged; no identifier is
   added, renumbered, reused, or moved (decided 2026-11-03, Clarifications).
+  The record above is superseded in one value only: the first registered
+  measurement showed p50 249.5 ms with one scrypt verification alone costing
+  about 155 ms on the registered host, so the p50 bound moved to 500 ms on
+  2026-11-10 (ADR-162). The reading — both percentiles in SC-009, one authority
+  for them, no identifier moved — stands; 150 ms is no longer a live bound.
 - Q: The 2026-11-03 sessions cite identifiers that are assigned after this file
   for the sidebar's and the drawer's structural tests — does the clarification
   record keep those identifiers, or state the decision without them? → A: It
@@ -2399,7 +2404,8 @@ keeps the decision it recorded (decided 2026-11-03, Clarifications).
   figure is the aggregate. The run fails when any measured request is refused,
   when an operation's accepted count is not 200, when a dispatch is faster than
   the declared 50 ms channel-acceptance wait, when the work-only p95 exceeds
-  250 ms, or when p50 exceeds 150 ms or p95 exceeds 1,000 ms; percentiles are
+  500 ms, or when p50 exceeds 500 ms or p95 exceeds 1,000 ms (the p50 and
+  work-only bounds raised on 2026-11-10, ADR-162); percentiles are
   over accepted requests only, and a post-run probe MUST prove the limiter live
   by refusing the 21st account-creation submission from a fresh origin.
 - Q: Which story and measurement point own AC-056, AC-057, and AC-058, and which
@@ -7534,7 +7540,7 @@ recording the change again (decided 2026-10-21, Clarifications; corrected
   2026-11-02, Clarifications; message set and fail predicate closed 2026-11-04,
   Clarifications).
 - **SC-009**: Every sign-up, sign-in, and password-recovery step completes with
-  p50 ≤ 150 ms and p95 ≤ 1,000 ms, measured under the scale stated in
+  p50 ≤ 500 ms and p95 ≤ 1,000 ms, measured under the scale stated in
   Assumptions (up to 10,000 registered accounts, up to 500 concurrent sessions,
   and a peak of no more than 10 authentication requests per second), excluding
   the time the SMS takes to arrive. The time a request spends waiting for the
@@ -7543,7 +7549,8 @@ recording the change again (decided 2026-10-21, Clarifications; corrected
   only the delivery after acceptance lies outside the platform's control; a
   delivery that fails after acceptance is outside the platform's observation and
   does not turn the request into a failure (decided 2026-10-11 and 2026-10-22,
-  Clarifications; p50 bound added 2026-11-03, Clarifications). A wait for
+  Clarifications; p50 bound added 2026-11-03, Clarifications, and raised from
+  150 ms to 500 ms on 2026-11-10, ADR-162). A wait for
   acceptance that reaches the platform's request timeout is refused within that
   budget with the explicit, retryable failure FR-034 states, so an
   unresponsive channel neither leaves the step waiting beyond the budget nor
@@ -7554,7 +7561,7 @@ recording the change again (decided 2026-10-21, Clarifications; corrected
   budget and the 10-per-second figure is the aggregate. The run fails when any
   measured request is refused, when an operation's accepted count is not 200,
   when a dispatch is faster than the declared 50 ms channel-acceptance wait, when
-  the work-only p95 exceeds 250 ms, or when p50 exceeds 150 ms or p95 exceeds
+  the work-only p95 exceeds 500 ms, or when p50 exceeds 500 ms or p95 exceeds
   1,000 ms; percentiles are over accepted requests only, and a post-run probe
   MUST prove the limiter live by refusing the 21st account-creation submission
   from a fresh origin (key plan and verdict fixed 2026-11-04, Clarifications).

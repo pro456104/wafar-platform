@@ -70,7 +70,8 @@ This is a product and security decision: the scrypt profile is the credential-st
 
 ## 5. Decision record
 
-To be completed by the repository owner:
+**First decision — Resolution A, 2026-11-10. Superseded below the same day,
+after the host precondition failed again (§7).**
 
 - Selected resolution: [X] A — registered runner; [ ] B — governing profile change
 - ADR (required for B): not applicable — resolution A was selected, so no profile
@@ -86,6 +87,39 @@ To be completed by the repository owner:
   identifier, and environment in the report and the acceptance bundle —
   pending at this decision record, owned by the repository owner (entered
   2026-11-10; T272 carries the execution)
+
+**Superseding decision — Resolution B, 2026-11-10.**
+
+Resolution A was selected first and then failed its own precondition: no
+registered `ubuntu-24.04` runner and no equivalent Linux host is reachable from
+the working copy (§7), so the `load` job could not be dispatched. The registered
+host the project can actually reach is the GitHub-hosted `ubuntu-24.04` class
+that run `42776605743` measured, and that run's report establishes the hardware
+bound: one scrypt verification at CMV row 2's cost (N = 32768, r = 8, p = 3)
+costs about 155 ms there, so p50 ≤ 150 ms sits below a single hash and no
+implementation change can meet it.
+
+- Selected resolution: [ ] A — registered runner; [X] B — governing profile change
+- ADR: **ADR-162** (`docs/decisions/volume-09.md`) — SC-009's p50 bound and
+  work-only margin raised to 500 ms
+- Decision date: 2026-11-10
+- Owner: repository owner (decision selected in the 2026-11-10 implement session)
+- Bounds after the decision: **p50 ≤ 500 ms**, **p95 ≤ 1,000 ms**, and a
+  **work-only p95 ≤ 500 ms** per operation and in aggregate; the scrypt profile
+  (N = 32768, r = 8, p = 3), the condition (10 authentication requests/second
+  from 20 origin keys), the key plan, and the limiter probe are unchanged. No
+  limit in `scripts/load/auth-smoke.mjs` is lowered beyond what ADR-162 records:
+  the two assertions it changes move from 150 ms to 500 ms and from 250 ms to
+  500 ms, which is the governing record's own change and not a measurement-time
+  relaxation.
+- Next action and date: re-run the registered `load` job on `ubuntu-24.04` with
+  the amended bounds and attach its passing `reports/sc-009-load.json` (200
+  accepted requests per operation, zero refusals, p50 ≤ 500 ms, p95 ≤ 1,000 ms,
+  the work-only p95 ≤ 500 ms, the slowest query, and the post-run
+  21st-submission `RATE_LIMITED` probe with `Retry-After`), recording the run's
+  host, identifier, and environment in the report and the acceptance bundle —
+  entered 2026-11-10; T279 carries the execution
+
 
 ## 6. Report trail
 
