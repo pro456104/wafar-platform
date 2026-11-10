@@ -222,4 +222,81 @@ same line into the job log. It reports a fact, moves no bound, and changes no
 measurement; a p50 many times the sampled hash cost is the host's queue, and a
 p50 near it is the code's.
 
+**Run `42798975303`** (commit `87ce569`) is the third run with the amended
+bounds and the first that carries the probe. Every job passes except `load`,
+including `enumeration`, which failed on the two previous hosts: the load
+verdict is `fail` with 600/600 accepted, 0 refused, the probe refused, aggregate
+p50 1658.4 ms and p95 3333.6 ms, `account_creation` p50 3219.4 / p95 3360.9,
+`sign_in` p50 1605.4 / p95 1705.4, and `recovery` p50 1642.3 / p95 1714.6. The
+probe reports **4 CPUs (AMD EPYC 9V74), load average 3.9 / 1.5 / 0.6, and 4.7
+scrypt hashes per second (1,065.9 ms for five, so 213 ms per hash)**. The
+one-minute load average at the end of the window is 3.9 of 4 cores, so the
+measurement host is saturated by the run itself, and the profile's 10
+requests/second need 2.1 cores of scrypt alone at that hash cost before the API
+event loop, PostgreSQL, and the 20-user generator are counted. The aggregate
+p50 of this run (1658.4 ms) and of run `42793001674` (1658.1 ms) agree to a
+tenth of a millisecond, which is a capacity ceiling rather than noise.
+
+The owner's decision of 2026-11-10 is to give the load run the hashing
+concurrency the 2026-11-08 development check already measured as the best
+value: `UV_THREADPOOL_SIZE=8` in the load job's environment. It is a
+measurement-environment setting — it changes no budget, disables no limiter, and
+the profile's keys, condition, and verdict logic are untouched — and the next
+registered run is read against it.
+
+## 9. The registered host decision — 2026-11-10
+
+**The result of the thread’s pool change.** Run `42807676753` carries
+`UV_THREADPOOL_SIZE=8` and records the same verdict as the run before it:
+aggregate p50 1666.7 ms (against 1658.4), `account_creation` p50 3147.9,
+`sign_in` p50 1524.6, `recovery` p50 1568.8, and the probe at 4.8 hashes per
+second. The isolated re-run of that job (`run_attempt` 2, no other job in the
+run) records 1716.3 ms. The pool is not the limit.
+
+**What the numbers say.** The profile’s 600 requests carry 800 scrypt hashes at
+CMV row 2’s cost — account creation hashes the password and the code, sign-in
+verifies the password, recovery hashes the code — so 10 requests/second demand
+13.3 hashes per second, or **2.8 cores of hashing alone** at the 213 ms the
+probe measures, before the API’s event loop, PostgreSQL, and the 20-user
+generator share the same four vCPUs. The measured floor (253.8–264.5 ms) is the
+service; the median is the queue, and it grows across the window (p95
+3.3–3.9 s). `unit`, `integration`, and `enumeration` stay healthy in the same
+runs, so the application is not the variable. The `ubuntu-24.04` class is
+undersized for the profile the plan defines.
+
+**Decision — ADR-163.** The registered measurement host becomes a **self-hosted
+Linux runner with at least 8 vCPUs**, labels `self-hosted`, `linux`, `x64`, and
+`wafar-load`, carrying no other workload during a measurement. The `load` job
+selects it through the repository variable `LOAD_RUNNER_LABELS`; the committed
+default stays `["ubuntu-24.04"]` so a clone remains runnable, and a run there is
+a development check. The profile, its condition, its keys, its probe, and the
+500 / 1,000 / 500 ms bounds do not move.
+
+**What the host must provide.** At least 8 vCPUs, at least 16 GB of memory,
+Docker (the `postgres:16` service container the job declares), and outbound
+access to GitHub. Node, pnpm, and Playwright are installed by the job’s own
+steps.
+
+**Registration.**
+1. On the host, download the runner release and configure it with the label set
+   (the registration token comes from the repository’s *Settings → Actions →
+   Runners → New self-hosted runner*, or `POST
+   /repos/pro456104/wafar-platform/actions/runners/registration-token`):
+   `./config.sh --url https://github.com/pro456104/wafar-platform --token <TOKEN>
+   --labels self-hosted,linux,x64,wafar-load --name wafar-load --unattended`
+   followed by `sudo ./svc.sh install && sudo ./svc.sh start`.
+2. Set the repository variable to the same labels:
+   `gh variable set LOAD_RUNNER_LABELS --body '["self-hosted","linux","x64","wafar-load"]'`
+   (or `POST /repos/pro456104/wafar-platform/actions/variables` with
+   `{"name":"LOAD_RUNNER_LABELS","value":"[\"self-hosted\",\"linux\",\"x64\",\"wafar-load\"]"}`).
+3. Re-run the `load` job. Its `sc-009-load` artifact must report
+   `verdict: pass` with `profile.host.verdictScope: registered measurement host`,
+   and that artifact is attached at `reports/sc-009-load.json`.
+
+Until step 3 completes, SC-009, R1’s acceptance condition 4, and
+T254/T257/T261/T262/T267/T270/T272 stay open. Nothing in this thread lowers a
+limit, promotes a development run, or fabricates a report.
+
+
+
 

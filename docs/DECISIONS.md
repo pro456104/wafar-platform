@@ -204,6 +204,7 @@ constitution's Documentation section and enforced by `governance-drift-check.mjs
 | [ADR-160](decisions/volume-09.md#adr-160--spec-kit-scaffold-refreshed-to-132-the-reserved-command-and-extension-set-retained) | Spec Kit scaffold refreshed to 1.3.2; the reserved command and extension set retained | 2026-11-08 | 6.3.2 (unchanged) |
 | [ADR-161](decisions/volume-09.md#adr-161--the-city-lists-object-envelope-and-version-200) | The city list's object envelope and version 2.0.0 | 2026-11-09 | 6.3.2 (unchanged) |
 | [ADR-162](decisions/volume-09.md#adr-162--sc-009s-p50-bound-and-work-only-margin-raised-to-500-ms) | SC-009's p50 bound and work-only margin raised to 500 ms | 2026-11-10 | 6.3.2 (unchanged) |
+| [ADR-163](decisions/volume-09.md#adr-163--the-registered-measurement-host-is-a-self-hosted-8-vcpu-runner) | The registered measurement host is a self-hosted 8-vCPU runner | 2026-11-10 | 6.3.2 (unchanged) |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,

@@ -1520,3 +1520,78 @@ Every live `ADR-001 … ADR-161` range string moves to ADR-162, and
 Usage Limit changes. Review date: 2026-12-09; the tripwire is a p50 or
 work-only p95 that regresses above 10% against this baseline, or a future
 credential-cost change that makes the 500 ms bound the wrong place to carry.
+
+---
+
+## ADR-163 — The registered measurement host is a self-hosted 8-vCPU runner
+
+**Status**: Accepted — 2026-11-10. **Constitution version**: 6.3.2 (unchanged)
+**Owning directory**: `.github/workflows/`, `scripts/load/`, `specs/001-identity-foundation/`, `reports/`
+**Owning feature**: R1 — the identity foundation (`specs/001-identity-foundation/`).
+
+**Context.** ADR-159 fixed the SC-009 profile and its verdict, and ADR-162 raised
+the p50 and work-only bounds to 500 ms after the first registered run
+(`42776605743`) measured 249.5 ms against 150 ms. Five registered runs later the
+picture is different. Runs `42787877288`, `42793001674`, `42798975303`,
+`42807676753`, and the isolated re-run of its `load` job all record the same
+verdict on the GitHub-hosted `ubuntu-24.04` class: 600/600 accepted, 0 refused,
+the limiter probe refused, and an aggregate p50 between 1658.1 and 1932.3 ms.
+The `hostProbe` added in `87ce569` measures the cause: 4 CPUs (AMD EPYC 9V74),
+a one-minute load average of 3.9 to 6.4 against those four cores, and 213 ms
+per scrypt hash at CMV row 2's cost.
+
+The arithmetic then closes. The profile's 600 requests carry 800 scrypt hashes —
+account creation hashes the password and the code, sign-in verifies the
+password, recovery hashes the code — so 60 seconds at 10 requests/second demand
+13.3 hashes per second, or **2.8 cores of hashing alone** at 213 ms each, before
+the API's event loop, PostgreSQL, and the 20-user generator are counted; all of
+them share the same four vCPUs. The measured quickest request (253.8–264.5 ms)
+shows the queue rather than the service, and the median rises over the window
+(p95 3.3–3.9 s, slowest 7.6–13.8 s). Two controls rule out the application:
+`unit` and `integration` take 0.8–0.9 and 3.1–4.1 minutes in every run, and
+`enumeration` — sequential hashing — passes once the host is not saturated.
+Raising libuv's pool to eight threads (`83a5d71`) changed nothing, and re-running
+`load` alone, with no other job in flight, changed nothing (1716.3 ms). The
+`ubuntu-24.04` class is simply undersized for the profile the plan defines.
+
+**Decision.**
+1. The registered measurement host becomes a **self-hosted Linux runner with at
+   least 8 vCPUs**, registered to this repository with the labels `self-hosted`,
+   `linux`, `x64`, and `wafar-load`, and no workload other than the `load` job
+   during a measurement.
+2. The `load` job selects it through the repository variable
+   `LOAD_RUNNER_LABELS` (a JSON label array). The committed default remains
+   `["ubuntu-24.04"]`, so a clone without the variable stays runnable and every
+   run there is a **development check**, never the registered verdict.
+3. The profile itself does not move: the condition (10 requests/second from 20
+   origin keys at 500 concurrent sessions), the 600 requests, the key plan, the
+   50 ms acceptance wait, the limiter probe, and the 500/1,000/500 ms bounds
+   stay as ADR-159 and ADR-162 fixed them. Only the host that carries the
+   verdict changes.
+4. The verdict is the passing `sc-009-load` artifact from that host, attached at
+   `reports/sc-009-load.json` with the run identifier, host, and environment.
+
+**Alternatives considered.**
+- *Raise the bounds again to cover the 4-vCPU class.* Rejected: 1,716 ms would
+  need a bound near 2,000 ms with no margin, which measures the queue rather
+  than the service and would leave SC-009 meaningless.
+- *Lower the scrypt cost to N = 16384 or p = 1.* Rejected earlier by ADR-162
+  and rejected again: it weakens credential storage to fit a host that was
+  never sized for the profile.
+- *Move the generator off the host but keep the 4-vCPU class.* Rejected: the
+  hashing alone needs 2.8 cores and PostgreSQL and the API need the rest; the
+  generator is a small share of the load.
+- *Buy a GitHub larger runner.* Not available: this account has no hosted
+  larger runners and no organisation on a paid plan, and the standard class is
+  four vCPUs.
+
+**Consequences.** The plan's "one host" rule and its measurement-host paragraph
+name the self-hosted class; the load job's `runs-on` reads
+`LOAD_RUNNER_LABELS`; the escalation report records the runs that proved the
+4-vCPU class inadequate and the runner the verdict needs. SC-009, R1's
+acceptance condition 4, and T254/T257/T261/T262/T267/T270/T272 stay open until
+a run on the registered host reports `verdict: pass` with
+`verdictScope: registered measurement host`. Every live `ADR-001 … ADR-163`
+range string moves to ADR-163, and `Project-Technologies.txt`'s header list
+gains 163. The constitution stays **6.3.2**: no principle, register entry,
+entity, page, feature, module, or Usage Limit changes. Review date: 2026-12-09.

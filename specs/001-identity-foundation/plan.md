@@ -1035,11 +1035,17 @@ fails the probe.
 The measurement host is Linux — the CI runner or the load host — because the
 profile binds addresses in `127.0.0.0/8`, which Linux assigns to the loopback
 interface as a whole; the script refuses to start when its own `NODE_ENV` is
-`production`. The registered verdict is the `load` job's run on `ubuntu-24.04`
-in `.github/workflows/ci.yml` — CI's fixed PostgreSQL 16 service, the committed
-seeder, and the script's own API at the declared `50 ms` — because that is the
-one host class the project can reproduce; a run on any other host, including a
-developer machine, is a development check and does not replace it.
+`production`. The registered verdict is the `load` job's run on the **registered
+load host**: a self-hosted Linux runner with **at least 8 vCPUs**, registered to
+this repository with the labels `self-hosted`, `linux`, `x64`, and `wafar-load`,
+carrying no other workload during a measurement, selected through the repository
+variable `LOAD_RUNNER_LABELS` (ADR-163) — CI's fixed PostgreSQL 16 service, the
+committed seeder, and the script's own API at the declared `50 ms`. The committed
+default for that variable's absence is `["ubuntu-24.04"]`, the four-vCPU class
+that cannot serve the profile's 13.3 hashes per second beside the database and
+the generator, so a run there is a development check and does not replace the
+verdict; a run on any other host, including a developer machine, is a
+development check too.
 
 ## Constitution Check
 

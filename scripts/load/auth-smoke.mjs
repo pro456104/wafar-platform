@@ -736,13 +736,13 @@ const report = {
       platform: process.platform,
       release: release(),
       node: process.version,
-      // The registered verdict is the Linux load job's run (plan.md -> The
-      // SC-009 load profile). A run on any other host is a development check
-      // and cannot stand in for it, so the report says which one it is.
-      verdictScope:
-        process.platform === 'linux'
-          ? 'registered measurement host'
-          : 'development check',
+      // The registered verdict is the run on the registered load host — the
+      // self-hosted 8-vCPU Linux runner ADR-163 names — and CI states that
+      // scope in the environment rather than the script inferring it from the
+      // platform: the four-vCPU fallback class runs the same profile as a
+      // development check, and a run on any other host cannot stand in for the
+      // registered verdict.
+      verdictScope: process.env['SC009_VERDICT_SCOPE'] ?? 'development check',
     },
   },
   startedAt: result.startedAt,
