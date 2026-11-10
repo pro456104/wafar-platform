@@ -20,7 +20,6 @@ import {
 import { authenticate } from '../../../src/http/context.ts';
 import { hashPassword, verifyPassword } from '../../../src/modules/auth/service/password-policy.ts';
 import { createUsersRepository } from '../../../src/modules/users/repository/users.ts';
-import { createCredentialStore } from '../../../src/modules/auth/service/credentials.ts';
 
 const harness = hasDatabase ? createHarness() : null;
 const password = 'merchant password value';
@@ -43,10 +42,10 @@ async function seedRemovableAccount(db: Database): Promise<{
     city: 'طرابلس',
     shopName: null,
   });
-  await createCredentialStore(db).create(
-    account.id,
-    await hashPassword(password),
-  );
+  await harness!.auth.createCredential({
+    userId: account.id,
+    passwordHash: await harness!.auth.hashPassword(password),
+  });
 
   const token = 'removal-seeded-token'.padEnd(40, 'z');
   await db.insert(sessions).values({
@@ -92,7 +91,7 @@ describe.skipIf(!hasDatabase)('an administrator removal’s effects', () => {
     const now = new Date();
 
     // The state the removal must end is established first.
-    const context = await authenticate(harness!.db, {
+    const context = await authenticate(harness!.db, harness!.auth, {
       token: seeded.token,
       now,
       requiresUnrestricted: false,
@@ -132,7 +131,7 @@ describe.skipIf(!hasDatabase)('an administrator removal’s effects', () => {
 
     // No session survives, and the seeded token resolves as the guest state.
     expect(await count('sessions')).toBe(0);
-    const after = await authenticate(harness!.db, {
+    const after = await authenticate(harness!.db, harness!.auth, {
       token: seeded.token,
       now,
       requiresUnrestricted: false,

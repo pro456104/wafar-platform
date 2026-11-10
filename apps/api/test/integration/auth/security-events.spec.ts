@@ -235,7 +235,7 @@ describe.skipIf(!hasDatabase)('the security record', () => {
       role: 'administrator',
       mustChangePassword: true,
     });
-    const signed = await createAdministratorSignInService(harness!.db).signInAdministrator({
+    const signed = await createAdministratorSignInService(harness!.db, harness!.auth).signInAdministrator({
       phoneNumber: phone,
       password,
       now: harness!.clock.now(),
@@ -319,6 +319,45 @@ describe.skipIf(!hasDatabase)('the security record', () => {
       harness!.sms.messages.filter((message) => message.kind === 'notice_signed_out_all'),
     ).toHaveLength(1);
     expectNoPersonalData(harness!.events);
+  });
+
+  it('records the single-session sign-out, and nothing for a repeat or an unknown cookie', async () => {
+    await seedAccount(harness!, { phoneNumber: phone, password, fullName, city });
+    const { jar } = await signIn();
+    const token = jar['wafar.session'];
+    expect(token).toBeTruthy();
+    harness!.events.length = 0;
+
+    // The live session's row changed, so one record names it (FR-037, AC-040).
+    const out = await call(harness!, 'POST', '/api/v1/auth/sign-out', undefined, {
+      jar,
+      csrf: true,
+    });
+    expect(out.status).toBe(204);
+    const revoked = harness!.events.filter(
+      (event) => event.event === 'auth.session.revoked',
+    );
+    expect(revoked).toHaveLength(1);
+    expect(revoked[0]).toMatchObject({ reason: 'sign_out', sessionCount: 1 });
+    expect(revoked[0]?.accountId).toBeDefined();
+    expectNoPersonalData(harness!.events);
+
+    // A repeat of the ended session and an unknown cookie change no row, so
+    // neither emits a record.
+    harness!.events.length = 0;
+    const repeat = await call(harness!, 'POST', '/api/v1/auth/sign-out', undefined, {
+      headers: { cookie: `wafar.session=${token}` },
+      csrf: true,
+      jar: { 'wafar.csrf': jar['wafar.csrf'] ?? '' } as CookieJar,
+    });
+    expect(repeat.status).toBe(204);
+    const unknown = await call(harness!, 'POST', '/api/v1/auth/sign-out', undefined, {
+      headers: { cookie: 'wafar.session=unknown-token-value' },
+      csrf: true,
+      jar: { 'wafar.csrf': jar['wafar.csrf'] ?? '' } as CookieJar,
+    });
+    expect(unknown.status).toBe(204);
+    expect(harness!.events).toHaveLength(0);
   });
 
   it('records the recovery reset', async () => {
@@ -531,6 +570,7 @@ describe.skipIf(!hasDatabase)('the security record', () => {
     };
     const app = createApp({
       db: harness!.db,
+      auth: harness!.auth,
       env,
       sms: harness!.sms,
       logger: createLogger({ stream: { write: () => undefined } }),

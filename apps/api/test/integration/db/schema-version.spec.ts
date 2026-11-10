@@ -2,6 +2,8 @@
 // the refusal an unmigrated (or differently migrated) database receives before
 // the listener could open. Both cases run in a rolled-back transaction, so the
 // shared fixture is left exactly as the migration wrote it (T126).
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createDatabase, type Database } from '@wafar/db';
@@ -11,6 +13,7 @@ import {
   SCHEMA_VERSION,
 } from '@wafar/db/schema-version';
 import { assertSchemaVersion } from '../../../src/http/schema-guard.ts';
+import { migrationsDir } from '../../support/scratch.ts';
 
 const DATABASE_URL = process.env['DATABASE_URL'];
 const hasDatabase = DATABASE_URL !== undefined;
@@ -43,7 +46,12 @@ describe.skipIf(!hasDatabase)('the schema-version guard', () => {
   });
 
   it('reads the version the journal stamped', () => {
-    expect(EXPECTED_SCHEMA_STEPS).toBe(1);
+    // The embedded constant is generated from the journal; this asserts the
+    // generated file and the journal have not drifted apart (T126, T245).
+    const journal = JSON.parse(
+      readFileSync(join(migrationsDir, 'meta', '_journal.json'), 'utf8'),
+    ) as { entries: unknown[] };
+    expect(EXPECTED_SCHEMA_STEPS).toBe(journal.entries.length);
     expect(EXPECTED_SCHEMA_SHA256).toMatch(/^[0-9a-f]{64}$/);
     expect(SCHEMA_VERSION).toBe(
       `${EXPECTED_SCHEMA_SHA256.slice(0, 12)}:${EXPECTED_SCHEMA_STEPS}`,
@@ -71,7 +79,9 @@ describe.skipIf(!hasDatabase)('the schema-version guard', () => {
         sql`INSERT INTO drizzle.__drizzle_migrations (id, hash, created_at) VALUES (999, 'drift', 0)`,
       );
       await expect(assertSchemaVersion(tx)).rejects.toThrow(
-        /expected 1 applied step\(s\), found 2/,
+        new RegExp(
+          `expected ${EXPECTED_SCHEMA_STEPS} applied step\\(s\\), found ${EXPECTED_SCHEMA_STEPS + 1}`,
+        ),
       );
     });
   });

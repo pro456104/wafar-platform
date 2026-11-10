@@ -7,7 +7,7 @@ import { promisify } from 'node:util';
 import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { sessions } from '@wafar/db';
-import { createSessionService } from '../../../src/modules/auth/service/sessions.ts';
+
 import {
   createHarness,
   hasDatabase,
@@ -66,7 +66,7 @@ describe.skipIf(!hasDatabase)('the platform revocation CLI', () => {
       city: 'طرابلس',
       shopName: null,
     });
-    const issued = await createSessionService(harness!.db).issue({
+    const issued = await harness!.auth.issue({
       userId: account.id,
       now: harness!.clock.now(),
     });
@@ -74,6 +74,22 @@ describe.skipIf(!hasDatabase)('the platform revocation CLI', () => {
     const first = await revoke(issued.token);
     expect(first.code).toBe(0);
     expect(first.stdout).toContain('Session revoked');
+
+    // The record names the account and carries no phone, name, or token.
+    const records = first.stdout
+      .split('\n')
+      .filter((line) => line.trim().startsWith('{'))
+      .map((line) => JSON.parse(line) as Record<string, unknown>);
+    const record = records.find((entry) => entry['event'] === 'auth.session.revoked');
+    expect(record).toMatchObject({
+      event: 'auth.session.revoked',
+      reason: 'platform_revocation',
+      sessionCount: 1,
+      accountId: account.id,
+    });
+    expect(JSON.stringify(record)).not.toContain(issued.token);
+    expect(JSON.stringify(record)).not.toContain('0912345678');
+    expect(JSON.stringify(record)).not.toContain('محمد علي');
 
     const rows = await harness!.db
       .select()

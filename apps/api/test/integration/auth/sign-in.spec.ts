@@ -3,7 +3,7 @@
 // (FR-007, FR-008, FR-009, FR-027, FR-042; T058, T061).
 import { eq } from 'drizzle-orm';
 import { describe, expect, it, beforeAll, beforeEach, afterAll } from 'vitest';
-import { users } from '@wafar/db';
+import { sessions, users } from '@wafar/db';
 import {
   bootstrap,
   call,
@@ -124,5 +124,31 @@ describe.skipIf(!hasDatabase)('sign-in', () => {
     });
     expect(JSON.stringify(response.body)).not.toContain('example.com');
     expect(JSON.stringify(response.body)).not.toContain('person@');
+  });
+
+  it('issues the sign-in session as the library’s own row', async () => {
+    await seedAccount(harness!, {
+      phoneNumber: '+218912345678',
+      password,
+    });
+    const jar: CookieJar = {};
+    expect((await signInResponse(jar, '0912345678', password)).status).toBe(200);
+    const token = jar['wafar.session'];
+    expect(token).toBeDefined();
+
+    // The rows the R1 policy reads are the ones the library's adapter wrote, and
+    // the library's own session lookup resolves the token R1 set in the cookie.
+    const rows = await harness!.db.select().from(sessions);
+    expect(rows).toHaveLength(1);
+    const context = await harness!.auth.raw.$context;
+    const found = await context.internalAdapter.findSession(token!);
+    expect(found?.session.id).toBe(rows[0]?.id);
+    expect(found?.session.token).toBe(rows[0]?.token);
+    expect(found?.user['phoneNumber']).toBe('+218912345678');
+
+    // The engine's port reads the same row, so the policy and the library agree.
+    const resolved = await harness!.auth.resolve(token!, harness!.clock.now());
+    expect(resolved?.sessionId).toBe(rows[0]?.id);
+    expect(resolved?.revokedAt).toBeNull();
   });
 });

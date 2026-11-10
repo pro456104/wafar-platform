@@ -15,7 +15,17 @@ import {
   uniqueNationalNumber,
 } from '../support/bare';
 import { dispatchMark, waitForDispatch } from '../support/fake-inbox';
-import { blockAccount, provisionAdministrator } from '../support/seed';
+import {
+  blockAccount,
+  clearRateLimits,
+  provisionAdministrator,
+} from '../support/seed';
+
+// The origin's account-creation window is shared by the whole suite, so each
+// scenario starts with a full budget.
+test.beforeEach(async () => {
+  await clearRateLimits();
+});
 
 const password = 'correct horse battery staple';
 
@@ -31,16 +41,23 @@ async function submitAndVerifySignUp(
   await page.locator('button.wf-code-step__submit').click();
 }
 
-async function expectOutcome(page: Page, message: string): Promise<void> {
+async function expectOutcome(
+  page: Page,
+  heading: string,
+  body: string,
+): Promise<void> {
   const outcome = page.locator('.wf-outcome');
   await expect(outcome).toBeVisible();
   await expect(outcome).toHaveAttribute('role', 'status');
-  await expect(outcome).toContainText(message);
+  await expect(outcome.locator('.wf-outcome__heading')).toHaveText(heading);
+  await expect(outcome).toContainText(body);
   await expect(outcome.locator('[role="alert"]')).toHaveCount(0);
   await expect(page.locator('input[autocomplete="one-time-code"]')).toHaveCount(0);
   await expect(
     outcome.getByRole('button', { name: /إعادة|أعد المحاولة|رمز جديد/ }),
   ).toHaveCount(0);
+  // The terminal step has no field, so focus moves to its heading (AC-043).
+  await expect(outcome.locator('.wf-outcome__heading')).toBeFocused();
 }
 
 async function expectFirstStepAfterReload(page: Page): Promise<void> {
@@ -57,7 +74,7 @@ async function requestRecovery(page: Page, phone: string): Promise<void> {
   await bootstrap;
   const before = dispatchMark();
   await page.locator('input[autocomplete="tel-national"]').fill(phone);
-  await page.getByRole('button', { name: 'إرسال رمز الاستعادة' }).click();
+  await page.getByRole('button', { name: 'إرسال رمز التحقق' }).click();
   const dispatch = await waitForDispatch({ kind: 'otp_recovery', after: before });
   await page.locator('input[autocomplete="one-time-code"]').fill(dispatch.code);
   await page.locator('button.wf-code-step__submit').click();
@@ -81,6 +98,8 @@ test('every post-verification outcome is stated in place and ends the request', 
     city: 'طرابلس',
   });
   await expect(page.getByText('حسابك جاهز، وأنت مسجل الدخول الآن.')).toBeVisible();
+  // The terminal step has no field, so focus moves to its heading (AC-043).
+  await expect(page.locator('.wf-outcome__heading')).toBeFocused();
   await context.clearCookies();
 
   await openSignUp(page);
@@ -90,7 +109,11 @@ test('every post-verification outcome is stated in place and ends the request', 
     password: 'another different password',
     city: 'طرابلس',
   });
-  await expectOutcome(page, 'لديك حساب بالفعل. سجل الدخول أو استعد كلمة المرور.');
+  await expectOutcome(
+    page,
+    'رقمك مسجل مسبقا',
+    'هذا الرقم له حساب على المنصة. سجل الدخول أو استعد كلمة المرور.',
+  );
   await expectFirstStepAfterReload(page);
 
   // 2. The blocked account.
@@ -102,6 +125,8 @@ test('every post-verification outcome is stated in place and ends the request', 
     city: 'بنغازي',
   });
   await expect(page.getByText('حسابك جاهز، وأنت مسجل الدخول الآن.')).toBeVisible();
+  // The terminal step has no field, so focus moves to its heading (AC-043).
+  await expect(page.locator('.wf-outcome__heading')).toBeFocused();
   await blockAccount(blockedPhone);
   await context.clearCookies();
 
@@ -112,7 +137,11 @@ test('every post-verification outcome is stated in place and ends the request', 
     password: 'another different password',
     city: 'بنغازي',
   });
-  await expectOutcome(page, 'لا يمكن استخدام هذا الحساب الآن. تواصل مع الدعم.');
+  await expectOutcome(
+    page,
+    'الحساب موقوف',
+    'هذا الرقم له حساب موقوف. يبقى تسجيل الدخول مرفوضا حتى يعيد مسؤول الحساب تفعيله.',
+  );
   await expectFirstStepAfterReload(page);
 
   // 3. The administrator account at sign-up.
@@ -129,14 +158,19 @@ test('every post-verification outcome is stated in place and ends the request', 
     password,
     city: 'طرابلس',
   });
-  await expectOutcome(page, 'هذا الحساب حساب إداري. استخدم تطبيق الإدارة.');
+  await expectOutcome(
+    page,
+    'الحساب إداري',
+    'هذا الرقم لحساب إداري، ويدار الدخول إليه من واجهة الإدارة. لا ينطبق عليه تسجيل الدخول أو الاستعادة من هنا.',
+  );
   await expectFirstStepAfterReload(page);
 
   // 4. Recovery for a number with no account.
   await requestRecovery(page, missingPhone);
   await expectOutcome(
     page,
-    'لا يمكن إتمام الاستعادة لهذا الرقم. تحقق من الرقم أو أنشئ حسابا.',
+    'لا يوجد حساب لهذا الرقم',
+    'لا يمكن إعادة تعيين كلمة مرور لرقم بلا حساب. أنشئ حسابا أو تحقق من الرقم.',
   );
   await expect(page.locator('.wf-code-step')).toHaveCount(0);
   const bootstrap = page.waitForResponse((response) =>
@@ -149,6 +183,10 @@ test('every post-verification outcome is stated in place and ends the request', 
 
   // 5. Recovery for the administrator account.
   await requestRecovery(page, administratorPhone);
-  await expectOutcome(page, 'هذا الحساب حساب إداري. استخدم تطبيق الإدارة.');
+  await expectOutcome(
+    page,
+    'لا يمكن إعادة التعيين من هنا',
+    'هذا الرقم لحساب إداري، ويدار الدخول إليه من واجهة الإدارة.',
+  );
   await expect(page.locator('.wf-code-step')).toHaveCount(0);
 });

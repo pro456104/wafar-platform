@@ -24,9 +24,7 @@ export interface FieldFailure {
 }
 
 /** The fixed list's exact names, as a set the API and the combobox share. */
-export const cityNames: ReadonlySet<string> = new Set(
-  cities.entries.map((entry) => entry.name),
-);
+export const cityNames: ReadonlySet<string> = new Set(cities.entries);
 
 export function validateFullName(value: string): FieldFailure[] {
   const trimmed = value.trim();

@@ -1,14 +1,10 @@
 // The single shared entry point: it resolves the session, the account's status,
 // the role, the forced-change restriction, and the two clocks in one place, and
-// it reads or writes a session only through the `auth` service's session port
+// it reads or writes a session only through the `auth` engine's session port
 // (FR-049, FR-053, data-model.md §5).
 import type { Database } from '@wafar/db';
 import type { SessionPort } from '@wafar/shared';
-import {
-  createSessionService,
-  isExpired,
-  isInactive,
-} from '../modules/auth/service/sessions.ts';
+import { isExpired, isInactive } from '../modules/auth/service/sessions.ts';
 import { createUsersRepository } from '../modules/users/repository/users.ts';
 
 export const SESSION_COOKIE = 'wafar.session';
@@ -23,6 +19,7 @@ export type RequestContext =
       kind: 'session';
       userId: string;
       sessionId: string;
+      token: string;
       role: 'merchant' | 'administrator';
       restricted: boolean;
       expiresAt: Date;
@@ -40,8 +37,8 @@ export interface AuthenticateInput {
 
 export async function authenticate(
   db: Database,
+  sessionService: SessionPort,
   input: AuthenticateInput,
-  sessionService: SessionPort = createSessionService(db),
 ): Promise<RequestContext> {
   if (input.token === null) return { kind: 'guest' };
 
@@ -60,7 +57,7 @@ export async function authenticate(
   if (account === null) return { kind: 'guest' };
 
   if (account.status === 'blocked') {
-    await sessionService.revoke(row.sessionId, 'blocked', input.now);
+    await sessionService.revoke(row.token, 'blocked', input.now);
     return { kind: 'refused', code: 'ACCOUNT_BLOCKED' };
   }
 
@@ -69,7 +66,7 @@ export async function authenticate(
   }
 
   if (isInactive(row.lastActivityAt, input.now)) {
-    await sessionService.revoke(row.sessionId, 'inactivity', input.now);
+    await sessionService.revoke(row.token, 'inactivity', input.now);
     return { kind: 'refused', code: 'SESSION_ENDED' };
   }
 
@@ -78,13 +75,14 @@ export async function authenticate(
   }
 
   if (input.isUserInitiated) {
-    await sessionService.touch(row.sessionId, input.now);
+    await sessionService.touch(row.token, input.now);
   }
 
   return {
     kind: 'session',
     userId: row.userId,
     sessionId: row.sessionId,
+    token: row.token,
     role: account.role,
     restricted: account.mustChangePassword,
     expiresAt: row.expiresAt,

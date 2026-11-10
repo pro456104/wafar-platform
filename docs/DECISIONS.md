@@ -201,6 +201,8 @@ constitution's Documentation section and enforced by `governance-drift-check.mjs
 | [ADR-157](decisions/volume-09.md#adr-157--the-provisioning-boundary-the-initial-password-and-the-audit-log) | The provisioning boundary, the initial password, and the audit log | 2026-11-08 | 6.3.2 (unchanged) |
 | [ADR-158](decisions/volume-09.md#adr-158--public-api-versioning-and-the-deprecation-rule) | Public API versioning and the deprecation rule | 2026-11-08 | 6.3.2 (unchanged) |
 | [ADR-159](decisions/volume-09.md#adr-159--the-sc-009-load-profile-and-its-verdict) | The SC-009 load profile and its verdict | 2026-11-08 | 6.3.2 (unchanged) |
+| [ADR-160](decisions/volume-09.md#adr-160--spec-kit-scaffold-refreshed-to-132-the-reserved-command-and-extension-set-retained) | Spec Kit scaffold refreshed to 1.3.2; the reserved command and extension set retained | 2026-11-08 | 6.3.2 (unchanged) |
+| [ADR-161](decisions/volume-09.md#adr-161--the-city-lists-object-envelope-and-version-200) | The city list's object envelope and version 2.0.0 | 2026-11-09 | 6.3.2 (unchanged) |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,

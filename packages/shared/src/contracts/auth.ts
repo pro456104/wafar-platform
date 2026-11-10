@@ -115,7 +115,10 @@ export const resetPasswordRequestSchema = z.object({
 export type ResetPasswordRequest = z.infer<typeof resetPasswordRequestSchema>;
 
 export const changePasswordRequestSchema = z.object({
-  currentPassword: z.string().min(1).max(passwordMaxLength * 4),
+  // An empty current password is accepted here and refused by the current-
+  // password check, so it is a credential failure rather than a policy failure
+  // (FR-013, FR-051).
+  currentPassword: z.string().max(passwordMaxLength * 4),
   newPassword: z.string().max(passwordMaxLength * 4),
 });
 export type ChangePasswordRequest = z.infer<typeof changePasswordRequestSchema>;

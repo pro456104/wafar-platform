@@ -22,12 +22,39 @@ const displayPhone = ref('');
 const remainingReRequests = ref(3);
 const codeMessage = ref('');
 const outcome = ref('');
+const resending = ref(false);
 const formValues = ref<Record<string, string>>({});
 const refusedField = ref<string | null>(null);
 
 const showForm = computed(() => step.showsFirstStep.value);
 const showCode = computed(() => step.step.value === 'code');
 const showDone = computed(() => step.step.value === 'done');
+
+const outcomeHeading = computed(() => {
+  if (outcome.value === 'created') return 'تم إنشاء حسابك';
+  if (outcome.value === 'existing_account') return 'رقمك مسجل مسبقا';
+  if (outcome.value === 'blocked_account') return 'الحساب موقوف';
+  if (outcome.value === 'administrator_account') return 'الحساب إداري';
+  return '';
+});
+
+const outcomeBody = computed(() => {
+  if (outcome.value === 'created') return notices.signedInAfterVerification;
+  if (outcome.value === 'existing_account') {
+    return 'هذا الرقم له حساب على المنصة. سجل الدخول أو استعد كلمة المرور.';
+  }
+  if (outcome.value === 'blocked_account') {
+    return 'هذا الرقم له حساب موقوف. يبقى تسجيل الدخول مرفوضا حتى يعيد مسؤول الحساب تفعيله.';
+  }
+  if (outcome.value === 'administrator_account') {
+    return 'هذا الرقم لحساب إداري، ويدار الدخول إليه من واجهة الإدارة. لا ينطبق عليه تسجيل الدخول أو الاستعادة من هنا.';
+  }
+  return '';
+});
+
+function nationalOf(e164: string): string {
+  return e164.startsWith('+218') ? e164.slice(4) : e164;
+}
 
 onMounted(async () => {
   try {
@@ -51,17 +78,27 @@ function enterCodeStep(data: {
   pending.remember(data.requestId);
   displayPhone.value = formatPhoneForDisplay(data.phone);
   remainingReRequests.value = data.remainingReRequests;
-  collected.value = [
-    ...(data.payload === undefined
-      ? []
-      : [
-          { label: 'الاسم الكامل', value: data.payload.fullName },
-          { label: 'المدينة', value: data.payload.city },
-          ...(data.payload.shopName === undefined
-            ? []
-            : [{ label: 'اسم المحل', value: data.payload.shopName }]),
-        ]),
-  ];
+  // The first step is returned to after an expiry or an ended request, so its
+  // values come from the resume payload, not from a submission this tab saw.
+  if (data.payload !== undefined) {
+    formValues.value = {
+      fullName: data.payload.fullName,
+      phone: nationalOf(data.phone),
+      city: data.payload.city,
+      ...(data.payload.shopName === undefined
+        ? {}
+        : { shopName: data.payload.shopName }),
+    };
+    collected.value = [
+      { label: 'الاسم الكامل', value: data.payload.fullName },
+      { label: 'المدينة', value: data.payload.city },
+      ...(data.payload.shopName === undefined
+        ? []
+        : [{ label: 'اسم المحل', value: data.payload.shopName }]),
+    ];
+  } else {
+    collected.value = [];
+  }
   void step.show('code');
 }
 
@@ -76,7 +113,15 @@ async function onSubmit(payload: Record<string, string>): Promise<void> {
   message.value = '';
   refusedField.value = null;
   step.clearAnnouncement();
-  formValues.value = payload;
+  // The first step is returned to with its values, never with the submitted
+  // password: only the four payload fields the resume read carries are kept
+  // (FR-038, AC-041; Constitution — Identity, Authentication, and Session Policy).
+  formValues.value = {
+    fullName: payload['fullName'] ?? '',
+    phone: payload['phone'] ?? '',
+    city: payload['city'] ?? '',
+    ...(payload['shopName'] === undefined ? {} : { shopName: payload['shopName'] }),
+  };
   const result = await api.post<{
     requestId: string;
     phone: string;
@@ -123,6 +168,7 @@ async function onVerify(code: string): Promise<void> {
       const resumed = await pending.resume(requestId);
       if (resumed.status === 'expired') {
         await step.expire(messageFor({ code: 'OTP_EXPIRED' }));
+        await focusFirstField();
         return;
       }
     }
@@ -131,12 +177,6 @@ async function onVerify(code: string): Promise<void> {
   }
 
   outcome.value = result.data.outcome;
-  if (result.data.outcome === 'created') {
-    pending.forget();
-    status.value = notices.signedInAfterVerification;
-    await step.show('done');
-    return;
-  }
   pending.forget();
   await step.show('done');
 }
@@ -144,13 +184,16 @@ async function onVerify(code: string): Promise<void> {
 async function onResend(): Promise<void> {
   const requestId = pending.requestId.value;
   if (requestId === null) return;
+  resending.value = true;
   const result = await api.post<{ remainingReRequests: number }>(
     '/api/v1/auth/verifications/resend',
     { requestId },
   );
+  resending.value = false;
   if (!result.ok) {
     if (result.refusal.code === 'OTP_EXPIRED') {
       await step.expire(messageFor({ code: 'OTP_EXPIRED' }));
+      await focusFirstField();
       return;
     }
     codeMessage.value = messageFor({ code: result.refusal.code });
@@ -159,10 +202,6 @@ async function onResend(): Promise<void> {
   remainingReRequests.value = result.data.remainingReRequests;
   status.value = notices.resendAccepted;
   codeMessage.value = '';
-}
-
-function onGoHome(): void {
-  window.location.assign('/');
 }
 
 async function onChangeNumber(): Promise<void> {
@@ -176,10 +215,13 @@ async function onChangeNumber(): Promise<void> {
 </script>
 
 <template>
-  <NuxtLayout name="bare" title="إنشاء حساب">
+  <NuxtLayout
+    name="bare"
+    title="إنشاء حساب"
+    subtitle="المنصة ليبية: الرقم يبدأ دائما بـ +218، ولا يوجد اختيار لرمز الاتصال."
+  >
     <template #cross-links>
-      <NuxtLink to="/auth/sign-in">لديك حساب؟ سجل الدخول</NuxtLink>
-      <NuxtLink to="/auth/forgot-password">نسيت كلمة المرور</NuxtLink>
+      <NuxtLink to="/auth/sign-in">لديك حساب؟ تسجيل الدخول</NuxtLink>
     </template>
 
     <MessageAlert v-if="showForm" :message="status" kind="status" />
@@ -205,6 +247,7 @@ async function onChangeNumber(): Promise<void> {
       :display-phone="displayPhone"
       :remaining-re-requests="remainingReRequests"
       :loading="api.loading.value"
+      :resending="resending"
       :code-message="codeMessage"
       :status-message="status"
       @verify="onVerify"
@@ -213,18 +256,17 @@ async function onChangeNumber(): Promise<void> {
     />
 
     <section v-if="showDone" class="wf-outcome" role="status">
-      <p v-if="outcome === 'created'">{{ notices.signedInAfterVerification }}</p>
-      <p v-else-if="outcome === 'existing_account'">
-        لديك حساب بالفعل. سجل الدخول أو استعد كلمة المرور.
-      </p>
-      <p v-else-if="outcome === 'blocked_account'">
-        لا يمكن استخدام هذا الحساب الآن. تواصل مع الدعم.
-      </p>
-      <p v-else-if="outcome === 'administrator_account'">
-        هذا الحساب حساب إداري. استخدم تطبيق الإدارة.
-      </p>
-      <NuxtLink to="/auth/sign-in">الانتقال إلى تسجيل الدخول</NuxtLink>
-      <button type="button" @click="onGoHome">الرئيسية</button>
+      <h2 :ref="step.heading" tabindex="-1" class="wf-outcome__heading">
+        {{ outcomeHeading }}
+      </h2>
+      <p>{{ outcomeBody }}</p>
+      <NuxtLink v-if="outcome === 'created'" to="/auth/sign-in">
+        الانتقال إلى تسجيل الدخول
+      </NuxtLink>
+      <template v-else-if="outcome === 'existing_account'">
+        <NuxtLink to="/auth/sign-in">تسجيل الدخول</NuxtLink>
+        <NuxtLink to="/auth/forgot-password">نسيت كلمة المرور</NuxtLink>
+      </template>
     </section>
   </NuxtLayout>
 </template>
@@ -235,8 +277,11 @@ async function onChangeNumber(): Promise<void> {
   flex-direction: column;
   gap: var(--wf-space-3);
 }
-.wf-outcome a,
-.wf-outcome button {
+.wf-outcome__heading {
+  margin: 0;
+  font-size: var(--wf-text-lg);
+}
+.wf-outcome a {
   min-block-size: var(--wf-touch-floor);
   display: inline-flex;
   align-items: center;

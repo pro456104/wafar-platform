@@ -28,7 +28,7 @@ const harness = hasDatabase ? createHarness({ smsAcceptMs: acceptMs }) : null;
 const password = 'correct horse battery staple';
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 function numberAt(index: number): string {

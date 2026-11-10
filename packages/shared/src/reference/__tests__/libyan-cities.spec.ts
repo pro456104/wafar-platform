@@ -1,6 +1,7 @@
 // Unit test the city list: every one of the 22 governorates present with at
-// least one entry, the entry count equal to the SOURCE note's, unique non-empty
-// Arabic names, and the recorded digest (FR-005, AC-005).
+// least one entry, the reviewed entry count, unique non-empty Arabic names, a
+// representative set of cities and areas beyond the governorate floor, and the
+// recorded digest (FR-005, AC-005; ADR-152 as amended by ADR-161).
 import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import cities from '../libyan-cities.json' with { type: 'json' };
@@ -32,31 +33,77 @@ const GOVERNORATES = [
   'مرزق',
 ];
 
+// The reviewed dataset's count, read from the reference's own entry list.
+const REVIEWED_ENTRY_COUNT = 138;
+
+// A representative set of cities and areas, one per governorate or region,
+// beyond the 22 governorate names the floor asserts.
+const REPRESENTATIVE = [
+  'طبرق',
+  'درنة',
+  'البيضاء',
+  'شحات',
+  'المرج',
+  'الأبيار',
+  'بنغازي',
+  'قمينس',
+  'أجدابيا',
+  'جالو',
+  'الجوف',
+  'تازربو',
+  'سرت',
+  'رأس لانوف',
+  'هون',
+  'ودان',
+  'مصراتة',
+  'زليتن',
+  'الخمس',
+  'ترهونة',
+  'مسلاتة',
+  'بني وليد',
+  'طرابلس',
+  'تاجوراء',
+  'جنزور',
+  'العزيزية',
+  'الزاوية',
+  'صرمان',
+  'صبراتة',
+  'زوارة',
+  'غريان',
+  'يفرن',
+  'الزنتان',
+  'نالوت',
+  'غدامس',
+  'غات',
+  'براك',
+  'سبها',
+  'أوباري',
+  'مرزق',
+  'القطرون',
+];
+
 describe('the Libyan city list', () => {
   it('covers all 22 governorates and records the count', () => {
-    const present = new Set(cities.entries.map((entry) => entry.governorate));
-    expect(present.size).toBe(22);
     expect(cities.governorateCount).toBe(22);
     for (const governorate of GOVERNORATES) {
-      expect(present.has(governorate)).toBe(true);
+      expect(cities.entries, governorate).toContain(governorate);
     }
   });
 
-  it('gives every governorate at least one city or area entry', () => {
-    for (const governorate of GOVERNORATES) {
-      const entries = cities.entries.filter((entry) => entry.governorate === governorate);
-      expect(entries.length, governorate).toBeGreaterThan(0);
-    }
-  });
-
-  it('records the entry count the SOURCE note states', () => {
+  it('carries the reviewed entry count', () => {
     expect(cities.entryCount).toBe(cities.entries.length);
+    expect(cities.entryCount).toBe(REVIEWED_ENTRY_COUNT);
+  });
+
+  it('names a representative set of cities and areas beyond the governorate floor', () => {
+    for (const name of REPRESENTATIVE) {
+      expect(cities.entries, name).toContain(name);
+    }
   });
 
   it('holds unique, non-empty, Arabic names with no Latin alternate', () => {
-    const names = cities.entries.map((entry) => entry.name);
-    expect(new Set(names).size).toBe(names.length);
-    for (const name of names) {
+    expect(new Set(cities.entries).size).toBe(cities.entries.length);
+    for (const name of cities.entries) {
       expect(name.trim().length).toBeGreaterThan(0);
       expect(/[\u0600-\u06FF]/.test(name)).toBe(true);
       expect(/[A-Za-z]/.test(name)).toBe(false);
@@ -65,7 +112,7 @@ describe('the Libyan city list', () => {
 
   it('matches names diacritic-insensitively and stores the exact name', () => {
     expect(normalizeArabic('بَنغازي')).toBe(normalizeArabic('بنغازي'));
-    expect(cities.entries.some((entry) => entry.name === 'بنغازي')).toBe(true);
+    expect(cities.entries.includes('بنغازي')).toBe(true);
   });
 
   it('carries the digest of its own entries', () => {

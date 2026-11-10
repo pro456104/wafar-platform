@@ -38,6 +38,17 @@ export interface IssuedSession {
   expiresAt: Date;
 }
 
+/** A resolved session row: the library's fields plus the policy's three. */
+export interface ResolvedSession {
+  sessionId: string;
+  token: string;
+  userId: string;
+  expiresAt: Date;
+  lastActivityAt: Date;
+  revokedAt: Date | null;
+  revokedReason: string | null;
+}
+
 /** The `auth` module's session port; the shared entry point uses it. */
 export interface SessionPort {
   issue(input: {
@@ -46,25 +57,14 @@ export interface SessionPort {
     ipAddress?: string;
     userAgent?: string;
   }): Promise<IssuedSession>;
-  resolve(
-    token: string,
-    now: Date,
-  ): Promise<{
-    sessionId: string;
-    userId: string;
-    expiresAt: Date;
-    lastActivityAt: Date;
-    revokedAt: Date | null;
-    revokedReason: string | null;
-  } | null>;
-  touch(sessionId: string, now: Date): Promise<void>;
+  resolve(token: string, now: Date): Promise<ResolvedSession | null>;
+  touch(token: string, now: Date): Promise<void>;
   revoke(
-    sessionId: string,
+    token: string,
     reason: SessionRevocationReason,
     now: Date,
   ): Promise<boolean>;
   revokeAll(userId: string, reason: SessionRevocationReason, now: Date): Promise<number>;
-  revokeByToken(token: string, reason: SessionRevocationReason, now: Date): Promise<boolean>;
 }
 
 export const sessionRevocationReasons = [

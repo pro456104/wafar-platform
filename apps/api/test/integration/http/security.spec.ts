@@ -54,6 +54,29 @@ describe.skipIf(!hasDatabase)('the transport guards', () => {
     });
     expect(wrong.status).toBe(403);
 
+    // A token of the same decoded length but one different byte is refused by
+    // the constant-time comparison rather than by a length check (FR-044). The
+    // byte is flipped in the decoded value, never in the base64url padding bits
+    // that carry no value, and the case runs over fresh tokens so no token's
+    // last character decides the result (T250).
+    for (const offset of [0, 9, 18, 27]) {
+      const loopJar: CookieJar = {};
+      await bootstrap(harness!, loopJar);
+      const token = loopJar['wafar.csrf'] ?? '';
+      const decoded = Buffer.from(token, 'base64url');
+      const mutated = Buffer.from(decoded);
+      mutated[offset] = (mutated[offset] ?? 0) ^ 0xff;
+      const differentToken = mutated.toString('base64url');
+      expect(Buffer.from(differentToken, 'base64url')).toHaveLength(decoded.length);
+      expect(Buffer.from(differentToken, 'base64url').equals(decoded)).toBe(false);
+      const different = await call(harness!, 'POST', '/api/v1/auth/sign-in', body, {
+        jar: loopJar,
+        csrf: true,
+        headers: { 'x-wafar-csrf': differentToken },
+      });
+      expect(different.status).toBe(403);
+    }
+
     const unlisted = await call(harness!, 'POST', '/api/v1/auth/sign-in', body, {
       jar,
       csrf: true,

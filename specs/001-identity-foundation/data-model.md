@@ -22,7 +22,7 @@ re-amended (plan → Gate 2, Product Register).
 | Item | This slice |
 |---|---|
 | PostgreSQL | 16 or later, one database, one `public` schema, six tables |
-| Migration tool | Drizzle Kit only; one migration (`0001_identity_foundation`) created by hand-reviewed `drizzle-kit generate` output and applied by `drizzle-orm`'s migrator |
+| Migration tool | Drizzle Kit only; two migrations (`0001_identity_foundation`, `0002_identity_foundation_previous_code`) created by hand-reviewed `drizzle-kit generate` output and applied by `drizzle-orm`'s migrator |
 | Owning module schemas | `packages/db/schema/users.ts` (module `users`) and `packages/db/schema/auth.ts` (module `auth`) — one file per module, per `docs/architecture.md` |
 | Tables created | `users`, `phone_verifications` (module `users`); `accounts`, `sessions`, `verifications`, `rate_limit_counters` (module `auth`) |
 | Tables read or written by this slice | All six; `verifications` is declared for the adapter and written by nothing (§8) |
@@ -283,6 +283,7 @@ the `auth` module calls.
 | `purpose` | `text` | no | — | `CHECK (purpose IN ('sign_up', 'recovery'))` (FR-034) |
 | `state` | `text` | no | `'pending'` | `CHECK (state IN ('pending', 'verified'))`; `CHECK (state <> 'verified' OR purpose = 'recovery')` — only recovery has a new-password step (FR-014, FR-034) |
 | `code_hash` | `text` | no | — | scrypt with the request id as salt, encoded like a password hash (FR-034, research R-09). Never a plaintext code |
+| `previous_code_hash` | `text` | yes | — | The code an accepted re-request superseded, protected the same way; an entry of it is refused as expired and never increments `incorrect_entries` (FR-034). `CHECK (previous_code_hash IS NULL OR previous_code_hash LIKE '$wafar$scrypt$%')`. Cleared when a new request replaces the row |
 | `code_expires_at` | `timestamptz(3)` | no | — | Dispatch time + 300 s (CMV 18) |
 | `request_expires_at` | `timestamptz(3)` | no | — | Dispatch time + 300 s; restarted by every accepted dispatch (CMV 18, FR-034). The verified state never outlives it (FR-014) |
 | `incorrect_entries` | `smallint` | no | `0` | `CHECK (incorrect_entries BETWEEN 0 AND 5)` (CMV 18) |
@@ -309,7 +310,7 @@ merchant identity and is read by the `users` module alone.
 | — | Accepted sign-up submission | `pending` / `sign_up` | The row is written only after the channel accepts the message, and the code is dispatched inside the request that asked for it (§7, send rule) |
 | — | Accepted recovery submission | `pending` / `recovery` | Same |
 | `pending` | New sign-up or recovery request for the same number | replaced in place | Purpose, payload, code hash, both expiries, counts reset; the previous code stops being valid at once (FR-034) |
-| `pending` | Accepted re-request | `pending`, new code | `re_requests + 1`, `code_hash` replaced, both expiries restarted (FR-034, CMV 18) |
+| `pending` | Accepted re-request | `pending`, new code | `re_requests + 1`, `code_hash` replaced (the superseded value kept in `previous_code_hash`), both expiries restarted (FR-034, CMV 18) |
 | `pending` | Correct code, purpose `recovery` | `verified` | `verified_at = now()`; the code can never be verified again (FR-014) |
 | `pending` | Correct code, purpose `sign_up`, number has no account | deleted, with the account and session created | The code is consumed only by the creation (FR-034) |
 | `pending` | Correct code, purpose `sign_up`, number already has an account of any role or status | deleted | The outcome is stated on the page; no account is created and the submitted password is discarded (FR-006) |
@@ -460,7 +461,7 @@ to a table that does not exist cannot be created.
 
 | Dataset | Path | Shape | Rules | Pinning |
 |---|---|---|---|---|
-| Libyan cities | `packages/shared/src/reference/libyan-cities.json` | Flat array of Arabic name strings; no id, no Latin name | Unique and non-empty entries; every one of the **22** governorates present, each with at least one city or area entry; the file's entry count equals the count in `SOURCE`; stored value is the entry exactly (FR-005) | Source (the Libyan administrative-division reference, the 22 governorates of the 2007 division), version **`1.0.0`** (2026-11-01), the 22-governorate reference count, the file's total entry count, and the SHA-256 digest in the package's `SOURCE` note; an ADR records the set |
+| Libyan cities | `packages/shared/src/reference/libyan-cities.json` | Object envelope — `entries` (a flat array of Arabic name strings), `governorateCount`, `entryCount`, `version`, `sha256`, and the `SOURCE` note; no id, no Latin name | Unique and non-empty entries; every one of the **22** governorates present, each with at least one city or area entry; `entryCount` equals `entries.length` and the count in `SOURCE`; stored value is the entry exactly (FR-005) | Source (the Libyan administrative-division reference, the 22 governorates of the 2007 division), version **`2.0.0`** (2026-11-09), the 22-governorate reference count, the file's total entry count, and the SHA-256 digest of `entries` in the package's `SOURCE` note; ADR-152 as amended by ADR-161 records the set |
 | Libyan mobile prefixes | `packages/shared/src/reference/libyan-mobile-prefixes.json` | Array of the national significant number's leading `9x` pairs | A number is valid when it normalizes to `+218` + a listed prefix + exactly seven digits (FR-003) | Version and SHA-256 digest in the package's `SOURCE` note; an ADR records the set |
 | Breached passwords | `apps/api/src/modules/auth/data/breached-passwords.sha256` (+ `SOURCE`) | One lowercase SHA-256 hex digest per line, 100,000 lines | Membership test only; loaded once at boot into a `Set`; no network call (FR-035, CMV 17) | Version + digest in `SOURCE`; quarterly refresh through the dependency-update process |
 
@@ -488,9 +489,9 @@ any write, so a client that bypasses the form changes nothing.
 
 ## 13. Migration
 
-**One migration**, `packages/db/migrations/0001_identity_foundation.sql`,
-generated by `drizzle-kit generate` from the two schema files and reviewed by
-hand. It creates, in this order:
+**Two migrations**, generated by `drizzle-kit generate` from the two schema
+files and reviewed by hand. The first,
+`packages/db/migrations/0001_identity_foundation.sql`, creates, in this order:
 
 1. `users` (no dependencies)
 2. `accounts` (→ `users`)
@@ -499,11 +500,15 @@ hand. It creates, in this order:
 5. `phone_verifications` (no dependencies)
 6. `rate_limit_counters` (no dependencies)
 
-then every index and check constraint of §§4–9. There is no backfill: the schema
-is new. **Rollback** is a paired down file,
-`0001_identity_foundation.down.sql`, that drops the six tables in reverse order;
-no type is created, so no type is dropped. Destructive future changes follow
-expand/backfill/contract; this migration is additive only.
+then every index and check constraint of §§4–9. The second,
+`packages/db/migrations/0002_identity_foundation_previous_code.sql`, adds
+`phone_verifications.previous_code_hash` with its form check (§8). There is no
+backfill: the schema is new. **Rollback** is the paired down files applied in
+reverse order — `0002_identity_foundation_previous_code.down.sql` removes the
+column and its check, then `0001_identity_foundation.down.sql` drops the six
+tables in reverse dependency order — so the journal returns to zero; no type is
+created, so no type is dropped. Destructive future changes follow
+expand/backfill/contract; both migrations are additive only.
 
 **Migration control** (plan → Gate 2): no second migration tool; better-auth's
 `auth migrate` CLI is disabled; the migrator runs from `packages/db` in the

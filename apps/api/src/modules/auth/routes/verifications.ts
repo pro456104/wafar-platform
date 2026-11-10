@@ -21,6 +21,17 @@ export interface PendingLookup {
   token: string | null;
 }
 
+/**
+ * The page's tie to a pending request, presented on a submission only while the
+ * code step is still its own (FR-038, contracts/auth-api.md §2.2). The control
+ * that returns to the first step drops it, so the next submission is fresh.
+ */
+export const PENDING_TIE_HEADER = 'x-wafar-pending';
+
+export function pageStillTied(header: string | undefined, requestId: string): boolean {
+  return header === requestId;
+}
+
 /** Reads `<id>.<token>` from the pending cookie and verifies its hash. */
 export async function readPending(
   dependencies: AppDependencies,
@@ -106,7 +117,16 @@ export function registerVerificationRoutes(
     const store = createPhoneVerificationsRepository(dependencies.db);
     const service = createPendingRequestService(store, dependencies.sms);
     const result = await service.resend(row, now);
-    if (result.status === 'limit') return refuse(c, 'OTP_RESEND_LIMIT');
+    if (result.status === 'expired') return refuse(c, 'OTP_EXPIRED');
+    if (result.status === 'limit') {
+      // The remaining time to the pending request's boundary is the same
+      // machine-readable value the page shows (FR-034, AC-036).
+      const retryAfterSeconds = Math.max(
+        1,
+        Math.ceil((row.requestExpiresAt.getTime() - now.getTime()) / 1000),
+      );
+      return refuse(c, 'OTP_RESEND_LIMIT', { retryAfterSeconds });
+    }
     if (result.status === 'send_failed') {
       dependencies.events.emit({
         event: 'auth.otp.dispatch_failed',

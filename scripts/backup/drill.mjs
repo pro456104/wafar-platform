@@ -14,7 +14,7 @@
 // departure.
 import { spawn, spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { release, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -128,6 +128,7 @@ const report = {
   departure:
     'The production drill restores pg_basebackup plus WAL on Linux; this host has no Docker and no Linux cluster, so the drill takes a point-in-time logical dump and restores it into a clean database. The encryption, the clean restore, the API boot, the assertions, and the RTO/RPO reading are the same.',
   recoveryPoint: null,
+  schema: null,
   archive: null,
   pointState: null,
   afterPointState: null,
@@ -163,6 +164,26 @@ try {
     },
   );
   report.timings.migrateMs = migrate.ms;
+
+  // The version the drill exercises, read from the applied journal and the
+  // generated constant, so a later migration cannot leave the report claiming a
+  // version it did not restore (T245).
+  const versionSource = readFileSync(
+    join(repository, 'packages', 'db', 'schema-version.ts'),
+    'utf8',
+  );
+  const version = versionSource.match(/SCHEMA_VERSION = '([^']+)'/)?.[1] ?? null;
+  const migrated = await connection(sourceUrl);
+  let steps = 0;
+  try {
+    const applied = await migrated.query(
+      'SELECT count(*)::int AS steps FROM drizzle.__drizzle_migrations',
+    );
+    steps = applied.rows[0]?.steps ?? 0;
+  } finally {
+    await migrated.end();
+  }
+  report.schema = { version, steps };
 
   const now = new Date();
   const windowMs = 15 * 60 * 1000;

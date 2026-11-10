@@ -29,8 +29,6 @@ function confirmSignOut(): void {
       @click="open = !open"
     >
       <WfIcon name="profile" />
-      <span class="wf-account-menu__label">حسابي</span>
-      <WfIcon name="chevron-down" :size="16" />
     </button>
 
     <div v-if="open" class="wf-account-menu__panel" role="menu" aria-label="حسابي">
@@ -130,15 +128,5 @@ function confirmSignOut(): void {
 .wf-account-menu__actions {
   display: flex;
   gap: var(--wf-space-2);
-}
-@media (max-width: 359px) {
-  .wf-account-menu__label {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
 }
 </style>

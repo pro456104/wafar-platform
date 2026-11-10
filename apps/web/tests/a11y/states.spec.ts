@@ -17,6 +17,17 @@ for (const scenario of scenarios) {
     await page.setViewportSize({ width: 320, height: 900 });
     await scenario.drive(page);
 
+    // AC-043: the state's focus move landed where the state fixes it, and its
+    // polite region carries the recorded text.
+    if (scenario.focus !== undefined) {
+      await expect(page.locator(scenario.focus).first()).toBeFocused();
+    }
+    if (scenario.announcement !== undefined) {
+      await expect(
+        page.getByRole('status').filter({ hasText: scenario.announcement }).first(),
+      ).toBeVisible();
+    }
+
     for (const width of widths) {
       for (const appearance of appearances) {
         await page.setViewportSize({ width, height: 900 });

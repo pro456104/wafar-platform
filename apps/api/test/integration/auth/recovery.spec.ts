@@ -3,6 +3,7 @@
 // verified state's expiry, and the reset's global revocation
 // (FR-014, FR-015, FR-034, FR-013; T082, T083).
 import { describe, expect, it, beforeAll, beforeEach, afterAll } from 'vitest';
+import { sql } from 'drizzle-orm';
 import {
   bearer,
   bootstrap,
@@ -328,5 +329,73 @@ describe.skipIf(!hasDatabase)('the recovery flow', () => {
     expect(
       (await call(harness!, 'GET', '/api/v1/auth/session', undefined, { jar: other })).status,
     ).toBe(401);
+  });
+
+  it('refuses a superseded code as expired without spending an entry', async () => {
+    await seedAccount(harness!, { phoneNumber: '+218912345678', password });
+    const jar: CookieJar = {};
+    const started = await requestRecovery(jar, '0912345678');
+    const superseded = started.code;
+
+    harness!.clock.advance(1000);
+    const resent = await call(
+      harness!,
+      'POST',
+      '/api/v1/auth/verifications/resend',
+      { requestId: started.requestId },
+      { jar, csrf: true },
+    );
+    expect(resent.status).toBe(202);
+    const live = harness!.sms.lastCode() ?? '';
+    expect(live).not.toBe(superseded);
+
+    const refused = await call(
+      harness!,
+      'POST',
+      '/api/v1/auth/password/forgot/verify',
+      { requestId: started.requestId, code: superseded },
+      { jar, csrf: true },
+    );
+    expect(refused.status).toBe(400);
+    expect((refused.body as { error: { code: string } }).error.code).toBe('OTP_EXPIRED');
+    const row = await harness!.db.execute(
+      sql`SELECT incorrect_entries FROM phone_verifications WHERE id = ${started.requestId}`,
+    );
+    expect((row.rows[0] as { incorrect_entries: number }).incorrect_entries).toBe(0);
+
+    expect(await verifyRecovery(jar, started.requestId, live)).toEqual({
+      outcome: 'verified',
+    });
+  });
+
+  it('refuses a resend after verification and moves neither expiry', async () => {
+    await seedAccount(harness!, { phoneNumber: '+218912345678', password });
+    const jar: CookieJar = {};
+    const started = await requestRecovery(jar, '0912345678');
+    await verifyRecovery(jar, started.requestId, started.code);
+
+    const expiries = async (): Promise<Record<string, string>> => {
+      const result = await harness!.db.execute(
+        sql`SELECT code_expires_at, request_expires_at
+            FROM phone_verifications WHERE id = ${started.requestId}`,
+      );
+      return result.rows[0] as Record<string, string>;
+    };
+    const before = await expiries();
+    const dispatched = harness!.sms.messages.length;
+
+    const resend = await call(
+      harness!,
+      'POST',
+      '/api/v1/auth/verifications/resend',
+      { requestId: started.requestId },
+      { jar, csrf: true },
+    );
+    expect(resend.status).toBe(400);
+    expect((resend.body as { error: { code: string } }).error.code).toBe('OTP_EXPIRED');
+
+    // No code was sent and the verified state's authority did not grow.
+    expect(harness!.sms.messages.length).toBe(dispatched);
+    expect(await expiries()).toEqual(before);
   });
 });

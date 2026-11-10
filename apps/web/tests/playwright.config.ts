@@ -66,6 +66,7 @@ export default defineConfig({
       env: {
         DATABASE_URL,
         NODE_ENV: 'production',
+        TZ: 'UTC',
         SMS_TRANSPORT: 'fake',
         SMS_FAKE_ACCEPT_MS: '0',
         WEB_ORIGIN: 'http://127.0.0.1:3000',
@@ -83,6 +84,7 @@ export default defineConfig({
       timeout: 180_000,
       env: {
         NODE_ENV: 'production',
+        TZ: 'UTC',
         API_BASE: 'http://127.0.0.1:3001',
         NUXT_PUBLIC_API_BASE: 'http://127.0.0.1:3001',
         PORT: '3000',

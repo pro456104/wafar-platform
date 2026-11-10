@@ -47,7 +47,7 @@ export default defineConfig({
           env: { TZ: 'UTC' },
           // The plan fixes a DOM environment for this class's component tests;
           // the Nuxt test environment cannot load under the pinned toolchain,
-          // so the class runs under jsdom (Complexity Tracking row 2; T204).
+          // so the class runs under jsdom (Complexity Tracking row 36; T204).
           environment: 'jsdom',
           include: ['apps/web/tests/unit/**/*.spec.ts'],
         },

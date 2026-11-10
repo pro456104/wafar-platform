@@ -1,7 +1,7 @@
 {
   "drill": "T129",
   "criterion": "FR-055, AC-061",
-  "date": "2026-11-07",
+  "date": "2026-11-09",
   "method": "logical pg_dump sealed with seal.mjs, restored into a clean database",
   "host": {
     "platform": "win32",
@@ -9,19 +9,23 @@
     "node": "v22.23.4"
   },
   "departure": "The production drill restores pg_basebackup plus WAL on Linux; this host has no Docker and no Linux cluster, so the drill takes a point-in-time logical dump and restores it into a clean database. The encryption, the clean restore, the API boot, the assertions, and the RTO/RPO reading are the same.",
-  "recoveryPoint": "2026-11-07T01:31:28.399Z",
+  "recoveryPoint": "2026-11-09T07:37:13.221Z",
+  "schema": {
+    "version": "df0bab0bae8d:2",
+    "steps": 2
+  },
   "archive": {
-    "sealedBytes": 19346,
-    "plaintextBytes": 19249,
+    "sealedBytes": 19594,
+    "plaintextBytes": 19497,
     "cipher": "AES-256-GCM under a random data key wrapped by the key-encryption key",
     "keyCustody": "generated for this drill in process memory; never written beside the archive"
   },
   "pointState": {
     "sessionLive": true,
-    "lockInForce": "2026-11-07T01:41:28.111Z",
+    "lockInForce": "2026-11-09T07:47:12.567Z",
     "lockCount": 5,
     "pendingState": "pending",
-    "rateWindowStart": "2026-11-07T01:30:00.000Z",
+    "rateWindowStart": "2026-11-09T07:30:00.000Z",
     "rateWindowCount": 2
   },
   "afterPointState": {
@@ -32,12 +36,12 @@
   },
   "restoredState": {
     "sessionRevokedAt": null,
-    "sessionExpiresAt": "2026-11-07T02:31:28.111Z",
+    "sessionExpiresAt": "2026-11-09T08:37:12.567Z",
     "failedSignInCount": 5,
-    "lockedUntil": "2026-11-07T01:41:28.111Z",
+    "lockedUntil": "2026-11-09T07:47:12.567Z",
     "pendingState": "pending",
     "pendingVerifiedAt": null,
-    "rateWindowStart": "2026-11-07T01:30:00.000Z",
+    "rateWindowStart": "2026-11-09T07:30:00.000Z",
     "rateWindowCount": 2
   },
   "assertions": [
@@ -49,7 +53,7 @@
     {
       "name": "the restored session has not expired",
       "pass": true,
-      "measured": "2026-11-07T02:31:28.111Z"
+      "measured": "2026-11-09T08:37:12.567Z"
     },
     {
       "name": "the lock is in force at the recovery point",
@@ -59,7 +63,7 @@
     {
       "name": "the lock has not been lifted",
       "pass": true,
-      "measured": "2026-11-07T01:41:28.111Z"
+      "measured": "2026-11-09T07:47:12.567Z"
     },
     {
       "name": "the pending request is pending at the point",
@@ -103,8 +107,8 @@
           "fullName": "محمد علي"
         },
         "session": {
-          "expiresAt": "2026-11-07T02:31:28.111Z",
-          "lastActivityAt": "2026-11-07T01:31:28.111Z",
+          "expiresAt": "2026-11-09T08:37:12.567Z",
+          "lastActivityAt": "2026-11-09T07:37:12.567Z",
           "restricted": false
         }
       }
@@ -125,17 +129,17 @@
     }
   ],
   "timings": {
-    "migrateMs": 1446,
-    "dumpMs": 234,
-    "sealMs": 85,
-    "openMs": 83,
-    "restoreMs": 212,
-    "apiReadyMs": 2731,
-    "totalMs": 2763
+    "migrateMs": 1933,
+    "dumpMs": 500,
+    "sealMs": 162,
+    "openMs": 130,
+    "restoreMs": 377,
+    "apiReadyMs": 6698,
+    "totalMs": 6831
   },
   "rto": {
     "targetHours": 4,
-    "measuredSeconds": 2.8,
+    "measuredSeconds": 6.8,
     "verdict": "pass"
   },
   "rpo": {

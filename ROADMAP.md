@@ -41,7 +41,7 @@ templates.
 | Approved technology stack | `.specify/memory/constitution.md` (Technology Standards); `Project-Technologies.txt` mirrors it |
 | UI foundation (component library and project layer) | `.specify/memory/constitution.md` → Principle IX; ADR-097 fixes the Wafar UI layer's path (`packages/ui`); R1 builds it through its plan and consumes it; ADR-098 records the visual foundation, ADR-128 records the Precision contract that annotates it, and ADR-137 fixes the appearance (outline icon cut, light default) |
 | Product definition (roles, pages, acceptance criteria) | `Core-Project.txt` |
-| Accepted decisions | the decision register: `docs/DECISIONS.md` (index, ADR-001 … ADR-159) and `docs/decisions/` (records) |
+| Accepted decisions | the decision register: `docs/DECISIONS.md` (index, ADR-001 … ADR-161) and `docs/decisions/` (records) |
 
 A slice named "Architecture", "UI Foundation", "Tech Stack", or "Conventions"
 would be a classification error: it would tell the agent that a project-wide

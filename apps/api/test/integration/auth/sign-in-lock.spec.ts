@@ -109,13 +109,13 @@ describe.skipIf(!hasDatabase)('the consecutive-failure count', () => {
 
   it('does not count a value-rule refusal and does count a failed current-password check', async () => {
     const now = new Date('2026-03-01T10:00:00.000Z');
-    const changes = createPasswordChangeService(harness.db);
+    const changes = createPasswordChangeService(harness.db, harness.auth);
     const events = { emit: () => undefined };
 
     // A new password shorter than the minimum is refused before any check.
     const refused = await changes.change({
       userId,
-      sessionId: 'no-session-needed',
+      token: 'no-session-needed',
       currentPassword: password,
       newPassword: 'short',
       now,
@@ -129,7 +129,7 @@ describe.skipIf(!hasDatabase)('the consecutive-failure count', () => {
     // A failed current-password check is a failed verification and counts.
     const failed = await changes.change({
       userId,
-      sessionId: 'no-session-needed',
+      token: 'no-session-needed',
       currentPassword: 'wrong password value',
       newPassword: 'another correct horse battery staple',
       now,

@@ -18,7 +18,7 @@ frame's structural half, which no page renders in R1 (`EX-007`).
 | Application | Nuxt dev server at `127.0.0.1:3000`, API at `127.0.0.1:3001`, fake SMS transport |
 | Widths | 320 × 900 and 1280 × 900 CSS px |
 | Appearance | light; the automated scan in `states.spec.ts` covers both |
-| State driver | `apps/web/tests/support/mock-auth-api.ts`, the visual baseline's stand-in, so the pass wrote no row |
+| State driver | the Nuxt dev server at `127.0.0.1:3000`, the local API at `127.0.0.1:3001`, and the fake SMS transport, per §1; no stand-in was used (corrected 2026-11-10: the row previously named `apps/web/tests/support/mock-auth-api.ts`, the visual baseline's stand-in T201 removed) |
 
 ## 2. Method
 
@@ -42,9 +42,8 @@ From the document start, `Tab` reaches, in order:
 | 4 | the city field |
 | 5–12 | the open city list's options when the field is empty (طبرق, الجغبوب, أمساعد, درنة, القبة, تميمي, البيضاء, شحات) |
 | 13 | the shop-name field |
-| 14 | the submit control, «إنشاء الحساب» |
-| 15 | the cross-link «لديك حساب؟ سجل الدخول» |
-| 16 | the cross-link «نسيت كلمة المرور» |
+| 14 | the submit control, «إرسال رمز التحقق» |
+| 15 | the cross-link «لديك حساب؟ تسجيل الدخول» |
 
 Typing `طرابلس` narrows the open list to its one matching option; `Tab` reaches
 that option, `Enter` selects it, and the list closes. The next `Tab` reaches the
@@ -59,23 +58,25 @@ order.
 
 The page replaces the form with the code step and moves focus to the six-digit
 field without a pointer. The order is: the code field, «تحقق», «إرسال رمز جديد»,
-«تعديل البيانات», then the two cross-links. `Enter` in the code field submits the
-code; while it is verify in flight the submit reads «يجري التحقق…» and is
-disabled. A refusal shows the inline message in place; focus stays in the step.
+«تعديل البيانات», then the cross-link. `Enter` in the code field submits the
+code; while verify is in flight the submit reads «يجري التحقق…» and is disabled.
+A refusal shows the inline message in place; focus stays in the step.
 
 ### 3.3 Sign-up — the endings
 
-`done` replaces the code step with the outcome section; `expired_notice` and
-`ended_notice` return the page to the first step with the notice above the form.
-In all three the focused control is removed with its step, so focus falls to the
-document body; the outcome or notice is announced because its region carries
-`role="status"`. The next `Tab` reaches the outcome's own controls and then the
-cross-links:
+`done` replaces the code step with the outcome section and moves focus to its
+heading (the terminal step has no field); `expired_notice` and `ended_notice`
+return the page to the first step with the notice above the form and move focus
+to the full-name field. The outcome or notice is announced because its region
+carries `role="status"`. From the focused heading the next `Tab` reaches the
+outcome's own controls and then the cross-link:
 
-| Ending | `Tab` order after the body |
+| Ending | `Tab` order after the heading |
 |---|---|
-| `done` (`created`) | «الانتقال إلى تسجيل الدخول», «الرئيسية», «لديك حساب؟ سجل الدخول», «نسيت كلمة المرور» |
-| `expired_notice`, `ended_notice` | the full-name field, the phone field, the password field, the city field, the shop-name field, the submit control, then the cross-links |
+| `done` (`created`) | «الانتقال إلى تسجيل الدخول», «لديك حساب؟ تسجيل الدخول» |
+| `done` (`existing_account`) | «تسجيل الدخول», «نسيت كلمة المرور», «لديك حساب؟ تسجيل الدخول» |
+| `done` (`blocked_account`, `administrator_account`) | «لديك حساب؟ تسجيل الدخول» |
+| `expired_notice`, `ended_notice` | the full-name field, the phone field, the password field, the city field, the shop-name field, the submit control, then the cross-link |
 
 The first step keeps the full name, the phone, the city, and the shop name and
 renders the password empty, matching AC-041.
@@ -83,27 +84,30 @@ renders the password empty, matching AC-041.
 ### 3.4 Sign-in
 
 The order is: the phone field, the password field, the submit control
-(«تسجيل الدخول»), then the cross-links «ليس لديك حساب؟ أنشئ حسابا» and «نسيت كلمة
-المرور». While the request is in flight the submit is disabled and reads «يجري
-تسجيل الدخول…». A refusal shows the one uniform message and clears the password,
-keeping the number. On success the form is replaced by the outcome;
-`role="status"` carries «تم تسجيل الدخول.» and the next `Tab` reaches
-«الرئيسية», then the cross-links.
+(«تسجيل الدخول»), then the cross-links «إنشاء حساب» and «نسيت كلمة المرور». While
+the request is in flight the submit is disabled and reads «يجري تسجيل الدخول…». A
+refusal shows the one uniform message and clears the password, keeping the
+number. On success the form is replaced by the outcome and focus moves to its
+heading «تم تسجيل الدخول»; the body «أنت مسجل الدخول الآن.» is announced by the
+`role="status"` region, and the next `Tab` reaches the two cross-links.
 
 ### 3.5 Password recovery
 
-The first step's order is: the phone field, «إرسال رمز الاستعادة», then the
-cross-links «العودة إلى تسجيل الدخول» and «إنشاء حساب». The code step moves focus
-to the six-digit field; its order is the code field, «تحقق», «إرسال رمز جديد»
-(the change-number control is withheld in this flow), then the cross-links. On a
-verified code the new-password step replaces the code step; focus falls to the
-body, and the order is the new-password field, «حفظ كلمة المرور», then the two
-cross-links. `Enter` on the save control reaches the outcome; `role="status"`
-carries «تم تغيير كلمة المرور، وانتهت كل الجلسات.» and the next `Tab` reaches
-«الانتقال إلى تسجيل الدخول», then the two cross-links.
+The first step's order is: the phone field, «إرسال رمز التحقق», then the
+cross-link «تسجيل الدخول». The code step moves focus to the six-digit field; its
+order is the code field, «تحقق», «إرسال رمز جديد», «تغيير الرقم», then the
+cross-link. On a verified code the new-password step replaces the code step and
+focus moves to its field; the order is the new-password field, «تعيين كلمة
+المرور», then the cross-link. `Enter` on the save control reaches the outcome:
+focus moves to the heading «تم تعيين كلمة المرور», `role="status"` carries
+«انتهت كل الجلسات السابقة. سجل الدخول بكلمة المرور الجديدة.», and the next `Tab`
+reaches «الانتقال إلى تسجيل الدخول», then the cross-link. `done_blocked` carries
+the same heading and its blocked body with no sign-in link; `no_account` and
+`administrator` carry their own headings and bodies, and only `no_account` adds
+«إنشاء حساب».
 
 The expiry and ended notices return the page to the first step with the notice
-above the form and the number kept, and `Tab` reaches the phone field again.
+above the form, the number kept, and focus on the phone field.
 
 ### 3.6 Result
 
@@ -163,10 +167,13 @@ page, and its accessibility scan stay with R2, which ends `EX-007`.
 ## 6. Observations
 
 1. **Terminal focus.** A terminal step removes the control that was focused, so
-   focus returns to the body. The outcome is still announced by the
-   `role="status"` region, and the next `Tab` reaches the outcome's own controls;
-   no focus move to the outcome heading is claimed by this record. This is the
-   behaviour of the pages as shipped, and the baseline in
+   focus moves to the outcome's heading (`tabindex="-1"`); the code step and the
+   new-password step move it to their first field. The outcome is announced by
+   the `role="status"` region, and the next `Tab` reaches the outcome's own
+   controls. This behaviour was recorded on 2026-11-09 for T211/T213 and is
+   asserted by `apps/web/tests/e2e/verification-outcomes.spec.ts`,
+   `sign-in.spec.ts`, `forgot-password.spec.ts`, and
+   `code-bound-ending.spec.ts`; the baseline in
    `apps/web/tests/e2e/__screenshots__/` records the same states.
 2. **The city list's tab stops.** While the city list is open its option buttons
    are in the tab order. They are ordinary buttons, all reachable and all
@@ -178,7 +185,9 @@ page, and its accessibility scan stay with R2, which ends `EX-007`.
 ## 7. Evidence
 
 - The keyboard walkthrough was executed with `Tab`, `Shift+Tab`, typing, and
-  `Enter` only, at 320 and 1280 CSS px, against the state stand-in; its focus
+  `Enter` only, at 320 and 1280 CSS px, against the dev server, the local API,
+  and the fake SMS transport named in §1 (corrected 2026-11-10: the sentence
+  previously said "the state stand-in", the stand-in T201 removed); its focus
   order is the one recorded above.
 - `pnpm exec vitest run --project ui`: 44 passed (11 files).
 - `pnpm exec vitest run --project shared`: 32 passed (4 files).

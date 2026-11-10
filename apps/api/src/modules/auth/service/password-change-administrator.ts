@@ -6,12 +6,14 @@ import {
   createPasswordChangeService,
   type AdministratorPasswordChange,
 } from './password-change.ts';
+import type { AuthEngine } from '../engine.ts';
 import { createUsersRepository } from '../../users/repository/users.ts';
 
 export function createAdministratorPasswordChange(
   db: Database,
+  auth: AuthEngine,
 ): AdministratorPasswordChange {
-  const service = createPasswordChangeService(db);
+  const service = createPasswordChangeService(db, auth);
   return {
     async change(input) {
       const account = await createUsersRepository(db).findById(input.userId);

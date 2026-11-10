@@ -1,8 +1,13 @@
-<!-- The Wafar wordmark: «منصة وفر» with the second word in the accent colour, rendered from the layer's own text and no second image asset; at 320 CSS px the header uses the shortened «وفر» form (FR-021, FR-023, contracts/ui-contracts.md §2, §8.2). -->
+<!-- The Wafar wordmark: «منصة وفر» with the second word in the accent colour, rendered from the layer's own text and no second image asset; the header shortens it to «وفر» below 360 CSS px, while the bare page keeps the full mark at 320 (FR-021, FR-023, contracts/ui-contracts.md §2, §8.2). -->
 <script setup lang="ts">
 withDefaults(
-  defineProps<{ as?: 'mark' | 'link'; to?: string; href?: string }>(),
-  { as: 'mark', to: '/', href: undefined },
+  defineProps<{
+    as?: 'mark' | 'link';
+    to?: string;
+    href?: string;
+    shortenAtNarrow?: boolean;
+  }>(),
+  { as: 'mark', to: '/', href: undefined, shortenAtNarrow: true },
 );
 </script>
 
@@ -11,6 +16,7 @@ withDefaults(
     v-if="as === 'link'"
     :to="to ?? href ?? '/'"
     class="wf-wordmark"
+    :class="{ 'wf-wordmark--always-full': !shortenAtNarrow }"
     aria-label="منصة وفر"
   >
     <span class="wf-wordmark__full">
@@ -19,7 +25,13 @@ withDefaults(
     </span>
     <span class="wf-wordmark__short" aria-hidden="true">وفر</span>
   </NuxtLink>
-  <span v-else class="wf-wordmark" role="img" aria-label="منصة وفر">
+  <span
+    v-else
+    class="wf-wordmark"
+    :class="{ 'wf-wordmark--always-full': !shortenAtNarrow }"
+    role="img"
+    aria-label="منصة وفر"
+  >
     <span class="wf-wordmark__full">
       <span class="wf-wordmark__brand">منصة</span>
       <span class="wf-wordmark__name">وفر</span>
@@ -51,10 +63,10 @@ withDefaults(
   color: var(--wf-primary);
 }
 @media (max-width: 359px) {
-  .wf-wordmark__full {
+  .wf-wordmark:not(.wf-wordmark--always-full) .wf-wordmark__full {
     display: none;
   }
-  .wf-wordmark__short {
+  .wf-wordmark:not(.wf-wordmark--always-full) .wf-wordmark__short {
     display: inline;
   }
 }

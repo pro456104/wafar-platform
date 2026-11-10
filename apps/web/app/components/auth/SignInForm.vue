@@ -50,7 +50,12 @@ function submit(): void {
       <span v-if="phoneMessage" role="alert" class="wf-field__error">{{ phoneMessage }}</span>
     </label>
 
-    <PasswordField v-model="password" label="كلمة المرور" autocomplete="current-password" />
+    <PasswordField
+      v-model="password"
+      label="كلمة المرور"
+      autocomplete="current-password"
+      :show-policy="false"
+    />
 
     <button type="submit" class="wf-submit" :disabled="loading">
       {{ loading ? 'يجري تسجيل الدخول…' : 'تسجيل الدخول' }}

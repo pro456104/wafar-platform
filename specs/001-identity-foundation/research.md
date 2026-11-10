@@ -284,17 +284,18 @@ surface the spec does not ask for).
 
 **Decision**: Two committed JSON files in `packages/shared/src/reference/`:
 
-- `libyan-cities.json` — a flat array of strings, each entry one Arabic name
-  (governorate, city, or area), with the qualifying governorate or level inside
-  the name where a real name recurs. No Latin name, no separate id. Compiled
-  from the Libyan administrative-division reference (the 22 governorates of the
-  2007 division, with their cities and areas) and reviewed by the operator;
-  version `1.0.0` (2026-11-01). The `SOURCE` note records the source, the
-  version, the reference count of **22 governorates**, the file's total entry
-  count, and the SHA-256 digest. A test asserts every entry's name is unique and
+- `libyan-cities.json` — an object whose `entries` is a flat array of strings,
+  each entry one Arabic name (governorate, city, or area), with the qualifying
+  governorate or level inside the name where a real name recurs. No Latin name,
+  no separate id. Compiled from the Libyan administrative-division reference (the
+  22 governorates of the 2007 division, with their cities and areas) and reviewed
+  by the operator; version `2.0.0` (2026-11-09), superseding the 66-entry `1.0.0`
+  sample. The envelope's `SOURCE` note records the source, the version, the
+  reference count of **22 governorates**, the file's total entry count, and the
+  SHA-256 digest of `entries`. A test asserts every entry's name is unique and
   non-empty, that every one of the 22 governorates is present with at least one
-  city or area entry, and that the file's entry count equals the count in
-  `SOURCE`. Search uses `normalizeArabic()` (strip
+  city or area entry, that `entryCount` equals `entries.length`, and that the
+  digest matches. Search uses `normalizeArabic()` (strip
   diacritics and tatweel; unify alef/hamza forms, ya/alef maqsura, and ta
   marbuta) and a substring match; the stored value is the entry's name exactly.
 - `libyan-mobile-prefixes.json` — the valid +218 mobile prefixes (the national
@@ -310,7 +311,8 @@ reference count, the total entry count, and the digest.
 
 **Rationale**: The spec fixes one list, one Arabic name per entry, no second
 naming source, and no separate identifier; a flat string array is the smallest
-shape that satisfies all three. Bundling avoids a runtime dependency on the API
+shape that satisfies all three, and the envelope carries the count and digest
+ADR-152 item 2 fixes (ADR-161). Bundling avoids a runtime dependency on the API
 for the form and keeps the list identical in both places because it is one file.
 
 **Alternatives considered**: A `cities` table (rejected: a second source that can

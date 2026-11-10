@@ -28,15 +28,16 @@ minutes, with `archive_timeout = 60` bounding the archive interval.
 6. Record the drill's date, the archive's stamp, the key's custody holder, and
    the measured restore duration in the operations log.
 
-## The drill record — 2026-11-07
+## The drill record — 2026-11-09
 
 **Host.** Windows 10 (10.0.19045), Node v22.23.4, local PostgreSQL 17. The
 production drill runs on Linux against `pg_basebackup` and the WAL archive. This
 host has no Docker and no Linux cluster, so the drill exercises the same
 encryption, clean restore, API boot, state assertions, and RTO/RPO reading
 through a point-in-time logical dump (`pg_dump`) restored into a clean database.
-The departure is recorded here and in the drill's report; it does not change the
-production routine above.
+The departure is recorded here, in the drill's report, and in the plan's
+Complexity Tracking (row 38, owner repository owner, review 2026-12-01); it
+does not change the production routine above.
 
 **Command.** `DATABASE_URL=<url> node scripts/backup/drill.mjs`. The script
 builds a scratch source database, seeds one of each state AC-061 names, seals the
@@ -44,9 +45,10 @@ dump, makes writes after the recovery point, restores the sealed archive, and
 asserts the restored state before it starts the API. It writes
 `reports/t129-restore-drill.json` and leaves no scratch database behind.
 
-**Result: PASS.** Sealed archive 19,346 bytes (plaintext 19,249 bytes);
-restored and served in 2,731 ms; RTO 4 hours, measured 2.8 seconds; RPO 15
-minutes, the logical dump being its own recovery point.
+**Result: PASS.** Schema version `df0bab0bae8d:2` (two applied steps). Sealed
+archive 19,594 bytes (plaintext 19,497 bytes); restored and served in 6,698 ms;
+RTO 4 hours, measured 6.8 seconds; RPO 15 minutes, the logical dump being its own
+recovery point.
 
 | State at the recovery point | Restored reading | After-point write that is absent |
 |---|---|---|
@@ -60,7 +62,7 @@ rolling acceptance estimate is process memory (`AcceptanceEstimate`), never a
 row: the fresh API starts with an empty window, and the estimator's empty-window
 case is asserted by `apps/api/src/modules/auth/sms/__tests__/acceptance-estimate.spec.ts`.
 
-**What the drill found.** `scripts/backup/seal.mjs` could not run or open an
+**What the 2026-11-07 drill found.** `scripts/backup/seal.mjs` could not run or open an
 archive as committed: a TypeScript type annotation in the `.mjs` file stopped
 Node from loading it, and `open` read 48 bytes for the wrapped data key where
 `seal` writes 32, misaligning every field. Both defects are fixed with this

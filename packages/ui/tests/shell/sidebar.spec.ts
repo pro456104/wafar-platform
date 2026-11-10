@@ -74,4 +74,16 @@ describe('the sidebar', () => {
       wrapper.findAll('.wf-shell-sidebar__footer-link').map((link) => link.attributes('href')),
     ).toEqual(['/contact', '/privacy', '/terms', '/faq']);
   });
+
+  it('keeps a guest’s Catalog href public while the six merchant-area items redirect', () => {
+    const wrapper = mount(WfShellSidebar, {
+      props: { guest: true },
+      global: { stubs },
+    });
+    const hrefs = wrapper
+      .findAll('.wf-nav-list__item')
+      .map((item) => item.attributes('href'));
+    expect(hrefs.slice(0, 3)).toEqual(['/', '/parts', '/catalogs']);
+    expect(hrefs.slice(3)).toEqual(Array(6).fill('/auth/sign-in'));
+  });
 });

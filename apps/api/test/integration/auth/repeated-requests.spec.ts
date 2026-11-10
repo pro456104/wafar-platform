@@ -1,10 +1,11 @@
 // The repeated requests whose first response was lost: a live submission the
-// page is still tied to answers as it stands with no second dispatch and no
-// spent allowance; a submission after the first step is a fresh request that
-// replaces the pending one; a repeated code entry, reset, change, or sign-out of
-// every device creates no second account, session, dispatch, password write,
-// revocation, or notice (FR-011, FR-013, FR-031, FR-034, FR-040, FR-043, AC-006,
-// AC-014, AC-036, AC-043, AC-047; T147).
+// page is still tied to (its `X-Wafar-Pending` header naming the request)
+// answers as it stands with no second dispatch and no spent allowance, while a
+// submission after the page leaves that request is fresh and replaces it; a
+// repeated code entry, reset, change, or sign-out of every device creates no
+// second account, session, dispatch, password write, revocation, or notice
+// (FR-011, FR-013, FR-031, FR-034, FR-038, FR-040, FR-043, AC-006, AC-014,
+// AC-036, AC-043, AC-047; T147).
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import cities from '@wafar/shared/reference/cities' with { type: 'json' };
@@ -23,7 +24,7 @@ const password = 'correct horse battery staple';
 const newPassword = 'a different long password 42';
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 async function count(table: string): Promise<number> {
@@ -36,6 +37,7 @@ async function count(table: string): Promise<number> {
 async function submitSignUp(
   jar: CookieJar,
   phone: string,
+  tie?: string,
 ): Promise<{ status: number; body: unknown }> {
   const pair = await bootstrap(harness!, jar);
   harness!.clock.advance(4000);
@@ -51,13 +53,18 @@ async function submitSignUp(
       website: '',
       formStamp: pair.formStamp,
     },
-    { jar, csrf: true },
+    {
+      jar,
+      csrf: true,
+      ...(tie === undefined ? {} : { headers: { 'x-wafar-pending': tie } }),
+    },
   );
 }
 
 async function submitRecovery(
   jar: CookieJar,
   phone: string,
+  tie?: string,
 ): Promise<{ status: number; body: unknown }> {
   await bootstrap(harness!, jar);
   return call(
@@ -65,7 +72,11 @@ async function submitRecovery(
     'POST',
     '/api/v1/auth/password/forgot',
     { phone },
-    { jar, csrf: true },
+    {
+      jar,
+      csrf: true,
+      ...(tie === undefined ? {} : { headers: { 'x-wafar-pending': tie } }),
+    },
   );
 }
 
@@ -102,7 +113,7 @@ describe.skipIf(!hasDatabase)('the repeated requests whose first response was lo
     const requestId = (first.body as { requestId: string }).requestId;
     const dispatches = harness!.sms.messages.length;
 
-    const repeat = await submitSignUp(jar, '0912345678');
+    const repeat = await submitSignUp(jar, '0912345678', requestId);
     expect(repeat.status).toBe(202);
     expect((repeat.body as { requestId: string }).requestId).toBe(requestId);
     expect((repeat.body as { codeExpiresAt: string }).codeExpiresAt).toBe(
@@ -132,7 +143,7 @@ describe.skipIf(!hasDatabase)('the repeated requests whose first response was lo
     const code = harness!.sms.lastCode() ?? '';
     const dispatches = harness!.sms.messages.length;
 
-    const repeat = await submitRecovery(jar, '0912345678');
+    const repeat = await submitRecovery(jar, '0912345678', requestId);
     expect(repeat.status).toBe(202);
     expect((repeat.body as { requestId: string }).requestId).toBe(requestId);
     expect(harness!.sms.messages.length).toBe(dispatches);
@@ -154,6 +165,28 @@ describe.skipIf(!hasDatabase)('the repeated requests whose first response was lo
       { jar, csrf: true },
     );
     expect(reset.status).toBe(200);
+  });
+
+  it('starts a fresh request when the page has left a live request', async () => {
+    const jar: CookieJar = {};
+    const first = await submitSignUp(jar, '0912345681');
+    const requestId = (first.body as { requestId: string }).requestId;
+    const dispatches = harness!.sms.messages.length;
+
+    // The page's return to its first step drops its tie, so the submission
+    // carries no tie header even though the cookie still names the live request.
+    // It is a fresh request that replaces the pending one (FR-034, FR-038).
+    const fresh = await submitSignUp(jar, '0912345681');
+    expect(fresh.status).toBe(202);
+    const freshId = (fresh.body as { requestId: string }).requestId;
+    expect(freshId).not.toBe(requestId);
+    expect(harness!.sms.messages.length).toBe(dispatches + 1);
+    expect((await resume(jar, freshId))['remainingReRequests']).toBe(3);
+
+    const rows = await harness!.db.execute(
+      sql`SELECT id FROM phone_verifications WHERE phone_number = '+218912345681'`,
+    );
+    expect(rows.rows).toEqual([{ id: freshId }]);
   });
 
   it('starts a fresh request after the page returns to its first step', async () => {

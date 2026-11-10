@@ -10,8 +10,32 @@ import { createDatabase, type Database } from '@wafar/db';
 import { sql } from 'drizzle-orm';
 
 export const migrationsDir = join(process.cwd(), 'packages', 'db', 'migrations');
-export const upFile = join(migrationsDir, '0001_identity_foundation.sql');
-export const downFile = join(migrationsDir, '0001_identity_foundation.down.sql');
+
+interface Journal {
+  entries: Array<{ tag: string }>;
+}
+
+/** The committed journal: the one list of the migrations this build embeds. */
+export const migrationJournal = JSON.parse(
+  readFileSync(join(migrationsDir, 'meta', '_journal.json'), 'utf8'),
+) as Journal;
+
+if (migrationJournal.entries.length === 0) {
+  throw new Error('the migration journal is empty');
+}
+
+/** Every committed up migration, in the order the migrator applies it. */
+export const migrationFiles = migrationJournal.entries.map((entry) =>
+  join(migrationsDir, `${entry.tag}.sql`),
+);
+
+/** The paired down migrations in reverse order: the rollback's order. */
+export const migrationDownFiles = [...migrationJournal.entries]
+  .reverse()
+  .map((entry) => join(migrationsDir, `${entry.tag}.down.sql`));
+
+/** The applied step count the build embeds; the boot guard reads it (T126). */
+export const expectedSteps = migrationJournal.entries.length;
 
 /** The six tables of the first migration. */
 export const stateTables = [
@@ -59,8 +83,11 @@ export async function applySql(db: Database, text: string): Promise<string[]> {
   return statements;
 }
 
-/** The journal row the migrator writes, so the boot guard reads one step. */
-export async function stampMigrations(db: Database, steps = 1): Promise<void> {
+/** The journal row the migrator writes, so the boot guard reads every step. */
+export async function stampMigrations(
+  db: Database,
+  steps = expectedSteps,
+): Promise<void> {
   await db.execute(sql.raw('CREATE SCHEMA IF NOT EXISTS drizzle'));
   await db.execute(
     sql.raw(
@@ -107,10 +134,12 @@ export async function createScratchDatabase(label: string): Promise<Scratch> {
   };
 }
 
-/** Applies the committed up migration and stamps its journal row. */
+/** Applies every committed up migration and stamps its journal row. */
 export async function migrateScratch(scratch: Scratch): Promise<void> {
-  await applySql(scratch.db, readFileSync(upFile, 'utf8'));
-  await stampMigrations(scratch.db, 1);
+  for (const file of migrationFiles) {
+    await applySql(scratch.db, readFileSync(file, 'utf8'));
+  }
+  await stampMigrations(scratch.db);
 }
 
 export async function tableNames(db: Database): Promise<string[]> {

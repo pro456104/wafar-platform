@@ -20,7 +20,7 @@ const password = 'correct horse battery staple';
 const secret = 'integration-secret-value-000000';
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 function form(overrides: Record<string, unknown> = {}): Record<string, unknown> {

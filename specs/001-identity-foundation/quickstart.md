@@ -32,7 +32,7 @@ corepack enable
 pnpm install
 cp .env.example .env          # Windows: copy .env.example .env
 pnpm db:up                    # docker compose -f compose.dev.yml up -d
-pnpm db:migrate               # the one migration (data-model §13)
+pnpm db:migrate               # the committed migrations (data-model §13)
 pnpm dev                      # web :3000, api :3001
 ```
 
@@ -40,9 +40,10 @@ pnpm dev                      # web :3000, api :3001
 profile); Redis, SeaweedFS, and OpenSearch start only under their profiles, and
 nothing in R1 reads or writes them.
 
-**Expected**: `pnpm db:migrate` reports one migration applied and six tables
+**Expected**: `pnpm db:migrate` applies both committed migrations — six tables
 created (`users`, `accounts`, `sessions`, `verifications` — the library's
-placeholder, asserted empty — `phone_verifications`, `rate_limit_counters`).
+placeholder, asserted empty — `phone_verifications`, `rate_limit_counters`) and
+`phone_verifications.previous_code_hash` added.
 `GET
 http://localhost:3001/health` answers `{"status":"ok","database":"ok"}`. The
 three pages answer 200 at `/auth/sign-up`, `/auth/sign-in`, and
@@ -353,7 +354,7 @@ covers what the three bare pages and the message bodies render.
 
 | Command | Runs | Owns |
 |---|---|---|
-| `pnpm test` | Vitest unit + `@nuxt/test-utils` component tests | Password hashing, normalization, code rules, city/prefix datasets, token contracts, the frame's structure |
+| `pnpm test` | Vitest unit + `@vue/test-utils` component tests under `jsdom` | Password hashing, normalization, code rules, city/prefix datasets, token contracts, the frame's structure |
 | `pnpm test:integration` | Vitest against a migrated PostgreSQL | Every HTTP route, the state machines, the transactions, the lock, the isolation test, the enumeration timing test, and the hidden-field pair at the fake's 200 ms |
 | `pnpm test:e2e` | Playwright against `pnpm dev` with the fake transport | The three pages end to end, the step changes, focus and announcements, the session surviving a browser restart, CSRF and headers |
 | `pnpm test:a11y` | `@axe-core/playwright` | Every delivered state at 320 and 1280, in both appearances |

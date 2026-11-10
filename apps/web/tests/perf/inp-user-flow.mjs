@@ -1,8 +1,9 @@
 // The INP user flow (T141): focus the mobile field, type a number, and submit,
 // while an event-timing observer records every interaction's duration. The
 // largest duration is the page's INP for the flow, and the Lighthouse budget's
-// 200 ms bound is the assertion. The script starts the two dev servers when they
-// are not already up, so CI and a developer run the same flow.
+// 200 ms bound is the assertion. The script starts the production server from
+// the built artifact and the local API when they are not already up, so CI and
+// a developer measure the same artifact.
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
@@ -15,6 +16,8 @@ const budgetMs = 200;
 // The report sits beside the flow, so a root invocation and the filtered one
 // write the artifact the Lighthouse job uploads.
 const reportPath = fileURLToPath(new URL('../../reports/inp-user-flow.json', import.meta.url));
+const webRoot = fileURLToPath(new URL('../../', import.meta.url));
+const servedArtifact = 'apps/web/.output/server/index.mjs';
 const databaseUrl =
   process.env['DATABASE_URL'] ?? 'postgres://wafar:wafar@localhost:5432/wafar';
 
@@ -43,7 +46,7 @@ async function waitFor(url, timeoutMs) {
 function start(command, args, env) {
   const child = spawn(command, args, {
     stdio: 'ignore',
-    shell: process.platform === 'win32',
+    cwd: webRoot,
     env: { ...process.env, ...env },
   });
   children.push(child);
@@ -57,6 +60,7 @@ async function ensureServers() {
       NODE_ENV: 'test',
       SMS_TRANSPORT: 'fake',
       SMS_FAKE_ACCEPT_MS: '0',
+      TZ: 'UTC',
       WEB_ORIGIN: webOrigin,
       BETTER_AUTH_SECRET: 'playwright-secret-value-000000',
       LOG_LEVEL: 'info',
@@ -64,7 +68,11 @@ async function ensureServers() {
     await waitFor(`${apiOrigin}/health`, 120_000);
   }
   if (!(await reachable(`${webOrigin}/auth/sign-up`))) {
-    start('pnpm', ['exec', 'nuxt', 'dev', '--host', '127.0.0.1', '--port', '3000'], {
+    start('node', ['.output/server/index.mjs'], {
+      NODE_ENV: 'production',
+      HOST: '127.0.0.1',
+      PORT: '3000',
+      TZ: 'UTC',
       API_BASE: apiOrigin,
       NUXT_PUBLIC_API_BASE: apiOrigin,
     });
@@ -133,6 +141,13 @@ try {
     budgetMs,
     inpMs: Math.round(inp * 10) / 10,
     interactions: entries.length,
+    environment: {
+      mode: 'production',
+      servedArtifact,
+      webOrigin,
+      apiOrigin,
+      timezone: 'UTC',
+    },
     entries,
   };
   mkdirSync(dirname(reportPath), { recursive: true });

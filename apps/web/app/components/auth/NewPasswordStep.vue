@@ -1,14 +1,21 @@
 <!-- The recovery flow's new-password step: the policy statement, the field, and the guarded submit (FR-014, FR-040, AC-016, AC-043). -->
 <script setup lang="ts">
-import { passwordMaxLength, passwordMinLength } from '@wafar/shared';
+import { onMounted } from 'vue';
 import MessageAlert from './MessageAlert.vue';
 import PasswordField from './PasswordField.vue';
+import { notices } from '../../composables/auth/useAuthMessages';
 
 defineProps<{ modelValue: string; message?: string; loading: boolean }>();
 const emit = defineEmits<{
   'update:modelValue': [value: string];
   submit: [];
 }>();
+
+// The step replaces the code step and carries a field, so focus moves to that
+// field rather than to its heading (FR-040, AC-043).
+onMounted(() => {
+  document.querySelector<HTMLInputElement>('.wf-new-password input')?.focus();
+});
 
 function update(value: string): void {
   emit('update:modelValue', value);
@@ -17,11 +24,8 @@ function update(value: string): void {
 
 <template>
   <section class="wf-new-password">
-    <h2>كلمة المرور الجديدة</h2>
+    <h2>كلمة مرور جديدة</h2>
     <MessageAlert :message="message ?? ''" kind="alert" />
-    <p class="wf-new-password__policy">
-      كلمة المرور من {{ passwordMinLength }} إلى {{ passwordMaxLength }} حرفا.
-    </p>
     <PasswordField
       :model-value="modelValue"
       label="كلمة المرور الجديدة"
@@ -33,7 +37,7 @@ function update(value: string): void {
       :disabled="loading"
       @click="emit('submit')"
     >
-      حفظ كلمة المرور
+      {{ loading ? notices.settingProgress : 'تعيين كلمة المرور' }}
     </button>
   </section>
 </template>
@@ -43,11 +47,6 @@ function update(value: string): void {
   display: flex;
   flex-direction: column;
   gap: var(--wf-space-3);
-}
-.wf-new-password__policy {
-  margin: 0;
-  color: var(--wf-ink-muted);
-  font-size: var(--wf-text-sm);
 }
 .wf-new-password__submit {
   min-block-size: var(--wf-touch-floor);

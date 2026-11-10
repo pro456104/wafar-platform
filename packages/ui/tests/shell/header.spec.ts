@@ -88,6 +88,17 @@ describe('the header', () => {
     expect(wrapper.find('.wf-shell-header__notifications').exists()).toBe(false);
   });
 
+  it('shows the account trigger as its icon alone with «حسابي» as the accessible name', () => {
+    const wrapper = mount(WfShellHeader, {
+      props: { signedIn: true },
+      global: { stubs },
+    });
+    const trigger = wrapper.find('.wf-account-menu__trigger');
+    expect(trigger.text()).toBe('');
+    expect(trigger.attributes('aria-label')).toBe('حسابي');
+    expect(trigger.element.children).toHaveLength(1);
+  });
+
   it('keeps all four controls inside one row at the 320 px composition', () => {
     const wrapper = mount(WfShellHeader, {
       props: { signedIn: true },

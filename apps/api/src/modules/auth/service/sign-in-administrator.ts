@@ -1,13 +1,13 @@
 // The administrator's first sign-in: the same verification order as the
 // merchant's, the administrator role accepted, and a session marked restricted
-// while the forced change stands (FR-028, AC-030).
+// while the forced change stands. The credential check and the session are the
+// `auth` engine's (FR-028, AC-030; ADR-151).
 import type { SecurityEventPort } from '@wafar/shared';
 import type { Database } from '@wafar/db';
-import { decoyHash, verifyPassword } from './password-policy.ts';
-import { createCredentialStore } from './credentials.ts';
+import { decoyHash } from './password-policy.ts';
+import type { AuthEngine } from '../engine.ts';
 import { createUsersRepository } from '../../users/repository/users.ts';
 import { createLockRepository } from '../../users/repository/user-lock.ts';
-import { createSessionService } from './sessions.ts';
 
 export type AdministratorSignInResult =
   | {
@@ -27,21 +27,19 @@ export interface AdministratorSignInInput {
   events: SecurityEventPort;
 }
 
-export function createAdministratorSignInService(db: Database) {
+export function createAdministratorSignInService(db: Database, auth: AuthEngine) {
   return {
     async signInAdministrator(
       input: AdministratorSignInInput,
     ): Promise<AdministratorSignInResult> {
       const users = createUsersRepository(db);
-      const credentials = createCredentialStore(db);
       const locks = createLockRepository(db);
-      const sessions = createSessionService(db);
 
       const account = await users.findByPhone(input.phoneNumber);
       const credential =
-        account === null ? null : await credentials.read(account.id);
+        account === null ? null : await auth.readCredential(account.id);
       const stored = credential?.passwordHash ?? (await decoyHash());
-      const matches = await verifyPassword(input.password, stored);
+      const matches = await auth.verifyPassword(input.password, stored);
 
       const fail = (reason: string): AdministratorSignInResult => {
         input.events.emit({
@@ -72,7 +70,7 @@ export function createAdministratorSignInService(db: Database) {
       }
 
       await locks.recordSuccess(account.id, input.now);
-      const issued = await sessions.issue({ userId: account.id, now: input.now });
+      const issued = await auth.issue({ userId: account.id, now: input.now });
       input.events.emit({
         event: 'auth.sign_in.succeeded',
         outcome: 'success',

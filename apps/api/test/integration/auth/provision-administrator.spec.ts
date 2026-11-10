@@ -18,7 +18,7 @@ const harness = hasDatabase ? createHarness() : null;
 const password = 'administrator initial password';
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 async function count(table: string): Promise<number> {

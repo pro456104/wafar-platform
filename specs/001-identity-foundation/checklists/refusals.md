@@ -24,7 +24,7 @@
        a source of rules, and the binding version is the slice's specification
        (ADR-134).
      - the decision register - `docs/DECISIONS.md`'s index and the volumes
-       under `docs/decisions/` (ADR-001 … ADR-159).
+       under `docs/decisions/` (ADR-001 … ADR-161).
        An item that contradicts one is a blocking defect.
      - `docs/domain-model.md` - the entities a checklist may reference,
        and the invariants it MUST NOT contradict.
@@ -49,22 +49,22 @@
 
 ## Requirement Clarity - Each Refusal's Observable Properties
 
-- [ ] CHK008 Is the distinct, explicit limit refusal quantified - its text, its status, its retry hint, and its identity across the three operations and both keys - so one limit refusal is not written three ways? [Clarity, Spec §FR-029, §FR-033; Plan §Technical Context]
-- [ ] CHK009 Is the format refusal's scope fixed for all three pages, and is its exclusion from the uniform refusal stated as a property of the submitted value rather than of the account? [Clarity, Spec §FR-042, §SC-004]
-- [ ] CHK010 Is the silent hidden-field refusal's response shape fixed at the same level of detail as a success - status, headers, the body's field set, and its field types - or does the specification fix only its text, status, and headers while the plan adds the field set and types? [Clarity, Consistency, Spec §FR-029; Plan §Technical Context]
-- [ ] CHK011 Is the uniform refusal defined with its whole observable shape in one place, and do its four producers refer to it rather than restate its terms? [Clarity, Consistency, Spec §FR-008, §FR-009, §FR-017, §FR-027]
-- [ ] CHK012 Is each refusal's text authority stated — that the Arabic text is a fixed design value recorded once, not a specification value, and that the capture set is evidence rather than a second authority — and is the key that selects it defined once, with `reason` where one code carries several texts? [Clarity, Traceability, Spec §FR-008, §FR-034, §FR-035; Plan §Technical Context]
+- [x] CHK008 Is the distinct, explicit limit refusal quantified - its text, its status, its retry hint, and its identity across the three operations and both keys - so one limit refusal is not written three ways? [Clarity, Spec §FR-029, §FR-033; Plan §Technical Context]
+- [x] CHK009 Is the format refusal's scope fixed for all three pages, and is its exclusion from the uniform refusal stated as a property of the submitted value rather than of the account? [Clarity, Spec §FR-042, §SC-004]
+- [x] CHK010 Is the silent hidden-field refusal's response shape fixed at the same level of detail as a success - status, headers, the body's field set, and its field types - or does the specification fix only its text, status, and headers while the plan adds the field set and types? [Clarity, Consistency, Spec §FR-029; Plan §Technical Context]
+- [x] CHK011 Is the uniform refusal defined with its whole observable shape in one place, and do its four producers refer to it rather than restate its terms? [Clarity, Consistency, Spec §FR-008, §FR-009, §FR-017, §FR-027]
+- [x] CHK012 Is each refusal's text authority stated — that the Arabic text is a fixed design value recorded once, not a specification value, and that the capture set is evidence rather than a second authority — and is the key that selects it defined once, with `reason` where one code carries several texts? [Clarity, Traceability, Spec §FR-008, §FR-034, §FR-035; Plan §Technical Context]
 - [x] CHK013 Is each response the catalogue carries classified exactly once - refusal, notice, status, or outcome - with the fifth incorrect entry as the test case, since the API contract lists it as an error code while the message table lists the same fact as a status that is not an error, and with the silent success and the terminal outcome messages placed on one side of that line? [Ambiguity, Conflict, Consistency, Spec §FR-029, §FR-034, §FR-038; Plan §Technical Context]
-- [ ] CHK014 Is the precedence rule stated for every pair of refusals that can co-occur, including a refusal from one step and a refusal from the next, and is the rule that a step once refused is never replaced quantified? [Clarity, Completeness, Spec §FR-051]
+- [x] CHK014 Is the precedence rule stated for every pair of refusals that can co-occur, including a refusal from one step and a refusal from the next, and is the rule that a step once refused is never replaced quantified? [Clarity, Completeness, Spec §FR-051]
 
 ## Requirement Consistency - One Refusal, One Reading
 
-- [ ] CHK015 Does the specification's five-step order align with the order the plan and the API contract fix, including the transport-level forgery check that precedes the rate limit, so one submission is not decided by two different orders? [Consistency, Conflict, Spec §FR-051; Plan §Technical Context]
-- [ ] CHK016 Is the rate limit's precedence over the hidden field consistent across the requirement, the criteria, and the contract - an over-budget submission receiving the limit refusal even when the hidden field is filled? [Consistency, Spec §FR-029, §FR-033, §FR-051, §AC-031, §AC-033, §AC-055]
-- [ ] CHK017 Do the lock, the blocked account, and the administrator-on-the-merchant-surface refusal each refer to the single uniform refusal rather than introducing a second text, a second status, or a lock-specific copy? [Consistency, Spec §FR-009, §FR-017, §FR-027, §AC-010]
-- [ ] CHK018 Are the one-time-code refusals consistent across the requirement, the code step, the criteria, and the message table - one cause per refusal, one text per cause, and one retryability per refusal - with the expired, superseded, and unknown cases deliberately sharing one text? [Consistency, Spec §FR-034, §FR-038, §AC-036; Plan §Technical Context]
+- [x] CHK015 Does the specification's five-step order align with the order the plan and the API contract fix, including the transport-level forgery check that precedes the rate limit, so one submission is not decided by two different orders? [Consistency, Conflict, Spec §FR-051; Plan §Technical Context]
+- [x] CHK016 Is the rate limit's precedence over the hidden field consistent across the requirement, the criteria, and the contract - an over-budget submission receiving the limit refusal even when the hidden field is filled? [Consistency, Spec §FR-029, §FR-033, §FR-051, §AC-031, §AC-033, §AC-055]
+- [x] CHK017 Do the lock, the blocked account, and the administrator-on-the-merchant-surface refusal each refer to the single uniform refusal rather than introducing a second text, a second status, or a lock-specific copy? [Consistency, Spec §FR-009, §FR-017, §FR-027, §AC-010]
+- [x] CHK018 Are the one-time-code refusals consistent across the requirement, the code step, the criteria, and the message table - one cause per refusal, one text per cause, and one retryability per refusal - with the expired, superseded, and unknown cases deliberately sharing one text? [Consistency, Spec §FR-034, §FR-038, §AC-036; Plan §Technical Context]
 - [x] CHK019 Does the error-code union carry every refusal the specification names, with no code lacking a requirement and no requirement lacking a code, and are the transport codes the only ones outside the specification's reach? [Consistency, Completeness, Plan §Technical Context; Tasks T008]
-- [ ] CHK020 Is each refusal's surface consistent - a bare page for the refusals this slice renders, the frame's ended-session state for the session refusals - so no refusal is required on a surface this slice does not ship? [Consistency, Spec §FR-049; Plan §Verification Notes]
+- [x] CHK020 Is each refusal's surface consistent - a bare page for the refusals this slice renders, the frame's ended-session state for the session refusals - so no refusal is required on a surface this slice does not ship? [Consistency, Spec §FR-049; Plan §Verification Notes]
 
 ## Acceptance Criteria Quality - What Each Criterion Asserts
 
@@ -83,14 +83,14 @@
 
 ## Non-Functional Requirements
 
-- [ ] CHK030 Is the announcement and focus behaviour specified for every refusal, and does it distinguish a refusal from a status notice, so the two are not announced alike? [NFR, Accessibility, Spec §FR-040; Plan §Verification Notes]
-- [ ] CHK031 Do the refusal texts obey the Arabic, Latin-numeral, and no-emoji rules, and is that obligation stated for refusal strings specifically rather than reached only through the general rule over user-facing text? [NFR, Spec §FR-026, §SC-008]
-- [ ] CHK032 Is the security-record rule stated per refusal - which refusals emit a record, which emit none, and why - so a refusal cannot both count as a failed attempt and stay silent in the record? [NFR, Consistency, Spec §FR-037, §AC-040]
+- [x] CHK030 Is the announcement and focus behaviour specified for every refusal, and does it distinguish a refusal from a status notice, so the two are not announced alike? [NFR, Accessibility, Spec §FR-040; Plan §Verification Notes]
+- [x] CHK031 Do the refusal texts obey the Arabic, Latin-numeral, and no-emoji rules, and is that obligation stated for refusal strings specifically rather than reached only through the general rule over user-facing text? [NFR, Spec §FR-026, §SC-008]
+- [x] CHK032 Is the security-record rule stated per refusal - which refusals emit a record, which emit none, and why - so a refusal cannot both count as a failed attempt and stay silent in the record? [NFR, Consistency, Spec §FR-037, §AC-040]
 
 ## Dependencies, Assumptions, and Ambiguities
 
-- [ ] CHK033 Is the ownership split for the refusals whose surface ships later stated with the owning slice and the boundary - the ended-session state's runtime rendering, the restricted-session refusal's page, and the unchanged-password refusal - so no refusal is left unowned? [Dependency, Gap, Spec §FR-028, §FR-049; Plan §Verification Notes]
-- [ ] CHK034 Are the numeric values every refusal depends on - the limits, bounds, lifetimes, and lengths - recorded outside the requirement text and cited by it, so no refusal message carries a typed number? [Dependency, Consistency, Plan §Constitution Mandated Values]
+- [x] CHK033 Is the ownership split for the refusals whose surface ships later stated with the owning slice and the boundary - the ended-session state's runtime rendering, the restricted-session refusal's page, and the unchanged-password refusal - so no refusal is left unowned? [Dependency, Gap, Spec §FR-028, §FR-049; Plan §Verification Notes]
+- [x] CHK034 Are the numeric values every refusal depends on - the limits, bounds, lifetimes, and lengths - recorded outside the requirement text and cited by it, so no refusal message carries a typed number? [Dependency, Consistency, Plan §Constitution Mandated Values]
 
 ## Notes
 
@@ -237,6 +237,133 @@ or marked.
   mapping, so no code lacks a requirement and no requirement lacks a code; T167
   produces the transport refusals, which the contract marks as transport's own
   answers and the only codes outside the specification's reach.
+
+No FR, AC, or SC identifier was added, renumbered, reused, or amended; the counts
+stay 55 FR, 62 AC, and 9 SC.
+
+### Review 2026-11-09 (CHK008–CHK012, CHK014–CHK018, CHK020, CHK030–CHK034)
+
+**Review line**: reviewed 2026-11-09 against `spec.md`'s refusal catalogue and the
+clarification sessions of 2026-10-28, 2026-10-31, 2026-11-01, 2026-11-02, and
+2026-11-05, `contracts/auth-api.md` §3, §3.1, §4, §5.4, §5.5.1, and §5.6,
+`contracts/ui-contracts.md` §2.1, §6, and §8.4, and the plan's Verification
+Notes — the sixteen remaining items are satisfied; the file now reads 34 marked,
+0 open (34/34). No item was reworded, and no FR, AC, or SC identifier moved.
+
+- **CHK008 — closed.** One limit refusal is quantified once: the catalogue row
+  "An operation's limit is spent — account creation, sign-in, or recovery, on
+  either key" fixes its placement (`card`, the submission that starts the
+  operation) and its retry (`the limit's window`); FR-033 fixes one budget per
+  operation keyed on the network origin and the normalized number, so each of the
+  three operations and both keys produce the same refusal; `auth-api.md` §3 fixes
+  `retryAfterSeconds` and the `Retry-After` header on `RATE_LIMITED`, §3.1 fixes
+  status 429 and `retryable: true`, §4 fixes step 1 as the limit's place in the
+  order, and §6 records one Arabic text for the cause.
+- **CHK009 — closed.** FR-042 names the scope for every page that takes a mobile
+  number — sign-up, sign-in, and password recovery — and the catalogue row states
+  "on every page that takes one". The exclusion is a property of the submitted
+  value, not of the account: SC-004's format exception is stated with the other
+  five exceptions and FR-042 states that a malformed value can never have an
+  account, so the refusal depends on the value's shape.
+- **CHK010 — closed.** The silent response's whole observable shape is fixed at
+  the same level as a success: FR-029 requires "the same response a successful
+  submission receives" and the catalogue renders it `silent`; `auth-api.md` §5.4
+  enumerates what "same" means — the same status, the same headers, the same
+  field set and field types as a success, with a generated but unstored
+  `requestId` and resume token — and fixes the one-sided duration tolerance. The
+  contract carries the technical field set the specification reaches by
+  reference, so the requirement is unambiguous without naming a transport.
+- **CHK011 — closed.** FR-008 states the uniform refusal once, with its whole
+  observable shape — text, status, response path, and equal work — and says
+  explicitly that FR-009, FR-017, and FR-027 refer to it rather than restating
+  its terms; `auth-api.md` §5.5.1 fixes the uniform transcript (status, header
+  set, body shape, no `Set-Cookie`, no `Retry-After`), and the catalogue has one
+  row for the five cases.
+- **CHK012 — closed.** The catalogue's "The texts" paragraph states the
+  authority: each literal Arabic text is the fixed design value FR-026 records
+  once, selected by its cause, not a specification value, and AC-028 asserts the
+  rendered string's identity to the record. `ui-contracts.md` §6 is the one keyed
+  table — one row per `(code, reason)` with a `reason` variant where one code
+  carries several texts — and the plan's copy source names the same key, so the
+  capture set is evidence rather than a second authority.
+- **CHK014 — closed.** FR-051 states the fixed five-step order and the rule that
+  "a submission refused at a step MUST be decided by that step alone: no later
+  check runs and no earlier refusal is replaced"; AC-055 asserts the same clause
+  for a submission refused at one step, and the 2026-10-31 clarification bounds
+  AC-055's hidden-field clause to the rules later in that order. Every pair the
+  order can produce is therefore decided by the earlier step alone.
+- **CHK015 — closed.** The specification's five-step order (FR-051) is the same
+  order the contract fixes: `auth-api.md` §4 lists step 0 as the CSRF token and
+  origin check, then steps 1–5 exactly as FR-051 names them, and states that CSRF
+  precedes step 1 because it decides whether the request is admitted at all; the
+  plan's Verification Notes read the same order. No submission is decided by two
+  orders.
+- **CHK016 — closed.** The 2026-10-31 clarification binds AC-055's
+  "even when another rule would also refuse it" clause to the rules after the
+  hidden field, keeps the operation's rate limit at step 1, and says an
+  over-budget submission receives the distinct limit refusal whatever else is
+  wrong, a filled hidden field included; AC-031 and AC-033 state the same rule,
+  and `auth-api.md` §4 fixes rate limit as step 1 and the hidden field as step 2.
+- **CHK017 — closed.** The catalogue has one row for all five sign-in cases —
+  wrong password, unknown number, locked account, blocked account, and an
+  administrator account on the merchant surface — and FR-009, FR-017, and FR-027
+  each refer to "the refusal FR-008 defines"; AC-010 asserts the lock receives
+  that refusal. No lock-specific or blocked-specific text, status, or copy is
+  introduced.
+- **CHK018 — closed.** `auth-api.md` §3.1 fixes one code, `OTP_EXPIRED`, for the
+  expired, superseded, and unknown-request cases, with one text in
+  `ui-contracts.md` §6 and one retryability (`retryable: true`, a new code);
+  `OTP_INCORRECT` is the live code's wrong value and is not retryable;
+  `OTP_REQUEST_ENDED` is the notice for the fifth incorrect entry, not a
+  refusal; `OTP_RESEND_LIMIT` and `OTP_SEND_FAILED` each have one cause, one
+  text, and one retry decision. FR-034 and AC-036 carry the same mapping.
+- **CHK020 — closed.** The catalogue's placement column fixes each refusal's
+  surface in six terms, and its closing paragraph states that the two states are
+  the frame's: R1 delivers the frame and verifies the state's markup
+  structurally, while the slice that ships the first frame-carrying page
+  exercises it (FR-049); the plan's ended-session entry repeats that boundary and
+  names R2. No refusal is required on a surface this slice does not ship: the
+  restricted-session and unchanged-password rows say plainly which later surface
+  renders them.
+- **CHK030 — closed.** FR-040 requires every state the three pages render —
+  including every inline failure, notice, and terminal outcome — to be announced
+  to assistive technology, and moves focus to the step now shown when a step is
+  replaced. `ui-contracts.md` §2.1 distinguishes the two: a status (in-progress,
+  `done`, terminal outcomes, notices, the resend acceptance) is `role="status"`
+  (polite), while a refusal is `role="alert"`, with `aria-describedby` and
+  `aria-invalid` on the field; §8.4 fixes the ended-session state's announcement
+  and focusable heading.
+- **CHK031 — closed.** FR-026 binds "the text the platform itself writes — its
+  labels, its messages, and the numerals it generates" to Arabic, RTL, Latin
+  numerals, and no emoji, and the catalogue's "The texts" paragraph applies that
+  rule to every response's literal text, so the obligation reaches refusal
+  strings specifically; AC-028 scans every delivered text under the same rules
+  and SC-008 keeps its 100% outcome over the same scope.
+- **CHK032 — closed.** FR-037 fixes the record set and the refusal rule per
+  event: a failed sign-in attempt — every attempt that reaches the
+  account-existence comparison and does not succeed, including a locked, a
+  blocked, and an administrator account — emits a record, while a format refusal
+  (FR-042) and a rate-limit refusal (FR-033) are not attempts against an account
+  and emit none; a failed password verification in a change is its own event,
+  while a value-rule refusal and a lock refusal before the check emit none. The
+  closed list and its reasons mean a refusal cannot both count as a failed
+  attempt and stay silent, and AC-040 asserts the records and their bounds.
+- **CHK033 — closed.** Each later surface has an owner and a boundary: the
+  ended-session state's runtime rendering is R2's (plan → Verification Notes,
+  "The ended-session state"; FR-049 and AC-053 keep R1's structural assertion;
+  `EX-007` names the exact excluded lines), the restricted-session refusal's page
+  is R13's (plan → the forced first change; `auth-api.md` §3.1
+  `PASSWORD_CHANGE_REQUIRED`; `ui-contracts.md` §6/§8.4), and the
+  unchanged-password refusal is reserved for R13 and R7 (`ui-contracts.md` §6
+  `PASSWORD_UNCHANGED`; `auth-api.md` §3.1; the catalogue row says the
+  administrator surface this slice does not ship). No refusal is left unowned.
+- **CHK034 — closed.** Every numeric value a refusal depends on is recorded
+  outside the requirement text and cited by it: the plan's Constitution Mandated
+  Values rows 3, 4, 17, 18, and 19 carry the limits, bounds, lifetimes, and
+  lengths, `packages/shared/src/limits.ts` is the one source the schemas, API,
+  copy templates, and pages read (each constant annotated with its CMV row), and
+  AC-028 resolves every numeral slot from that source. `limits.ts`'s own header
+  states the consequence: no message carries a typed number.
 
 No FR, AC, or SC identifier was added, renumbered, reused, or amended; the counts
 stay 55 FR, 62 AC, and 9 SC.

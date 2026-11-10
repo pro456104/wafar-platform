@@ -10,6 +10,11 @@ function read(): string | null {
   return sessionStorage.getItem(KEY);
 }
 
+/** The request the page is still tied to, for the submission's tie header. */
+export function heldPendingRequestId(): string | null {
+  return read();
+}
+
 export interface ResumePayload {
   requestId: string;
   purpose: 'sign_up' | 'recovery';

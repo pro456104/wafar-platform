@@ -5,8 +5,15 @@ import MessageAlert from './MessageAlert.vue';
 import { notices } from '../../composables/auth/useAuthMessages';
 
 withDefaults(
-  defineProps<{ modelValue: string; message?: string; label?: string; autocomplete?: string }>(),
-  { message: '', label: 'كلمة المرور', autocomplete: 'new-password' },
+  defineProps<{
+    modelValue: string;
+    message?: string;
+    label?: string;
+    autocomplete?: string;
+    /** The sign-in form applies no password rule and states none (FR-051). */
+    showPolicy?: boolean;
+  }>(),
+  { message: '', label: 'كلمة المرور', autocomplete: 'new-password', showPolicy: true },
 );
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
 const fieldId = useId();
@@ -16,7 +23,7 @@ const messageId = useId();
 <template>
   <div class="wf-password">
     <label class="wf-password__label" :for="fieldId">{{ label }}</label>
-    <p class="wf-password__policy">{{ notices.passwordPolicy }}</p>
+    <p v-if="showPolicy !== false" class="wf-password__policy">{{ notices.passwordPolicy }}</p>
     <input
       :id="fieldId"
       :value="modelValue"

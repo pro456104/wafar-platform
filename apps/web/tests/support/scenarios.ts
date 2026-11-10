@@ -28,6 +28,10 @@ export interface Scenario {
   prepare: () => Promise<void>;
   /** Drives the page from its first step to the state being captured. */
   drive: (page: Page) => Promise<void>;
+  /** The element AC-043's focus move must land on, when the state fixes one. */
+  focus?: string;
+  /** A text the polite announcement must carry, when the state states one. */
+  announcement?: string;
 }
 
 export const password = 'correct horse battery staple';
@@ -123,7 +127,7 @@ async function reachRecoveryCode(page: Page, phone: string): Promise<string> {
   await open(page, paths.forgot);
   await page.locator('input[autocomplete="tel-national"]').fill(phone);
   const before = dispatchMark();
-  await page.getByRole('button', { name: 'إرسال رمز الاستعادة' }).click();
+  await page.getByRole('button', { name: 'إرسال رمز التحقق' }).click();
   const dispatch = await waitForDispatch({ kind: 'otp_recovery', after: before });
   await expect(page.locator('#wf-code-heading')).toBeVisible();
   return dispatch.code;
@@ -163,6 +167,7 @@ function scenario(
   state: string,
   drive: (page: Page, phone: string) => Promise<void>,
   prepare?: (phone: string) => Promise<void>,
+  checks: Pick<Scenario, 'focus' | 'announcement'> = {},
 ): Scenario {
   const phone = phoneFor(index);
   return {
@@ -172,6 +177,7 @@ function scenario(
     phone,
     prepare: () => (prepare ?? forget)(phone),
     drive: (browser) => drive(browser, phone),
+    ...checks,
   };
 }
 
@@ -222,9 +228,12 @@ export const scenarios: Scenario[] = [
     await reachSignUpCode(page, phone);
     await hold(page, '**/api/v1/auth/verifications/resend');
     await page.getByRole('button', { name: 'إرسال رمز جديد' }).click();
-    await expect(
-      page.getByRole('button', { name: 'إرسال رمز جديد' }),
-    ).toBeDisabled();
+    // The control states its own progress and disables itself; the idle label is
+    // gone while the request is held (T232, T248).
+    const resending = page.getByRole('button', { name: 'يجري الإرسال…' });
+    await expect(resending).toBeVisible();
+    await expect(resending).toBeDisabled();
+    await expect(page.locator('input[autocomplete="one-time-code"]')).toBeVisible();
   }),
   scenario(8, 'sign-up', 'expired_notice', async (page, phone) => {
     const code = await reachSignUpCode(page, phone);
@@ -233,6 +242,9 @@ export const scenarios: Scenario[] = [
     await expect(page.getByRole('status').first()).toContainText(
       'انتهت صلاحية الرمز',
     );
+  }, undefined, {
+    focus: 'input[autocomplete="name"]',
+    announcement: 'انتهت صلاحية الرمز',
   }),
   scenario(9, 'sign-up', 'ended_notice', async (page, phone) => {
     const code = await reachSignUpCode(page, phone);
@@ -242,9 +254,15 @@ export const scenarios: Scenario[] = [
     await expect(page.getByRole('status').first()).toContainText(
       'انتهت محاولات التحقق',
     );
+  }, undefined, {
+    focus: 'input[autocomplete="name"]',
+    announcement: 'انتهت محاولات التحقق',
   }),
   scenario(10, 'sign-up', 'done', async (page, phone) => {
     await createMerchant(page, phone);
+  }, undefined, {
+    focus: '.wf-outcome__heading',
+    announcement: 'حسابك جاهز',
   }),
   scenario(11, 'sign-up', 'existing', async (page, phone) => {
     await createMerchant(page, phone);
@@ -254,6 +272,9 @@ export const scenarios: Scenario[] = [
     const code = await submitSignUp(page);
     await submitCode(page, code);
     await expect(page.locator('.wf-outcome')).toBeVisible();
+  }, undefined, {
+    focus: '.wf-outcome__heading',
+    announcement: 'رقمك مسجل مسبقا',
   }),
   scenario(12, 'sign-up', 'blocked', async (page, phone) => {
     await createMerchant(page, phone);
@@ -264,6 +285,9 @@ export const scenarios: Scenario[] = [
     const code = await submitSignUp(page);
     await submitCode(page, code);
     await expect(page.locator('.wf-outcome')).toBeVisible();
+  }, undefined, {
+    focus: '.wf-outcome__heading',
+    announcement: 'الحساب موقوف',
   }),
   scenario(
     13,
@@ -283,6 +307,10 @@ export const scenarios: Scenario[] = [
       await expect(page.locator('.wf-outcome')).toBeVisible();
     },
     forget,
+    {
+      focus: '.wf-outcome__heading',
+      announcement: 'الحساب إداري',
+    },
   ),
 
   // sign-in: 4 states.
@@ -311,6 +339,9 @@ export const scenarios: Scenario[] = [
     await fillSignIn(page, phone);
     await submitSignIn(page);
     await expect(page.locator('.wf-signed-in')).toBeVisible();
+  }, undefined, {
+    focus: '.wf-signed-in__heading',
+    announcement: 'أنت مسجل الدخول الآن.',
   }),
 
   // forgot: 15 states.
@@ -319,7 +350,7 @@ export const scenarios: Scenario[] = [
     await open(page, paths.forgot);
     await page.locator('input[autocomplete="tel-national"]').fill(phone);
     await hold(page, '**/api/v1/auth/password/forgot');
-    await page.getByRole('button', { name: 'إرسال رمز الاستعادة' }).click();
+    await page.getByRole('button', { name: 'إرسال رمز التحقق' }).click();
     await expect(page.locator('button.wf-submit')).toHaveText('يجري الإرسال…');
   }),
   scenario(
@@ -329,7 +360,7 @@ export const scenarios: Scenario[] = [
     async (page, phone) => {
       await open(page, paths.forgot);
       await page.locator('input[autocomplete="tel-national"]').fill(phone);
-      await page.getByRole('button', { name: 'إرسال رمز الاستعادة' }).click();
+      await page.getByRole('button', { name: 'إرسال رمز التحقق' }).click();
       await expect(page.getByRole('alert').first()).toContainText(
         'تجاوزت الحد المسموح',
       );
@@ -359,14 +390,19 @@ export const scenarios: Scenario[] = [
     await reachRecoveryCode(page, phone);
     await hold(page, '**/api/v1/auth/verifications/resend');
     await page.getByRole('button', { name: 'إرسال رمز جديد' }).click();
-    await expect(
-      page.getByRole('button', { name: 'إرسال رمز جديد' }),
-    ).toBeDisabled();
+    // The control states its own progress and disables itself; the idle label is
+    // gone while the request is held (T232, T248).
+    const resending = page.getByRole('button', { name: 'يجري الإرسال…' });
+    await expect(resending).toBeVisible();
+    await expect(resending).toBeDisabled();
+    await expect(page.locator('input[autocomplete="one-time-code"]')).toBeVisible();
   }),
   scenario(25, 'forgot', 'new_password', async (page, phone) => {
     await createMerchant(page, phone);
     await resetBrowser(page);
     await reachNewPassword(page, phone);
+  }, undefined, {
+    focus: '.wf-new-password input',
   }),
   scenario(26, 'forgot', 'setting', async (page, phone) => {
     await createMerchant(page, phone);
@@ -382,6 +418,9 @@ export const scenarios: Scenario[] = [
     await reachNewPassword(page, phone);
     await submitNewPassword(page);
     await expect(page.locator('.wf-outcome')).toBeVisible();
+  }, undefined, {
+    focus: '.wf-outcome__heading',
+    announcement: 'تم تعيين كلمة المرور',
   }),
   scenario(28, 'forgot', 'done_blocked', async (page, phone) => {
     await createMerchant(page, phone);
@@ -390,11 +429,17 @@ export const scenarios: Scenario[] = [
     await reachNewPassword(page, phone);
     await submitNewPassword(page);
     await expect(page.locator('.wf-outcome')).toBeVisible();
+  }, undefined, {
+    focus: '.wf-outcome__heading',
+    announcement: 'الحساب موقوف',
   }),
   scenario(29, 'forgot', 'no_account', async (page, phone) => {
     const code = await reachRecoveryCode(page, phone);
     await submitCode(page, code);
     await expect(page.locator('.wf-outcome')).toBeVisible();
+  }, undefined, {
+    focus: '.wf-outcome__heading',
+    announcement: 'لا يوجد حساب لهذا الرقم',
   }),
   scenario(
     30,
@@ -412,6 +457,10 @@ export const scenarios: Scenario[] = [
       await expect(page.locator('.wf-outcome')).toBeVisible();
     },
     forget,
+    {
+      focus: '.wf-outcome__heading',
+      announcement: 'لا يمكن إعادة التعيين من هنا',
+    },
   ),
   scenario(31, 'forgot', 'expired_notice', async (page, phone) => {
     const code = await reachRecoveryCode(page, phone);
@@ -420,6 +469,9 @@ export const scenarios: Scenario[] = [
     await expect(page.getByRole('status').first()).toContainText(
       'انتهت صلاحية الرمز',
     );
+  }, undefined, {
+    focus: 'input[autocomplete="tel-national"]',
+    announcement: 'انتهت صلاحية الرمز',
   }),
   scenario(32, 'forgot', 'ended_notice', async (page, phone) => {
     const code = await reachRecoveryCode(page, phone);
@@ -429,6 +481,9 @@ export const scenarios: Scenario[] = [
     await expect(page.getByRole('status').first()).toContainText(
       'انتهت محاولات التحقق',
     );
+  }, undefined, {
+    focus: 'input[autocomplete="tel-national"]',
+    announcement: 'انتهت محاولات التحقق',
   }),
 ];
 

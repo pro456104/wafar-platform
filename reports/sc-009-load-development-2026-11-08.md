@@ -21,7 +21,7 @@ schema the composition provides.
 | PgDog | not available (no Docker); CI's own load job also uses PostgreSQL directly on 5432 |
 | `UV_THREADPOOL_SIZE` | 8 (the Node default of 4 saturates earlier; 8 measured best: 8.6 scrypt/s, 12 → 7.2/s, 16 → 5.9/s) |
 | `SMS_FAKE_ACCEPT_MS` | 50, set by the script for the API it starts |
-| `NODE_ENV` | test for the runner; the spawned API runs `development` as the script fixes |
+| `NODE_ENV` | test for the runner; the spawned API ran `development` for this check. T240 now spawns it with `test` and writes the environment into the report, so CI's load job records the fixed class (the registered measurement, still to run on `ubuntu-24.04`) |
 
 The schema was already migrated. The fixture was seeded with `pnpm load:seed`
 (10,000 accounts, 300 sessions) and the run re-seeds it. No source file was

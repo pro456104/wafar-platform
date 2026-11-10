@@ -22,7 +22,7 @@ const newPassword = 'a different long password 42';
 const phone = '0912345678';
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 async function requestRecovery(

@@ -20,7 +20,7 @@ import {
 const password = 'correct horse battery staple';
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 describe.skipIf(!hasDatabase)('the restart’s invariance', () => {
@@ -186,7 +186,7 @@ describe.skipIf(!hasDatabase)('the restart’s invariance', () => {
           website: '',
           formStamp: repeatPair.formStamp,
         },
-        { jar: pendingJar, csrf: true },
+        { jar: pendingJar, csrf: true, headers: { 'x-wafar-pending': requestId } },
       );
       expect(repeat.status).toBe(202);
       expect((repeat.body as { requestId: string }).requestId).toBe(requestId);

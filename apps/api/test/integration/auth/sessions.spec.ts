@@ -216,6 +216,32 @@ describe.skipIf(!hasDatabase)('the session endings', () => {
     expect(event).toMatchObject({ path: 'change' });
   });
 
+  it('refuses an empty current password as a credential failure, not a policy failure', async () => {
+    const account = await seedAccount(harness!, { phoneNumber: '+218912345678', password });
+    const jar: CookieJar = {};
+    expect(await signIn(jar, '0912345678')).toBe(200);
+
+    const failed = await call(
+      harness!,
+      'POST',
+      '/api/v1/auth/password/change',
+      { currentPassword: '', newPassword },
+      { jar, csrf: true },
+    );
+    expect(failed.status).toBe(401);
+    expect(failed.body).toEqual({
+      error: { code: 'AUTH_INVALID_CREDENTIALS', retryable: false },
+    });
+    // The failure is counted, and the session and the credential are untouched.
+    const counted = await harness!.db.execute(
+      sql`SELECT failed_sign_in_count::int AS n FROM users WHERE id = ${account.id}`,
+    );
+    expect((counted.rows[0] as { n: number }).n).toBe(1);
+    expect(
+      (await call(harness!, 'GET', '/api/v1/auth/session', undefined, { jar })).status,
+    ).toBe(200);
+  });
+
   it('ends the session at thirty minutes of inactivity, and not one millisecond before', async () => {
     await seedAccount(harness!, { phoneNumber: '+218912345678', password });
     const jar: CookieJar = {};
@@ -311,10 +337,7 @@ describe.skipIf(!hasDatabase)('the session endings', () => {
       csrf: true,
     });
     expect(out.status).toBe(204);
-    const { createSessionService } = await import(
-      '../../../src/modules/auth/service/sessions.ts'
-    );
-    const revocation = await createSessionService(harness!.db).revokeByToken(
+    const revocation = await harness!.auth.revoke(
       seededTokens[1]!,
       'platform_revocation',
       harness!.clock.now(),
@@ -378,9 +401,29 @@ describe.skipIf(!hasDatabase)('the session endings', () => {
     let rows = await harness!.db.select().from(sessions).where(eq(sessions.token, token));
     expect(rows[0]?.lastActivityAt.toISOString()).toBe(twoMinutesAgo.toISOString());
 
-    // The frame's user-initiated marker does.
+    // The header without the CSRF pair is ignored: a cross-site caller cannot
+    // keep the session alive (contracts/auth-api.md §2.3).
     await call(harness!, 'GET', '/api/v1/auth/session', undefined, {
       jar,
+      headers: { 'x-wafar-activity': '1' },
+    });
+    rows = await harness!.db.select().from(sessions).where(eq(sessions.token, token));
+    expect(rows[0]?.lastActivityAt.toISOString()).toBe(twoMinutesAgo.toISOString());
+
+    // A present but unlisted origin refuses the signal.
+    await call(harness!, 'GET', '/api/v1/auth/session', undefined, {
+      jar,
+      csrf: true,
+      origin: 'https://cross-site.example',
+      headers: { 'x-wafar-activity': '1' },
+    });
+    rows = await harness!.db.select().from(sessions).where(eq(sessions.token, token));
+    expect(rows[0]?.lastActivityAt.toISOString()).toBe(twoMinutesAgo.toISOString());
+
+    // The frame's user-initiated marker, with the pair, does.
+    await call(harness!, 'GET', '/api/v1/auth/session', undefined, {
+      jar,
+      csrf: true,
       headers: { 'x-wafar-activity': '1' },
     });
     rows = await harness!.db.select().from(sessions).where(eq(sessions.token, token));

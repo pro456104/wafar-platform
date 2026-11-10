@@ -23,7 +23,7 @@ const password = 'correct horse battery staple';
 const newPassword = 'a different long password 42';
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 async function count(harness: ReturnType<typeof createHarness>, table: string): Promise<number> {
@@ -258,7 +258,7 @@ describe.skipIf(!hasDatabase)('the indivisible writes', () => {
     });
     expect(provisioned.status).toBe(0);
 
-    const service = createAdministratorSignInService(harness.db);
+    const service = createAdministratorSignInService(harness.db, harness.auth);
     const signed = await service.signInAdministrator({
       phoneNumber: '+218912345678',
       password,
@@ -303,9 +303,11 @@ describe.skipIf(!hasDatabase)('the indivisible writes', () => {
   });
 
   it('keeps the previous code and consumes no allowance when the replacement cannot be installed', async () => {
+    // The resend installs the replacement with UPDATEs; the second one is the
+    // write that must roll back (T146, T247).
     const fault = createFault({
       table: 'phone_verifications',
-      verb: 'insert',
+      verb: 'update',
       occurrence: 2,
     });
     const harness = open(fault);
@@ -356,6 +358,10 @@ describe.skipIf(!hasDatabase)('the indivisible writes', () => {
     expect(resume.status).toBe(200);
     expect((resume.body as { codeExpiresAt: string }).codeExpiresAt).toBe(codeExpiresAt);
     expect((resume.body as { remainingReRequests: number }).remainingReRequests).toBe(3);
+    const stored = await harness.db.execute(
+      sql`SELECT re_requests FROM phone_verifications WHERE id = ${requestId}`,
+    );
+    expect(stored.rows[0]).toMatchObject({ re_requests: 0 });
 
     // The code already sent is still valid.
     const verified = await call(

@@ -19,7 +19,7 @@ const harness = hasDatabase ? createHarness({ barrier: true }) : null;
 const password = 'correct horse battery staple';
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 async function count(table: string): Promise<number> {

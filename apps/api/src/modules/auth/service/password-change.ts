@@ -1,18 +1,15 @@
 // The foundation password-change service: the value rules, the current-password
 // check, the conditional credential write, the global revocation, the pending
-// recovery row's deletion, and the forced-first-change rule (FR-013, FR-028).
-import { and, eq, isNull } from 'drizzle-orm';
+// recovery row's deletion, and the forced-first-change rule. The credential and
+// every session it ends are written through the `auth` engine inside one unit of
+// work (FR-013, FR-028; ADR-151).
+import { eq } from 'drizzle-orm';
 import type { LockPort, SecurityEventPort } from '@wafar/shared';
-import { phoneVerifications, sessions, type Database } from '@wafar/db';
-import { createCredentialStore } from './credentials.ts';
+import { phoneVerifications, type Database } from '@wafar/db';
+import type { AuthEngine } from '../engine.ts';
 import { createUsersRepository } from '../../users/repository/users.ts';
 import { createLockRepository } from '../../users/repository/user-lock.ts';
-import {
-  checkPasswordPolicy,
-  hashPassword,
-  verifyPassword,
-  type PasswordRefusal,
-} from './password-policy.ts';
+import { checkPasswordPolicy, type PasswordRefusal } from './password-policy.ts';
 
 export type ChangeRefusal =
   | PasswordRefusal
@@ -27,7 +24,8 @@ export type ChangeResult =
 
 export interface ChangeInput {
   userId: string;
-  sessionId: string;
+  /** The calling session's token; the conditional write checks it is live. */
+  token: string;
   currentPassword: string;
   newPassword: string;
   now: Date;
@@ -45,11 +43,10 @@ export interface AdministratorPasswordChange {
   change(input: Omit<ChangeInput, 'path'>): Promise<ChangeResult>;
 }
 
-export function createPasswordChangeService(db: Database) {
+export function createPasswordChangeService(db: Database, auth: AuthEngine) {
   return {
     async change(input: ChangeInput): Promise<ChangeResult> {
       const users = createUsersRepository(db);
-      const credentials = createCredentialStore(db);
       const locks = input.lock ?? createLockRepository(db);
 
       // 1. Value rules.
@@ -59,13 +56,13 @@ export function createPasswordChangeService(db: Database) {
       const account = await users.findById(input.userId);
       if (account === null) return { status: 'refused', code: 'SESSION_ENDED' };
 
-      const credential = await credentials.read(input.userId);
+      const credential = await auth.readCredential(input.userId);
       if (credential === null) return { status: 'refused', code: 'SESSION_ENDED' };
 
       // 2. The forced-change difference check, before the lock.
       if (
         account.mustChangePassword &&
-        (await verifyPassword(input.newPassword, credential.passwordHash))
+        (await auth.verifyPassword(input.newPassword, credential.passwordHash))
       ) {
         return { status: 'refused', code: 'PASSWORD_UNCHANGED' };
       }
@@ -76,7 +73,7 @@ export function createPasswordChangeService(db: Database) {
       }
 
       // 4. The current-password check.
-      const matches = await verifyPassword(
+      const matches = await auth.verifyPassword(
         input.currentPassword,
         credential.passwordHash,
       );
@@ -102,30 +99,24 @@ export function createPasswordChangeService(db: Database) {
 
       // 5. The conditional write: the session must still be live in the
       // transaction, so a reset that committed first makes this write nothing.
-      const passwordHash = await hashPassword(input.newPassword);
-      const outcome = await db.transaction(async (tx) => {
-        const live = await tx
-          .select({ id: sessions.id })
-          .from(sessions)
-          .where(and(eq(sessions.id, input.sessionId), isNull(sessions.revokedAt)))
-          .limit(1);
-        if (live.length === 0) return { status: 'refused' as const, code: 'SESSION_ENDED' as const };
+      const passwordHash = await auth.hashPassword(input.newPassword);
+      const outcome = await auth.transaction(async (scope) => {
+        const live = await scope.auth.resolve(input.token, input.now);
+        if (live === null || live.revokedAt !== null) {
+          return { status: 'refused' as const, code: 'SESSION_ENDED' as const };
+        }
 
-        await createCredentialStore(tx).write(input.userId, passwordHash);
-        await createUsersRepository(tx).clearForcedChange(input.userId);
-        const revoked = await tx
-          .update(sessions)
-          .set({
-            revokedAt: input.now,
-            revokedReason: 'password_change',
-            updatedAt: input.now,
-          })
-          .where(and(eq(sessions.userId, input.userId), isNull(sessions.revokedAt)))
-          .returning({ id: sessions.id });
-        await tx
+        await scope.auth.writeCredential(input.userId, passwordHash);
+        await createUsersRepository(scope.db).clearForcedChange(input.userId);
+        const revoked = await scope.auth.revokeAll(
+          input.userId,
+          'password_change',
+          input.now,
+        );
+        await scope.db
           .delete(phoneVerifications)
           .where(eq(phoneVerifications.phoneNumber, account.phoneNumber));
-        return { status: 'changed' as const, sessionCount: revoked.length };
+        return { status: 'changed' as const, sessionCount: revoked };
       });
 
       if (outcome.status === 'changed') {

@@ -26,6 +26,30 @@ describe('the code step’s supplied values', () => {
     expect(runs[1]?.attributes('dir')).toBe('ltr');
   });
 
+  it('shows a value typed as markup or script as text, not as elements', () => {
+    const wrapper = mount(CodeStep, {
+      props: {
+        collected: [
+          {
+            label: 'الاسم الكامل',
+            value: '<b>محمد</b> <script>alert(1)</script>',
+          },
+        ],
+        displayPhone: '+218 91 234 5678',
+        remainingReRequests: 3,
+        loading: false,
+      },
+      global: { stubs },
+    });
+    const run = wrapper.findAll('bdi')[0];
+    expect(run?.text()).toBe('<b>محمد</b> <script>alert(1)</script>');
+    expect(run?.find('b').exists()).toBe(false);
+    expect(run?.find('script').exists()).toBe(false);
+    expect(wrapper.html()).toContain('&lt;b&gt;');
+    expect(wrapper.html()).not.toContain('<b>');
+    expect(wrapper.html()).not.toContain('<script>');
+  });
+
   it('renders every supplied value in its own auto-direction run', () => {
     const wrapper = mount(CodeStep, {
       props: {

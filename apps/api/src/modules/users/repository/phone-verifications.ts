@@ -11,6 +11,8 @@ export interface PendingRow {
   purpose: 'sign_up' | 'recovery';
   state: 'pending' | 'verified';
   codeHash: string;
+  /** The code an accepted resend superseded; never counted when entered. */
+  previousCodeHash: string | null;
   codeExpiresAt: Date;
   requestExpiresAt: Date;
   incorrectEntries: number;
@@ -30,6 +32,7 @@ function toRow(row: typeof phoneVerifications.$inferSelect): PendingRow {
     purpose: row.purpose === 'recovery' ? 'recovery' : 'sign_up',
     state: row.state === 'verified' ? 'verified' : 'pending',
     codeHash: row.codeHash,
+    previousCodeHash: row.previousCodeHash,
     codeExpiresAt: row.codeExpiresAt,
     requestExpiresAt: row.requestExpiresAt,
     incorrectEntries: row.incorrectEntries,
@@ -74,6 +77,7 @@ export function createPhoneVerificationsRepository(db: Queryable) {
           purpose: row.purpose,
           state: row.state,
           codeHash: row.codeHash,
+          previousCodeHash: row.previousCodeHash,
           codeExpiresAt: row.codeExpiresAt,
           requestExpiresAt: row.requestExpiresAt,
           incorrectEntries: row.incorrectEntries,
@@ -94,6 +98,7 @@ export function createPhoneVerificationsRepository(db: Queryable) {
             purpose: row.purpose,
             state: row.state,
             codeHash: row.codeHash,
+            previousCodeHash: row.previousCodeHash,
             codeExpiresAt: row.codeExpiresAt,
             requestExpiresAt: row.requestExpiresAt,
             incorrectEntries: row.incorrectEntries,
@@ -141,6 +146,63 @@ export function createPhoneVerificationsRepository(db: Queryable) {
         .where(eq(phoneVerifications.id, id))
         .returning({ reRequests: phoneVerifications.reRequests });
       return rows[0]?.reRequests ?? 0;
+    },
+
+    async claimReRequest(
+      id: string,
+      now: Date,
+      max: number,
+    ): Promise<number | null> {
+      const rows = await db
+        .update(phoneVerifications)
+        .set({
+          reRequests: sql`${phoneVerifications.reRequests} + 1`,
+          updatedAt: now,
+        })
+        .where(
+          and(
+            eq(phoneVerifications.id, id),
+            eq(phoneVerifications.state, 'pending'),
+            sql`${phoneVerifications.reRequests} < ${max}`,
+          ),
+        )
+        .returning({ reRequests: phoneVerifications.reRequests });
+      return rows[0]?.reRequests ?? null;
+    },
+
+    async releaseReRequest(id: string, now: Date): Promise<void> {
+      await db
+        .update(phoneVerifications)
+        .set({
+          reRequests: sql`GREATEST(${phoneVerifications.reRequests} - 1, 0)`,
+          updatedAt: now,
+        })
+        .where(eq(phoneVerifications.id, id));
+    },
+
+    async updateCode(input: {
+      id: string;
+      codeHash: string;
+      previousCodeHash: string;
+      codeExpiresAt: Date;
+      requestExpiresAt: Date;
+      now: Date;
+    }): Promise<void> {
+      await db
+        .update(phoneVerifications)
+        .set({
+          codeHash: input.codeHash,
+          previousCodeHash: input.previousCodeHash,
+          codeExpiresAt: input.codeExpiresAt,
+          requestExpiresAt: input.requestExpiresAt,
+          updatedAt: input.now,
+        })
+        .where(
+          and(
+            eq(phoneVerifications.id, input.id),
+            eq(phoneVerifications.state, 'pending'),
+          ),
+        );
     },
 
     async markVerified(id: string, now: Date): Promise<void> {

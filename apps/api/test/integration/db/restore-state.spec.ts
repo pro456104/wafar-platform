@@ -33,6 +33,7 @@ import {
 import {
   createScratchDatabase,
   dumpDatabase,
+  expectedSteps,
   migrateScratch,
   restoreDatabase,
   type Scratch,
@@ -332,8 +333,8 @@ describe.skipIf(!enabled)("the restore point's state", () => {
   });
 
   it('carries the journal row the boot guard reads', async () => {
-    expect(await one(target, 'SELECT count(*)::int AS n FROM drizzle.__drizzle_migrations')).toMatchObject(
-      { n: 1 },
-    );
+    expect(
+      await one(target, 'SELECT count(*)::int AS n FROM drizzle.__drizzle_migrations'),
+    ).toMatchObject({ n: expectedSteps });
   });
 });

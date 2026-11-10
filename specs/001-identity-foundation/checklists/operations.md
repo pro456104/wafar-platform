@@ -26,7 +26,7 @@
        a source of rules, and the binding version is the slice's specification
        (ADR-134).
      - the decision register - `docs/DECISIONS.md`'s index and the volumes
-       under `docs/decisions/` (ADR-001 … ADR-159).
+       under `docs/decisions/` (ADR-001 … ADR-161).
        An item that contradicts one is a blocking defect.
      - `docs/domain-model.md` - the entities a checklist may reference,
        and the invariants it MUST NOT contradict.
@@ -43,8 +43,8 @@
 
 - [x] CHK001 Does the specification state an availability expectation for the identity surface — a target, a maintenance rule, or an explicit deferral — or does SC-009 bound only request latency, leaving "the service is available" undefined for the slice that ships the first data store? [Gap, Completeness, Spec §SC-009, §Assumptions; Constitution Deployment and Observability]
 - [x] CHK002 Is the user-visible outcome of an unavailable service or dependency defined — FR-040's inline, retryable failure on the three bare pages and the frame it delivers, or a distinct state — including while PostgreSQL, the dependency the readiness probe checks, is unreachable, so an outage has one stated rendering rather than an inference from the unnamed-failure clause? [Coverage, Clarity, Spec §FR-040, §FR-021, §FR-050; Plan §Technical Context (Health probe)]
-- [ ] CHK003 Does the specification distinguish its measurement ceiling — up to 10 authentication requests per second and 500 concurrent sessions — from a service limit, and state what happens above it, including what a person whose request is not rate-limited experiences, so capacity exhaustion is not left as an unstated scenario? [Ambiguity, Gap, Spec §SC-009, §Assumptions, §FR-033]
-- [ ] CHK004 Is the boundary between SC-009's server-side p50/p95 budget and the pages' rendering budget — the constitution's Lighthouse LCP, INP, and CLS — stated, so neither budget is read as covering the other and the three delivered pages are not left without a performance obligation in the requirement set? [Clarity, Consistency, Spec §SC-009; Plan §Performance Goals; Constitution Performance Budgets and Verification]
+- [x] CHK003 Does the specification distinguish its measurement ceiling — up to 10 authentication requests per second and 500 concurrent sessions — from a service limit, and state what happens above it, including what a person whose request is not rate-limited experiences, so capacity exhaustion is not left as an unstated scenario? [Ambiguity, Gap, Spec §SC-009, §Assumptions, §FR-033]
+- [x] CHK004 Is the boundary between SC-009's server-side p50/p95 budget and the pages' rendering budget — the constitution's Lighthouse LCP, INP, and CLS — stated, so neither budget is read as covering the other and the three delivered pages are not left without a performance obligation in the requirement set? [Clarity, Consistency, Spec §SC-009; Plan §Performance Goals; Constitution Performance Budgets and Verification]
 
 ## Requirement Clarity — Retry, Atomicity, and Record Content
 
@@ -90,3 +90,33 @@
 - Closed 2026-11-04 by the same `/speckit.clarify` session: CHK006 and CHK007 are satisfied by the specification's indivisibility rule for each multi-step write — the account and its session at verification, the new password and the session endings at a change, a reset, and the forced first change, and the replacement's installation with the previous code's invalidation at an accepted dispatch — and by the per-path outcome of a repeated request whose first response was lost: a sign-up or recovery submission still tied to its live pending request re-renders the code step with no second dispatch, a code entry re-renders the outcome it reached, the new-password submission re-renders its confirmation with one write and one notice, and the account's own change and the sign-out of every device are refused as an ended session with no second revocation or notice. FR-004, FR-013, FR-014, FR-031, FR-034, FR-040, and FR-043 carry the rules, with AC-004, AC-014, AC-016, AC-036, AC-043, and AC-047 asserting them.
 - Closed 2026-11-04 by the second `/speckit.clarify` session of that date: CHK015, CHK016, CHK017, CHK019, and CHK020 are satisfied by the specification's new operational-state rules. FR-054 owns the restart and the release: a restart changes none of the sessions, locks and counts, pending requests, or rate-limit windows, and only the rules this specification states end or change any of them — the session's own ends (FR-010 … FR-013, FR-019, FR-032), the lock's own expiry (FR-009), a pending request's own end (FR-034), and a window's own boundary (FR-033); a release serves nothing against data that is not at the version the running code expects and its migration changes none of that state; and a request that arrives while none serves is outside FR-040, with R12's deployment procedure owning the gap and the Assumptions recording that boundary. FR-055 owns recovery: a restore returns the state of the restore point with no reconciliation, so a session, a lock, a pending request, or a window may return or vanish, and a row removed for good after the point comes back while a block applied after it is undone — accepted and bounded by the fifteen-minute recovery point, with the removal repeated by R13's administrator operation or R15's retention job and R12 running the procedure; and the migration is one reversible step whose rollback is exercised in staging before production, R1 owning the migration's reversibility and R12 the release-level rollback. AC-059, AC-060, AC-061, and AC-062 assert the rules, and a new Assumption records the split. Two item premises were corrected in the same pass rather than marked against a statement the specification refuses: CHK016's "receives FR-040's retryable failure" now reads "the outcome is assigned to its owner with its boundary", because FR-040 renders the failure of a request the platform answers; and CHK017's "so a restore cannot resurrect a session FR-012 revoked" now reads "including whether a restore may return state that ended or began after the restore point", because a restore to an earlier moment necessarily returns that state, and the specification accepts the consequence instead of preventing it. CHK011 is closed by the same change without being one of the five the session was opened for: FR-055 names the plan's four-hour recovery time and fifteen-minute recovery point as the values the arrangement is held to, and the new Assumption states that no success criterion here measures either and R12 does. The live counts in every checklist header now read 55 functional requirements and 62 acceptance criteria; no other item changed state.
 - Closed 2026-11-04 by a `/speckit.plan` pass at the operator's direction: CHK008, CHK009, CHK012, and CHK018 are satisfied by the plan's new operational statements — the structured record's six-field floor, its per-event fields, and its emission before the response with the failure mode that changes no outcome, with the provisioning action's exception (`plan.md` → Technical Context → The operational record's content and emission); the three fixed datasets' build-time and boot-time failure modes and their recorded currency (→ The fixed datasets at startup); and the three operational tables' time bounds with the hourly idempotent sweep that enforces them (→ The operational rows' bound). CHK011's premise is strengthened rather than reopened: CMV rows 8–9 are now annotated as the slice's single recovery authority, and Technical Context → The recovery guarantee's authority states that no success criterion measures either value. The plan also details the messaging provider's outage, the post-disaster restore, and the schema rollback. The implementation-side evidence is T018's throwing-stream case, T032's sweep and down-migration cases, T060's field assertions, T107's provisioning failure path, T140's dataset check, and the quarterly drill.
+
+### Review 2026-11-09 (CHK003–CHK004)
+
+**Review line**: reviewed 2026-11-09 against `spec.md`'s Assumptions (the
+measurement ceiling) and SC-009, the plan's Performance Goals and Lighthouse
+budget, and the constitution's Performance Budgets and Verification — both
+remaining items are satisfied; the file now reads 20 marked, 0 open (20/20). No
+item was reworded, and no FR, AC, or SC identifier moved.
+
+- **CHK003 — closed.** The Assumptions entry states the distinction once: up to
+  10,000 registered accounts, up to 500 concurrent sessions, and a peak of no
+  more than 10 authentication requests per second are "a measurement condition,
+  not a service limit: no request is refused for reaching them", and above them
+  FR-033's per-key budgets still decide each request exactly as they do below the
+  ceiling, while a request the platform cannot serve is FR-040's unnamed failure
+  rendered on the page that made it. A person whose request is not rate-limited
+  is therefore served on the same terms above the ceiling until the service
+  cannot answer it, and then receives the one stated outage rendering; SC-009
+  fixes the measurement protocol and its aggregate ceiling.
+- **CHK004 — closed.** The Assumptions entry separates the two budgets: SC-009
+  bounds a request's server-side completion alone, while the three pages carry a
+  separate rendering budget fixed by the design contract and asserted by the
+  plan's performance gate, and the specification names neither the budget's
+  metric nor its tool, so neither budget is read as covering the other. The
+  plan's Performance Goals and Lighthouse budget fix the pages' LCP, INP, and CLS
+  gate over the production build for all three URLs, and the constitution's
+  Performance Budgets and Verification owns the metric and its thresholds.
+
+No FR, AC, or SC identifier was added, renumbered, reused, or amended; the counts
+stay 55 FR, 62 AC, and 9 SC.

@@ -69,7 +69,7 @@ Principle IX (ADR-093 keeps that path out of the constitution's package rows).
 | Web server routes | `apps/web/server/` — optional Nitro server routes (Nitro is part of Nuxt 4 and is deliberately not a row of the Approved register); created only by the feature that declares them in its Ownership Map |
 | Administrator frontend | `apps/admin/app/{pages,components,composables,stores,layouts,assets}`, `apps/admin/app/app.config.ts`, `apps/admin/app/app.vue`; `apps/admin/public/` and `apps/admin/shared/` at the app root |
 | Administrator server routes | `apps/admin/server/` — optional Nitro server routes; created only by the feature that declares them in its Ownership Map |
-| Wafar UI layer | `packages/ui/{app/components,app/composables,app/utils,app/assets,app/app.config.ts,nuxt.config.ts}` — fixed by ADR-097 under Principle IX; not a row of the constitution's Internal layout (ADR-093) |
+| Wafar UI layer | `packages/ui/{app/components,app/composables,app/plugins,app/utils,app/assets,app/app.config.ts,nuxt.config.ts}` — fixed by ADR-097 under Principle IX; not a row of the constitution's Internal layout (ADR-093). `app/plugins/` holds a provider only when both frontends need it; `apps/web` installs the TanStack Query provider from there (T268) |
 | Validation | `packages/shared` only; a second local schema MUST NOT be created |
 | Database ownership | `packages/db/schema/<module>.ts` — one file per module named in Principle X; the table it declares belongs to that module |
 
@@ -277,7 +277,7 @@ Read/write notes:
   Deferred areas).
 - Decisions and their rationale: the decision register — `docs/DECISIONS.md`
   (index and reading protocol) and `docs/decisions/volume-NN.md` (records),
-  ADR-001 … ADR-159.
+  ADR-001 … ADR-161.
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.

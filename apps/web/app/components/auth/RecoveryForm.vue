@@ -43,7 +43,7 @@ function submit(): void {
       <span v-if="localMessage" role="alert" class="wf-field__error">{{ localMessage }}</span>
     </label>
     <button type="submit" class="wf-submit" :disabled="loading">
-      {{ loading ? 'يجري الإرسال…' : 'إرسال رمز الاستعادة' }}
+      {{ loading ? 'يجري الإرسال…' : 'إرسال رمز التحقق' }}
     </button>
   </form>
 </template>

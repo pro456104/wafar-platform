@@ -8,7 +8,7 @@ const pages = [
   {
     path: '/auth/sign-up',
     title: 'إنشاء حساب',
-    links: ['/auth/sign-in', '/auth/forgot-password'],
+    links: ['/auth/sign-in'],
   },
   {
     path: '/auth/sign-in',
@@ -17,8 +17,8 @@ const pages = [
   },
   {
     path: '/auth/forgot-password',
-    title: 'استعادة كلمة المرور',
-    links: ['/auth/sign-in', '/auth/sign-up'],
+    title: 'نسيت كلمة المرور',
+    links: ['/auth/sign-in'],
   },
 ] as const;
 
@@ -51,8 +51,11 @@ for (const entry of pages) {
     await expect(page.locator('.wf-shell-bottom-bar')).toHaveCount(0);
     await expect(page.locator('.wf-shell-footer')).toHaveCount(0);
 
-    // No horizontal page scroll at the 320 CSS px floor.
+    // No horizontal page scroll at the 320 CSS px floor, and the bare page's
+    // wordmark keeps the full «منصة وفر» form there (FR-021, AC-023).
     await page.setViewportSize({ width: 320, height: 800 });
+    await expect(mark.locator('.wf-wordmark__full')).toBeVisible();
+    await expect(mark.locator('.wf-wordmark__short')).toBeHidden();
     const overflow = await page.evaluate(
       () => document.scrollingElement !== null && document.scrollingElement.scrollWidth > 320,
     );

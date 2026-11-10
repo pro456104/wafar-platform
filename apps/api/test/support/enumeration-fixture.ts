@@ -13,7 +13,7 @@ import { seedAccount, type Harness } from './harness.ts';
 export const loadOnlyCredential = 'correct horse battery staple';
 
 /** The one city every enumeration account records. */
-export const enumerationCity: string = cities.entries[0]?.name ?? 'طرابلس';
+export const enumerationCity: string = cities.entries[0] ?? 'طرابلس';
 
 export interface EnumerationNumber {
   /** The stored form. */

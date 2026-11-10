@@ -3,7 +3,12 @@
 import type { Hono } from 'hono';
 import { normalizeCode, verifyCodeRequestSchema } from '@wafar/shared';
 import { refuse } from '../../../http/errors.ts';
-import { clearedCookie, sessionCookie, PENDING_COOKIE } from '../../../http/deps.ts';
+import {
+  clearedCookie,
+  sessionCookie,
+  PENDING_COOKIE,
+  PENDING_COOKIE_PATH,
+} from '../../../http/deps.ts';
 import type { AppDependencies, AppEnv } from '../../../http/deps.ts';
 import { readPending } from './verifications.ts';
 import { createPhoneVerificationsRepository } from '../../users/repository/phone-verifications.ts';
@@ -31,6 +36,10 @@ export function registerSignUpVerifyRoute(
       parsed.data.requestId,
     );
     if (row === null) return refuse(c, 'OTP_EXPIRED');
+    // The route consumes only its own flow's row: a recovery code presented at
+    // the sign-up step is refused before the code is compared, so it can never
+    // mark the recovery row verified (FR-027).
+    if (row.purpose !== 'sign_up') return refuse(c, 'OTP_EXPIRED');
 
     const code = normalizeCode(parsed.data.code);
     if (code === null) return refuse(c, 'OTP_INCORRECT');
@@ -45,7 +54,7 @@ export function registerSignUpVerifyRoute(
     if (consumed.status === 'ended') return refuse(c, 'OTP_REQUEST_ENDED');
     if (consumed.status === 'verified') return refuse(c, 'OTP_EXPIRED');
 
-    const created = await createAccount(dependencies.db, {
+    const created = await createAccount(dependencies.db, dependencies.auth, {
       row,
       now,
       requestId: c.get('requestId'),
@@ -59,13 +68,13 @@ export function registerSignUpVerifyRoute(
     const production = dependencies.env.NODE_ENV === 'production';
     if (created.outcome === 'created') {
       c.header('Set-Cookie', sessionCookie(created.token, production));
-      c.header('Set-Cookie', clearedCookie(PENDING_COOKIE, production), {
+      c.header('Set-Cookie', clearedCookie(PENDING_COOKIE, production, PENDING_COOKIE_PATH), {
         append: true,
       });
       return c.json({ outcome: 'created' }, 200);
     }
 
-    c.header('Set-Cookie', clearedCookie(PENDING_COOKIE, production));
+    c.header('Set-Cookie', clearedCookie(PENDING_COOKIE, production, PENDING_COOKIE_PATH));
     return c.json({ outcome: created.outcome }, 200);
   });
 }

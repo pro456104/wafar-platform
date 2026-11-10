@@ -942,7 +942,7 @@ page.
 ### 8.6 What the structural test asserts
 
 `packages/ui/tests/shell/*.spec.ts` mounts the components with
-`@nuxt/test-utils` and asserts, with no page and no route:
+`@vue/test-utils` under `jsdom` and asserts, with no page and no route:
 
 1. the nine items in order with their hrefs and Arabic names, each name carried
    whole as the item's accessible name in the full sidebar and in the rail;

@@ -38,11 +38,30 @@ class MemoryStore implements PendingStore {
     row.incorrectEntries += 1;
     return row.incorrectEntries;
   }
-  async incrementReRequests(id: string, _now: Date): Promise<number> {
+  async claimReRequest(id: string, _now: Date, max: number): Promise<number | null> {
     const row = this.rows.get(id);
-    if (!row) return 0;
+    if (!row || row.state !== 'pending' || row.reRequests >= max) return null;
     row.reRequests += 1;
     return row.reRequests;
+  }
+  async releaseReRequest(id: string, _now: Date): Promise<void> {
+    const row = this.rows.get(id);
+    if (row) row.reRequests = Math.max(row.reRequests - 1, 0);
+  }
+  async updateCode(input: {
+    id: string;
+    codeHash: string;
+    previousCodeHash: string;
+    codeExpiresAt: Date;
+    requestExpiresAt: Date;
+    now: Date;
+  }): Promise<void> {
+    const row = this.rows.get(input.id);
+    if (!row || row.state !== 'pending') return;
+    row.codeHash = input.codeHash;
+    row.previousCodeHash = input.previousCodeHash;
+    row.codeExpiresAt = input.codeExpiresAt;
+    row.requestExpiresAt = input.requestExpiresAt;
   }
   async markVerified(id: string, now: Date): Promise<void> {
     const row = this.rows.get(id);

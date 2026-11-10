@@ -1,11 +1,12 @@
 // The sign-in service: the decoy verification, the fixed check order, the lock,
-// and the uniform refusal (FR-007 … FR-009, FR-027, §5.5.1).
+// and the uniform refusal. Every password check and every session it issues is
+// the `auth` engine's, so no credential or session is hand-built here
+// (FR-007 … FR-009, FR-027, §5.5.1; ADR-151).
 import type { LockPort, SecurityEventPort } from '@wafar/shared';
-import { decoyHash, verifyPassword } from './password-policy.ts';
-import { createCredentialStore } from './credentials.ts';
+import { decoyHash } from './password-policy.ts';
+import type { AuthEngine } from '../engine.ts';
 import { createUsersRepository } from '../../users/repository/users.ts';
 import { createLockRepository } from '../../users/repository/user-lock.ts';
-import { createSessionService } from './sessions.ts';
 import type { Database } from '@wafar/db';
 
 export type SignInResult =
@@ -23,22 +24,20 @@ export interface SignInInput {
   lock?: LockPort;
 }
 
-export function createSignInService(db: Database) {
+export function createSignInService(db: Database, auth: AuthEngine) {
   return {
     async signIn(input: SignInInput): Promise<SignInResult> {
       const users = createUsersRepository(db);
-      const credentials = createCredentialStore(db);
       const locks = input.lock ?? createLockRepository(db);
-      const sessionService = createSessionService(db);
 
       // 2. Read the account; when absent, verify against the decoy.
       const account = await users.findByPhone(input.phoneNumber);
       const credential =
-        account === null ? null : await credentials.read(account.id);
+        account === null ? null : await auth.readCredential(account.id);
       const stored = credential?.passwordHash ?? (await decoyHash());
 
       // 3. Exactly one verification, whatever the case.
-      const passwordMatches = await verifyPassword(input.password, stored);
+      const passwordMatches = await auth.verifyPassword(input.password, stored);
 
       const fail = (reason: string): SignInResult => {
         input.events.emit({
@@ -77,7 +76,7 @@ export function createSignInService(db: Database) {
 
       // 8. Success.
       await locks.recordSuccess(account.id, input.now);
-      const issued = await sessionService.issue({
+      const issued = await auth.issue({
         userId: account.id,
         now: input.now,
         ...(input.ipAddress === undefined ? {} : { ipAddress: input.ipAddress }),

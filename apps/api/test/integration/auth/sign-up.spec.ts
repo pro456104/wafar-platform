@@ -19,7 +19,7 @@ import {
 const harness = hasDatabase ? createHarness() : null;
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 const password = 'correct horse battery staple';
@@ -104,6 +104,55 @@ describe.skipIf(!hasDatabase)('sign-up and verification', () => {
     expect(rows[0]?.email).toBe('218912345678@phone.invalid');
     expect(rows[0]?.phoneNumber).toBe('+218912345678');
     expect(harness!.events.filter((event) => event.event === 'auth.sign_up.verified')).toHaveLength(1);
+  });
+
+  it('refuses a superseded code as expired without spending an entry', async () => {
+    const jar: CookieJar = {};
+    const started = await startSignUp(jar);
+
+    // An accepted resend replaces the code and keeps the old one as superseded.
+    harness!.clock.advance(1000);
+    const resent = await call(
+      harness!,
+      'POST',
+      '/api/v1/auth/verifications/resend',
+      { requestId: started.requestId },
+      { jar, csrf: true },
+    );
+    expect(resent.status).toBe(202);
+    const superseded = started.code;
+    const live = harness!.sms.lastCode() ?? '';
+    expect(live).not.toBe(superseded);
+
+    const entries = async (): Promise<number> => {
+      const result = await harness!.db.execute(
+        sql.raw('SELECT incorrect_entries FROM phone_verifications'),
+      );
+      return (result.rows[0] as { incorrect_entries: number }).incorrect_entries;
+    };
+    expect(await entries()).toBe(0);
+
+    // The replaced code is expired, not wrong: it spends none of the five.
+    const refused = await call(
+      harness!,
+      'POST',
+      '/api/v1/auth/sign-up/verify',
+      { requestId: started.requestId, code: superseded },
+      { jar, csrf: true },
+    );
+    expect(refused.status).toBe(400);
+    expect((refused.body as { error: { code: string } }).error.code).toBe('OTP_EXPIRED');
+    expect(await entries()).toBe(0);
+
+    // The live code still creates the account.
+    const verified = await call(
+      harness!,
+      'POST',
+      '/api/v1/auth/sign-up/verify',
+      { requestId: started.requestId, code: live },
+      { jar, csrf: true },
+    );
+    expect(verified.body).toEqual({ outcome: 'created' });
   });
 
   it('states the existing-account outcome for an alternate spelling and writes no second account', async () => {
@@ -337,12 +386,6 @@ describe.skipIf(!hasDatabase)('sign-up and verification', () => {
     const { createUsersRepository } = await import(
       '../../../src/modules/users/repository/users.ts'
     );
-    const { createCredentialStore } = await import(
-      '../../../src/modules/auth/service/credentials.ts'
-    );
-    const { hashPassword } = await import(
-      '../../../src/modules/auth/service/password-policy.ts'
-    );
     const repository = createUsersRepository(harness!.db);
     const admin = await repository.create({
       fullName: 'مسؤول النظام',
@@ -352,7 +395,10 @@ describe.skipIf(!hasDatabase)('sign-up and verification', () => {
       role: 'administrator',
       mustChangePassword: true,
     });
-    await createCredentialStore(harness!.db).create(admin.id, await hashPassword(password));
+    await harness!.auth.createCredential({
+      userId: admin.id,
+      passwordHash: await harness!.auth.hashPassword(password),
+    });
 
     const jar: CookieJar = {};
     const pair = await bootstrap(harness!, jar);

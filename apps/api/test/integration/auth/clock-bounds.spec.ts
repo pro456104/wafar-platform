@@ -23,13 +23,13 @@ import {
 } from '../../support/harness.ts';
 import { createLockRepository } from '../../../src/modules/users/repository/user-lock.ts';
 import { isExpired, isInactive } from '../../../src/modules/auth/service/sessions.ts';
-import { createSessionService } from '../../../src/modules/auth/service/sessions.ts';
+
 
 const harness = hasDatabase ? createHarness() : null;
 const password = 'correct horse battery staple';
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 async function startSignUp(
@@ -187,7 +187,7 @@ describe.skipIf(!hasDatabase)('the four clocks on both sides of every bound', ()
       phoneNumber: '+218912345678',
       password,
     });
-    const sessions = createSessionService(harness!.db);
+    const sessions = harness!.auth;
     const user = (await harness!.db.select().from(users))[0]!;
     const issued = await sessions.issue({ userId: user.id, now: harness!.clock.now() });
     const issuedAt = harness!.clock.now();

@@ -11,6 +11,7 @@
 // keeps the deterministic per-sample numbers, because a repeated failed sign-in
 // moves the account's lock and a repeated request moves the same window; the
 // fixed pair states the closed outcome each case is measured on (T163).
+import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   bootstrap,
@@ -190,6 +191,16 @@ describe.skipIf(!hasDatabase)('the enumeration comparison', () => {
       if (index >= enumerationWarmUp) withAccount.push(result.ms);
     }
 
+    // The no-account block is disjoint from the seeded 0+ block and from the
+    // sign-in and recovery cases' 1000+/5000+ and 2000+/6000+ blocks, so this
+    // comparison measures existence, not two formats of one account.
+    for (const index of [0, total - 1]) {
+      const existing = await harness!.db.execute(
+        sql`SELECT count(*)::int AS n FROM users WHERE phone_number = ${numberAt(7000 + index)}`,
+      );
+      expect((existing.rows[0] as { n: number }).n).toBe(0);
+    }
+
     const otherJar: CookieJar = {};
     let otherFirst: { body: unknown; headers: Headers } | null = null;
     for (let index = 0; index < total; index += 1) {
@@ -203,7 +214,7 @@ describe.skipIf(!hasDatabase)('the enumeration comparison', () => {
           '/api/v1/auth/sign-up',
           {
             fullName: 'محمد علي',
-            phone: displayAt(index),
+            phone: displayAt(7000 + index),
             password,
             city: city(),
             website: '',

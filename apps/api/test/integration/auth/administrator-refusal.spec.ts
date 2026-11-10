@@ -5,7 +5,8 @@
 // AC-016; T109).
 import { eq, sql } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { users } from '@wafar/db';
+import { users, phoneVerifications } from '@wafar/db';
+import { hashOneTimeCode, hashResumeToken } from '../../../src/modules/auth/service/password-policy.ts';
 import cities from '@wafar/shared/reference/cities' with { type: 'json' };
 import { provision } from '../../support/cli.ts';
 import {
@@ -23,7 +24,7 @@ const phone = '+218912345678';
 const national = '0912345678';
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 async function requestRecovery(jar: CookieJar): Promise<{ requestId: string; code: string }> {
@@ -162,6 +163,86 @@ describe.skipIf(!hasDatabase)('the merchant surface and an administrator account
     expect(JSON.stringify(verified.body)).not.toMatch(/blocked|محظور/);
 
     // No credential was written and no session was issued.
+    const sessions = await harness!.db.execute(
+      sql`SELECT count(*)::int AS n FROM sessions`,
+    );
+    expect((sessions.rows[0] as { n: number }).n).toBe(0);
+  });
+
+  it('refuses a recovery row at the sign-up step and re-asserts the role inside the reset', async () => {
+    const provisioned = provision({
+      phone,
+      fullName: 'مدير المنصة',
+      city: city(),
+      password,
+    });
+    expect(provisioned.status).toBe(0);
+
+    // A recovery row's code presented at the sign-up step is refused before it
+    // is compared, so it cannot mark the row verified (FR-027).
+    const recovery: CookieJar = {};
+    const started = await requestRecovery(recovery);
+    const crossStep = await call(
+      harness!,
+      'POST',
+      '/api/v1/auth/sign-up/verify',
+      { requestId: started.requestId, code: started.code },
+      { jar: recovery, csrf: true },
+    );
+    expect(crossStep.status).toBe(400);
+    expect((crossStep.body as { error: { code: string } }).error.code).toBe(
+      'OTP_EXPIRED',
+    );
+    const pending = await harness!.db.execute(
+      sql`SELECT state FROM phone_verifications`,
+    );
+    expect((pending.rows[0] as { state: string }).state).toBe('pending');
+
+    // A row that reached the verified state by another path is still refused:
+    // the reset transaction re-asserts the administrator role, deletes the row,
+    // writes no credential, and creates no session.
+    await harness!.db.execute(sql`DELETE FROM phone_verifications`);
+    const id = 'administrator-verified-recovery-row';
+    const token = 'administrator-verified-recovery-token';
+    const now = harness!.clock.now();
+    await harness!.db.insert(phoneVerifications).values({
+      id,
+      phoneNumber: phone,
+      purpose: 'recovery',
+      state: 'verified',
+      codeHash: await hashOneTimeCode('123456', id),
+      codeExpiresAt: new Date(now.getTime() + 600_000),
+      requestExpiresAt: new Date(now.getTime() + 600_000),
+      incorrectEntries: 0,
+      reRequests: 0,
+      resumeTokenHash: hashResumeToken(token),
+      verifiedAt: now,
+    });
+    const before = await harness!.db.execute(
+      sql`SELECT password FROM accounts ORDER BY id`,
+    );
+    const resetJar: CookieJar = {};
+    await bootstrap(harness!, resetJar);
+    resetJar['wafar.pending'] = `${id}.${token}`;
+    const reset = await call(
+      harness!,
+      'POST',
+      '/api/v1/auth/password/reset',
+      { requestId: id, newPassword: 'a replacement password 42' },
+      { jar: resetJar, csrf: true },
+    );
+    expect(reset.status).toBe(400);
+    expect((reset.body as { error: { code: string } }).error.code).toBe(
+      'RECOVERY_EXPIRED',
+    );
+    const after = await harness!.db.execute(
+      sql`SELECT password FROM accounts ORDER BY id`,
+    );
+    expect(after.rows).toEqual(before.rows);
+    const rows = await harness!.db.execute(
+      sql`SELECT count(*)::int AS n FROM phone_verifications`,
+    );
+    expect((rows.rows[0] as { n: number }).n).toBe(0);
     const sessions = await harness!.db.execute(
       sql`SELECT count(*)::int AS n FROM sessions`,
     );

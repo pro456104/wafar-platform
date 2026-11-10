@@ -17,7 +17,7 @@ export function registerPasswordChangeRoute(
 ): void {
   app.post('/api/v1/auth/password/change', async (c) => {
     const now = dependencies.now();
-    const context = await authenticate(dependencies.db, {
+    const context = await authenticate(dependencies.db, dependencies.auth, {
       token: readCookie(c.req.header('cookie'), SESSION_COOKIE),
       now,
       requiresUnrestricted: false,
@@ -35,9 +35,12 @@ export function registerPasswordChangeRoute(
     const parsed = changePasswordRequestSchema.safeParse(payload);
     if (!parsed.success) return refuse(c, 'PASSWORD_TOO_SHORT');
 
-    const result = await createPasswordChangeService(dependencies.db).change({
+    const result = await createPasswordChangeService(
+      dependencies.db,
+      dependencies.auth,
+    ).change({
       userId: context.userId,
-      sessionId: context.sessionId,
+      token: context.token,
       currentPassword: parsed.data.currentPassword,
       newPassword: parsed.data.newPassword,
       now,

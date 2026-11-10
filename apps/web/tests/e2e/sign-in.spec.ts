@@ -12,6 +12,13 @@ import {
   uniqueNationalNumber,
 } from '../support/bare';
 import { dispatchMark, waitForDispatch } from '../support/fake-inbox';
+import { clearRateLimits } from '../support/seed';
+
+// The origin's account-creation window is shared by the whole suite, so each
+// scenario starts with a full budget.
+test.beforeEach(async () => {
+  await clearRateLimits();
+});
 
 const password = 'correct horse battery staple';
 
@@ -40,6 +47,7 @@ test('the sign-in journey confirms in place within thirty seconds and never reve
   // Seed one account through the product's own sign-up journey.
   const before = dispatchMark();
   await openSignUp(page);
+  await expect(page.locator('.wf-password__policy')).toBeVisible();
   await fillSignUpForm(page, {
     fullName: 'نور الهدى',
     phone,
@@ -65,6 +73,8 @@ test('the sign-in journey confirms in place within thirty seconds and never reve
   await expect(page.locator('select')).toHaveCount(0);
   await expect(page.locator('.wf-field__prefix')).toHaveText('+218');
   await expect(page.locator('input[autocomplete="one-time-code"]')).toHaveCount(0);
+  // The sign-in form applies no password rule and states none (FR-051).
+  await expect(page.locator('.wf-password__policy')).toHaveCount(0);
 
   const historyLength = await page.evaluate(() => history.length);
   expect(await page.evaluate(() => document.referrer)).toBe('');
@@ -88,7 +98,10 @@ test('the sign-in journey confirms in place within thirty seconds and never reve
   // SC-002: the in-place confirmation inside thirty seconds.
   const startedAt = Date.now();
   await signIn(page, phone, password);
-  await expect(page.getByText('تم تسجيل الدخول.')).toBeVisible();
+  await expect(page.locator('.wf-signed-in__heading')).toHaveText('تم تسجيل الدخول');
+  await expect(page.getByText('أنت مسجل الدخول الآن.')).toBeVisible();
+  // The terminal step has no field, so focus moves to its heading (AC-043).
+  await expect(page.locator('.wf-signed-in__heading')).toBeFocused();
   expect(Date.now() - startedAt).toBeLessThan(30_000);
 
   // No navigation, history entry, referrer, or stored value carries the number.

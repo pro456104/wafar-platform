@@ -21,7 +21,7 @@ const harness = hasDatabase ? createHarness() : null;
 const password = 'correct horse battery staple';
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 function form(overrides: Record<string, unknown> = {}): Record<string, unknown> {

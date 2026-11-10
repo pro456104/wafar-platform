@@ -6,11 +6,8 @@ import { createDatabase } from '@wafar/db';
 import { normalizePhone, validateCity, validateFullName } from '@wafar/shared';
 import { environment } from '../env.ts';
 import { createUsersRepository } from '../modules/users/repository/users.ts';
-import { createCredentialStore } from '../modules/auth/service/credentials.ts';
-import {
-  checkPasswordPolicy,
-  hashPassword,
-} from '../modules/auth/service/password-policy.ts';
+import { createAuthEngine } from '../modules/auth/engine.ts';
+import { checkPasswordPolicy } from '../modules/auth/service/password-policy.ts';
 import { createLogger } from '../observability/logger.ts';
 
 function argument(name: string): string | undefined {
@@ -134,9 +131,14 @@ async function main(): Promise<void> {
   let wroteRecord = true;
   const logger = createLogger({ onWriteFailure: () => { wroteRecord = false; } });
   try {
-    const passwordHash = await hashPassword(password);
-    const userId = await db.transaction(async (tx) => {
-      const account = await createUsersRepository(tx).create({
+    const auth = createAuthEngine({
+      db,
+      secret: env.BETTER_AUTH_SECRET,
+      baseUrl: env.BETTER_AUTH_URL,
+    });
+    const passwordHash = await auth.hashPassword(password);
+    const userId = await auth.transaction(async (scope) => {
+      const account = await createUsersRepository(scope.db).create({
         fullName: fullName.trim(),
         phoneNumber: normalized.e164,
         city: city.trim(),
@@ -144,7 +146,10 @@ async function main(): Promise<void> {
         role: 'administrator',
         mustChangePassword: true,
       });
-      await createCredentialStore(tx).create(account.id, passwordHash);
+      await scope.auth.createCredential({
+        userId: account.id,
+        passwordHash,
+      });
       return account.id;
     });
     logger.emit({

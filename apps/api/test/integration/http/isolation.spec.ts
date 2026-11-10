@@ -28,10 +28,7 @@ async function seedWithSession(phone: string, fullName: string): Promise<Seeded>
     password,
     fullName,
   });
-  const { createSessionService } = await import(
-    '../../../src/modules/auth/service/sessions.ts'
-  );
-  const issued = await createSessionService(harness!.db).issue({
+  const issued = await harness!.auth.issue({
     userId: account.id,
     now: harness!.clock.now(),
   });
@@ -86,7 +83,7 @@ describe.skipIf(!hasDatabase)('the merchant scope', () => {
     expect(JSON.stringify(body)).not.toContain('سالم بن عامر');
 
     // The shared entry point agrees: the token's account, never the supplied one.
-    const context = await authenticate(harness!.db, {
+    const context = await authenticate(harness!.db, harness!.auth, {
       token: first.token,
       now: harness!.clock.now(),
       requiresUnrestricted: false,
@@ -138,18 +135,22 @@ describe.skipIf(!hasDatabase)('the merchant scope', () => {
     // transaction that is rolled back, so the suite's own state survives.
     let mutationBrokeTheScope = false;
     try {
-      await harness!.db.transaction(async (tx) => {
-        await tx.delete(sessions).where(eq(sessions.userId, first.id));
-        await tx
+      await harness!.auth.transaction(async (scope) => {
+        await scope.db.delete(sessions).where(eq(sessions.userId, first.id));
+        await scope.db
           .update(sessions)
           .set({ token: first.token })
           .where(eq(sessions.id, secondSession!.id));
-        const context = await authenticate(tx as unknown as Database, {
-          token: first.token,
-          now: harness!.clock.now(),
-          requiresUnrestricted: false,
-          isUserInitiated: false,
-        });
+        const context = await authenticate(
+          scope.db as unknown as Database,
+          scope.auth,
+          {
+            token: first.token,
+            now: harness!.clock.now(),
+            requiresUnrestricted: false,
+            isUserInitiated: false,
+          },
+        );
         // The assertion the suite makes would now fail: the token resolves the
         // other account, so the scope is not carried by the lookup.
         expect(context.kind === 'session' ? context.userId : null).toBe(first.id);
@@ -160,7 +161,7 @@ describe.skipIf(!hasDatabase)('the merchant scope', () => {
     expect(mutationBrokeTheScope).toBe(true);
 
     // The rolled-back state is the one the suite established.
-    const context = await authenticate(harness!.db, {
+    const context = await authenticate(harness!.db, harness!.auth, {
       token: first.token,
       now: harness!.clock.now(),
       requiresUnrestricted: false,

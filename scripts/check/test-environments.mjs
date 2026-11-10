@@ -10,6 +10,7 @@ const enumeration = readFileSync(
 );
 const envExample = readFileSync('.env.example', 'utf8');
 const ci = readFileSync('.github/workflows/ci.yml', 'utf8');
+const playwright = readFileSync('apps/web/tests/playwright.config.ts', 'utf8');
 const problems = [];
 
 const expectations = [
@@ -141,6 +142,21 @@ if (ci.indexOf('enumeration:') === -1) {
   if (!/runs-on: ubuntu-24\.04/.test(enumerationJob)) {
     problems.push('ci.yml: the enumeration job is not on the fixed runner class');
   }
+}
+
+// The browser and load classes run in UTC: the browser context, both Playwright
+// servers, and the e2e (which also runs the accessibility and visual projects),
+// Lighthouse, and load jobs all pin it (T242).
+if (!/timezoneId: 'UTC'/.test(playwright)) {
+  problems.push('playwright.config.ts: the browser context is not in UTC');
+}
+const serverTz = playwright.match(/TZ: 'UTC'/g)?.length ?? 0;
+if (serverTz !== 2) {
+  problems.push(`playwright.config.ts: expected TZ=UTC in both web servers, found ${serverTz}`);
+}
+const ciTz = ci.match(/TZ: UTC/g)?.length ?? 0;
+if (ciTz < 3) {
+  problems.push(`ci.yml: expected TZ=UTC in the e2e, Lighthouse, and load jobs, found ${ciTz}`);
 }
 
 // The governance check runs in one process, once.

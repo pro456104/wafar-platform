@@ -11,15 +11,14 @@ const query = ref(props.modelValue);
 const open = ref(false);
 /** True once an entry's exact name is the control's value. */
 const chosen = ref(
-  props.modelValue !== '' &&
-    cities.entries.some((entry) => entry.name === props.modelValue),
+  props.modelValue !== '' && cities.entries.includes(props.modelValue),
 );
 
 const matches = computed(() => {
   const needle = normalizeArabic(query.value);
   if (needle.length === 0) return cities.entries.slice(0, 8);
   return cities.entries
-    .filter((entry) => normalizeArabic(entry.name).includes(needle))
+    .filter((entry) => normalizeArabic(entry).includes(needle))
     .slice(0, 8);
 });
 
@@ -34,6 +33,7 @@ function choose(name: string): void {
 <template>
   <div class="wf-city">
     <label class="wf-city__label" for="wf-city-input">المدينة</label>
+    <p class="wf-city__helper">قائمة ثابتة قابلة للبحث</p>
     <input
       id="wf-city-input"
       v-model="query"
@@ -49,8 +49,8 @@ function choose(name: string): void {
     <p v-if="message" role="alert" class="wf-city__message">{{ message }}</p>
     <ul v-if="open" id="wf-city-list" class="wf-city__list" role="listbox">
       <template v-if="matches.length > 0">
-        <li v-for="entry in matches" :key="entry.name" role="option">
-          <button type="button" @click="choose(entry.name)">{{ entry.name }}</button>
+        <li v-for="entry in matches" :key="entry" role="option">
+          <button type="button" @click="choose(entry)">{{ entry }}</button>
         </li>
       </template>
       <li v-else role="option" aria-disabled="true" class="wf-city__empty">
@@ -69,6 +69,11 @@ function choose(name: string): void {
 }
 .wf-city__label {
   font-weight: var(--wf-weight-medium);
+}
+.wf-city__helper {
+  margin: 0;
+  color: var(--wf-ink-muted);
+  font-size: var(--wf-text-sm);
 }
 .wf-city input {
   min-block-size: var(--wf-touch-floor);

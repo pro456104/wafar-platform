@@ -22,7 +22,22 @@ export interface PendingStore {
   deleteById(id: string): Promise<void>;
   deleteByPhone(phoneNumber: string): Promise<void>;
   incrementIncorrect(id: string, now: Date): Promise<number>;
-  incrementReRequests(id: string, now: Date): Promise<number>;
+  /**
+   * Claims one re-request allowance in a single conditional write; resolves the
+   * count after the claim, or null when none remains or the row moved on.
+   */
+  claimReRequest(id: string, now: Date, max: number): Promise<number | null>;
+  /** Returns a claimed allowance when the channel refused the dispatch. */
+  releaseReRequest(id: string, now: Date): Promise<void>;
+  /** Writes the replacement code and its expiries without touching the counts. */
+  updateCode(input: {
+    id: string;
+    codeHash: string;
+    previousCodeHash: string;
+    codeExpiresAt: Date;
+    requestExpiresAt: Date;
+    now: Date;
+  }): Promise<void>;
   markVerified(id: string, now: Date): Promise<void>;
 }
 
@@ -95,6 +110,7 @@ export function createPendingRequestService(store: PendingStore, sms: SmsTranspo
         purpose: input.purpose,
         state: 'pending',
         codeHash: await hashOneTimeCode(code, id),
+        previousCodeHash: null,
         codeExpiresAt,
         requestExpiresAt,
         incorrectEntries: 0,
@@ -114,20 +130,54 @@ export function createPendingRequestService(store: PendingStore, sms: SmsTranspo
     async resend(
       row: PendingRow,
       now: Date,
-    ): Promise<{ status: 'accepted'; row: PendingRow } | { status: 'limit' } | { status: 'send_failed' }> {
-      if (row.reRequests >= otpMaxReRequests) return { status: 'limit' };
+    ): Promise<
+      | { status: 'accepted'; row: PendingRow }
+      | { status: 'limit' }
+      | { status: 'send_failed' }
+      | { status: 'expired' }
+    > {
+      // The verified state owns no code, and its authority never outlives the
+      // request: a resend neither restarts its expiries nor dispatches a code
+      // (FR-014, AC-036; domain-model.md §8).
+      if (row.state !== 'pending') return { status: 'expired' };
+      // The allowance is claimed before the channel is called, so two
+      // concurrent resends cannot both pass the bound (FR-034).
+      const claimed = await store.claimReRequest(row.id, now, otpMaxReRequests);
+      if (claimed === null) return { status: 'limit' };
       const code = newCode();
       const accepted = await dispatch(row.phoneNumber, row.purpose, code);
-      if (!accepted) return { status: 'send_failed' };
+      if (!accepted) {
+        await store.releaseReRequest(row.id, now);
+        return { status: 'send_failed' };
+      }
       const { codeExpiresAt, requestExpiresAt } = expiries(now);
+      const codeHash = await hashOneTimeCode(code, row.id);
+      // The code this resend supersedes is kept so an entry of it is refused
+      // as expired rather than counted against the five (FR-034).
+      const previousCodeHash = row.codeHash;
+      try {
+        await store.updateCode({
+          id: row.id,
+          codeHash,
+          previousCodeHash,
+          codeExpiresAt,
+          requestExpiresAt,
+          now,
+        });
+      } catch (error) {
+        // The channel accepted a code this request will not hold; a resend that
+        // did not take effect spends no allowance (FR-034, T146, T247).
+        await store.releaseReRequest(row.id, now).catch(() => undefined);
+        throw error;
+      }
       const updated: PendingRow = {
         ...row,
-        codeHash: await hashOneTimeCode(code, row.id),
+        codeHash,
+        previousCodeHash,
         codeExpiresAt,
         requestExpiresAt,
-        reRequests: row.reRequests + 1,
+        reRequests: claimed,
       };
-      await store.upsert(updated);
       return { status: 'accepted', row: updated };
     },
 
@@ -146,6 +196,14 @@ export function createPendingRequestService(store: PendingStore, sms: SmsTranspo
           return { status: 'verified' };
         }
         return { status: 'correct' };
+      }
+      // A code a resend replaced is expired, not wrong: it is refused as such
+      // and never spends one of the five entries (FR-034).
+      if (
+        row.previousCodeHash !== null &&
+        (await verifyOneTimeCode(code, row.previousCodeHash, row.id))
+      ) {
+        return { status: 'expired' };
       }
       const count = await store.incrementIncorrect(row.id, now);
       if (count >= otpMaxIncorrectEntries) {

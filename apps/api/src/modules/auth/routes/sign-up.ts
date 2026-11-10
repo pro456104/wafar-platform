@@ -12,12 +12,12 @@ import {
 import { refuse, refuseDetails } from '../../../http/errors.ts';
 import { originFrom, spend } from '../service/rate-limit.ts';
 import { inspectForm } from '../service/form-guard.ts';
-import { hashPassword, checkPasswordPolicy } from '../service/password-policy.ts';
+import { checkPasswordPolicy } from '../service/password-policy.ts';
 import { createPhoneVerificationsRepository } from '../../users/repository/phone-verifications.ts';
 import { createPendingRequestService, discardedPreDispatch } from '../../users/service/pending-request.ts';
 import { pendingCookie } from '../../../http/deps.ts';
 import type { AppDependencies, AppEnv } from '../../../http/deps.ts';
-import { readPending } from './verifications.ts';
+import { pageStillTied, PENDING_TIE_HEADER, readPending } from './verifications.ts';
 
 export function registerSignUpRoute(
   app: Hono<AppEnv>,
@@ -60,7 +60,7 @@ export function registerSignUpRoute(
     // channel's current acceptance duration, so it is not observably faster
     // (FR-029, AC-031; plan record 15).
     if (input.website !== undefined && input.website !== '') {
-      await hashPassword(input.password).catch(() => undefined);
+      await dependencies.auth.hashPassword(input.password).catch(() => undefined);
       await discardedPreDispatch();
       const wait = dependencies.sms.acceptanceEstimateMs();
       if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
@@ -123,7 +123,8 @@ export function registerSignUpRoute(
       pending.row !== null &&
       pending.row.purpose === 'sign_up' &&
       pending.row.phoneNumber === normalized.e164 &&
-      pending.row.requestExpiresAt.getTime() > now.getTime()
+      pending.row.requestExpiresAt.getTime() > now.getTime() &&
+      pageStillTied(c.req.header(PENDING_TIE_HEADER), pending.row.id)
     ) {
       c.header(
         'Set-Cookie',
@@ -143,7 +144,7 @@ export function registerSignUpRoute(
       );
     }
 
-    const passwordHash = await hashPassword(input.password);
+    const passwordHash = await dependencies.auth.hashPassword(input.password);
     const store = createPhoneVerificationsRepository(dependencies.db);
     const service = createPendingRequestService(store, dependencies.sms);
     const started = await service.start({

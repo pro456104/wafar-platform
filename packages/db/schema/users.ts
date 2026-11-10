@@ -69,6 +69,8 @@ export const phoneVerifications = pgTable(
     purpose: text('purpose').notNull(),
     state: text('state').notNull().default('pending'),
     codeHash: text('code_hash').notNull(),
+    /** The code an accepted resend superseded; it is refused, never counted. */
+    previousCodeHash: text('previous_code_hash'),
     codeExpiresAt: timestamp('code_expires_at', {
       withTimezone: true,
       precision: 3,
@@ -117,6 +119,10 @@ export const phoneVerifications = pgTable(
     check(
       'phone_verifications_password_form',
       sql`${table.passwordHash} IS NULL OR ${table.passwordHash} LIKE '$wafar$scrypt$%'`,
+    ),
+    check(
+      'phone_verifications_previous_code_form',
+      sql`${table.previousCodeHash} IS NULL OR ${table.previousCodeHash} LIKE '$wafar$scrypt$%'`,
     ),
     check(
       'phone_verifications_verified_at_pair',

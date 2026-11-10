@@ -21,7 +21,7 @@ const password = 'correct horse battery staple';
 const newPassword = 'a different long password 42';
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 async function count(table: string): Promise<number> {

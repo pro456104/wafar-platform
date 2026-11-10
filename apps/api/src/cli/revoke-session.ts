@@ -1,8 +1,9 @@
 // The `revoke-session` CLI: the platform's explicit end of one session, with the
-// `platform_revocation` reason and stable exit codes (FR-012, Â§7.3).
+// `platform_revocation` reason and stable exit codes. The revocation itself is
+// the `auth` engine's (FR-012, §7.3; ADR-151).
 import { environment } from '../env.ts';
 import { createDatabase } from '@wafar/db';
-import { createSessionService } from '../modules/auth/service/sessions.ts';
+import { createAuthEngine } from '../modules/auth/engine.ts';
 import { processLogger } from '../observability/logger.ts';
 
 function argument(name: string): string | undefined {
@@ -25,14 +26,28 @@ if (env.DATABASE_URL === undefined) {
 }
 
 const { db, pool } = createDatabase(env.DATABASE_URL);
-const sessions = createSessionService(db);
+const auth = createAuthEngine({
+  db,
+  secret: env.BETTER_AUTH_SECRET,
+  baseUrl: env.BETTER_AUTH_URL,
+});
 const now = new Date();
 
 try {
-  const revoked =
+  // The row is resolved before it is ended, so the record names the account
+  // when a live session changed and stays silent about one that did not
+  // (FR-037, AC-040).
+  const row =
     token !== undefined
-      ? await sessions.revokeByToken(token, 'platform_revocation', now)
-      : await sessions.revoke(sessionId ?? '', 'platform_revocation', now);
+      ? await auth.resolve(token, now)
+      : await auth.resolveById(sessionId ?? '');
+
+  const revoked =
+    row === null || row.revokedAt !== null
+      ? false
+      : token !== undefined
+        ? await auth.revoke(token, 'platform_revocation', now)
+        : await auth.revokeById(sessionId ?? '', 'platform_revocation', now);
 
   if (!revoked) {
     console.error('No live session matched.');
@@ -44,6 +59,7 @@ try {
       requestId: `cli-${process.pid}`,
       reason: 'platform_revocation',
       sessionCount: 1,
+      ...(row === null ? {} : { accountId: row.userId }),
     });
     console.log('Session revoked.');
   }

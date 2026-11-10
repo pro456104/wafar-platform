@@ -21,7 +21,6 @@ import {
 import { authenticate, SESSION_COOKIE } from '../../../src/http/context.ts';
 import { createAdministratorSignInService } from '../../../src/modules/auth/service/sign-in-administrator.ts';
 import { createAdministratorPasswordChange } from '../../../src/modules/auth/service/password-change-administrator.ts';
-import { createSessionService } from '../../../src/modules/auth/service/sessions.ts';
 
 const harness = hasDatabase ? createHarness() : null;
 const password = 'administrator initial password';
@@ -57,7 +56,7 @@ describe.skipIf(!hasDatabase)('the administrator’s first sign-in and forced ch
 
   it('admits the first sign-in as restricted and runs the forced change once', async () => {
     await provisionAdministrator();
-    const service = createAdministratorSignInService(harness!.db);
+    const service = createAdministratorSignInService(harness!.db, harness!.auth);
     const now = harness!.clock.now();
 
     // Accepted, and restricted while the forced change stands.
@@ -73,14 +72,14 @@ describe.skipIf(!hasDatabase)('the administrator’s first sign-in and forced ch
 
     // The computed rule: an unrestricted-only action is refused, the change and
     // the session's own reads stay available.
-    const restricted = await authenticate(harness!.db, {
+    const restricted = await authenticate(harness!.db, harness!.auth, {
       token: signed.token,
       now,
       requiresUnrestricted: true,
       isUserInitiated: false,
     });
     expect(restricted).toEqual({ kind: 'refused', code: 'PASSWORD_CHANGE_REQUIRED' });
-    const readable = await authenticate(harness!.db, {
+    const readable = await authenticate(harness!.db, harness!.auth, {
       token: signed.token,
       now,
       requiresUnrestricted: false,
@@ -122,10 +121,10 @@ describe.skipIf(!hasDatabase)('the administrator’s first sign-in and forced ch
       phoneNumber: '+218912345679',
       password: 'merchant password value',
     });
-    const branch = createAdministratorPasswordChange(harness!.db);
+    const branch = createAdministratorPasswordChange(harness!.db, harness!.auth);
     const notAdministrator = await branch.change({
       userId: merchant.id,
-      sessionId: '00000000-0000-0000-0000-000000000000',
+      token: 'no-session-token',
       currentPassword: 'merchant password value',
       newPassword,
       now: harness!.clock.now(),
@@ -137,7 +136,7 @@ describe.skipIf(!hasDatabase)('the administrator’s first sign-in and forced ch
     // The change requires the current password.
     const wrongCurrent = await branch.change({
       userId: signed.userId,
-      sessionId: '00000000-0000-0000-0000-000000000000',
+      token: 'no-session-token',
       currentPassword: 'the wrong current password',
       newPassword,
       now: harness!.clock.now(),
@@ -152,7 +151,7 @@ describe.skipIf(!hasDatabase)('the administrator’s first sign-in and forced ch
     // A repeat of the initial password is refused before the lock and the check.
     const repeated = await branch.change({
       userId: signed.userId,
-      sessionId: '00000000-0000-0000-0000-000000000000',
+      token: 'no-session-token',
       currentPassword: password,
       newPassword: password,
       now: harness!.clock.now(),
@@ -183,13 +182,9 @@ describe.skipIf(!hasDatabase)('the administrator’s first sign-in and forced ch
     ).toBe(liveBeforeLock);
 
     harness!.clock.advance(lockMinutes * 60_000 - 1);
-    const signedSession = await createSessionService(harness!.db).resolve(
-      signed.token,
-      harness!.clock.now(),
-    );
     const stillLocked = await branch.change({
       userId: signed.userId,
-      sessionId: signedSession!.sessionId,
+      token: signed.token,
       currentPassword: password,
       newPassword,
       now: harness!.clock.now(),
@@ -232,12 +227,12 @@ describe.skipIf(!hasDatabase)('the administrator’s first sign-in and forced ch
     });
     expect(fresh).toMatchObject({ outcome: 'signed_in', restricted: true });
     if (fresh.outcome !== 'signed_in') return;
-    const resolved = await createSessionService(harness!.db).resolve(
+    const resolved = await harness!.auth.resolve(
       fresh.token,
       harness!.clock.now(),
     );
-    await createSessionService(harness!.db).revoke(
-      resolved!.sessionId,
+    await harness!.auth.revoke(
+      resolved!.token,
       'platform_revocation',
       harness!.clock.now(),
     );
@@ -358,7 +353,7 @@ describe.skipIf(!hasDatabase)('the administrator’s first sign-in and forced ch
 
   it('clears the counted failures on the forced change and starts the next run at one', async () => {
     await provisionAdministrator();
-    const service = createAdministratorSignInService(harness!.db);
+    const service = createAdministratorSignInService(harness!.db, harness!.auth);
     const signed = await service.signInAdministrator({
       phoneNumber: phone,
       password,

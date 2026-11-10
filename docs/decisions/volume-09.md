@@ -1280,3 +1280,176 @@ change, and `Project-Technologies.txt`'s header list gains 151 through 159.
 Review date: 2026-12-01; the tripwire is a limiter bypass, a single-origin run,
 a verdict that reports a refusal as a pass, or a percentile computed over
 refused requests.
+
+---
+
+## ADR-160 — Spec Kit scaffold refreshed to 1.3.2; the reserved command and extension set retained
+
+**Status**: Accepted — 2026-11-08
+**Owning directory**: `.specify/`, `docs/`, `AGENTS.md`, `README.md`, `ROADMAP.md`, `.specify/templates/overrides/`, `Project-Technologies.txt`
+**Owning feature**: none — governance decision; ratified by the repository owner
+
+**Context.** The installed CLI is 1.3.2 (released 2026-11-06). ADR-021 pinned
+Spec Kit to `>=1.1.0`, and ADR-081 upgraded the CLI to 1.1.2 while deliberately
+leaving the project's scaffold at 1.1.0; its item 2 says a scaffold refresh is a
+separate decision with its own ADR. The upgrade guide's project-file path is
+`specify integration upgrade <key>`, not a re-run of `init --force`.
+
+The manifest-aware upgrade changed four things in this repository. It refreshed
+the shared scripts. It replaced `speckit.specify` with the 1.3.2 command, which
+resolves the active template through `resolve-template.ps1 ... -Json` and writes
+the composed `TEMPLATE_CONTENT` instead of copying a file. It removed each
+integration's thirteen extension commands and the `speckit.taskstoissues`
+command as stale, because 1.3.2 records extension commands outside the
+integration manifests and upstream 1.3.0 removed taskstoissues from core. And
+it rewrote the manifests with only the nine core command files.
+
+Four project decisions constrain the result. The five core templates carry the
+fallback banners of ADR-039 and the registration-neutral examples of ADR-053,
+and upstream made no other change to them between 1.1.0 and 1.3.2. The two
+integration command directories must stay byte-identical and each manifest must
+cover the whole directory (ADR-086). Project-owned files keep their CLI
+baseline hashes so a refresh cannot mistake them for unmodified (ADR-072).
+`.gitattributes` fixes LF for Markdown and JSON and CRLF for PowerShell
+(ADR-039), so manifest hashes must be computed over those working-tree bytes,
+not over whatever the installer wrote.
+
+**Decision.**
+
+1. The scaffold records **1.3.2** in `.specify/init-options.json`,
+   `.specify/integration.json`, and the three integration manifests. The refresh
+   is the manifest-aware `specify integration upgrade` path; `init --here
+   --force` is not used.
+2. The shared scripts take the 1.3.2 content: `check-prerequisites.ps1`,
+   `common.ps1`, `setup-plan.ps1`, and `setup-tasks.ps1` gain the
+   `-LiteralPath` handling and the empty-plan/absent-template guards.
+   `create-new-feature.ps1` and `resolve-template.ps1` are byte-identical
+   upstream and are unchanged.
+3. `speckit.specify` takes the 1.3.2 command, including the resolver-based
+   template composition. `speckit.converge` keeps its project description
+   because upstream changed only that frontmatter line; its body is unchanged.
+   The other core commands are unchanged.
+4. The five core templates keep their project bytes — the ADR-039 banners and
+   the ADR-053 examples — because upstream 1.3.2 changed nothing else in them.
+   Their `speckit.manifest.json` hashes stay at those bytes.
+5. `speckit.taskstoissues` is retained at its 1.1.0 content in both integration
+   directories. Upstream 1.3.0 removed it from core, but this project still
+   reserves it under ADR-071; no owner or requirement exists to adopt it or to
+   retire the reservation. The command therefore remains available rather than
+   silently disappearing.
+6. The thirteen extension commands are restored byte-for-byte at their installed
+   versions: bug 1.0.0, assess 1.0.1, and git 1.0.1. The extensions are not
+   updated in this change. Both integration manifests are extended from the
+   nine core files back to the whole twenty-three-file command directory, so
+   ADR-086's coverage check still holds. A future extension update is an
+   independent change.
+7. The five override templates, `.specify/.gitignore`, and
+   `.specify/templates/exception-register.md` are untouched, and their manifest
+   hashes remain at the CLI baseline. `specify integration status` therefore
+   continues to report seven modified managed files by design.
+8. PowerShell files are normalised to CRLF and Markdown/JSON files to LF before
+   the manifests are hashed, so the drift check is stable across a fresh
+   checkout.
+9. Every live `ADR-001 … ADR-160` range string moves to **ADR-160**, and
+   `Project-Technologies.txt`'s header list gains 160.
+
+**What deliberately did not change.** The constitution stays **6.3.2**: no
+principle, register entry, entity, page, product feature, module, slice, or
+Usage Limit changes. `workflow.yml` keeps its project customisation. No
+override template, extension version, source file, specification, or product
+artifact changes. No scaffold file is regenerated by `specify init --here
+--force`.
+
+**Alternatives considered.**
+- *Re-run `specify init --here --force`.* Rejected: it overwrites the binding
+  overrides and the customised workflow, which is exactly why ADR-081 deferred
+  the refresh (ADR-072).
+- *Leave the scaffold at 1.1.0.* Rejected: the installed 1.3.2 CLI's
+  `speckit.specify` resolves composed templates and the refreshed scripts carry
+  the empty-plan and literal-path fixes; ADR-081 deferred the refresh, it did
+  not forbid it.
+- *Accept upstream's removal of `speckit.taskstoissues`.* Rejected: ADR-071 and
+  `AGENTS.md` reserve the surface, and no requirement or owner exists to either
+  adopt it or retire it. Removing the file would make the reservation statement
+  false without a decision.
+- *Accept the upstream core templates and drop the project banners.* Rejected:
+  the banners are a decision item of ADR-039 and the examples are ADR-053's
+  correction; upstream made no competing change to those files.
+- *Update the extensions in the same change.* Deferred: extension versions are
+  independent of the CLI, and updating them rewrites thirteen command bodies
+  and both registry registrations. That deserves its own review and diff.
+- *Re-record the hashes of the project-owned files so the status is clean.*
+  Rejected: ADR-072 item 3 keeps those hashes at the CLI baseline so the drift
+  stays visible and a refresh cannot overwrite them silently.
+- *Record no ADR.* Rejected: ADR-081 item 2 requires a scaffold refresh to be
+  its own decision.
+
+**Consequences.** The scaffold and the installed CLI now both read 1.3.2, and
+`speckit.specify` composes the overrides through the shared resolver instead of
+copying a fallback file. The governance drift check reports clean, with the
+index ending at ADR-160. The `specify integration status` warning remains at
+seven files by design. A later `specify integration upgrade` will again remove
+the thirteen extension commands and `speckit.taskstoissues` and rewrite the two
+integration manifests with only the core files; the restoration is mechanical —
+restore the fourteen files from version control, re-extend both manifests to
+twenty-three entries, and re-normalise line endings per ADR-039. Review date:
+the next Spec Kit upgrade.
+
+## ADR-161 — The city list's object envelope and version 2.0.0
+
+**Status**: Accepted — 2026-11-09. **Constitution version**: 6.3.2 (unchanged)
+**Owning directory**: `packages/shared/src/reference/`, `specs/001-identity-foundation/`, `docs/`
+**Owning feature**: R1 — the identity foundation (`specs/001-identity-foundation/`).
+
+**Context.** ADR-152 item 1 fixed
+`packages/shared/src/reference/libyan-cities.json` as a flat array of Arabic name
+strings at version `1.0.0` (2026-11-01), and item 2 fixed a `SOURCE` note beside
+it recording the source, the version, the 22-governorate reference count, the
+total entry count, and the SHA-256 digest. T225 replaced the 66-entry sample with
+the reviewed 138-entry dataset and needed those four values beside the names; a
+bare array has nowhere to carry them, so the file became an object whose
+`entries` is ADR-152's array. The shape departed from ADR-152 without a record,
+and `plan.md`, `data-model.md`, and `research.md` still described the flat array
+at `1.0.0`.
+
+**Decision.**
+
+1. `packages/shared/src/reference/libyan-cities.json` is an object with
+   `$comment` (the `SOURCE` note), `version`, `updated`, `source`,
+   `governorateCount`, `entryCount`, `sha256`, and `entries`.
+2. `entries` is the value ADR-152 fixed: one flat array of unique Arabic names
+   (governorate, city, or area), with the qualifier inside the name where a real
+   name recurs, and no Latin name or separate identifier.
+3. The dataset is version `2.0.0` (2026-11-09): the reviewed 138-entry list
+   covering the 22 governorates of the 2007 division, superseding the 66-entry
+   `1.0.0` sample. `governorateCount` is 22; `entryCount` equals
+   `entries.length`.
+4. `sha256` is the SHA-256 of `JSON.stringify(entries)`;
+   `scripts/gen/reference-digests.mjs` restamps it and the unit test fails when
+   an edit is not restamped.
+5. ADR-152 items 3-6 stand unchanged: the mobile-prefix dataset,
+   `normalizeArabic()` and substring search, the uniqueness and coverage test,
+   and the build-time failure mode.
+6. The unit test cites this record and asserts the envelope's fields, the 22
+   governorates, the reviewed count, a representative set of cities and areas,
+   uniqueness, the Arabic-only rule, and the digest.
+
+**Alternatives considered.**
+- *Keep the flat array and move the count and digest into the test.* Rejected:
+  the count becomes a second copy of the dataset, and the build-time failure
+  mode cannot see a digest the file does not carry.
+- *A flat array with a sibling metadata file.* Rejected: two files must be kept
+  in sync, and a copy that drifts is exactly what ADR-152 item 5 fails the build
+  to prevent.
+- *Keep ADR-152 unamended and treat the object as an implementation detail.*
+  Rejected: the shape is a binding decision item, and `plan.md`,
+  `data-model.md`, and `research.md` read it; an unrecorded departure makes the
+  register false.
+
+**Consequences.** FR-005's single list is unchanged in kind; the envelope is now
+a recorded decision, and the plan, the data model, and the research note read
+version `2.0.0` and the object. Every live `ADR-001 … ADR-161` range string
+moves to ADR-161, and `Project-Technologies.txt`'s header list gains 161. The
+constitution stays **6.3.2**: no principle, register entry, entity, page,
+feature, module, or Usage Limit changes. A future change to the names or the
+envelope is an amendment to this record rather than an edit inside a feature.

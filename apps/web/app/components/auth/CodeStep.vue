@@ -94,7 +94,7 @@ function submit(): void {
       />
       <p class="wf-code-step__hint">{{ notices.expiryHint }}</p>
       <button type="submit" class="wf-code-step__submit" :disabled="loading">
-        {{ loading ? notices.verifying : 'تحقق' }}
+        {{ loading && resending !== true ? notices.verifying : 'تحقق' }}
       </button>
     </form>
 

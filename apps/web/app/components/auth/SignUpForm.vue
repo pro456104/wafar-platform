@@ -152,7 +152,10 @@ function submit(): void {
     <CityCombobox v-model="city" :message="failureFor('city')" />
 
     <label class="wf-field">
-      <span>اسم المحل (اختياري)</span>
+      <span>
+        اسم المحل
+        <span class="wf-field__optional">اختياري</span>
+      </span>
       <input v-model="shopName" type="text" autocomplete="organization" />
       <span v-if="failureFor('shopName')" role="alert" class="wf-field__error">{{
         failureFor('shopName')
@@ -160,15 +163,23 @@ function submit(): void {
     </label>
 
     <div class="wf-honeypot" aria-hidden="true">
-      <label>
-        <span>اترك هذا الحقل فارغا</span>
-        <input v-model="website" type="text" tabindex="-1" autocomplete="off" />
-      </label>
+      <input
+        v-model="website"
+        name="website"
+        type="text"
+        tabindex="-1"
+        autocomplete="off"
+      />
     </div>
 
     <button type="submit" class="wf-submit" :disabled="loading">
-      {{ loading ? 'يجري الإرسال…' : 'إنشاء الحساب' }}
+      {{ loading ? 'يجري الإرسال…' : 'إرسال رمز التحقق' }}
     </button>
+
+    <p class="wf-sign-up__footnote">
+      سيصلك الرمز برسالة <span lang="en">SMS</span> إلى الرقم نفسه، ودخول الحساب
+      الموثق لا يحتاج رمزا.
+    </p>
   </form>
 </template>
 
@@ -207,6 +218,15 @@ function submit(): void {
 }
 .wf-field__error {
   color: var(--wf-danger);
+  font-size: var(--wf-text-sm);
+}
+.wf-field__optional {
+  color: var(--wf-ink-muted);
+  font-size: var(--wf-text-sm);
+}
+.wf-sign-up__footnote {
+  margin: 0;
+  color: var(--wf-ink-muted);
   font-size: var(--wf-text-sm);
 }
 .wf-honeypot {

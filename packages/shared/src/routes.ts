@@ -68,9 +68,10 @@ export const accountMenu = {
   settings: '/profile#settings',
 } as const;
 
-/** The destinations a guest is sent to the sign-in page from (FR-048). */
+/** The destinations a guest is sent to the sign-in page from (FR-048). Home,
+ * Parts, and Catalog are public: only the six merchant-area destinations
+ * redirect, so a guest's Catalog link stays `/catalogs`. */
 export const merchantAreaPaths: readonly string[] = [
-  '/catalogs',
   '/upload',
   '/my-files',
   '/cart',

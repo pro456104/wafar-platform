@@ -23,7 +23,7 @@ const phone = '0912345678';
 const e164 = '+218912345678';
 
 function city(): string {
-  return cities.entries[0]?.name ?? 'طرابلس';
+  return cities.entries[0] ?? 'طرابلس';
 }
 
 function oneTimeCodeMessages(to: string): number {
@@ -71,7 +71,7 @@ async function requestRecovery(jar: CookieJar): Promise<{ requestId: string }> {
 async function resend(
   jar: CookieJar,
   requestId: string,
-): Promise<{ status: number; body: unknown }> {
+): Promise<{ status: number; body: unknown; headers: Headers }> {
   return call(
     harness!,
     'POST',
@@ -113,12 +113,19 @@ describe.skipIf(!hasDatabase)('the code-dispatch ceiling', () => {
           (response.body as { remainingReRequests: number }).remainingReRequests,
         ).toBe(3 - reRequest);
       }
-      // The fifth dispatch (fourth re-request) is refused.
+      // The fifth dispatch (fourth re-request) is refused, and the refusal
+      // carries the remaining time to the request's boundary (FR-034).
       const exhausted = await resend(signUpJar, started.requestId);
       expect(exhausted.status).toBe(400);
       expect((exhausted.body as { error: { code: string } }).error.code).toBe(
         'OTP_RESEND_LIMIT',
       );
+      const retryAfterSeconds = (
+        exhausted.body as { error: { retryAfterSeconds: number } }
+      ).error.retryAfterSeconds;
+      expect(retryAfterSeconds).toBeGreaterThan(0);
+      expect(retryAfterSeconds).toBeLessThanOrEqual(300);
+      expect(exhausted.headers.get('Retry-After')).toBe(String(retryAfterSeconds));
     }
     expect(oneTimeCodeMessages(e164)).toBe(12);
 
@@ -200,5 +207,31 @@ describe.skipIf(!hasDatabase)('the code-dispatch ceiling', () => {
       expect(row.key).toMatch(/^(account_creation|sign_in|recovery):(origin|number):/);
       expect(row.key).not.toMatch(/message|dispatch|sms|code/i);
     }
+  });
+
+  it('claims a re-request allowance atomically under concurrent resends', async () => {
+    await seedAccount(harness!, { phoneNumber: e164, password });
+    const jar: CookieJar = {};
+    const started = await requestSignUp(jar);
+    expect(oneTimeCodeMessages(e164)).toBe(1);
+
+    const responses = await Promise.all(
+      Array.from({ length: 5 }, () => resend(jar, started.requestId)),
+    );
+    const accepted = responses.filter((response) => response.status === 202);
+    const refused = responses.filter((response) => response.status === 400);
+    expect(accepted).toHaveLength(3);
+    expect(refused).toHaveLength(2);
+    for (const response of refused) {
+      expect((response.body as { error: { code: string } }).error.code).toBe(
+        'OTP_RESEND_LIMIT',
+      );
+    }
+    expect(oneTimeCodeMessages(e164)).toBe(4);
+
+    const row = await harness!.db.execute(
+      sql`SELECT re_requests FROM phone_verifications WHERE id = ${started.requestId}`,
+    );
+    expect((row.rows[0] as { re_requests: number }).re_requests).toBe(3);
   });
 });

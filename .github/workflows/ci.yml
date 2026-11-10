@@ -1,6 +1,9 @@
-# The continuous-integration gate (CMV 14, ADR-143). Jobs run offline against
-# local services and the fake SMS transport; the dependency-install step is the
-# only networked step.
+# The continuous-integration gate (CMV 14, ADR-143). The classes run offline
+# against local services and the fake SMS transport. The setup steps that use
+# the network — the dependency install, the audit and OSV queries, and the tool
+# installs (Playwright's pinned browser and Semgrep) — are the only ones that do, and no
+# test class reaches the network. Lighthouse keeps its report locally; there is
+# no public upload.
 name: ci
 
 on:
@@ -72,13 +75,24 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Apply the first migration
+      - name: Apply the migrations
         run: pnpm --filter @wafar/db migrate
         env:
           DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
-      - name: Exercise the down migration
-        run: psql "postgres://wafar:wafar@localhost:5432/wafar" -f packages/db/migrations/0001_identity_foundation.down.sql && pnpm --filter @wafar/db migrate
+      - name: Exercise the down migrations
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f packages/db/migrations/0002_identity_foundation_previous_code.down.sql
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f packages/db/migrations/0001_identity_foundation.down.sql
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'DELETE FROM drizzle.__drizzle_migrations'
+          pnpm --filter @wafar/db migrate
+          applied="$(psql "$DATABASE_URL" -tAc 'SELECT count(*) FROM drizzle.__drizzle_migrations')"
+          expected="$(node -p "require('./packages/db/migrations/meta/_journal.json').entries.length")"
+          test "$applied" = "$expected"
+          for table in users accounts sessions phone_verifications verifications rate_limit_counters; do
+            psql "$DATABASE_URL" -tAc "SELECT count(*) FROM $table" > /dev/null
+          done
         env:
+          DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
           PGPASSWORD: wafar
       - run: pnpm test:integration
         env:
@@ -114,7 +128,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Apply the first migration
+      - name: Apply the migrations
         run: pnpm --filter @wafar/db migrate
         env:
           DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
@@ -161,7 +175,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Apply the first migration
+      - name: Apply the migrations
         run: pnpm --filter @wafar/db migrate
         env:
           DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
@@ -204,6 +218,7 @@ jobs:
       BETTER_AUTH_SECRET: ci-only-secret-value-000000
       SMS_TRANSPORT: fake
       NODE_ENV: production
+      TZ: UTC
     services:
       postgres:
         image: postgres:16-alpine
@@ -223,8 +238,8 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
-      - name: Apply the first migration
+      - run: pnpm --filter @wafar/web exec playwright install --with-deps chromium
+      - name: Apply the migrations
         run: pnpm --filter @wafar/db migrate
       - name: Build the artifacts the classes serve
         run: pnpm build
@@ -238,6 +253,8 @@ jobs:
   lighthouse:
     needs: e2e
     runs-on: ubuntu-latest
+    env:
+      TZ: UTC
     services:
       postgres:
         image: postgres:16-alpine
@@ -257,8 +274,8 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install chromium
-      - name: Apply the first migration
+      - run: pnpm --filter @wafar/web exec playwright install chromium
+      - name: Apply the migrations
         run: pnpm --filter @wafar/db migrate
         env:
           DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
@@ -279,8 +296,6 @@ jobs:
           name: inp-user-flow
           path: apps/web/reports/inp-user-flow.json
       - run: pnpm exec lhci autorun
-        env:
-          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
   # The registered SC-009 measurement (T117). The profile binds one loopback
   # source address per virtual user (127.0.0.2 - 127.0.0.22); Linux assigns the
@@ -311,7 +326,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Apply the first migration
+      - name: Apply the migrations
         run: pnpm --filter @wafar/db migrate
         env:
           DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
@@ -324,6 +339,7 @@ jobs:
         env:
           DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
           NODE_ENV: test
+          TZ: UTC
           WEB_ORIGIN: http://127.0.0.1:3000
       - name: Keep the load report
         if: always()
@@ -361,8 +377,10 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: pnpm audit
+        run: pnpm audit --audit-level=high
       - name: osv-scanner
-        uses: google/osv-scanner-action/osv-scanner-action@764c91816374ff2d8fc2095dab36eecd42d61638 # v1.9.2
+        uses: google/osv-scanner-action/osv-scanner-action@b1d267aea5211fa648d9d442fa64b90dbdcbdd36 # v2.7.0
         with:
           scan-args: |-
             --lockfile=pnpm-lock.yaml

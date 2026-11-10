@@ -1,8 +1,10 @@
 // The one client for the API: it holds the CSRF token and the form stamp the
-// render bootstrap returned, sends the pair on every mutation, and refreshes the
-// pair after a FORM_TOO_FAST so the retry needs no reload (FR-044, FR-029).
+// render bootstrap returned, sends the pair on every mutation, presents the
+// page's pending tie while one stands, and refreshes the pair after a
+// FORM_TOO_FAST so the retry needs no reload (FR-044, FR-029, FR-038).
 import { ref } from 'vue';
 import type { AuthErrorCode } from '@wafar/shared';
+import { heldPendingRequestId } from './usePendingRequest';
 
 export interface BootstrapPair {
   csrfToken: string;
@@ -17,6 +19,11 @@ export interface ApiRefusal {
 }
 
 let pair: BootstrapPair | null = null;
+
+/** The CSRF token the render bootstrap returned, for a same-origin proof. */
+export function heldCsrfToken(): string | null {
+  return pair?.csrfToken ?? null;
+}
 
 export function useApi() {
   const loading = ref(false);
@@ -42,6 +49,7 @@ export function useApi() {
   ): Promise<{ ok: true; status: number; data: T } | { ok: false; status: number; refusal: ApiRefusal }> {
     if (pair === null) await bootstrap();
     loading.value = true;
+    const tie = heldPendingRequestId();
     try {
       const response = await fetch(path, {
         method: 'POST',
@@ -49,6 +57,7 @@ export function useApi() {
         headers: {
           'content-type': 'application/json',
           'x-wafar-csrf': pair?.csrfToken ?? '',
+          ...(tie === null ? {} : { 'x-wafar-pending': tie }),
         },
         body: JSON.stringify(body),
       });

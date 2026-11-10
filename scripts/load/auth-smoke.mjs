@@ -169,9 +169,10 @@ function startApi() {
       env: {
         ...process.env,
         // An untrusted peer is keyed by its peer address (contracts/auth-api.md
-        // §2.5); development keeps the trusted-proxy path off, so each virtual
-        // user's own address is its origin key.
-        NODE_ENV: 'development',
+        // §2.5); the load class fixes the test environment, whose trusted-proxy
+        // allowlist is empty, so each virtual user's own address is its origin
+        // key.
+        NODE_ENV: 'test',
         DATABASE_URL: databaseUrl,
         BETTER_AUTH_SECRET: 'load-run-secret-value-000000',
         BETTER_AUTH_URL: apiOrigin.origin,
@@ -682,6 +683,12 @@ if (probeFinal?.retryAfter === null || probeFinal?.retryAfter === undefined) {
 
 const report = {
   criterion: 'SC-009',
+  environment: {
+    nodeEnv: 'test',
+    timezone: process.env['TZ'] ?? null,
+    transport: 'fake',
+    acceptMs,
+  },
   profile: {
     measuredRequests: 600,
     perOperation: 200,

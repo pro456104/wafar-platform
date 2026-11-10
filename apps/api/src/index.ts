@@ -5,6 +5,7 @@ import { createDatabase } from '@wafar/db';
 import { startSweepScheduler } from '@wafar/db/sweeps';
 import { environment, trustedProxiesFrom } from './env.ts';
 import { createApp } from './app.ts';
+import { createAuthEngine } from './modules/auth/engine.ts';
 import { assertSchemaVersion } from './http/schema-guard.ts';
 import { createLogger } from './observability/logger.ts';
 import { createSecurityEvents } from './modules/auth/service/events.ts';
@@ -43,6 +44,11 @@ async function main(): Promise<void> {
 
   const app = createApp({
     db,
+    auth: createAuthEngine({
+      db,
+      secret: env.BETTER_AUTH_SECRET,
+      baseUrl: env.BETTER_AUTH_URL,
+    }),
     env,
     sms: createSmsTransport(env),
     logger,

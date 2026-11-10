@@ -12,6 +12,13 @@ import {
   uniqueNationalNumber,
 } from '../support/bare';
 import { dispatchMark, waitForDispatch } from '../support/fake-inbox';
+import { clearRateLimits } from '../support/seed';
+
+// The origin's account-creation window is shared by the whole suite, so each
+// scenario starts with a full budget.
+test.beforeEach(async () => {
+  await clearRateLimits();
+});
 
 const password = 'correct horse battery staple';
 const values = {
@@ -63,7 +70,7 @@ test('a refusal arriving while the request is in flight stays on the submitted s
 
   // The in-progress state clears, and the guard and the refusal agree.
   await expect(submit).toBeEnabled();
-  await expect(page.locator('.wf-sign-up .wf-submit')).toHaveText('إنشاء الحساب');
+  await expect(page.locator('.wf-sign-up .wf-submit')).toHaveText('إرسال رمز التحقق');
 
   // Every non-password value stays; the password is never re-displayed.
   await expect(page.locator('input[autocomplete="name"]')).toHaveValue(

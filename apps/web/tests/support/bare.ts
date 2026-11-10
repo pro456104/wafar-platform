@@ -44,7 +44,7 @@ export async function fillSignUpForm(page: Page, values: SignUpValues): Promise<
 }
 
 export async function submitSignUp(page: Page): Promise<void> {
-  await page.getByRole('button', { name: 'إنشاء الحساب' }).click();
+  await page.getByRole('button', { name: 'إرسال رمز التحقق' }).click();
 }
 
 /** A national number unique to the run, inside a listed Libyan mobile prefix. */

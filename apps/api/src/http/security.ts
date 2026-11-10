@@ -82,6 +82,38 @@ export interface SecurityOptions {
   production: boolean;
 }
 
+/**
+ * The CSRF pair's comparison: both values are base64url tokens compared with
+ * `crypto.timingSafeEqual`, and a length mismatch is a failure (FR-044).
+ */
+export function csrfPairMatches(
+  cookieHeader: string | undefined,
+  header: string | undefined,
+): boolean {
+  const cookie = readCookie(cookieHeader, CSRF_COOKIE);
+  if (cookie === null || header === undefined || header === '') return false;
+  const left = Buffer.from(cookie, 'base64url');
+  const right = Buffer.from(header, 'base64url');
+  if (left.length === 0 || left.length !== right.length) return false;
+  return timingSafeEqual(left, right);
+}
+
+/**
+ * §2.3's guard: the activity signal is honoured only with the CSRF pair and an
+ * allowlisted origin. A same-origin GET carries no Origin in a browser, so the
+ * token is its same-origin proof; a present but unlisted origin refuses the
+ * signal, and the request itself still proceeds unchanged (FR-032).
+ */
+export function activitySignalHonoured(input: {
+  cookieHeader: string | undefined;
+  csrfHeader: string | undefined;
+  origin: string | undefined;
+  webOrigin: string;
+}): boolean {
+  if (input.origin !== undefined && input.origin !== input.webOrigin) return false;
+  return csrfPairMatches(input.cookieHeader, input.csrfHeader);
+}
+
 /** The nonce and header middleware; it runs before every route. */
 export function securityHeaders(options: SecurityOptions): MiddlewareHandler {
   return async (c, next) => {
@@ -131,9 +163,8 @@ export function csrfGuard(options: SecurityOptions): MiddlewareHandler {
         403 as 400,
       );
     }
-    const cookie = readCookie(c.req.header('cookie'), CSRF_COOKIE);
     const header = c.req.header(CSRF_HEADER);
-    if (!cookie || !header || cookie !== header) {
+    if (!csrfPairMatches(c.req.header('cookie'), header)) {
       return c.json(
         { error: { code: 'CSRF_FAILED', retryable: false } },
         403 as 400,

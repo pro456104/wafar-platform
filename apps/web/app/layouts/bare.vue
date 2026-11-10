@@ -1,6 +1,9 @@
 <!-- The bare layout: the non-interactive wordmark, the page title, the card, and the cross-links. It carries no frame (FR-021, FR-036, AC-023, AC-039). -->
 <script setup lang="ts">
-const props = defineProps<{ title: string; subtitle?: string }>();
+const props = withDefaults(
+  defineProps<{ title: string; subtitle?: string; showCrossLinks?: boolean }>(),
+  { subtitle: '', showCrossLinks: true },
+);
 
 useHead(() => ({ title: props.title }));
 </script>
@@ -9,14 +12,14 @@ useHead(() => ({ title: props.title }));
   <div class="bare-layout">
     <div class="bare-layout__inner">
       <div class="bare-layout__mark">
-        <WfWordmark as="mark" />
+        <WfWordmark as="mark" :shorten-at-narrow="false" />
       </div>
       <h1 class="bare-layout__title">{{ title }}</h1>
       <p v-if="subtitle" class="bare-layout__subtitle">{{ subtitle }}</p>
       <main class="bare-layout__card">
         <slot />
       </main>
-      <nav class="bare-layout__links" aria-label="روابط الصفحة">
+      <nav v-if="props.showCrossLinks" class="bare-layout__links" aria-label="روابط الصفحة">
         <slot name="cross-links" />
       </nav>
     </div>

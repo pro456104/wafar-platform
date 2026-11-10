@@ -35,7 +35,7 @@
          permissions, the page list, the file-processing sequence, and the
          statements the product already makes as acceptance criteria.
        - the decision register — `docs/DECISIONS.md`'s index and the volumes
-         under `docs/decisions/` (ADR-001 … ADR-159). A specification that
+         under `docs/decisions/` (ADR-001 … ADR-161). A specification that
          contradicts one is a blocking defect.
        - `docs/design/slice-map.md` — the slice's entry: its blocks and order,
          its states, its copy, and the open questions this specification must
@@ -2467,6 +2467,18 @@ keeps the decision it recorded (decided 2026-11-03, Clarifications).
   one-time code is served once at sign-up and once in password recovery; an
   action served by more than one request is protected on every request it is
   issued to.
+
+### Session 2026-11-10
+
+- Q: FR-055 and AC-062 say the migration this slice introduces is one reversible
+  step, while the plan and the tree carry two ordered migrations, `0001` and
+  `0002`. Which count is the rule? → A: Each migration is one reversible step
+  with both directions defined; this release carries two ordered steps, `0001`
+  then `0002`, and each down is the exact inverse of its up. FR-055's sentence,
+  AC-062's parenthetical, and the plan's schema-rollback section carry the rule;
+  the plan's "two ordered reversible steps" is the release reading, not a second
+  rule. No requirement, acceptance criterion, success criterion, or identifier
+  is added or renumbered (decided 2026-11-10, Clarifications).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -5298,12 +5310,13 @@ serves, and each criterion names the requirements it asserts (decided
   as the same class of event: state written under the version being rolled back
   is lost with it, so a session created after the migration ends and its holder
   signs in again, a lock and its count applied after it are gone, a pending
-  request started after it ends, and a window spent after it is unspent. The
+  request started after it ends, and a window spent after it is unspent. Each
   migration this slice introduces MUST be one reversible step with both
-  directions defined, and its rollback MUST be applied in staging before it
-  reaches production; R1 owns the migration and its reversibility and R12 owns
-  running a release-level rollback in production, with that boundary recorded in
-  the Assumptions. While a release is being rolled back the platform serves
+  directions defined, and each step's rollback MUST be applied in staging before
+  it reaches production; the release carries two ordered steps, `0001` then
+  `0002`; R1 owns the migrations and their reversibility and R12 owns running a
+  release-level rollback in production, with that boundary recorded in the
+  Assumptions. While a release is being rolled back the platform serves
   nothing, exactly as FR-054 provides for a deployment, so a request that arrives
   then is outside FR-040 there as it is here (decided 2026-11-04, Clarifications).
 
@@ -7318,7 +7331,8 @@ recording the change again (decided 2026-10-21, Clarifications; corrected
     FR-055)*
 62. **AC-062**: **Given** the first migration this slice introduces, **When** its
     rollback is taken, **Then** it is one reversible step with both directions
-    defined, its rollback is applied in staging before it is needed in
+    defined — the first of the release's two ordered steps, each meeting this
+    rule — its rollback is applied in staging before it is needed in
     production, and no destructive change reaches production *(FR-055)*; **And
     given** a release is rolled back to the previous schema version, **Then**
     state written under the version being rolled back is lost with it — a session

@@ -11,7 +11,12 @@ import {
   verifyCodeRequestSchema,
 } from '@wafar/shared';
 import { refuse, refuseDetails } from '../../../http/errors.ts';
-import { clearedCookie, pendingCookie, PENDING_COOKIE } from '../../../http/deps.ts';
+import {
+  clearedCookie,
+  pendingCookie,
+  PENDING_COOKIE,
+  PENDING_COOKIE_PATH,
+} from '../../../http/deps.ts';
 import type { AppDependencies, AppEnv } from '../../../http/deps.ts';
 import { originFrom, spend } from '../service/rate-limit.ts';
 import { createPhoneVerificationsRepository } from '../../users/repository/phone-verifications.ts';
@@ -19,7 +24,7 @@ import { createPendingRequestService } from '../../users/service/pending-request
 import { createUsersRepository } from '../../users/repository/users.ts';
 import { createRecoveryService } from '../service/recovery.ts';
 import { dispatchNotice } from '../service/notices.ts';
-import { readPending } from './verifications.ts';
+import { pageStillTied, PENDING_TIE_HEADER, readPending } from './verifications.ts';
 import { peerOf } from './sign-up.ts';
 
 export function registerRecoveryRoutes(
@@ -75,7 +80,8 @@ export function registerRecoveryRoutes(
       pending.row.purpose === 'recovery' &&
       pending.row.state === 'pending' &&
       pending.row.phoneNumber === normalized.e164 &&
-      pending.row.requestExpiresAt.getTime() > now.getTime()
+      pending.row.requestExpiresAt.getTime() > now.getTime() &&
+      pageStillTied(c.req.header(PENDING_TIE_HEADER), pending.row.id)
     ) {
       c.header(
         'Set-Cookie',
@@ -200,7 +206,10 @@ export function registerRecoveryRoutes(
       return refuse(c, 'RECOVERY_EXPIRED');
     }
 
-    const result = await createRecoveryService(dependencies.db).reset({
+    const result = await createRecoveryService(
+      dependencies.db,
+      dependencies.auth,
+    ).reset({
       row,
       newPassword: parsed.data.newPassword,
       now,
@@ -222,7 +231,7 @@ export function registerRecoveryRoutes(
         events: dependencies.events,
       });
     }
-    c.header('Set-Cookie', clearedCookie(PENDING_COOKIE, production()));
+    c.header('Set-Cookie', clearedCookie(PENDING_COOKIE, production(), PENDING_COOKIE_PATH));
     return c.json(
       { outcome: result.blocked ? 'reset_blocked' : 'reset' },
       200,

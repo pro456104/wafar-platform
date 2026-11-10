@@ -15,7 +15,16 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import { formatPhoneForDisplay, hasEmoji } from '@wafar/shared';
+import {
+  formatPhoneForDisplay,
+  fullNameMaxLength,
+  hasEmoji,
+  otpLength,
+  otpLifetimeMinutes,
+  passwordMaxLength,
+  passwordMinLength,
+  shopNameMaxLength,
+} from '@wafar/shared';
 import cities from '@wafar/shared/reference/cities' with { type: 'json' };
 import WfNumeral from '@wafar/ui/app/components/WfNumeral.vue';
 import CodeStep from '../../app/components/auth/CodeStep.vue';
@@ -203,8 +212,7 @@ describe('the user-facing copy', () => {
     // The fixed city list's recorded names are the second exception: Arabic,
     // emoji-free, and never re-numeralised or transliterated.
     const offenders: string[] = [];
-    for (const entry of cities.entries) {
-      const name = entry.name;
+    for (const name of cities.entries) {
       expect(hasArabic(name), `${name} is not Arabic`).toBe(true);
       const found = violations(name, 'supplied');
       if (found.length > 0) offenders.push(`${name} -> ${found.join(', ')}`);
@@ -223,5 +231,204 @@ describe('the user-facing copy', () => {
     expect(violations('نصّ')).toContain('diacritic');
     expect(violations('نص abc')).toContain('latin letters: abc');
     expect(violations('أرسل SMS')).toEqual([]);
+  });
+});
+
+// T220's binding: the rendered copy is compared with the contract's recorded
+// rows at test time, so the pages are not their own authority. The file is in
+// the repository, so the test reads it rather than holding a second copy.
+const contract = readFileSync(
+  'specs/001-identity-foundation/contracts/ui-contracts.md',
+  'utf8',
+);
+
+/** The lines of one Markdown section, up to the next heading. */
+function sectionLines(heading: string): string[] {
+  const lines = contract.split(/\r?\n/);
+  const start = lines.findIndex((line) => line.trim() === heading);
+  expect(start, `the contract carries ${heading}`).toBeGreaterThan(-1);
+  const out: string[] = [];
+  for (let index = start + 1; index < lines.length; index += 1) {
+    const line = lines[index] ?? '';
+    if (/^#{2,3} /.test(line)) break;
+    out.push(line);
+  }
+  return out;
+}
+
+/** The rows of the section's first Markdown table, cells trimmed. */
+function tableRows(heading: string): string[][] {
+  const rows: string[] = [];
+  let started = false;
+  for (const line of sectionLines(heading)) {
+    if (line.startsWith('|')) {
+      started = true;
+      rows.push(line);
+      continue;
+    }
+    if (started) break;
+  }
+  return rows
+    .filter((line) => !/^\|[\s|:-]+\|$/.test(line))
+    .slice(1)
+    .map((line) =>
+      line
+        .split('|')
+        .slice(1, -1)
+        .map((cell) => cell.trim().replace(/^`|`$/g, '')),
+    );
+}
+
+/** The recorded numerals are slots, so the limits' values fill them. */
+function withSlots(text: string): string {
+  return text
+    .replace(/(?<!\d)12(?!\d)/g, String(passwordMinLength))
+    .replace(/(?<!\d)128(?!\d)/g, String(passwordMaxLength))
+    .replace(/(?<!\d)5(?!\d)/g, String(otpLifetimeMinutes))
+    .replace(/(?<!\d)6(?!\d)/g, String(otpLength))
+    .replace(/(?<!\d)100(?!\d)/g, String(fullNameMaxLength));
+}
+
+function normalize(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+/** Interpolations, markup, the Latin token, digits, and spacing are not text. */
+function skeleton(value: string): string {
+  return value
+    .replace(/<[^>]*>/g, '')
+    .replace(/\{\{[^}]*\}\}/g, '')
+    .replace(/SMS/g, '')
+    .replace(/[`]/g, '')
+    .replace(/[\s\d]/g, '');
+}
+
+const copyTableRows: string[][] = [
+  ...tableRows('### 3.4 Copy'),
+  ...tableRows('### 4.2 Copy'),
+  ...tableRows('### 5.2 Copy'),
+];
+
+const sharedMessageRows: string[][] = tableRows(
+  '## 6. Messages shared by the three pages',
+);
+
+const actionRows: string[][] = tableRows('### 2.1 Common form behaviour (FR-040)');
+
+const recordedCopy: string[] = [
+  ...copyTableRows.flatMap((row) => (row[1] ?? '').split(' / ')),
+  ...sharedMessageRows.map((row) => row[2] ?? ''),
+  ...actionRows.flatMap((row) => [row[1] ?? '', row[2] ?? '']),
+  // The policy statement is the one recorded copy outside a table.
+  ...sectionLines('### 3.2 Field rules')
+    .filter((line) => line.startsWith('> '))
+    .map((line) => line.slice(2)),
+]
+  .map((text) => withSlots(text))
+  .map(normalize)
+  .filter((text) => text !== '' && text !== '—');
+
+const authSources = [
+  'apps/web/app/pages/auth',
+  'apps/web/app/components/auth',
+  'apps/web/app/layouts/bare.vue',
+];
+
+function authSourceText(): string {
+  return authSources
+    .flatMap((path) =>
+      path.endsWith('.vue') ? [readFileSync(path, 'utf8')] : sourceFiles(path).map((file) => readFileSync(file, 'utf8')),
+    )
+    .join('\n');
+}
+
+describe('the copy contract', () => {
+  it('resolves every numeral slot from the shared limits', () => {
+    // The recorded strings carry the values the slots hold today; a change in
+    // the class would fail here before it reached a page (ui-contracts §6).
+    expect(passwordMinLength).toBe(12);
+    expect(passwordMaxLength).toBe(128);
+    expect(otpLifetimeMinutes).toBe(5);
+    expect(otpLength).toBe(6);
+    expect(fullNameMaxLength).toBe(100);
+    expect(shopNameMaxLength).toBe(100);
+  });
+
+  it('matches every shared message row by code and reason', () => {
+    for (const row of sharedMessageRows) {
+      const code = (row[0] ?? '').split(' / ')[0] ?? '';
+      const reason = row[1] === '—' ? undefined : row[1];
+      const recorded = withSlots(normalize(row[2] ?? ''));
+      if (code === 'Resend accepted (202)') {
+        expect(notices.resendAccepted).toBe(recorded);
+        continue;
+      }
+      if (code === 'Signed-in after verification') {
+        expect(notices.signedInAfterVerification).toBe(recorded);
+        continue;
+      }
+      expect(
+        messageFor(
+          reason === undefined
+            ? { code: code as Parameters<typeof messageFor>[0]['code'] }
+            : { code: code as Parameters<typeof messageFor>[0]['code'], reason: reason as 'empty' },
+        ),
+        code,
+      ).toBe(recorded);
+    }
+  });
+
+  it('carries every recorded label, heading, body, and link', () => {
+    const corpus = normalize(
+      [
+        ...Object.values(notices),
+        ...sharedMessageRows.map((row) => row[2] ?? ''),
+        ...renderedCodes.flatMap((code) =>
+          ([undefined, 'empty', 'too_long', 'emoji'] as const).map((reason) =>
+            messageFor(
+              reason === undefined
+                ? { code: code as Parameters<typeof messageFor>[0]['code'] }
+                : {
+                    code: code as Parameters<typeof messageFor>[0]['code'],
+                    reason,
+                  },
+            ),
+          ),
+        ),
+      ].join('\n'),
+    );
+    const source = normalize(authSourceText());
+    const failures: string[] = [];
+    for (const recorded of recordedCopy) {
+      const exact = source.includes(recorded) || corpus.includes(recorded);
+      const composed = skeleton(source).includes(skeleton(recorded)) ||
+        skeleton(corpus).includes(skeleton(recorded));
+      if (!exact && !(skeleton(recorded).length >= 4 && composed)) {
+        failures.push(recorded);
+      }
+    }
+    expect(failures).toEqual([]);
+  });
+
+  it('carries no Arabic literal that no recorded row or exception contains', () => {
+    // The bare layout's nav label names the region for assistive technology;
+    // it is chrome, not product copy, and is the one listed exception.
+    const exceptions = ['روابط الصفحة'];
+    const recorded = recordedCopy.map((text) => normalize(text));
+    const failures: string[] = [];
+    for (const path of authSources) {
+      const files = path.endsWith('.vue') ? [path] : sourceFiles(path);
+      for (const file of files) {
+        for (const literal of stringsOf(readFileSync(file, 'utf8'))) {
+          const text = normalize(literal);
+          if (exceptions.some((exception) => text === exception)) continue;
+          const contained = recorded.some(
+            (row) => row.includes(text) || text.includes(row),
+          );
+          if (!contained) failures.push(`${file}: ${text}`);
+        }
+      }
+    }
+    expect(failures).toEqual([]);
   });
 });

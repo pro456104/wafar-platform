@@ -1,27 +1,29 @@
-// The first migration's rollback: the committed down migration removes the six
-// tables, the journal reads zero, the boot guard refuses to serve across the down
-// state, and re-applying the up restores the exact inverse with the seeded state
-// of the rolled-back version gone — the session ended, the lock and its count
-// gone, the pending request ended, and the window unspent (FR-055; AC-062; T151).
+// The release's rollback: the committed down migrations remove the six tables
+// and the column the later step adds, the journal reads zero, the boot guard
+// refuses to serve across the down state, and re-applying the ups restores the
+// exact inverse with the seeded state of the rolled-back version gone — the
+// session ended, the lock and its count gone, the pending request ended, and the
+// window unspent (FR-055; AC-062; T151, T245).
 import { readFileSync } from 'node:fs';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   applySql,
   createScratchDatabase,
-  downFile,
+  expectedSteps,
   migrateScratch,
+  migrationDownFiles,
+  migrationFiles,
   stampMigrations,
   stateTables,
   tableNames,
-  upFile,
   type Scratch,
 } from '../../support/scratch.ts';
 import { assertSchemaVersion } from '../../../src/http/schema-guard.ts';
 
 const hasDatabase = process.env['DATABASE_URL'] !== undefined;
 
-describe.skipIf(!hasDatabase)("the first migration's rollback", () => {
+describe.skipIf(!hasDatabase)("the release's rollback", () => {
   let scratch: Scratch;
   let applied: string[] = [];
 
@@ -89,8 +91,11 @@ describe.skipIf(!hasDatabase)("the first migration's rollback", () => {
       n: 1,
     });
 
-    // The down migration, then the journal step the migrator performs with it.
-    await applySql(scratch.db, readFileSync(downFile, 'utf8'));
+    // The down migrations in reverse order, then the journal step the migrator
+    // performs with them.
+    for (const file of migrationDownFiles) {
+      await applySql(scratch.db, readFileSync(file, 'utf8'));
+    }
     await stampMigrations(scratch.db, 0);
 
     const afterDown = await tableNames(scratch.db);
@@ -106,10 +111,12 @@ describe.skipIf(!hasDatabase)("the first migration's rollback", () => {
       /schema version mismatch/,
     );
 
-    // Re-applying the up restores the exact inverse: the same tables, and none
+    // Re-applying the ups restores the exact inverse: the same tables, and none
     // of the state written under the version that was rolled back.
-    await applySql(scratch.db, readFileSync(upFile, 'utf8'));
-    await stampMigrations(scratch.db, 1);
+    for (const file of migrationFiles) {
+      await applySql(scratch.db, readFileSync(file, 'utf8'));
+    }
+    await stampMigrations(scratch.db, expectedSteps);
     expect(await tableNames(scratch.db)).toEqual(applied);
 
     for (const table of stateTables) {

@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest';
 import cities from '@wafar/shared/reference/cities' with { type: 'json' };
 import CityCombobox from '../../app/components/auth/CityCombobox.vue';
 
-const first = cities.entries[0]?.name ?? 'طرابلس';
+const first = cities.entries[0] ?? 'طرابلس';
 
 describe('the city combobox', () => {
   it('shows the placeholder while no entry is chosen', () => {

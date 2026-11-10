@@ -2,17 +2,18 @@
 // the embedded version and refuses another applied count, a later release's
 // additive step leaves the live session with both clocks, the lock and its count,
 // the pending request with its code and allowance, and the spent window exactly
-// as they were, and the first migration carries no data statement against the
-// four state tables (FR-054; AC-060; T150).
+// as they were, and every committed migration carries no data statement against
+// the four state tables (FR-054; AC-060; T150).
 import { readFileSync } from 'node:fs';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { EXPECTED_SCHEMA_STEPS } from '@wafar/db/schema-version';
 import {
   createScratchDatabase,
   migrateScratch,
+  migrationFiles,
   stampMigrations,
   statementsOf,
-  upFile,
   type Scratch,
 } from '../../support/scratch.ts';
 import { assertSchemaVersion } from '../../../src/http/schema-guard.ts';
@@ -72,12 +73,14 @@ describe.skipIf(!hasDatabase)('the release boundary', () => {
       /schema version mismatch/,
     );
 
-    await stampMigrations(scratch.db, 2);
+    await stampMigrations(scratch.db, EXPECTED_SCHEMA_STEPS + 1);
     await expect(assertSchemaVersion(scratch.db)).rejects.toThrow(
-      /expected 1 applied step\(s\), found 2/,
+      new RegExp(
+        `expected ${EXPECTED_SCHEMA_STEPS} applied step\\(s\\), found ${EXPECTED_SCHEMA_STEPS + 1}`,
+      ),
     );
 
-    await stampMigrations(scratch.db, 1);
+    await stampMigrations(scratch.db, EXPECTED_SCHEMA_STEPS);
     await expect(assertSchemaVersion(scratch.db)).resolves.toBeUndefined();
   });
 
@@ -124,11 +127,11 @@ describe.skipIf(!hasDatabase)('the release boundary', () => {
         'ALTER TABLE "users" ADD COLUMN "release_probe" boolean DEFAULT false NOT NULL',
       ),
     );
-    await stampMigrations(scratch.db, 2);
+    await stampMigrations(scratch.db, EXPECTED_SCHEMA_STEPS + 1);
     await expect(assertSchemaVersion(scratch.db)).rejects.toThrow(
       /schema version mismatch/,
     );
-    await stampMigrations(scratch.db, 1);
+    await stampMigrations(scratch.db, EXPECTED_SCHEMA_STEPS);
 
     // Every clock, count, code, and window reads exactly as it did: no session
     // ended, no lock lifted or applied, no pending request ended, no window reset.
@@ -136,15 +139,18 @@ describe.skipIf(!hasDatabase)('the release boundary', () => {
   });
 
   it('carries no data statement against the four state tables', () => {
-    const statements = statementsOf(readFileSync(upFile, 'utf8'));
-    const forbidden = statements.filter((statement) =>
-      /^\s*(INSERT\s+INTO|UPDATE|DELETE\s+FROM)\s+"?(users|accounts|sessions|phone_verifications|rate_limit_counters|verifications)\b/i.test(
-        statement,
-      ),
-    );
-    expect(forbidden).toEqual([]);
-    for (const statement of statements) {
-      expect(statement).toMatch(/^(CREATE|ALTER|DROP|COMMENT)\b/i);
+    // Every committed migration is neutral, not only the first (T150, T245).
+    for (const file of migrationFiles) {
+      const statements = statementsOf(readFileSync(file, 'utf8'));
+      const forbidden = statements.filter((statement) =>
+        /^\s*(INSERT\s+INTO|UPDATE|DELETE\s+FROM)\s+"?(users|accounts|sessions|phone_verifications|rate_limit_counters|verifications)\b/i.test(
+          statement,
+        ),
+      );
+      expect(forbidden, file).toEqual([]);
+      for (const statement of statements) {
+        expect(statement, file).toMatch(/^(CREATE|ALTER|DROP|COMMENT)\b/i);
+      }
     }
   });
 });

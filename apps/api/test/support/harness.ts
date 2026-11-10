@@ -7,6 +7,7 @@ import type { SecurityEvent } from '@wafar/shared';
 import { createApp } from '../../src/app.ts';
 import type { AppDependencies } from '../../src/http/deps.ts';
 import type { Env } from '../../src/env.ts';
+import { createAuthEngine, type AuthEngine } from '../../src/modules/auth/engine.ts';
 import { FakeSmsTransport } from '../../src/modules/auth/sms/fake.ts';
 import { createLogger } from '../../src/observability/logger.ts';
 import { createFaultedDatabase, type FaultControl } from './fault.ts';
@@ -37,6 +38,7 @@ export function createClock(start: Date): Clock {
 export interface Harness {
   app: ReturnType<typeof createApp>;
   db: Database;
+  auth: AuthEngine;
   pool: ReturnType<typeof createDatabase>['pool'];
   sms: FakeSmsTransport;
   clock: Clock;
@@ -103,6 +105,11 @@ export function createHarness(options: HarnessOptions = {}): Harness {
   });
   const dependencies: AppDependencies = {
     db: wired,
+    auth: createAuthEngine({
+      db: wired,
+      secret: env.BETTER_AUTH_SECRET,
+      baseUrl: env.BETTER_AUTH_URL,
+    }),
     env,
     sms,
     logger,
@@ -115,6 +122,7 @@ export function createHarness(options: HarnessOptions = {}): Harness {
   return {
     app,
     db,
+    auth: dependencies.auth,
     pool,
     sms,
     clock,
@@ -260,12 +268,6 @@ export async function seedAccount(
   const { createUsersRepository } = await import(
     '../../src/modules/users/repository/users.ts'
   );
-  const { createCredentialStore } = await import(
-    '../../src/modules/auth/service/credentials.ts'
-  );
-  const { hashPassword } = await import(
-    '../../src/modules/auth/service/password-policy.ts'
-  );
   const users = createUsersRepository(harness.db);
   const account = await users.create({
     fullName: input.fullName ?? 'محمد علي',
@@ -277,10 +279,10 @@ export async function seedAccount(
       ? {}
       : { mustChangePassword: input.mustChangePassword }),
   });
-  await createCredentialStore(harness.db).create(
-    account.id,
-    await hashPassword(input.password),
-  );
+  await harness.auth.createCredential({
+    userId: account.id,
+    passwordHash: await harness.auth.hashPassword(input.password),
+  });
   if (input.status === 'blocked') {
     await harness.db.execute(
       sql`UPDATE users SET status = 'blocked' WHERE id = ${account.id}`,

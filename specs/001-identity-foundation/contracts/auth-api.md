@@ -140,6 +140,12 @@ returns it in a URL, and no response places it in a header, a cookie, or a
   `phone` field a response returned in its body — the 202 of §5.2 or §5.8, or
   the resume read of §5.3.1 — and is held in the page while it is open, not
   written to storage.
+- **The tie on a submission**: while the page still shows the code step it
+  started, its next sign-up or recovery submission carries
+  `X-Wafar-Pending: <requestId>`, and the server answers that request as it
+  stands without a second dispatch (§5.2, §5.8). The control that returns the
+  page to its first step drops the tie, so the next submission carries no such
+  header and is a fresh request that replaces the pending one (FR-034, FR-038).
 - **Verification**: an integration test asserts that no request line, response
   header, `Set-Cookie` value, or redirect `Location` carries the canonical
   number, and the end-to-end journeys assert that no address, history entry,
@@ -174,8 +180,11 @@ returns it in a URL, and no response places it in a header, a cookie, or a
   value it reports, and the page offers that attempt; a response a limit produces
   sets no interval of its own, and the limit's window alone decides when a repeat
   is accepted (FR-033, FR-034, FR-040).
-- `retryAfterSeconds` is present on `RATE_LIMITED` only and equals the number of
-  seconds until the current 15-minute window ends.
+- `retryAfterSeconds` is present on `RATE_LIMITED` and on `OTP_RESEND_LIMIT`:
+  on the first it equals the number of seconds until the current 15-minute
+  window ends, and on the second the number of seconds until the pending
+  request's own boundary (`request_expires_at`), which is also the
+  `Retry-After` header's value.
 - `details` lists every value failure when more than one applies (FR-051 allows
   several within step 4); `code` equals the first entry, and each entry carries
   its own `reason` where its code has one.
@@ -337,7 +346,9 @@ FR-029, FR-033, FR-035).
 `shopName` is optional; `website` is the honeypot (must be the empty string);
 `formStamp` is the value §5.1 returned when the page rendered, submitted
 unchanged. The request carries no time value: the interval FR-029 measures is
-read from the stamp's own issuance time, on the server's clock.
+read from the stamp's own issuance time, on the server's clock. It carries
+`X-Wafar-Pending: <requestId>` only while the page is still tied to a live
+request (§2.2); without that header the submission starts a fresh request.
 
 - **202** `{ "requestId", "phone": "+218912345678", "codeExpiresAt", "expiresAt" }` + `Set-Cookie: wafar.pending=…`
 - **Refusals**: `RATE_LIMITED`, `FORM_TOO_FAST`, `INVALID_PHONE`, `INVALID_FULL_NAME`, `INVALID_SHOP_NAME`, `CITY_NOT_IN_LIST`, `PASSWORD_TOO_SHORT`, `PASSWORD_TOO_LONG`, `PASSWORD_TOO_COMMON`, `OTP_SEND_FAILED`.
@@ -534,7 +545,8 @@ Ends every session of the account (FR-011, FR-043). Session: allows restricted.
 
 Starts a recovery request and dispatches the code (FR-014, FR-015, FR-033).
 
-**Request** — `{ "phone": "…" }`
+**Request** — `{ "phone": "…" }` + the pending cookie and, only while the page
+is still tied to a live request, `X-Wafar-Pending: <requestId>` (§2.2).
 
 - **202** `{ "requestId", "phone": "+218…", "codeExpiresAt", "expiresAt" }` + the
   pending cookie.
