@@ -3296,6 +3296,56 @@ entity, page, dependency, or decision record moved. The coverage run is the
 changed-line gate's input, not a second gate: it reports the production source
 T155 measures, and the changed-line check remains the blocking moment.
 
+### Acceptance record (2026-11-10)
+
+R1's acceptance is the acceptance commit, as *R1's acceptance (CHK036)* defines
+it: the commit recorded as the B8 verification run, whose CI run satisfies the
+eight conditions below together and whose pull request carries the evidence. The
+acceptance commit is the head of `001-identity-foundation` when the repository
+owner signs this record; the run it produces is the B8 verification run, and
+pull request #1 carries the checklist and the run's identifiers.
+
+1. **Every task is closed, and every criterion is carried.** `tasks.md` holds
+   T001–T284, every one `[X]`; every acceptance criterion is named by at least
+   one closed task (62 of 62); and every `(implements …)` citation resolves
+   against the specification's defined identifiers.
+2. **The checklists carry no unchecked item.** The nine files under
+   `checklists/` — `requirements.md` included — hold zero unchecked items.
+3. **The CI gate is green on the acceptance commit.** Eleven jobs:
+   `governance`, `lint-typecheck`, `unit`, `build-sbom`, `integration`,
+   `security-scan`, `coverage`, `enumeration`, `e2e` (the Playwright
+   journey, the axe scan, and the visual baseline), `lighthouse` (the INP flow
+   and the LCP/CLS budgets), and `load`.
+4. **The SC-009 verdict passes.** `reports/sc-009-load.json` carries
+   `verdict: pass` and `profile.host.verdictScope: registered measurement
+   host`: 600/600 accepted, no refusal, aggregate p50 283.1 ms, p95 418.5 ms,
+   work-only p95 387.9 ms, and the limiter probe's 21st submission refused
+   `429 RATE_LIMITED` with `Retry-After` — the registered run `42835176455`
+   on commit `6e9cfac`, whose report the acceptance commit carries unchanged.
+   The acceptance commit's own `load` job re-runs the same profile on the same
+   registered host and attaches its artifact to that run.
+5. **The migration and backup exercises have their records.** The
+   `integration` job applies the down migrations in reverse order, asserts the
+   applied count is back to the journal's length after the ups are re-applied,
+   and the encrypted-backup restore drill's record is
+   `reports/t129-restore-drill.json`.
+6. **The P1 checkpoint passed.** Its five US7 integration cases — T073, T074,
+   T075, T076, T077 — and the Polish T137 close it, over US1's and US2's
+   criteria.
+7. **The six exceptions are dispositioned.** `EX-007` stays Active with R2's
+   acceptance as its end and its 2027-01-31 escalation date unchanged;
+   `EX-008`–`EX-012` move to the register's Closed table on 2026-11-10, each
+   against the criteria its row names, because the stories they cross are
+   delivered together in this slice. The register still holds twelve rows, so
+   the drift check's count is unchanged.
+8. **The owner's signature is the only open item.** It is the merge of pull
+   request #1, and it is the owner's to give.
+
+No gate status moved: Gate 1 remains PASS with `EX-007` as the one live
+exception, Gate 2 remains PASS, and Gate 3 is untouched. No requirement,
+acceptance criterion, success criterion, CMV row, entity, page, dependency, or
+decision record moved, and the constitution stays at its current version.
+
 ## Project Structure
 
 ### Documentation (this feature)
