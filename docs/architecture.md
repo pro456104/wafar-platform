@@ -7,8 +7,9 @@ whose Technology Standards section is the register, and
 the constitution wins. The data model's entities and their owning modules are
 stated in `docs/domain-model.md`, which this document does not restate.
 
-**Status**: baseline for a repository where production code does not exist yet.
-Directories are created by the first feature that owns them, or by R1's
+**Status**: implemented through R1 (`001-identity-foundation`); the later
+slices' directories are still uncreated. Directories are created by the first
+feature that owns them, or by R1's
 foundation phase for the workspace and the layer; the phrase "pre-R1 foundation"
 is retired (ADR-139). Every directory holding production code is registered in
 that plan's Project Structure > Ownership Map (Project Structure and Debt
