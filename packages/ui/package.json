@@ -9,7 +9,7 @@
     "./app/*": "./app/*"
   },
   "dependencies": {
-    "@tanstack/vue-query": "^5.90.2",
+    "@tanstack/vue-query": "^5.107.1",
     "@wafar/shared": "workspace:*",
     "vue": "catalog:"
   },

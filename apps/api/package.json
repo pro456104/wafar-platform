@@ -22,7 +22,7 @@
     "drizzle-orm": "catalog:",
     "hono": "4.13.17",
     "pg": "catalog:",
-    "twilio": "^5.10.3",
+    "twilio": "^6.3.0",
     "zod": "catalog:"
   },
   "devDependencies": {
