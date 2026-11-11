@@ -965,7 +965,6 @@
                 "properties": {
                   "currentPassword": {
                     "type": "string",
-                    "minLength": 1,
                     "maxLength": 512
                   },
                   "newPassword": {
