@@ -53,8 +53,8 @@
 - [x] CHK009 Is the enumeration test's sampling protocol — 200 samples per case after a 20-request warm-up, the top and bottom 5% dropped, median ≤ 50 ms and p95 ≤ 150 ms — stated as SC-004's measurement rule, or is the criterion's only reference "a numeric tolerance the plan states"? [Traceability, Clarity, Spec §SC-004; Plan §Verification Notes (Enumeration uniformity)]
 - [x] CHK010 Is AC-031's timing property stated as the one-sided rule the test applies — the refusal is not observably faster than a success — rather than as equality, and is the channel-refusal case named as outside the comparison? [Clarity, Consistency, Spec §AC-031; Plan §Verification Notes (Enumeration uniformity)]
 - [x] CHK011 Is the P1 checkpoint's pass condition a named set of tests and criteria, or a general claim that the security tests gate it? [Clarity, Measurability, Spec §Test Coverage Request (End-to-end tests); Plan §Implementation Sequencing]
-- [x] CHK012 Is SC-009's measurement condition stated as the key plan — 20 origin keys and 600 number keys issuing 600 measured requests — so "10 authentication requests per second" is read as an aggregate ceiling rather than one client's rate? [Clarity, Consistency, Spec §SC-009; Plan §The SC-009 load profile]
-- [x] CHK013 Is the load verdict's fail condition stated as a rule — any refused request fails the run, each operation's accepted count must be 200, p50 ≤ 150 ms and p95 ≤ 1,000 ms, and the post-run probe must prove the limiter live — rather than as reporting guidance? [Measurability, Spec §SC-009; Plan §Verification Notes (Budget check)]
+- [x] CHK012 Is SC-009's measurement condition stated as the key plan — 20 origin keys and 600 number keys issuing 600 measured requests — so "5 authentication requests per second" is read as an aggregate ceiling rather than one client's rate? [Clarity, Consistency, Spec §SC-009; Plan §The SC-009 load profile] (Reworded 2026-11-11 by the convergence pass: the figure read 10; ADR-164 set the peak at 5.)
+- [x] CHK013 Is the load verdict's fail condition stated as a rule — any refused request fails the run, each operation's accepted count must be 200, p50 ≤ 500 ms, p95 ≤ 1,000 ms, the work-only p95 ≤ 500 ms, no dispatch faster than the declared 50 ms wait, and the post-run probe must prove the limiter live — rather than as reporting guidance? [Measurability, Spec §SC-009; Plan §Verification Notes (Budget check)] (Reworded 2026-11-11 by the convergence pass: the p50 limb read 150 ms, and the work-only ceiling and the dispatch rule were added, per ADR-162 and ADR-165.)
 
 ## Requirement Consistency — One Test, One Reading
 
@@ -272,3 +272,10 @@ than declarative.
 
 No FR, AC, or SC identifier was added, renumbered, reused, or amended; the counts
 stay 55 FR, 62 AC, and 9 SC, and the task count becomes 173.
+
+**Reviewed 2026-11-11 by the convergence pass.** CHK012 and CHK013 are reworded to
+the values ADR-162, ADR-164, and ADR-165 fix — 5 authentication requests per
+second, p50 ≤ 500 ms, the work-only p95 ≤ 500 ms, and the dispatch-not-faster-
+than-the-wait rule — so each item states the condition the verdict now asserts.
+No item changed state, the file still reads 38 marked, 0 open (38/38), and no FR,
+AC, or SC identifier moved.

@@ -43,7 +43,7 @@
 
 - [x] CHK001 Does the specification state an availability expectation for the identity surface — a target, a maintenance rule, or an explicit deferral — or does SC-009 bound only request latency, leaving "the service is available" undefined for the slice that ships the first data store? [Gap, Completeness, Spec §SC-009, §Assumptions; Constitution Deployment and Observability]
 - [x] CHK002 Is the user-visible outcome of an unavailable service or dependency defined — FR-040's inline, retryable failure on the three bare pages and the frame it delivers, or a distinct state — including while PostgreSQL, the dependency the readiness probe checks, is unreachable, so an outage has one stated rendering rather than an inference from the unnamed-failure clause? [Coverage, Clarity, Spec §FR-040, §FR-021, §FR-050; Plan §Technical Context (Health probe)]
-- [x] CHK003 Does the specification distinguish its measurement ceiling — up to 10 authentication requests per second and 500 concurrent sessions — from a service limit, and state what happens above it, including what a person whose request is not rate-limited experiences, so capacity exhaustion is not left as an unstated scenario? [Ambiguity, Gap, Spec §SC-009, §Assumptions, §FR-033]
+- [x] CHK003 Does the specification distinguish its measurement ceiling — up to 5 authentication requests per second and 500 concurrent sessions — from a service limit, and state what happens above it, including what a person whose request is not rate-limited experiences, so capacity exhaustion is not left as an unstated scenario? [Ambiguity, Gap, Spec §SC-009, §Assumptions, §FR-033] (Reworded 2026-11-11 by the convergence pass: the peak read 10; ADR-164 set it at 5.)
 - [x] CHK004 Is the boundary between SC-009's server-side p50/p95 budget and the pages' rendering budget — the constitution's Lighthouse LCP, INP, and CLS — stated, so neither budget is read as covering the other and the three delivered pages are not left without a performance obligation in the requirement set? [Clarity, Consistency, Spec §SC-009; Plan §Performance Goals; Constitution Performance Budgets and Verification]
 
 ## Requirement Clarity — Retry, Atomicity, and Record Content
@@ -101,14 +101,16 @@ item was reworded, and no FR, AC, or SC identifier moved.
 
 - **CHK003 — closed.** The Assumptions entry states the distinction once: up to
   10,000 registered accounts, up to 500 concurrent sessions, and a peak of no
-  more than 10 authentication requests per second are "a measurement condition,
+  more than 5 authentication requests per second are "a measurement condition,
   not a service limit: no request is refused for reaching them", and above them
   FR-033's per-key budgets still decide each request exactly as they do below the
   ceiling, while a request the platform cannot serve is FR-040's unnamed failure
   rendered on the page that made it. A person whose request is not rate-limited
   is therefore served on the same terms above the ceiling until the service
   cannot answer it, and then receives the one stated outage rendering; SC-009
-  fixes the measurement protocol and its aggregate ceiling.
+  fixes the measurement protocol and its aggregate ceiling. (Revised
+  2026-11-11 by the convergence pass: ADR-164 set the peak at 5 requests per
+  second, and the figure in the item above reads 5.)
 - **CHK004 — closed.** The Assumptions entry separates the two budgets: SC-009
   bounds a request's server-side completion alone, while the three pages carry a
   separate rendering budget fixed by the design contract and asserted by the

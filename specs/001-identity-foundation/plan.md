@@ -3306,7 +3306,7 @@ owner signs this record; the run it produces is the B8 verification run, and
 pull request #1 carries the checklist and the run's identifiers.
 
 1. **Every task is closed, and every criterion is carried.** `tasks.md` holds
-   T001–T284, every one `[X]`; every acceptance criterion is named by at least
+   T001–T289, every one `[X]`; every acceptance criterion is named by at least
    one closed task (62 of 62); and every `(implements …)` citation resolves
    against the specification's defined identifiers.
 2. **The checklists carry no unchecked item.** The nine files under
@@ -3345,6 +3345,14 @@ No gate status moved: Gate 1 remains PASS with `EX-007` as the one live
 exception, Gate 2 remains PASS, and Gate 3 is untouched. No requirement,
 acceptance criterion, success criterion, CMV row, entity, page, dependency, or
 decision record moved, and the constitution stays at its current version.
+
+The 2026-11-11 convergence pass (Phase 27, T285–T289) aligned three review
+artifacts and two records with ADR-162, ADR-164, and ADR-165: the load
+verdict's fail condition in `checklists/verification.md`, the measurement
+ceiling in the same file and in `checklists/operations.md`, the rate-limit
+rationale in `research.md`, and the specification's clarification record. No
+bound, rate, count, key plan, or scrypt parameter moved with them; the pass
+corrected readings, not rules.
 
 ## Project Structure
 

@@ -199,7 +199,8 @@ A fixed 15-minute window is used for the three authentication operations; keys
 are `op:origin:<ip>` and `op:number:<e164>`. A malformed value has no number
 key. Rows are removed by the hourly sweep once `expires_at < now()`.
 
-**Rationale**: The volume is at most 10 authentication requests per second, so
+**Rationale**: The volume is at most 5 authentication requests per second
+(ADR-164; the record read 10 when it was written), so
 Postgres is far below its capacity, and the counters share the transaction and
 backup story of the rest of the identity state. It avoids introducing the Redis
 client — a register gap R3 owns — before R3 exists, and it keeps R1's dependency
