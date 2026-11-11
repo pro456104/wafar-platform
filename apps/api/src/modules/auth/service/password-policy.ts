@@ -126,9 +126,34 @@ const breachedSourceUrl = new URL(
   import.meta.url,
 );
 
-interface BreachedSource {
+export interface BreachedListSource {
   uniqueDigests: number;
   sha256: string;
+}
+
+/**
+ * Parses and verifies the vendored list. The SOURCE record's SHA-256 is taken
+ * over the LF form, so a working copy that carries CRLF is read as the same
+ * list rather than as an empty one (FR-035; plan → CHK012).
+ */
+export function parseBreachedDigests(
+  raw: string,
+  source: BreachedListSource,
+): Set<string> {
+  const normalized = raw.replace(/\r\n?/g, '\n');
+  const digests = normalized.split('\n').filter((line) => line.length === 64);
+  if (digests.length !== source.uniqueDigests) {
+    throw new Error(
+      `The vendored breached-password list holds ${digests.length} digests, and its SOURCE record fixes ${source.uniqueDigests}.`,
+    );
+  }
+  const digest = createHash('sha256').update(normalized, 'utf8').digest('hex');
+  if (digest !== source.sha256) {
+    throw new Error(
+      `The vendored breached-password list does not match its SOURCE record's SHA-256 (${digest}).`,
+    );
+  }
+  return new Set(digests);
 }
 
 /**
@@ -139,28 +164,16 @@ interface BreachedSource {
 export function loadBreachedDigests(): Set<string> {
   if (breached !== undefined) return breached;
   let raw: string;
-  let source: BreachedSource;
+  let source: BreachedListSource;
   try {
     raw = readFileSync(breachedListUrl, 'utf8');
-    source = JSON.parse(readFileSync(breachedSourceUrl, 'utf8')) as BreachedSource;
+    source = JSON.parse(readFileSync(breachedSourceUrl, 'utf8')) as BreachedListSource;
   } catch {
     throw new Error(
       'The vendored breached-password list or its SOURCE record is missing or unreadable.',
     );
   }
-  const digests = raw.split('\n').filter((line) => line.length === 64);
-  if (digests.length !== source.uniqueDigests) {
-    throw new Error(
-      `The vendored breached-password list holds ${digests.length} digests, and its SOURCE record fixes ${source.uniqueDigests}.`,
-    );
-  }
-  const digest = createHash('sha256').update(raw, 'utf8').digest('hex');
-  if (digest !== source.sha256) {
-    throw new Error(
-      `The vendored breached-password list does not match its SOURCE record's SHA-256 (${digest}).`,
-    );
-  }
-  breached = new Set(digests);
+  breached = parseBreachedDigests(raw, source);
   return breached;
 }
 

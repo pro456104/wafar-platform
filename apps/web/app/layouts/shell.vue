@@ -16,8 +16,16 @@ const drawerOpen = ref(false);
 
 <template>
   <div class="shell-layout">
-    <WfShellHeader :signed-in="props.signedIn" :blocked="props.blocked" :full-name="props.fullName" />
-    <div class="shell-layout__body">
+    <WfShellHeader
+      :signed-in="props.signedIn"
+      :blocked="props.blocked"
+      :full-name="props.fullName"
+      :inert="drawerOpen ? true : undefined"
+    />
+    <div
+      class="shell-layout__body"
+      :inert="drawerOpen ? true : undefined"
+    >
       <div class="shell-layout__sidebar">
         <WfShellSidebar :guest="!props.signedIn" />
       </div>
@@ -25,7 +33,7 @@ const drawerOpen = ref(false);
         <slot />
       </main>
     </div>
-    <WfShellFooter />
+    <WfShellFooter :inert="drawerOpen ? true : undefined" />
     <WfShellBottomBar
       :guest="!props.signedIn"
       :drawer-open="drawerOpen"

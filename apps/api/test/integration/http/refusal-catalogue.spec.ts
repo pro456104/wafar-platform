@@ -64,8 +64,12 @@ const producers: Record<AuthErrorCode, Producer> = {
   METHOD_NOT_ALLOWED: { suite: 'apps/api/test/integration/http/transport-refusals.spec.ts', criterion: 'transport' },
 };
 
-/** String literals the suite scan must not read as a refusal code. */
-const notCodes = new Set(['DATABASE_URL', 'NODE_ENV']);
+/**
+ * String literals the suite scan must not read as a refusal code: the
+ * environment schema names variables in its own suites (the boot guard T296,
+ * and the integration harness), and a variable is not a code.
+ */
+const notCodes = new Set(['DATABASE_URL', 'NODE_ENV', 'BETTER_AUTH_SECRET']);
 
 interface ContractRow {
   code: string;

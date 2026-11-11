@@ -114,6 +114,81 @@ describe.skipIf(!hasDatabase)('the session endings', () => {
     expect(harness!.sms.messages.at(-1)?.kind).toBe('notice_signed_out_all');
   });
 
+  it('resolves the account from an ended session and ends the remaining live sessions', async () => {
+    await seedAccount(harness!, { phoneNumber: '+218912345678', password });
+    const first: CookieJar = {};
+    const second: CookieJar = {};
+    expect(await signIn(first, '0912345678')).toBe(200);
+    expect(await signIn(second, '0912345678')).toBe(200);
+
+    const endedToken = bearer(first)!;
+    const csrfToken = first['wafar.csrf']!;
+    const beforeEvents = harness!.events.length;
+    const beforeSms = harness!.sms.messages.length;
+
+    const out = await call(harness!, 'POST', '/api/v1/auth/sign-out', undefined, {
+      jar: first,
+      csrf: true,
+    });
+    expect(out.status).toBe(204);
+    expect(first['wafar.session']).toBeUndefined();
+
+    // §5.7: the ended session's row still names the account, so the other live
+    // session ends even though the presented session itself has ended.
+    const ended: CookieJar = { 'wafar.session': endedToken, 'wafar.csrf': csrfToken };
+    const all = await call(harness!, 'POST', '/api/v1/auth/sign-out-all', undefined, {
+      jar: ended,
+      csrf: true,
+    });
+    expect(all.status).toBe(204);
+
+    const other = await call(harness!, 'GET', '/api/v1/auth/session', undefined, {
+      jar: second,
+    });
+    expect(other.status).toBe(401);
+    expect((other.body as { error: { code: string } }).error.code).toBe('SESSION_ENDED');
+
+    expect(harness!.sms.messages.length).toBe(beforeSms + 1);
+    expect(harness!.sms.messages.at(-1)?.kind).toBe('notice_signed_out_all');
+    const revoked = harness!.events
+      .slice(beforeEvents)
+      .filter((event) => event.event === 'auth.session.revoked');
+    expect(revoked).toHaveLength(2);
+    expect(revoked.find((event) => event.reason === 'sign_out_all')).toMatchObject({
+      sessionCount: 1,
+      accountId: expect.any(String),
+    });
+
+    // A repeat after every session ended writes nothing and sends no second
+    // notice (the specification's 2026-11-04 clarification).
+    const afterEvents = harness!.events.length;
+    const afterSms = harness!.sms.messages.length;
+    const repeatJar: CookieJar = {
+      'wafar.session': endedToken,
+      'wafar.csrf': csrfToken,
+    };
+    const repeat = await call(harness!, 'POST', '/api/v1/auth/sign-out-all', undefined, {
+      jar: repeatJar,
+      csrf: true,
+    });
+    expect(repeat.status).toBe(204);
+    expect(harness!.events.length).toBe(afterEvents);
+    expect(harness!.sms.messages.length).toBe(afterSms);
+
+    // An unknown cookie has no account to resolve and does nothing.
+    const unknownJar: CookieJar = {
+      'wafar.session': 'no-such-session-token',
+      'wafar.csrf': csrfToken,
+    };
+    const unknown = await call(harness!, 'POST', '/api/v1/auth/sign-out-all', undefined, {
+      jar: unknownJar,
+      csrf: true,
+    });
+    expect(unknown.status).toBe(204);
+    expect(harness!.events.length).toBe(afterEvents);
+    expect(harness!.sms.messages.length).toBe(afterSms);
+  });
+
   it('ends every session on the password change and accepts only the new password', async () => {
     await seedAccount(harness!, { phoneNumber: '+218912345678', password });
     const jar: CookieJar = {};

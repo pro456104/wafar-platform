@@ -17,15 +17,18 @@ function returnFocus(): void {
   trigger?.focus();
 }
 
-function close(): void {
+async function close(): Promise<void> {
   emit('close');
+  // The bar is inert while the drawer is open, so focus can return only after
+  // the parent has closed it and lifted that state (FR-052, AC-024; T303).
+  await nextTick();
   returnFocus();
 }
 
 function onKey(event: KeyboardEvent): void {
   if (event.key === 'Escape' && props.open) {
     event.stopPropagation();
-    close();
+    void close();
   }
 }
 
@@ -69,7 +72,11 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey));
 }
 .wf-shell-drawer__panel {
   inline-size: var(--wf-sidebar-width);
-  block-size: 100%;
+  /* The panel ends at the bar's top edge; the overlay's scrim alone covers the
+     bar, which stays rendered and visible under it (FR-052, AC-024; T302). */
+  block-size: calc(
+    100% - var(--wf-bottom-bar-height) - env(safe-area-inset-bottom, 0px)
+  );
   background: var(--wf-surface);
 }
 </style>

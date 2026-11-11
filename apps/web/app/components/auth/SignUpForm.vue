@@ -89,9 +89,12 @@ function failureFor(field: string): string {
 }
 
 function submit(): void {
+  // The typed value is validated as it is, so a country code typed into the
+  // field is read once by normalizePhone rather than doubled by the prefix
+  // (FR-031, AC-007; T306).
   failures.value = validateSignUpValues({
     fullName: fullName.value,
-    phone: `+218${phone.value.replace(/\D/g, '')}`,
+    phone: phone.value,
     password: password.value,
     city: city.value,
     ...(shopName.value.trim() === '' ? {} : { shopName: shopName.value }),

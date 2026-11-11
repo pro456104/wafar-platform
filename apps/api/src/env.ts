@@ -3,10 +3,17 @@
 import { z } from 'zod';
 import { smsFakeMaxAcceptMs } from '@wafar/shared';
 
+/**
+ * The development and test placeholder. Production must never select it: a
+ * deployment that omits BETTER_AUTH_SECRET would otherwise sign sessions with
+ * a value published in this file (Constitution: Query Safety and Secrets).
+ */
+const DEVELOPMENT_AUTH_SECRET = 'development-only-secret-value-0000';
+
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   DATABASE_URL: z.string().min(1).optional(),
-  BETTER_AUTH_SECRET: z.string().min(16).default('development-only-secret-value-0000'),
+  BETTER_AUTH_SECRET: z.string().min(16).optional(),
   BETTER_AUTH_URL: z.string().url().default('http://localhost:3001'),
   WEB_ORIGIN: z.string().url().default('http://localhost:3000'),
   // The contract's trusted-proxy list (§2.5): comma-separated addresses whose
@@ -21,7 +28,17 @@ const schema = z.object({
   BACKUP_KEY_ENCRYPTION_KEY: z.string().optional(),
 });
 
-export type Env = z.infer<typeof schema>;
+type ParsedEnv = z.infer<typeof schema>;
+
+/** The validated environment, with the secret narrowed to the value in use. */
+export type Env = Omit<ParsedEnv, 'BETTER_AUTH_SECRET'> & {
+  BETTER_AUTH_SECRET: string;
+};
+
+/** The parse result, so a test can assert a refusal without `process.exit`. */
+export type EnvironmentResult =
+  | { success: true; data: Env }
+  | { success: false; errors: Record<string, string[] | undefined> };
 
 /** Reads the comma-separated trusted-proxy list; an empty value trusts none. */
 export function trustedProxiesFrom(value: string): string[] {
@@ -31,17 +48,63 @@ export function trustedProxiesFrom(value: string): string[] {
     .filter((entry) => entry !== '');
 }
 
+/**
+ * Parses the environment without exiting: production requires an injected
+ * secret and refuses the development placeholder; every other mode keeps the
+ * placeholder so a developer checkout boots without a secret store.
+ */
+export function parseEnvironment(source: NodeJS.ProcessEnv): EnvironmentResult {
+  const parsed = schema.safeParse(source);
+  if (!parsed.success) {
+    return { success: false, errors: parsed.error.flatten().fieldErrors };
+  }
+
+  const value = parsed.data;
+  if (value.NODE_ENV === 'production') {
+    if (value.BETTER_AUTH_SECRET === undefined) {
+      return {
+        success: false,
+        errors: {
+          BETTER_AUTH_SECRET: ['BETTER_AUTH_SECRET must be supplied in production'],
+        },
+      };
+    }
+    if (value.BETTER_AUTH_SECRET === DEVELOPMENT_AUTH_SECRET) {
+      return {
+        success: false,
+        errors: {
+          BETTER_AUTH_SECRET: [
+            'BETTER_AUTH_SECRET must not be the development placeholder in production',
+          ],
+        },
+      };
+    }
+    return {
+      success: true,
+      data: { ...value, BETTER_AUTH_SECRET: value.BETTER_AUTH_SECRET },
+    };
+  }
+
+  return {
+    success: true,
+    data: {
+      ...value,
+      BETTER_AUTH_SECRET: value.BETTER_AUTH_SECRET ?? DEVELOPMENT_AUTH_SECRET,
+    },
+  };
+}
+
 let cached: Env | undefined;
 
 /** Reads and validates the environment once; a second call reuses the result. */
 export function environment(): Env {
   if (cached === undefined) {
-    const parsed = schema.safeParse(process.env);
-    if (!parsed.success) {
-      console.error('Invalid environment:', parsed.error.flatten().fieldErrors);
+    const result = parseEnvironment(process.env);
+    if (!result.success) {
+      console.error('Invalid environment:', result.errors);
       process.exit(1);
     }
-    cached = parsed.data;
+    cached = result.data;
   }
   return cached;
 }

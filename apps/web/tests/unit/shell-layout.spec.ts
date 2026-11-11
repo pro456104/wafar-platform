@@ -49,6 +49,26 @@ describe('the shell layout', () => {
     expect(wrapper.find('.drawer').attributes('data-guest')).toBe('true');
   });
 
+  it('takes the surfaces below the drawer out of focus while it is open', async () => {
+    const wrapper = mount(ShellLayout, { global: { stubs } });
+    const header = wrapper.find('header');
+    const body = wrapper.find('.shell-layout__body');
+    const footer = wrapper.find('footer');
+    expect(header.element.hasAttribute('inert')).toBe(false);
+    expect(body.element.hasAttribute('inert')).toBe(false);
+    expect(footer.element.hasAttribute('inert')).toBe(false);
+
+    await wrapper.find('[data-slot="more"]').trigger('click');
+    expect(header.element.hasAttribute('inert')).toBe(true);
+    expect(body.element.hasAttribute('inert')).toBe(true);
+    expect(footer.element.hasAttribute('inert')).toBe(true);
+
+    await wrapper.find('.drawer-close').trigger('click');
+    expect(header.element.hasAttribute('inert')).toBe(false);
+    expect(body.element.hasAttribute('inert')).toBe(false);
+    expect(footer.element.hasAttribute('inert')).toBe(false);
+  });
+
   it('gives a signed-in merchant the signed-in composition', async () => {
     const wrapper = mount(ShellLayout, { props: { signedIn: true }, global: { stubs } });
     expect(wrapper.find('.sidebar').attributes('data-guest')).toBe('false');

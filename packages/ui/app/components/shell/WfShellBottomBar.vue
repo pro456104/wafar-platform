@@ -71,8 +71,8 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll));
   <nav
     class="wf-shell-bottom-bar"
     :class="{ 'wf-shell-bottom-bar--hidden': hidden }"
-    :aria-hidden="hidden ? 'true' : undefined"
-    :inert="hidden ? true : undefined"
+    :aria-hidden="hidden || drawerOpen ? 'true' : undefined"
+    :inert="hidden || drawerOpen ? true : undefined"
     aria-label="التنقل السفلي"
   >
     <template v-for="slot in bottomBarSlots" :key="slot.key">

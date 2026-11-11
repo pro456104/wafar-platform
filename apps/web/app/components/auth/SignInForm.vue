@@ -22,7 +22,10 @@ watch(
 );
 
 function submit(): void {
-  const failures = validateSignInValues({ phone: `+218${phone.value}`, password: password.value });
+  // The typed value is validated as it is, so a country code typed into the
+  // field is read once by normalizePhone rather than doubled by the prefix
+  // (FR-031, AC-007; T306).
+  const failures = validateSignInValues({ phone: phone.value, password: password.value });
   phoneMessage.value =
     failures.length === 0 ? '' : messageFor({ code: failures[0]?.code ?? 'INVALID_PHONE' });
   if (failures.length > 0) return;

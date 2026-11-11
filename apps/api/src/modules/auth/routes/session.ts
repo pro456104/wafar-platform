@@ -116,33 +116,33 @@ export function registerSessionRoutes(
     if (token !== null) {
       const now = dependencies.now();
       const row = await auth.resolve(token, now);
-      // A repeat of the ended session revokes nothing and sends no notice.
-      if (
-        row !== null &&
-        row.revokedAt === null &&
-        !isExpired(row.expiresAt, now) &&
-        !isInactive(row.lastActivityAt, now)
-      ) {
+      // §5.7: an ended session whose row still exists names the account, so
+      // the remaining live sessions are revoked; an unknown cookie has no
+      // account. A repeat after every session ended revokes nothing and sends
+      // no notice, because only a changed row emits the record and the notice.
+      if (row !== null) {
         const count = await auth.revokeAll(row.userId, 'sign_out_all', now);
-        dependencies.events.emit({
-          event: 'auth.session.revoked',
-          outcome: 'success',
-          requestId: c.get('requestId'),
-          reason: 'sign_out_all',
-          sessionCount: count,
-          accountId: row.userId,
-        });
-        const account = await createUsersRepository(dependencies.db).findById(
-          row.userId,
-        );
-        if (account !== null) {
-          await dispatchNotice(dependencies.sms, {
-            to: account.phoneNumber,
-            kind: 'signed_out_all',
-            now,
+        if (count > 0) {
+          dependencies.events.emit({
+            event: 'auth.session.revoked',
+            outcome: 'success',
             requestId: c.get('requestId'),
-            events: dependencies.events,
+            reason: 'sign_out_all',
+            sessionCount: count,
+            accountId: row.userId,
           });
+          const account = await createUsersRepository(dependencies.db).findById(
+            row.userId,
+          );
+          if (account !== null) {
+            await dispatchNotice(dependencies.sms, {
+              to: account.phoneNumber,
+              kind: 'signed_out_all',
+              now,
+              requestId: c.get('requestId'),
+              events: dependencies.events,
+            });
+          }
         }
       }
     }

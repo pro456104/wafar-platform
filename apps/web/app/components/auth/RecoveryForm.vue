@@ -16,7 +16,10 @@ const phone = ref(props.initialPhone ?? '');
 const localMessage = ref('');
 
 function submit(): void {
-  const normalized = normalizePhone(`+218${phone.value}`);
+  // The typed value is validated as it is, so a country code typed into the
+  // field is read once by normalizePhone rather than doubled by the prefix
+  // (FR-031, AC-007; T306).
+  const normalized = normalizePhone(phone.value);
   localMessage.value =
     normalized === null ? 'أدخل رقم هاتف ليبي صحيحا يبدأ بـ +218.' : '';
   if (normalized === null) return;

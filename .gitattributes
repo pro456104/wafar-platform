@@ -16,6 +16,9 @@
 *.css   text eol=lf
 *.mjs   text eol=lf
 *.sh    text eol=lf
+# The vendored breached-password digests are read against the SOURCE record's
+# LF digest (T140, T295); a CRLF checkout would change both the count and the hash.
+*.sha256 text eol=lf
 
 # Planned-stack sources: same rule, applied before the workspaces exist so a
 # Windows checkout cannot introduce CRLF into them later.

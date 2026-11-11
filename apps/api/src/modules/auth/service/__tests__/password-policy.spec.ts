@@ -1,15 +1,19 @@
 // Unit test the password policy and the scrypt profile: the 12–128 bounds, the
-// three refusal reasons, the vendored membership test, and the stored form
-// (FR-035, AC-037).
+// three refusal reasons, the vendored membership test (an LF and a CRLF copy
+// reading the same), and the stored form (FR-035, AC-037).
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   checkPasswordPolicy,
   hashOneTimeCode,
   hashPassword,
   isBreachedPassword,
+  parseBreachedDigests,
   parseHash,
   verifyOneTimeCode,
   verifyPassword,
+  type BreachedListSource,
 } from '../password-policy.ts';
 
 describe('the password policy', () => {
@@ -29,6 +33,49 @@ describe('the password policy', () => {
 
   it('accepts a value inside the bounds that is not in the list', () => {
     expect(checkPasswordPolicy('كلمة-سر-طويلة-جدا-987')).toBeNull();
+  });
+
+  it('reads the vendored list the same from an LF and a CRLF copy', () => {
+    const raw = readFileSync(
+      new URL('../../data/breached-passwords.sha256', import.meta.url),
+      'utf8',
+    );
+    const source = JSON.parse(
+      readFileSync(
+        new URL('../../data/breached-passwords.source.json', import.meta.url),
+        'utf8',
+      ),
+    ) as BreachedListSource;
+    const canonical = raw.replace(/\r\n?/g, '\n');
+    const lf = parseBreachedDigests(canonical, source);
+    const crlf = parseBreachedDigests(canonical.replace(/\n/g, '\r\n'), source);
+    expect(lf.size).toBe(source.uniqueDigests);
+    expect(crlf).toEqual(lf);
+    expect(lf.has(createHash('sha256').update('password123456').digest('hex'))).toBe(true);
+  });
+
+  it('refuses a truncated or altered copy', () => {
+    const raw = readFileSync(
+      new URL('../../data/breached-passwords.sha256', import.meta.url),
+      'utf8',
+    );
+    const source = JSON.parse(
+      readFileSync(
+        new URL('../../data/breached-passwords.source.json', import.meta.url),
+        'utf8',
+      ),
+    ) as BreachedListSource;
+    const lines = raw.replace(/\r\n?/g, '\n').split('\n');
+    const truncated = lines.slice(0, -2).join('\n');
+    expect(() => parseBreachedDigests(truncated, source)).toThrow(
+      `${source.uniqueDigests - 1} digests`,
+    );
+    const first = lines[0] ?? '';
+    const altered = [
+      first.startsWith('0') ? `1${first.slice(1)}` : `0${first.slice(1)}`,
+      ...lines.slice(1),
+    ].join('\n');
+    expect(() => parseBreachedDigests(altered, source)).toThrow(/does not match/);
   });
 
   it('accepts reuse on an ordinary change', async () => {
