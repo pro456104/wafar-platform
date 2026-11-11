@@ -3306,7 +3306,7 @@ owner signs this record; the run it produces is the B8 verification run, and
 pull request #1 carries the checklist and the run's identifiers.
 
 1. **Every task is closed, and every criterion is carried.** `tasks.md` holds
-   T001–T294, every one `[X]`; every acceptance criterion is named by at least
+   T001–T307, every one `[X]`; every acceptance criterion is named by at least
    one closed task (62 of 62); and every `(implements …)` citation resolves
    against the specification's defined identifiers.
 2. **The checklists carry no unchecked item.** The nine files under
@@ -3368,6 +3368,60 @@ ADR-159's annotation for ADR-162's work-only bound. No gate status moved, and no
 requirement, acceptance criterion, success criterion, CMV row, entity, page,
 dependency, or decision record moved with it.
 
+The 2026-11-11 convergence pass that follows it (Phase 30, T295) made the
+vendored breached-password list independent of the checkout's line endings: the
+parser normalizes CRLF before its line count and its SHA-256, `.gitattributes`
+fixes `*.sha256` at LF, and the unit suite reads the list from an LF and a CRLF
+copy with the same 95,667 digests and the same SOURCE digest. No bound, policy,
+gate, requirement, criterion, CMV row, entity, page, dependency, or decision
+record moved with it; the registered Linux gates are unchanged.
+
+The 2026-11-11 convergence pass that follows it (Phase 31, T296–T297) closed two
+defects the registered gates could not see. The API now refuses a production
+boot on a source-visible authentication secret: the environment parse is the
+pure `parseEnvironment`, the development placeholder is kept only outside
+production, and a production boot without a supplied secret — or with that
+placeholder — exits non-zero naming the variable and never a value, with
+`apps/api/src/__tests__/env.spec.ts` covering both refusals. `POST
+/api/v1/auth/sign-out-all` now resolves the account from an ended session whose
+row still exists, as `contracts/auth-api.md` §5.7 fixes: the remaining live
+sessions are revoked, a repeat revokes nothing and sends no second notice, and
+the integration suite gains the tombstone case. No requirement, acceptance
+criterion, success criterion, CMV row, entity, page, dependency, or decision
+record moved with them.
+
+The 2026-11-11 convergence pass that follows it (Phase 32, T298–T300) restored
+the integration gate the previous pass's new unit suite had broken: the refusal
+catalogue's suite scan exempts `BETTER_AUTH_SECRET` as the environment variable
+it is, so the 26-code union and the outside-the-union assertion stand and the
+suite returns to 179 of 179; it also moved this record's own task range to
+T001–T300 and gave `apps/api/src/env.ts` the row the Source Code tree and the
+Ownership Map were missing. No requirement, acceptance criterion, success
+criterion, CMV row, entity, page, dependency, or decision record moved, and the
+registered gates are green.
+
+The 2026-11-11 convergence pass that follows it (Phase 33, T301–T305) aligned
+five records with the code: the sign-up form now reads a mobile number typed
+with Arabic-Indic numerals as the same number, the drawer's panel ends at the
+bottom bar's top edge while its scrim covers the bar, the header's controls and
+the bar's slots leave the focus order and the accessibility tree while the
+drawer is open, the Twilio adapter sends through the `twilio` Node SDK with the
+750 ms bound, and this record's own task range now reads T001–T305. No
+requirement, acceptance criterion, success criterion, CMV row, entity, page,
+dependency, or decision record moved, and the unit, typecheck, lint,
+governance, and emoji gates are green.
+
+The 2026-11-11 convergence pass that follows it (Phase 34, T306–T307) made the
+three mobile-number forms read a country code typed into the field once rather
+than doubling it: the sign-up, sign-in, and password-recovery forms pass the
+typed value to their validators unchanged, so `+218`, `218`, and `00218` reach
+`normalizePhone` as the number they spell, and the form tests cover the three
+spellings beside the leading-zero, bare-national, and Arabic-Indic forms. This
+record's own task range now reads T001–T307. No
+requirement, acceptance criterion, success criterion, CMV row, entity, page,
+dependency, or decision record moved, and the unit, typecheck, lint,
+governance, and emoji gates are green.
+
 ## Project Structure
 
 ### Documentation (this feature)
@@ -3420,6 +3474,7 @@ apps/
 │   │   ├── http/                # shared entry point (context.ts), security middleware, OpenAPI generation
 │   │   ├── observability/
 │   │   ├── app.ts
+│   │   ├── env.ts               # the validated boot environment; production refuses the development secret
 │   │   └── index.ts             # boot-time schema-version guard, then the listener
 │   ├── openapi.json             # generated from the Zod contracts + route table
 │   └── test/
@@ -3460,7 +3515,7 @@ packages/
 | `apps/api/src/http/context.ts` (reads and writes sessions only through the `auth` service — `data-model.md` §1) | 001-identity-foundation | yes | yes |
 | `apps/api/src/observability/**` | 001-identity-foundation | yes | yes |
 | `apps/api/src/cli/**` | 001-identity-foundation | yes | yes |
-| `apps/api/src/{app.ts,index.ts}` | 001-identity-foundation | yes | yes |
+| `apps/api/src/{app.ts,env.ts,index.ts}` | 001-identity-foundation | yes | yes |
 | `apps/api/openapi.json` (generated public-interface document) | 001-identity-foundation | yes | no — regenerated when a later slice adds a route |
 | `apps/api/src/modules/auth/data/breached-passwords.sha256` | 001-identity-foundation | yes | yes |
 | `apps/api/src/**/__tests__/**` (the unit suites co-located with the modules they test — the API half of T022's unit-project roots, written by T026, T035, T036, T056, and T057) | 001-identity-foundation | yes | no — later slices add their own suites |
