@@ -3306,7 +3306,7 @@ owner signs this record; the run it produces is the B8 verification run, and
 pull request #1 carries the checklist and the run's identifiers.
 
 1. **Every task is closed, and every criterion is carried.** `tasks.md` holds
-   T001–T289, every one `[X]`; every acceptance criterion is named by at least
+   T001–T294, every one `[X]`; every acceptance criterion is named by at least
    one closed task (62 of 62); and every `(implements …)` citation resolves
    against the specification's defined identifiers.
 2. **The checklists carry no unchecked item.** The nine files under
@@ -3353,6 +3353,20 @@ ceiling in the same file and in `checklists/operations.md`, the rate-limit
 rationale in `research.md`, and the specification's clarification record. No
 bound, rate, count, key plan, or scrypt parameter moved with them; the pass
 corrected readings, not rules.
+
+The 2026-11-11 convergence pass that follows it (Phase 28, T290) regenerated the
+published OpenAPI document after T236 changed the password-change request schema:
+the `minLength` on `currentPassword` is gone, every other route, field, and type
+is unchanged, and a second regeneration is a no-op. No gate status moved, and no
+requirement, acceptance criterion, success criterion, CMV row, entity, page,
+dependency, or decision record moved with it.
+
+The 2026-11-11 convergence pass that follows it (Phase 29, T291–T294) corrected
+the records this pass touched: the acceptance record's own task range,
+`research.md` R-21's measurement condition, the task total in `tasks.md`, and
+ADR-159's annotation for ADR-162's work-only bound. No gate status moved, and no
+requirement, acceptance criterion, success criterion, CMV row, entity, page,
+dependency, or decision record moved with it.
 
 ## Project Structure
 

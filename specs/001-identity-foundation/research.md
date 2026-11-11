@@ -610,7 +610,10 @@ to be refused `RATE_LIMITED`. The verdict reports attempted, accepted, and refus
 counts per operation and in total, fails on any refusal, and computes its
 percentiles over accepted requests only. Three hundred live sessions are seeded;
 the run's 200 sign-ins reach exactly 500, the condition's ceiling, which the script
-asserts.
+asserts. (The peak is 5 authentication requests per second over a 120-second
+window since ADR-164, 2026-11-10: twenty virtual users at one request every 4 s,
+the same 600 requests across the same key plan; this record read 10 per second,
+one request every 2 s, when it was written.)
 
 **Rationale**: A single-origin run at 10 requests/second spends an
 account-creation origin budget of 20 in two seconds and spends 180 of its 600

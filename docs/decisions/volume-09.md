@@ -1273,6 +1273,13 @@ test as well as R1's.
   Rejected: the run would measure outside its own stated condition.
 
 **Consequences and migration/backfill.** No schema, migration, or data change.
+**Annotation (2026-11-10, ADR-162).** The work-alone p95 bound in item 6 is
+**500 ms**, per operation and in aggregate, and the 250 + 750 = 1,000 ms
+decomposition this record stated is superseded: 500 ms is an independent ceiling
+on the work, not a share of SC-009's p95, so a dispatch that both waited the
+provider's 750 ms ceiling and did 500 ms of work would exceed the 1,000 ms p95
+and fail the run. The 50 ms channel-acceptance wait and the rule that fails a
+dispatch faster than it stand unchanged.
 **Annotation (2026-11-10, ADR-164).** The condition's rate is now **5
 authentication requests per second over a 120-second window**; the key plan, the
 per-origin and per-number spends, the limiter rule, and the verdict logic this
