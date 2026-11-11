@@ -144,7 +144,7 @@ jobs:
           COVERAGE_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
       - name: Keep the coverage report
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage
           path: coverage/
@@ -200,7 +200,7 @@ jobs:
           SMS_FAKE_ACCEPT_MS: '0'
       - name: Keep both reports
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: enumeration-reports
           path: enumeration-*.json
@@ -290,7 +290,7 @@ jobs:
           SMS_TRANSPORT: fake
           WEB_ORIGIN: http://127.0.0.1:3000
           API_ORIGIN: http://127.0.0.1:3001
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: inp-user-flow
@@ -360,7 +360,7 @@ jobs:
           SC009_VERDICT_SCOPE: registered measurement host
       - name: Keep the load report
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: sc-009-load
           path: reports/sc-009-load.json
@@ -378,7 +378,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm sbom
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: sbom
           path: sbom.cdx.json
