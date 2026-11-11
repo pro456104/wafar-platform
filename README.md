@@ -159,7 +159,7 @@ bound moved to 500 ms on 2026-11-10, ADR-162; the hardware finding stands).
 
 A change fails when fewer than **80% of the measurable changed production
 lines** are covered, measured against the revision the branch was created from
-(`COVERAGE_BASE`, or `git merge-base HEAD origin/main`). A measurable line is an
+(`COVERAGE_BASE`, or `git merge-base HEAD origin/HEAD`). A measurable line is an
 added line that carries a `DA` record in the V8 lcov report; comments, blank
 lines, type-only declarations, and files the coverage configuration does not
 instrument are not measurable. Files with no coverage record (tests, tooling,

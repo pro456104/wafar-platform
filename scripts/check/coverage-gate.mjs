@@ -76,11 +76,18 @@ function baseline() {
   if (process.env['COVERAGE_BASE'] !== undefined && process.env['COVERAGE_BASE'] !== '') {
     return process.env['COVERAGE_BASE'];
   }
-  try {
-    return git(['merge-base', 'HEAD', 'origin/main']);
-  } catch {
-    return '';
+  // The repository's default branch is `master`. `origin/HEAD` names it when
+  // the clone records the symref; the two concrete names are tried in turn so a
+  // clone that does not record it, or a renamed default branch, still measures
+  // instead of silently skipping the gate.
+  for (const candidate of ['origin/HEAD', 'origin/master', 'origin/main']) {
+    try {
+      return git(['merge-base', 'HEAD', candidate]);
+    } catch {
+      // The candidate does not resolve in this clone; try the next name.
+    }
   }
+  return '';
 }
 
 /**
