@@ -9,12 +9,12 @@
     "./app/*": "./app/*"
   },
   "dependencies": {
-    "@tanstack/vue-query": "^5.90.2",
+    "@tanstack/vue-query": "^5.107.1",
     "@wafar/shared": "workspace:*",
     "vue": "catalog:"
   },
   "devDependencies": {
-    "@vue/test-utils": "^2.4.6"
+    "@vue/test-utils": "^2.6.0"
   },
   "scripts": {
     "lint": "eslint app tests nuxt.config.ts env.d.ts"
