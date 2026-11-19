@@ -32,8 +32,13 @@ function choose(name: string): void {
 
 <template>
   <div class="wf-city">
-    <label class="wf-city__label" for="wf-city-input">المدينة</label>
-    <p class="wf-city__helper">قائمة ثابتة قابلة للبحث</p>
+    <label
+      class="wf-city__label"
+      for="wf-city-input"
+    >المدينة</label>
+    <p class="wf-city__helper">
+      قائمة ثابتة قابلة للبحث
+    </p>
     <input
       id="wf-city-input"
       v-model="query"
@@ -45,15 +50,40 @@ function choose(name: string): void {
       :aria-expanded="open"
       @input="open = true; chosen = false; emit('update:modelValue', query)"
       @focus="open = true"
-    />
-    <p v-if="message" role="alert" class="wf-city__message">{{ message }}</p>
-    <ul v-if="open" id="wf-city-list" class="wf-city__list" role="listbox">
+    >
+    <p
+      v-if="message"
+      role="alert"
+      class="wf-city__message"
+    >
+      {{ message }}
+    </p>
+    <ul
+      v-if="open"
+      id="wf-city-list"
+      class="wf-city__list"
+      role="listbox"
+    >
       <template v-if="matches.length > 0">
-        <li v-for="entry in matches" :key="entry" role="option">
-          <button type="button" @click="choose(entry)">{{ entry }}</button>
+        <li
+          v-for="entry in matches"
+          :key="entry"
+          role="option"
+        >
+          <button
+            type="button"
+            @click="choose(entry)"
+          >
+            {{ entry }}
+          </button>
         </li>
       </template>
-      <li v-else role="option" aria-disabled="true" class="wf-city__empty">
+      <li
+        v-else
+        role="option"
+        aria-disabled="true"
+        class="wf-city__empty"
+      >
         لا توجد مدينة مطابقة
       </li>
     </ul>

@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Wafar Identity and Foundation API",
-    "version": "1.0.0",
-    "description": "The public authentication surface of R1. Generated from packages/shared/src/contracts and the route table."
+    "title": "Wafar Identity and File Intake API",
+    "version": "1.1.0",
+    "description": "The public authentication and intake surface. Generated from packages/shared/src/contracts and the route table."
   },
   "servers": [
     {
@@ -11,6 +11,402 @@
     }
   ],
   "paths": {
+    "/health": {
+      "servers": [
+        {
+          "url": "/"
+        }
+      ],
+      "get": {
+        "summary": "The readiness probe",
+        "tags": [
+          "operations"
+        ],
+        "responses": {
+          "200": {
+            "description": "PostgreSQL, the object store, and the scanner answered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "database",
+                    "storage",
+                    "scanner"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    },
+                    "database": {
+                      "type": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    },
+                    "storage": {
+                      "type": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    },
+                    "scanner": {
+                      "type": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "One dependency did not answer; the failing field reads error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "database",
+                    "storage",
+                    "scanner"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "degraded"
+                      ]
+                    },
+                    "database": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "error"
+                      ]
+                    },
+                    "storage": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "error"
+                      ]
+                    },
+                    "scanner": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "error"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalogs/quota": {
+      "get": {
+        "summary": "Read the caller’s two effective limits",
+        "tags": [
+          "catalogs"
+        ],
+        "responses": {
+          "200": {
+            "description": "The monthly and active used/limit pairs"
+          },
+          "default": {
+            "description": "The error envelope of contracts/auth-api.md §3",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "retryable"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "retryable": {
+                          "type": "boolean"
+                        },
+                        "field": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string",
+                          "enum": [
+                            "empty",
+                            "too_long",
+                            "emoji"
+                          ]
+                        },
+                        "retryAfterSeconds": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/uploads": {
+      "post": {
+        "summary": "Start one upload",
+        "tags": [
+          "uploads"
+        ],
+        "responses": {
+          "201": {
+            "description": "The upload session and one presigned URL per part"
+          },
+          "default": {
+            "description": "The error envelope of contracts/auth-api.md §3",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "retryable"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "retryable": {
+                          "type": "boolean"
+                        },
+                        "field": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string",
+                          "enum": [
+                            "empty",
+                            "too_long",
+                            "emoji"
+                          ]
+                        },
+                        "retryAfterSeconds": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fileName": {
+                    "type": "string",
+                    "maxLength": 4096
+                  },
+                  "byteSize": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "fileName",
+                  "byteSize"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/uploads/{uploadId}/complete": {
+      "post": {
+        "summary": "Complete and settle one upload",
+        "tags": [
+          "uploads"
+        ],
+        "responses": {
+          "201": {
+            "description": "The accepted catalog, or 200 duplicate"
+          },
+          "default": {
+            "description": "The error envelope of contracts/auth-api.md §3",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "retryable"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "retryable": {
+                          "type": "boolean"
+                        },
+                        "field": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string",
+                          "enum": [
+                            "empty",
+                            "too_long",
+                            "emoji"
+                          ]
+                        },
+                        "retryAfterSeconds": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parts": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "partNumber": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 9007199254740991
+                        },
+                        "etag": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        }
+                      },
+                      "required": [
+                        "partNumber",
+                        "etag"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "parts"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/uploads/{uploadId}": {
+      "delete": {
+        "summary": "Abort one upload (idempotent)",
+        "tags": [
+          "uploads"
+        ],
+        "responses": {
+          "204": {
+            "description": "Cancelled, or nothing to cancel"
+          },
+          "default": {
+            "description": "The error envelope of contracts/auth-api.md §3",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "required": [
+                        "code",
+                        "retryable"
+                      ],
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "retryable": {
+                          "type": "boolean"
+                        },
+                        "field": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string",
+                          "enum": [
+                            "empty",
+                            "too_long",
+                            "emoji"
+                          ]
+                        },
+                        "retryAfterSeconds": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/csrf": {
       "get": {
         "summary": "The render bootstrap",

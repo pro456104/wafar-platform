@@ -1,13 +1,17 @@
 <!-- The account control and its three-item menu: «حسابي», «إعدادات», and a sign-out action behind a yes/no confirmation (FR-047, contracts/ui-contracts.md §8.3). -->
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
+import type { AccountMenuTargets } from '@wafar/shared';
 import WfIcon from '../WfIcon.vue';
-import { accountMenu } from '@wafar/shared';
 
-withDefaults(defineProps<{ signedIn?: boolean }>(), { signedIn: true });
+withDefaults(defineProps<{ signedIn?: boolean; targets: AccountMenuTargets }>(), {
+  signedIn: true,
+});
 
 const emit = defineEmits<{ signOut: [] }>();
 
+const root = ref<HTMLElement | null>(null);
+const trigger = ref<HTMLButtonElement | null>(null);
 const open = ref(false);
 const confirming = ref(false);
 
@@ -16,11 +20,45 @@ function confirmSignOut(): void {
   open.value = false;
   emit('signOut');
 }
+
+/** Escape dismisses the confirmation first, then the menu, and returns focus. */
+function onKeyDown(event: KeyboardEvent): void {
+  if (event.key !== 'Escape') return;
+  if (confirming.value) {
+    confirming.value = false;
+    return;
+  }
+  if (!open.value) return;
+  open.value = false;
+  trigger.value?.focus();
+}
+
+/** An activation outside the control dismisses the menu (contracts/ui-contracts.md §8.3). */
+function onPointerDown(event: PointerEvent): void {
+  if (!open.value || confirming.value) return;
+  const target = event.target;
+  if (target instanceof Node && root.value !== null && root.value.contains(target)) return;
+  open.value = false;
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', onKeyDown);
+  document.addEventListener('pointerdown', onPointerDown, true);
+});
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', onKeyDown);
+  document.removeEventListener('pointerdown', onPointerDown, true);
+});
 </script>
 
 <template>
-  <div v-if="signedIn" class="wf-account-menu">
+  <div
+    v-if="signedIn"
+    ref="root"
+    class="wf-account-menu"
+  >
     <button
+      ref="trigger"
       type="button"
       class="wf-account-menu__trigger"
       :aria-expanded="open"
@@ -31,11 +69,24 @@ function confirmSignOut(): void {
       <WfIcon name="profile" />
     </button>
 
-    <div v-if="open" class="wf-account-menu__panel" role="menu" aria-label="حسابي">
-      <NuxtLink class="wf-account-menu__item" :to="accountMenu.profile" role="menuitem">
+    <div
+      v-if="open"
+      class="wf-account-menu__panel"
+      role="menu"
+      aria-label="حسابي"
+    >
+      <NuxtLink
+        class="wf-account-menu__item"
+        :to="targets.profile"
+        role="menuitem"
+      >
         حسابي
       </NuxtLink>
-      <NuxtLink class="wf-account-menu__item" :to="accountMenu.settings" role="menuitem">
+      <NuxtLink
+        class="wf-account-menu__item"
+        :to="targets.settings"
+        role="menuitem"
+      >
         إعدادات
       </NuxtLink>
       <button
@@ -44,7 +95,10 @@ function confirmSignOut(): void {
         role="menuitem"
         @click="confirming = true"
       >
-        <WfIcon name="sign-out" :size="16" />
+        <WfIcon
+          name="sign-out"
+          :size="16"
+        />
         تسجيل الخروج
       </button>
     </div>
@@ -55,7 +109,9 @@ function confirmSignOut(): void {
       role="alertdialog"
       aria-labelledby="wf-signout-title"
     >
-      <p id="wf-signout-title">هل تريد تسجيل الخروج؟</p>
+      <p id="wf-signout-title">
+        هل تريد تسجيل الخروج؟
+      </p>
       <div class="wf-account-menu__actions">
         <button
           type="button"
@@ -64,7 +120,11 @@ function confirmSignOut(): void {
         >
           تسجيل الخروج
         </button>
-        <button type="button" class="wf-account-menu__cancel" @click="confirming = false">
+        <button
+          type="button"
+          class="wf-account-menu__cancel"
+          @click="confirming = false"
+        >
           إلغاء
         </button>
       </div>

@@ -631,12 +631,13 @@ The frame's read at R2 and the integration suite's session check; the three bare
 pages never call it (FR-041).
 
 - **200** `{ "authenticated": false }` — no cookie, or a token matching no row.
-- **200** `{ "authenticated": true, "user": { "fullName": "…" }, "session": { "expiresAt", "lastActivityAt", "restricted": false } }`.
+- **200** `{ "authenticated": true, "user": { "fullName": "…", "role": "merchant" }, "session": { "expiresAt", "lastActivityAt", "restricted": false } }`.
 - **401** `SESSION_ENDED` / **401** `ACCOUNT_BLOCKED` — the cookie maps to a
   tombstone, or the live session was ended by a clock or a block on this request.
 - No CSRF requirement; a request with `X-Wafar-Activity` is covered by §2.3.
-- The body carries the caller's name only: no phone, city, shop name, role,
-  status, or identifier.
+- The body carries the caller's name and role only: no phone, city, shop name,
+  status, or identifier. R2's merchant door reads the role to send an
+  administrator account to the sign-in page, which refuses it (R2 FR-002).
 
 ### 5.13 `GET /health`
 

@@ -207,8 +207,8 @@ catalog record in My Files.
 
 **Tokens.** ADR-128; the upload action, progress, and error surfaces.
 
-**Screenshots.** P0 at 1280 and 375 light; P1 for selected, progress, duplicate,
-success, and error.
+**Screenshots.** P1 states are not captured; the reference set holds the default
+state at 1280 and 375 light only (plan Complexity Tracking row 5).
 
 **Open questions.** The quota copy; the duplicate link target; the exact
 format-and-size line.

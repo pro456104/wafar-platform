@@ -9,7 +9,11 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { authErrorCodes, type AuthErrorCode } from '@wafar/shared';
+import {
+  authErrorCodes,
+  intakeErrorCodes,
+  type RefusalCode,
+} from '@wafar/shared';
 import { users } from '@wafar/db';
 import { lockMinutes, otpLifetimeSeconds } from '@wafar/shared';
 import {
@@ -28,6 +32,12 @@ const contractPath = join(
   'contracts',
   'auth-api.md',
 );
+const intakeContractPath = join(
+  'specs',
+  '002-file-intake',
+  'contracts',
+  'intake-api.md',
+);
 
 /** The suite that produces each code, and what asserts it. */
 interface Producer {
@@ -35,7 +45,7 @@ interface Producer {
   criterion: string;
 }
 
-const producers: Record<AuthErrorCode, Producer> = {
+const producers: Record<RefusalCode, Producer> = {
   CSRF_FAILED: { suite: 'apps/api/test/integration/http/transport-refusals.spec.ts', criterion: 'AC-048' },
   RATE_LIMITED: { suite: 'apps/api/test/integration/auth/rate-limits.spec.ts', criterion: 'AC-033' },
   FORM_TOO_FAST: { suite: 'apps/api/test/integration/auth/sign-up-abuse-cases.spec.ts', criterion: 'AC-032' },
@@ -62,6 +72,23 @@ const producers: Record<AuthErrorCode, Producer> = {
   INTERNAL_ERROR: { suite: 'apps/api/test/integration/auth/atomic-writes.spec.ts', criterion: 'AC-043' },
   NOT_FOUND: { suite: 'apps/api/test/integration/http/isolation.spec.ts', criterion: 'AC-056' },
   METHOD_NOT_ALLOWED: { suite: 'apps/api/test/integration/http/transport-refusals.spec.ts', criterion: 'transport' },
+  UPLOAD_INVALID_REQUEST: { suite: 'apps/api/test/integration/catalogs/intake.spec.ts', criterion: 'AC-005' },
+  UPLOAD_INVALID_NAME: { suite: 'apps/api/test/integration/catalogs/intake.spec.ts', criterion: 'AC-005' },
+  UPLOAD_UNSUPPORTED_FORMAT: { suite: 'apps/api/test/integration/catalogs/intake.spec.ts', criterion: 'AC-005' },
+  UPLOAD_TOO_LARGE: { suite: 'apps/api/test/integration/catalogs/intake.spec.ts', criterion: 'AC-004' },
+  UPLOAD_EMPTY: { suite: 'apps/api/test/integration/catalogs/intake.spec.ts', criterion: 'AC-005' },
+  UPLOAD_CONTENT_MISMATCH: { suite: 'apps/api/test/integration/catalogs/safety.spec.ts', criterion: 'AC-006' },
+  UPLOAD_CORRUPT: { suite: 'apps/api/test/integration/catalogs/safety.spec.ts', criterion: 'AC-006' },
+  UPLOAD_PASSWORD_PROTECTED: { suite: 'apps/api/test/integration/catalogs/safety.spec.ts', criterion: 'AC-006' },
+  UPLOAD_INFECTED: { suite: 'apps/api/test/integration/catalogs/safety.spec.ts', criterion: 'AC-018' },
+  UPLOAD_EXPANSION_CAP: { suite: 'apps/api/test/integration/catalogs/safety.spec.ts', criterion: 'AC-016' },
+  UPLOAD_SANITIZATION_FAILED: { suite: 'apps/api/test/integration/catalogs/safety.spec.ts', criterion: 'AC-017' },
+  UPLOAD_SCAN_UNAVAILABLE: { suite: 'apps/api/test/integration/catalogs/safety.spec.ts', criterion: 'AC-018' },
+  UPLOAD_TOO_MANY_ATTEMPTS: { suite: 'apps/api/test/integration/catalogs/quota-contracts.spec.ts', criterion: 'AC-050' },
+  UPLOAD_MONTHLY_LIMIT: { suite: 'apps/api/test/integration/catalogs/quota-contracts.spec.ts', criterion: 'AC-029' },
+  UPLOAD_ACTIVE_LIMIT: { suite: 'apps/api/test/integration/catalogs/quota-contracts.spec.ts', criterion: 'AC-029' },
+  UPLOAD_STORAGE_UNAVAILABLE: { suite: 'apps/api/test/integration/catalogs/intake.spec.ts', criterion: 'AC-009' },
+  UPLOAD_INCOMPLETE: { suite: 'apps/api/test/integration/catalogs/intake.spec.ts', criterion: 'AC-005' },
 };
 
 /**
@@ -80,6 +107,23 @@ interface ContractRow {
 function contractRows(): ContractRow[] {
   const text = readFileSync(contractPath, 'utf8');
   const section = text.slice(text.indexOf('### 3.1 Codes'), text.indexOf('## 4. Refusal order'));
+  const rows: ContractRow[] = [];
+  for (const line of section.split('\n')) {
+    const match = /^\|\s*`([A-Z_]+)`\s*\|\s*(\d{3})\s*\|\s*(yes|no)\s*\|/.exec(line);
+    if (match === null) continue;
+    rows.push({
+      code: match[1] as string,
+      status: Number.parseInt(match[2] as string, 10),
+      retryable: match[3] === 'yes',
+    });
+  }
+  return rows;
+}
+
+/** The intake contract's own code table: the seventeen second set. */
+function intakeContractRows(): ContractRow[] {
+  const text = readFileSync(intakeContractPath, 'utf8');
+  const section = text.slice(text.indexOf('### 3.1 Codes'), text.indexOf('### 3.2'));
   const rows: ContractRow[] = [];
   for (const line of section.split('\n')) {
     const match = /^\|\s*`([A-Z_]+)`\s*\|\s*(\d{3})\s*\|\s*(yes|no)\s*\|/.exec(line);
@@ -160,23 +204,36 @@ describe.skipIf(!hasDatabase)('the refusal catalogue', () => {
     await harness!.close();
   });
 
-  it('matches the contract table exactly: 26 codes, each status and retryability', () => {
-    const rows = contractRows();
-    expect(rows).toHaveLength(26);
+  it('matches the two contract tables exactly: 43 codes, each status and retryability', () => {
+    const rows = [...contractRows(), ...intakeContractRows()];
+    expect(rows).toHaveLength(43);
     expect(authErrorCodes).toHaveLength(26);
-    expect([...authErrorCodes].sort()).toEqual(rows.map((row) => row.code).sort());
+    expect(intakeErrorCodes).toHaveLength(17);
+    expect([...authErrorCodes, ...intakeErrorCodes].sort()).toEqual(
+      rows.map((row) => row.code).sort(),
+    );
 
     for (const row of rows) {
-      expect(refusals[row.code as AuthErrorCode]).toEqual({
+      expect(refusals[row.code as RefusalCode]).toEqual({
         status: row.status,
         retryable: row.retryable,
       });
     }
   });
 
+  it('names one producer for every code in the union of 43', () => {
+    for (const code of [...authErrorCodes, ...intakeErrorCodes]) {
+      const producer = producers[code];
+      expect(producer, `${code} has no producer`).toBeDefined();
+      const text = readFileSync(producer.suite, 'utf8');
+      expect(text, `${producer.suite} does not produce ${code}`).toContain(`'${code}'`);
+    }
+    expect(Object.keys(producers)).toHaveLength(43);
+  });
+
   it('names one producer and one criterion for every code, and no code outside the union', () => {
     const spec = specText();
-    const union = new Set<string>(authErrorCodes);
+    const union = new Set<string>([...authErrorCodes, ...intakeErrorCodes]);
 
     for (const code of authErrorCodes) {
       const producer = producers[code];

@@ -1,10 +1,14 @@
 // The ended-session state in both variants: the live region, the focusable
-// heading, the withheld sign-in control, and the guest redirect rule
-// (FR-049, FR-048, AC-053, AC-052; T097).
+// heading, the withheld sign-in control, the guest redirect rule, and the
+// heading's focus rule drawn from the registered focus tokens
+// (FR-049, FR-048, AC-053, AC-052; T097, T311).
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import WfEndedSession from '../../app/components/shell/WfEndedSession.vue';
 import WfNavList from '../../app/components/shell/WfNavList.vue';
+import { signInPath, sidebarItems } from './fixtures.ts';
 
 const stubs = {
   NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
@@ -14,7 +18,7 @@ const stubs = {
 describe('the ended-session state', () => {
   it('announces ahead of the page and focuses its heading (ended)', async () => {
     const wrapper = mount(WfEndedSession, {
-      props: { variant: 'ended' },
+      props: { variant: 'ended', signInPath },
       global: { stubs },
       attachTo: document.body,
     });
@@ -30,7 +34,7 @@ describe('the ended-session state', () => {
 
   it('withholds the sign-in control in the blocked variant', async () => {
     const wrapper = mount(WfEndedSession, {
-      props: { variant: 'blocked' },
+      props: { variant: 'blocked', signInPath },
       global: { stubs },
       attachTo: document.body,
     });
@@ -45,11 +49,24 @@ describe('the ended-session state', () => {
 
   it('takes a guest from a merchant-area item to sign-in and keeps it enabled', () => {
     const wrapper = mount(WfNavList, {
-      props: { guest: true },
+      props: { guest: true, items: sidebarItems },
       global: { stubs },
     });
     const profile = wrapper.findAll('.wf-nav-list__item').at(-1);
     expect(profile?.attributes('href')).toBe('/auth/sign-in');
     expect(profile?.attributes('disabled')).toBeUndefined();
+  });
+
+  it('draws the heading’s focus rule from the registered focus tokens (T311)', () => {
+    const source = readFileSync(
+      resolve('packages/ui/app/components/shell/WfEndedSession.vue'),
+      'utf8',
+    );
+    const rule = /__heading:focus-visible\s*\{([^}]*)\}/.exec(source)?.[1] ?? '';
+    expect(rule).toContain(
+      'outline: var(--wf-focus-width) solid var(--wf-focus-colour)',
+    );
+    expect(rule).toContain('outline-offset: var(--wf-focus-offset)');
+    expect(rule).not.toContain('--wf-focus-ring');
   });
 });

@@ -8,12 +8,12 @@ import {
   passwordMaxLength,
   passwordMinLength,
   shopNameMaxLength,
-  type AuthErrorCode,
+  type RefusalCode,
   type FieldErrorReason,
 } from '@wafar/shared';
 
 export interface MessageInput {
-  code: AuthErrorCode;
+  code: RefusalCode;
   reason?: FieldErrorReason;
 }
 

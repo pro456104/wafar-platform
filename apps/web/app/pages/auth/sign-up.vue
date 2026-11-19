@@ -224,7 +224,11 @@ async function onChangeNumber(): Promise<void> {
       <NuxtLink to="/auth/sign-in">لديك حساب؟ تسجيل الدخول</NuxtLink>
     </template>
 
-    <MessageAlert v-if="showForm" :message="status" kind="status" />
+    <MessageAlert
+      v-if="showForm"
+      :message="status"
+      kind="status"
+    />
     <MessageAlert
       v-if="showForm"
       :message="step.announcement.value"
@@ -255,12 +259,23 @@ async function onChangeNumber(): Promise<void> {
       @change-number="onChangeNumber"
     />
 
-    <section v-if="showDone" class="wf-outcome" role="status">
-      <h2 :ref="step.heading" tabindex="-1" class="wf-outcome__heading">
+    <section
+      v-if="showDone"
+      class="wf-outcome"
+      role="status"
+    >
+      <h2
+        :ref="step.heading"
+        tabindex="-1"
+        class="wf-outcome__heading"
+      >
         {{ outcomeHeading }}
       </h2>
       <p>{{ outcomeBody }}</p>
-      <NuxtLink v-if="outcome === 'created'" to="/auth/sign-in">
+      <NuxtLink
+        v-if="outcome === 'created'"
+        to="/auth/sign-in"
+      >
         الانتقال إلى تسجيل الدخول
       </NuxtLink>
       <template v-else-if="outcome === 'existing_account'">

@@ -6,8 +6,26 @@ import { heldCsrfToken } from './useApi';
 
 export interface SessionPayload {
   authenticated: boolean;
-  user?: { fullName: string };
+  ended?: 'SESSION_ENDED' | 'ACCOUNT_BLOCKED';
+  user?: { fullName: string; role?: 'merchant' | 'administrator' };
   session?: { expiresAt: string; lastActivityAt: string; restricted: boolean };
+}
+
+type SessionErrorBody = { error?: { code?: string } };
+
+/**
+ * A 401 is the ended-session signal, not the guest state: the body names the
+ * reason so the frame can choose its blocked variant (FR-049, AC-053;
+ * contracts/auth-api.md §5.12).
+ */
+async function readSessionResponse(response: Response): Promise<SessionPayload> {
+  if (response.status !== 401) return (await response.json()) as SessionPayload;
+  const body = (await response.json().catch(() => null)) as SessionErrorBody | null;
+  const code = body?.error?.code;
+  return {
+    authenticated: false,
+    ...(code === 'SESSION_ENDED' || code === 'ACCOUNT_BLOCKED' ? { ended: code } : {}),
+  };
 }
 
 export function useSession() {
@@ -18,8 +36,7 @@ export function useSession() {
         credentials: 'same-origin',
         headers: { accept: 'application/json' },
       });
-      if (response.status === 401) return { authenticated: false };
-      return (await response.json()) as SessionPayload;
+      return readSessionResponse(response);
     },
     staleTime: 30_000,
   });
@@ -35,8 +52,7 @@ export function useSession() {
         ...(token === null ? {} : { 'x-wafar-csrf': token }),
       },
     });
-    if (response.status === 401) return { authenticated: false };
-    return (await response.json()) as SessionPayload;
+    return readSessionResponse(response);
   }
 
   return { ...query, refreshFromUserAction };

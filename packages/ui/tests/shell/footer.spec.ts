@@ -6,6 +6,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import WfShellFooter from '../../app/components/shell/WfShellFooter.vue';
 import WfShellSidebar from '../../app/components/shell/WfShellSidebar.vue';
+import { footerItems, sidebarItems } from './fixtures.ts';
 
 const stubs = {
   NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
@@ -14,7 +15,10 @@ const stubs = {
 
 describe('the footer band', () => {
   it('carries the brand line and the four recorded links', () => {
-    const wrapper = mount(WfShellFooter, { global: { stubs } });
+    const wrapper = mount(WfShellFooter, {
+      props: { links: footerItems },
+      global: { stubs },
+    });
     expect(wrapper.text()).toContain('منصة وفر — كتالوج قطع الغيار');
     expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toEqual([
       '/contact',
@@ -37,7 +41,7 @@ describe('the footer band', () => {
     );
     expect(source).toContain('@media (max-width: 1023px)');
     const sidebar = mount(WfShellSidebar, {
-      props: { drawer: true },
+      props: { drawer: true, items: sidebarItems, links: footerItems },
       global: { stubs },
     });
     expect(

@@ -1,12 +1,17 @@
 <!-- The bottom bar: five slots on a narrow screen, the raised search action, and the bound scroll rule — 32 px down hides, 16 px up or within 56 px of the top returns, 220 ms, and the drawer keeps it visible (FR-052, AC-042, contracts/ui-contracts.md §8.3). -->
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { bottomBarSlots, destinationFor } from '@wafar/shared';
+import { destinationFor } from '@wafar/shared';
+import type { BottomBarSlot } from '@wafar/shared';
 import WfIcon from '../WfIcon.vue';
 import type { WfIconName } from '../../types/icon.ts';
 
 const props = withDefaults(
-  defineProps<{ guest?: boolean; drawerOpen?: boolean }>(),
+  defineProps<{
+    items: readonly BottomBarSlot[];
+    guest?: boolean;
+    drawerOpen?: boolean;
+  }>(),
   { guest: false, drawerOpen: false },
 );
 
@@ -75,7 +80,10 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll));
     :inert="hidden || drawerOpen ? true : undefined"
     aria-label="التنقل السفلي"
   >
-    <template v-for="slot in bottomBarSlots" :key="slot.key">
+    <template
+      v-for="slot in items"
+      :key="slot.key"
+    >
       <button
         v-if="slot.key === 'more'"
         type="button"

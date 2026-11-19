@@ -26,6 +26,8 @@
     "db:reset": "pnpm --filter @wafar/db reset",
     "db:seed": "pnpm --filter @wafar/db seed",
     "load:auth": "node scripts/load/auth-smoke.mjs",
+    "load:upload": "node scripts/load/upload-smoke.mjs",
+    "storage:init": "node scripts/storage/init-bucket.mjs",
     "load:seed": "node scripts/fixtures/seed.mjs",
     "sbom": "node scripts/gen/sbom.mjs",
     "governance": "node governance-drift-check.mjs",

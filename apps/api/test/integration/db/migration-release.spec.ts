@@ -149,7 +149,10 @@ describe.skipIf(!hasDatabase)('the release boundary', () => {
       );
       expect(forbidden, file).toEqual([]);
       for (const statement of statements) {
-        expect(statement, file).toMatch(/^(CREATE|ALTER|DROP|COMMENT)\b/i);
+        // A migration may open with its responsibility comment; the statement
+        // the database runs still begins with its verb.
+        const body = statement.replace(/^(?:--[^\n]*\r?\n\s*)+/, '');
+        expect(body, file).toMatch(/^(CREATE|ALTER|DROP|COMMENT)\b/i);
       }
     }
   });

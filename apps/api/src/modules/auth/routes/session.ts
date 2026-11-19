@@ -39,6 +39,7 @@ export function registerSessionRoutes(
 
     const normalized = normalizePhone(parsed.data.phone);
     const userAgent = c.req.header('user-agent');
+    const forwardedAddress = c.req.header('x-forwarded-for');
     const origin = originFrom({
       xRealIp: c.req.header('x-real-ip'),
       peer: peerOf(c),
@@ -68,6 +69,7 @@ export function registerSessionRoutes(
       requestId: c.get('requestId'),
       events: dependencies.events,
       ...(userAgent === undefined ? {} : { userAgent }),
+      ...(forwardedAddress === undefined ? {} : { ipAddress: forwardedAddress }),
     });
 
     if (result.outcome === 'invalid') {
@@ -182,7 +184,9 @@ export function registerSessionRoutes(
     return c.json(
       {
         authenticated: true,
-        user: { fullName: account?.fullName ?? '' },
+        // The name and the role the merchant door needs; no phone, city, shop
+        // name, status, or identifier (R2 FR-002, AC-002).
+        user: { fullName: account?.fullName ?? '', role: account?.role ?? 'merchant' },
         session: {
           expiresAt: context.expiresAt.toISOString(),
           lastActivityAt: context.lastActivityAt.toISOString(),

@@ -10,6 +10,9 @@ import type { Env } from '../../src/env.ts';
 import { createAuthEngine, type AuthEngine } from '../../src/modules/auth/engine.ts';
 import { FakeSmsTransport } from '../../src/modules/auth/sms/fake.ts';
 import { createLogger } from '../../src/observability/logger.ts';
+import { createAccountContext } from '../../src/modules/users/service/account-context.ts';
+import { createScannerDouble, type ScannerDouble } from '../../src/modules/catalogs/scanner/double.ts';
+import { createMemoryStorage, type MemoryStorage } from './storage.ts';
 import { createFaultedDatabase, type FaultControl } from './fault.ts';
 import { createBarrier, type Barrier } from './barrier.ts';
 
@@ -43,6 +46,12 @@ export interface Harness {
   sms: FakeSmsTransport;
   clock: Clock;
   events: SecurityEvent[];
+  /** The object store the intake uses, in memory (T009). */
+  storage: MemoryStorage;
+  /** The deterministic scanner double, with its three modes (T009). */
+  scanner: ScannerDouble;
+  /** Every operational line the routes wrote, in order (T079). */
+  recordLines: string[];
   /** The peer address every request through `call` reports. */
   peer: string;
   /** Present only when the harness was created with `barrier: true`. */
@@ -97,12 +106,24 @@ export function createHarness(options: HarnessOptions = {}): Harness {
     SMS_TRANSPORT: 'fake',
     SMS_FAKE_ACCEPT_MS: options.smsAcceptMs ?? 0,
     LOG_LEVEL: 'error',
+    S3_ENDPOINT: 'http://localhost:8333',
+    S3_REGION: 'us-east-1',
+    S3_BUCKET: 'wafar',
+    S3_ACCESS_KEY_ID: 'test-access-key',
+    S3_SECRET_ACCESS_KEY: 'test-secret-key',
+    SCANNER: 'double',
+    CLAMD_HOST: 'localhost',
+    CLAMD_PORT: 3310,
+    WORKSPACE_DIR: '.workspace-test',
   };
   const logger = createLogger({
     stream: { write: () => undefined },
     errorStream: { write: () => undefined },
     clock: clock.now,
   });
+  const storage = createMemoryStorage();
+  const scanner = createScannerDouble();
+  const recordLines: string[] = [];
   const dependencies: AppDependencies = {
     db: wired,
     auth: createAuthEngine({
@@ -116,6 +137,10 @@ export function createHarness(options: HarnessOptions = {}): Harness {
     events: { emit: (event) => events.push(event) },
     now: clock.now,
     trustedProxies: options.trustedProxies ?? [],
+    accountContext: createAccountContext(wired),
+    storage,
+    scanner,
+    recordSink: { write: (line) => recordLines.push(line) },
   };
   const app = createApp(dependencies);
 
@@ -127,16 +152,28 @@ export function createHarness(options: HarnessOptions = {}): Harness {
     sms,
     clock,
     events,
+    storage,
+    scanner,
+    recordLines,
     peer: options.peer ?? '127.0.0.1',
     ...(barrier === undefined ? {} : { barrier }),
     async reset() {
       await db.execute(
         sql.raw(
-          'TRUNCATE TABLE phone_verifications, verifications, sessions, accounts, rate_limit_counters, users CASCADE',
+          'TRUNCATE TABLE catalog_upload_sessions, catalog_upload_attempts, catalog_monthly_uploads, catalogs, phone_verifications, verifications, sessions, accounts, rate_limit_counters, users CASCADE',
         ),
       );
+      storage.objects.clear();
+      storage.multiparts.clear();
+      storage.failDeletes = false;
+      storage.failReads = false;
+      storage.failBucket = false;
+      storage.failCreateMultipart = false;
+      scanner.setMode('clean');
+      scanner.setDelay(150);
       sms.clear();
       events.length = 0;
+      recordLines.length = 0;
       clock.set(new Date('2026-03-01T10:00:00.000Z'));
     },
     async close() {

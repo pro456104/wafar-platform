@@ -26,6 +26,20 @@ const schema = z.object({
   TWILIO_FROM: z.string().optional(),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
   BACKUP_KEY_ENCRYPTION_KEY: z.string().optional(),
+  // The object store: SeaweedFS's S3 gateway, one private bucket (CMV 12,
+  // ADR-172). Secrets are injected server-side and never logged.
+  S3_ENDPOINT: z.string().url().default('http://localhost:8333'),
+  S3_REGION: z.string().min(1).default('us-east-1'),
+  S3_BUCKET: z.string().min(1).default('wafar'),
+  S3_ACCESS_KEY_ID: z.string().min(1).default('wafar'),
+  S3_SECRET_ACCESS_KEY: z.string().min(1).default('wafar-secret'),
+  // The scanner: the clamd INSTREAM adapter or the deterministic double
+  // (ADR-173). The daemon is a separate process, never bundled in the API.
+  SCANNER: z.enum(['clamd', 'double']).default('double'),
+  CLAMD_HOST: z.string().min(1).default('localhost'),
+  CLAMD_PORT: z.coerce.number().int().min(1).max(65535).default(3310),
+  // The per-request workspace: one bounded working copy per intake.
+  WORKSPACE_DIR: z.string().min(1).default('.workspace'),
 });
 
 type ParsedEnv = z.infer<typeof schema>;

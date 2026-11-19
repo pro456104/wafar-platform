@@ -1,0 +1,3 @@
+ALTER TABLE "phone_verifications" ADD CONSTRAINT "phone_verifications_full_name_length" CHECK (char_length("phone_verifications"."full_name") <= 100);--> statement-breakpoint
+ALTER TABLE "phone_verifications" ADD CONSTRAINT "phone_verifications_city_payload" CHECK ("phone_verifications"."purpose" = 'sign_up' OR "phone_verifications"."city" IS NULL);--> statement-breakpoint
+ALTER TABLE "phone_verifications" ADD CONSTRAINT "phone_verifications_shop_name_length" CHECK ("phone_verifications"."shop_name" IS NULL OR char_length("phone_verifications"."shop_name") <= 100);

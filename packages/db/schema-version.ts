@@ -1,6 +1,6 @@
 // Generated from packages/db/migrations/meta/_journal.json. Do not edit by
 // hand: run `pnpm --filter @wafar/db stamp-version` after a migration lands.
 
-export const EXPECTED_SCHEMA_SHA256 = 'df0bab0bae8d3344509c995ee276e0c302826053eff15dafad462b6f8859fb79';
-export const EXPECTED_SCHEMA_STEPS = 2;
-export const SCHEMA_VERSION = 'df0bab0bae8d:2';
+export const EXPECTED_SCHEMA_SHA256 = 'd44d00e92edfaf62a1de8b008db71adfa5004ed033453d2fe80254cebea6dd1b';
+export const EXPECTED_SCHEMA_STEPS = 4;
+export const SCHEMA_VERSION = 'd44d00e92edf:4';

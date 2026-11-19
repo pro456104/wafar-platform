@@ -70,16 +70,12 @@ describe.skipIf(!hasDatabase)('the provisioning CLI’s failed record', () => {
     process.argv = [
       process.execPath,
       'provision-administrator',
-      '--phone',
-      '+218912345678',
-      '--full-name',
-      'مدير المنصة',
-      '--city',
-      'طرابلس',
       '--password-stdin',
     ];
     Object.defineProperty(process, 'stdin', {
-      value: Readable.from([password]),
+      value: Readable.from([
+        `مدير المنصة\n+218912345678\nطرابلس\n${password}`,
+      ]),
       configurable: true,
     });
     process.exitCode = undefined;

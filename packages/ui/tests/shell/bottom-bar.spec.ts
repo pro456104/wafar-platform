@@ -3,6 +3,7 @@
 import { mount } from '@vue/test-utils';
 import { beforeAll, describe, expect, it } from 'vitest';
 import WfShellBottomBar from '../../app/components/shell/WfShellBottomBar.vue';
+import { barSlots } from './fixtures.ts';
 
 const stubs = {
   NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
@@ -29,7 +30,7 @@ function scrollTo(y: number): void {
 
 describe('the bottom bar', () => {
   it('renders the five slots in order', () => {
-    const wrapper = mount(WfShellBottomBar, { global: { stubs } });
+    const wrapper = mount(WfShellBottomBar, { props: { items: barSlots }, global: { stubs } });
     const slots = wrapper.findAll('.wf-shell-bottom-bar__slot');
     expect(slots).toHaveLength(5);
     expect(slots.map((slot) => slot.attributes('data-slot'))).toEqual([
@@ -42,7 +43,7 @@ describe('the bottom bar', () => {
   });
 
   it('names the raised action with the act it performs and points at /parts', () => {
-    const wrapper = mount(WfShellBottomBar, { global: { stubs } });
+    const wrapper = mount(WfShellBottomBar, { props: { items: barSlots }, global: { stubs } });
     const raised = wrapper.find('.wf-shell-bottom-bar__slot--raised');
     expect(raised.attributes('href')).toBe('/parts');
     expect(raised.attributes('aria-label')).toBe('البحث في القطع');
@@ -50,7 +51,7 @@ describe('the bottom bar', () => {
 
   it('sends a guest from a merchant-area slot to sign-in and keeps the slot', () => {
     const wrapper = mount(WfShellBottomBar, {
-      props: { guest: true },
+      props: { items: barSlots, guest: true },
       global: { stubs },
     });
     const upload = wrapper.find('[data-slot="upload"]');
@@ -62,7 +63,7 @@ describe('the bottom bar', () => {
 
   it('shows «المزيد»’s open state without closing the bar', () => {
     const wrapper = mount(WfShellBottomBar, {
-      props: { drawerOpen: true },
+      props: { items: barSlots, drawerOpen: true },
       global: { stubs },
     });
     const more = wrapper.find('[data-slot="more"]');
@@ -72,7 +73,7 @@ describe('the bottom bar', () => {
 
   it('hides after 32 px down and returns on 16 px up', async () => {
     scrollTo(0);
-    const wrapper = mount(WfShellBottomBar, { global: { stubs } });
+    const wrapper = mount(WfShellBottomBar, { props: { items: barSlots }, global: { stubs } });
     await wrapper.vm.$nextTick();
     scrollTo(10);
     scrollTo(60);
@@ -85,7 +86,7 @@ describe('the bottom bar', () => {
 
   it('keeps the bar visible within 56 px of the top', async () => {
     scrollTo(0);
-    const wrapper = mount(WfShellBottomBar, { global: { stubs } });
+    const wrapper = mount(WfShellBottomBar, { props: { items: barSlots }, global: { stubs } });
     scrollTo(200);
     scrollTo(240);
     await wrapper.vm.$nextTick();

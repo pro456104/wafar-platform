@@ -1,14 +1,25 @@
 <!-- The sign-in page: no code, one uniform failure text, no lock copy, and no address, history entry, or stored value carrying the number (FR-007, FR-008, FR-009, AC-002, AC-008, AC-009, AC-044). -->
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import SignInForm from '../../components/auth/SignInForm.vue';
 import { useApi } from '../../composables/auth/useApi';
 import { messageFor } from '../../composables/auth/useAuthMessages';
+import { internalReturnTarget } from '../../utils/return-target';
 
 const api = useApi();
+const route = useRoute();
+const router = useRouter();
 const message = ref('');
 const signedIn = ref(false);
 const heading = ref<HTMLElement | null>(null);
+
+// The guest's internal return target is validated against the one route map, so
+// an external or unknown target lands nowhere and the page confirms in place
+// (T023, SC-002). A merchant who arrived from R2's door carries `/upload`. The
+// read is guarded because the page also mounts where no router is installed
+// (T155).
+const returnTarget = computed(() => internalReturnTarget(route?.query?.['redirect']));
 
 onMounted(async () => {
   try {
@@ -30,6 +41,7 @@ async function onSubmit(payload: { phone: string; password: string }): Promise<v
   signedIn.value = true;
   await nextTick();
   heading.value?.focus();
+  if (returnTarget.value !== null) await router?.push(returnTarget.value);
 }
 </script>
 
@@ -51,8 +63,16 @@ async function onSubmit(payload: { phone: string; password: string }): Promise<v
       @submit="onSubmit"
     />
 
-    <section v-else class="wf-signed-in" role="status">
-      <h2 ref="heading" tabindex="-1" class="wf-signed-in__heading">
+    <section
+      v-else
+      class="wf-signed-in"
+      role="status"
+    >
+      <h2
+        ref="heading"
+        tabindex="-1"
+        class="wf-signed-in__heading"
+      >
         تم تسجيل الدخول
       </h2>
       <p>أنت مسجل الدخول الآن.</p>

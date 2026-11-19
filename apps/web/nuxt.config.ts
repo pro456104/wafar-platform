@@ -5,6 +5,12 @@ export default defineNuxtConfig({
   modules: ['@nuxt/ui'],
   css: ['~/assets/main.css'],
   devtools: { enabled: false },
+  // The merchant page is a client-side surface: the session and quota resources
+  // are provided by the layer's client plugin, so the route renders in the
+  // browser and the merchant door decides there (FR-002-FR-004, FR-015).
+  routeRules: {
+    '/upload': { ssr: false },
+  },
   typescript: { strict: true },
   app: {
     head: {

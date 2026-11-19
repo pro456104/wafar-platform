@@ -13,6 +13,9 @@ import { createAdministratorSignInService } from '../../../src/modules/auth/serv
 import { createApp } from '../../../src/app.ts';
 import type { Env } from '../../../src/env.ts';
 import { createLogger } from '../../../src/observability/logger.ts';
+import { createAccountContext } from '../../../src/modules/users/service/account-context.ts';
+import { createMemoryStorage } from '../../support/storage.ts';
+import { createScannerDouble } from '../../../src/modules/catalogs/scanner/double.ts';
 import { provision } from '../../support/cli.ts';
 import {
   bootstrap,
@@ -567,6 +570,15 @@ describe.skipIf(!hasDatabase)('the security record', () => {
       SMS_TRANSPORT: 'fake',
       SMS_FAKE_ACCEPT_MS: 0,
       LOG_LEVEL: 'error',
+      S3_ENDPOINT: 'http://localhost:8333',
+      S3_REGION: 'us-east-1',
+      S3_BUCKET: 'wafar',
+      S3_ACCESS_KEY_ID: 'test-access-key',
+      S3_SECRET_ACCESS_KEY: 'test-secret-key',
+      SCANNER: 'double',
+      CLAMD_HOST: 'localhost',
+      CLAMD_PORT: 3310,
+      WORKSPACE_DIR: '.workspace-test',
     };
     const app = createApp({
       db: harness!.db,
@@ -581,6 +593,10 @@ describe.skipIf(!hasDatabase)('the security record', () => {
       },
       now: harness!.clock.now,
       trustedProxies: [],
+      accountContext: createAccountContext(harness!.db),
+      storage: createMemoryStorage(),
+      scanner: createScannerDouble(),
+      recordSink: { write: () => undefined },
     });
 
     // The real sign-in route, through the composed API.

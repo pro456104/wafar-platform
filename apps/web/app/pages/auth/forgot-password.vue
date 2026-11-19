@@ -268,14 +268,24 @@ async function onChangeNumber(): Promise<void> {
       class="wf-outcome"
       role="status"
     >
-      <h2 :ref="step.heading" tabindex="-1" class="wf-outcome__heading">
+      <h2
+        :ref="step.heading"
+        tabindex="-1"
+        class="wf-outcome__heading"
+      >
         {{ outcomeHeading }}
       </h2>
       <p>{{ outcomeBody }}</p>
-      <NuxtLink v-if="outcome === 'reset'" to="/auth/sign-in">
+      <NuxtLink
+        v-if="outcome === 'reset'"
+        to="/auth/sign-in"
+      >
         الانتقال إلى تسجيل الدخول
       </NuxtLink>
-      <NuxtLink v-else-if="outcome === 'no_account'" to="/auth/sign-up">
+      <NuxtLink
+        v-else-if="outcome === 'no_account'"
+        to="/auth/sign-up"
+      >
         إنشاء حساب
       </NuxtLink>
     </section>

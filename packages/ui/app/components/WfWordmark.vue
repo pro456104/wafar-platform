@@ -23,20 +23,24 @@ withDefaults(
       <span class="wf-wordmark__brand">منصة</span>
       <span class="wf-wordmark__name">وفر</span>
     </span>
-    <span class="wf-wordmark__short" aria-hidden="true">وفر</span>
+    <span
+      class="wf-wordmark__short"
+      aria-hidden="true"
+    >وفر</span>
   </NuxtLink>
   <span
     v-else
     class="wf-wordmark"
     :class="{ 'wf-wordmark--always-full': !shortenAtNarrow }"
-    role="img"
-    aria-label="منصة وفر"
   >
     <span class="wf-wordmark__full">
       <span class="wf-wordmark__brand">منصة</span>
       <span class="wf-wordmark__name">وفر</span>
     </span>
-    <span class="wf-wordmark__short" aria-hidden="true">وفر</span>
+    <span
+      class="wf-wordmark__short"
+      aria-hidden="true"
+    >وفر</span>
   </span>
 </template>
 

@@ -2,6 +2,7 @@
 // credential in one transaction. The credential is read once from a hidden TTY
 // prompt or standard input â€” never argv, an environment variable, or a file â€”
 // and it is never echoed or reported (FR-028, AC-030, contracts/auth-api.md Â§7.2).
+import { createInterface } from 'node:readline/promises';
 import { createDatabase } from '@wafar/db';
 import { normalizePhone, validateCity, validateFullName } from '@wafar/shared';
 import { environment } from '../env.ts';
@@ -9,12 +10,6 @@ import { createUsersRepository } from '../modules/users/repository/users.ts';
 import { createAuthEngine } from '../modules/auth/engine.ts';
 import { checkPasswordPolicy } from '../modules/auth/service/password-policy.ts';
 import { createLogger } from '../observability/logger.ts';
-
-function argument(name: string): string | undefined {
-  const index = process.argv.indexOf(`--${name}`);
-  if (index === -1) return undefined;
-  return process.argv[index + 1];
-}
 
 function hasFlag(name: string): boolean {
   return process.argv.includes(`--${name}`);
@@ -81,21 +76,50 @@ async function promptHidden(label: string): Promise<string> {
   });
 }
 
+interface IdentityFields {
+  fullName: string;
+  phone: string;
+  city: string;
+  /** The password when the whole input arrived on a pipe. */
+  pipedPassword?: string;
+}
+
+/**
+ * Reads the three identity values from the TTY prompts the contract fixes
+ * (contracts/auth-api.md §7.2). A piped run feeds the three lines and leaves the
+ * rest of the stream for `--password-stdin`, so the integration suite drives the
+ * same channel the operator does.
+ */
+async function readIdentityFields(): Promise<IdentityFields> {
+  if (process.stdin.isTTY === true) {
+    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    try {
+      const fullName = (await rl.question('Full name: ')).trim();
+      const phone = (await rl.question('Mobile number: ')).trim();
+      const city = (await rl.question('City: ')).trim();
+      return { fullName, phone, city };
+    } finally {
+      rl.close();
+    }
+  }
+  const text = await readStdin();
+  const [fullName = '', phone = '', city = '', ...rest] = text.split(/\r?\n/);
+  return {
+    fullName: fullName.trim(),
+    phone: phone.trim(),
+    city: city.trim(),
+    ...(rest.length > 0 ? { pipedPassword: rest.join('\n') } : {}),
+  };
+}
+
 async function main(): Promise<void> {
   refuseSuppliedCredential();
 
-  const phone = argument('phone');
-  const fullName = argument('full-name');
-  const city = argument('city');
-  if (!phone || !fullName || !city) {
-    console.error(
-      'usage: provision-administrator --phone +218912345678 --full-name "â€¦" --city "â€¦" [--password-stdin]',
-    );
-    process.exit(2);
-  }
+  const identity = await readIdentityFields();
+  const { phone, fullName, city } = identity;
 
   const password = hasFlag('password-stdin')
-    ? await readStdin()
+    ? (identity.pipedPassword ?? (await readStdin()))
     : await promptHidden('Initial password: ');
   if (password.length === 0) {
     console.error('Refused: the initial password is empty.');

@@ -18,11 +18,14 @@ function files(dir: string): string[] {
 }
 
 describe('the administrator surface', () => {
-  it('is not shipped by R1', () => {
+  it('is not shipped by R1 or R2', () => {
     const sources = files(webApp);
     expect(sources.filter((file) => /admin/i.test(file))).toEqual([]);
     const pages = files(join(webApp, 'pages')).map((file) => file.replace(/\\/g, '/'));
-    expect(pages.every((file) => file.includes('/auth/'))).toBe(true);
+    // R1's four bare pages plus R2's first shell page: no administrator page.
+    expect(pages.every((file) => file.includes('/auth/') || file.endsWith('/upload.vue'))).toBe(
+      true,
+    );
   });
 
   it('records the administrator header binding in the layer’s README', () => {

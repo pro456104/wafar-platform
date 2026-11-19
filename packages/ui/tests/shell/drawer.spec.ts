@@ -3,11 +3,12 @@
 // drawer as part of navigation (FR-022, FR-052, AC-024, AC-042; T132). While the
 // drawer is open the bar takes no focus or activation, and the focus returns
 // only after that state lifts (T303).
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it } from 'vitest';
 import WfShellBottomBar from '../../app/components/shell/WfShellBottomBar.vue';
 import WfShellDrawer from '../../app/components/shell/WfShellDrawer.vue';
+import { barSlots, footerItems, sidebarItems } from './fixtures.ts';
 
 const stubs = {
   NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
@@ -16,9 +17,17 @@ const stubs = {
 
 const Harness = defineComponent({
   components: { WfShellBottomBar, WfShellDrawer },
-  data: () => ({ open: true }),
+  setup() {
+    const open = ref(true);
+    return {
+      open,
+      items: barSlots,
+      sidebar: sidebarItems,
+      links: footerItems,
+    };
+  },
   template:
-    '<div><WfShellBottomBar :drawer-open="open" @open-drawer="open = true" /><WfShellDrawer :open="open" @close="open = false" /></div>',
+    '<div><WfShellBottomBar :items="items" :drawer-open="open" @open-drawer="open = true" /><WfShellDrawer :items="sidebar" :links="links" :open="open" @close="open = false" /></div>',
 });
 
 afterEach(() => {

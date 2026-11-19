@@ -208,7 +208,9 @@ writes the search index directly, because it is the projection's only writer.
    magic-byte validation, ClamAV scan, decoded-size cap, macro stripping — and
    a file failing any of them is rejected and never stored or processed. The
    transport for a large upload is a presigned multipart stream to object
-   storage; the API does not buffer the file in memory.
+   storage; the API does not buffer the transfer in memory: the transport legs
+   stream, and the inspection steps read one bounded working copy of the
+   compressed file, at most the 100 MB ceiling (ADR-180).
 5. **Back to the user.** Status changes and administrative messages surface as
    notifications; a failed file presents a retry action that does not require
    re-uploading bytes.
@@ -278,7 +280,7 @@ Read/write notes:
   Deferred areas).
 - Decisions and their rationale: the decision register — `docs/DECISIONS.md`
   (index and reading protocol) and `docs/decisions/volume-NN.md` (records),
-  ADR-001 … ADR-165.
+  ADR-001 … ADR-180.
 - Data model: `docs/domain-model.md` — the entities, their relationships and
   invariants, and the owning module of each. This document names the modules;
   that document explains what each one owns. Neither repeats the other.

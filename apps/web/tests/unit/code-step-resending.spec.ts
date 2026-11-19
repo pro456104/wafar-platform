@@ -35,4 +35,20 @@ describe('the code step’s resend state', () => {
     expect(wrapper.find('.wf-code-step__submit').text()).toBe('يجري التحقق…');
     expect(wrapper.find('.wf-code-step__actions button').text()).toBe('إرسال رمز جديد');
   });
+
+  it('states the spent bound inline beside the disabled resend control (T309)', () => {
+    const wrapper = mount(CodeStep, { props: { ...props, remainingReRequests: 0 } });
+    const resend = wrapper.find('.wf-code-step__actions button');
+    expect(resend.attributes('disabled')).toBeDefined();
+    const reason = wrapper.find('.wf-code-step__spent');
+    expect(reason.exists()).toBe(true);
+    expect(reason.text()).toBe(
+      'انتهت محاولات إرسال رمز جديد. أدخل الرمز المرسل قبل انتهاء صلاحيته.',
+    );
+  });
+
+  it('states no spent-bound reason while re-requests remain (T309)', () => {
+    const wrapper = mount(CodeStep, { props: { ...props, remainingReRequests: 3 } });
+    expect(wrapper.find('.wf-code-step__spent').exists()).toBe(false);
+  });
 });

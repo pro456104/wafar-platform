@@ -14,6 +14,10 @@ import { registerVerificationRoutes } from './modules/auth/routes/verifications.
 import { registerSessionRoutes } from './modules/auth/routes/session.ts';
 import { registerPasswordChangeRoute } from './modules/auth/routes/password-change.ts';
 import { registerRecoveryRoutes } from './modules/auth/routes/recovery.ts';
+import { registerUploadRoutes } from './modules/catalogs/routes/uploads.ts';
+import { registerCompleteRoute } from './modules/catalogs/routes/complete.ts';
+import { registerAbortRoute } from './modules/catalogs/routes/abort.ts';
+import { registerQuotaRoute } from './modules/catalogs/routes/quota.ts';
 
 export function createApp(dependencies: AppDependencies): Hono<AppEnv> {
   const app = new Hono<AppEnv>();
@@ -52,12 +56,31 @@ export function createApp(dependencies: AppDependencies): Hono<AppEnv> {
   app.use('/api/v1/*', csrfGuard(security));
 
   app.get('/health', async (c) => {
-    try {
-      await dependencies.db.execute(sql`SELECT 1`);
-      return c.json({ status: 'ok', database: 'ok' }, 200);
-    } catch {
-      return c.json({ status: 'degraded', database: 'error' }, 503);
-    }
+    const budget = <T>(work: Promise<T>): Promise<T | 'error'> =>
+      Promise.race([
+        work.catch(() => 'error' as const),
+        new Promise<'error'>((resolve) => {
+          setTimeout(() => resolve('error'), 1_000).unref?.();
+        }),
+      ]);
+
+    const [database, storage, scanner] = await Promise.all([
+      budget(dependencies.db.execute(sql`SELECT 1`).then(() => 'ok' as const)),
+      budget(dependencies.storage.headBucket().then(() => 'ok' as const)),
+      budget(
+        dependencies.scanner.ping({ budgetMs: 1_000 }).then((alive) =>
+          alive ? ('ok' as const) : ('error' as const),
+        ),
+      ),
+    ]);
+
+    const body = {
+      status: database === 'ok' && storage === 'ok' && scanner === 'ok' ? 'ok' : 'degraded',
+      database,
+      storage,
+      scanner,
+    };
+    return c.json(body, body.status === 'ok' ? 200 : 503);
   });
 
   // The render bootstrap: the one read a bare page makes before its first mutation.
@@ -74,6 +97,10 @@ export function createApp(dependencies: AppDependencies): Hono<AppEnv> {
   registerSessionRoutes(app, dependencies);
   registerPasswordChangeRoute(app, dependencies);
   registerRecoveryRoutes(app, dependencies);
+  registerUploadRoutes(app, dependencies);
+  registerCompleteRoute(app, dependencies);
+  registerAbortRoute(app, dependencies);
+  registerQuotaRoute(app, dependencies);
 
   app.notFound((c) => {
     const method = c.req.method;

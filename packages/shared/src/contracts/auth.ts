@@ -194,7 +194,12 @@ export const sessionResponseSchema = z.union([
   z.object({ authenticated: z.literal(false) }),
   z.object({
     authenticated: z.literal(true),
-    user: z.object({ fullName: z.string() }),
+    // The merchant door reads the role to turn an administrator away before the
+    // intake renders (R2 FR-002, AC-002).
+    user: z.object({
+      fullName: z.string(),
+      role: z.enum(['merchant', 'administrator']),
+    }),
     session: z.object({
       expiresAt: isoDateTime,
       lastActivityAt: isoDateTime,
@@ -204,9 +209,12 @@ export const sessionResponseSchema = z.union([
 ]);
 export type SessionResponse = z.infer<typeof sessionResponseSchema>;
 
+/** R2 extends the probe to the object store and the scanner (T021). */
 export const healthResponseSchema = z.object({
   status: z.enum(['ok', 'degraded']),
   database: z.enum(['ok', 'error']),
+  storage: z.enum(['ok', 'error']),
+  scanner: z.enum(['ok', 'error']),
 });
 
 /** The request schemas the OpenAPI document publishes, keyed by route id. */

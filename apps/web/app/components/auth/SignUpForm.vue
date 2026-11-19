@@ -121,13 +121,29 @@ function submit(): void {
 </script>
 
 <template>
-  <form class="wf-sign-up" novalidate @submit.prevent="submit">
-    <MessageAlert :message="message ?? ''" kind="alert" />
+  <form
+    class="wf-sign-up"
+    novalidate
+    @submit.prevent="submit"
+  >
+    <MessageAlert
+      :message="message ?? ''"
+      kind="alert"
+    />
 
     <label class="wf-field">
       <span>الاسم الكامل</span>
-      <input v-model="fullName" type="text" autocomplete="name" required />
-      <span v-if="failureFor('fullName')" role="alert" class="wf-field__error">{{
+      <input
+        v-model="fullName"
+        type="text"
+        autocomplete="name"
+        required
+      >
+      <span
+        v-if="failureFor('fullName')"
+        role="alert"
+        class="wf-field__error"
+      >{{
         failureFor('fullName')
       }}</span>
     </label>
@@ -135,7 +151,10 @@ function submit(): void {
     <label class="wf-field">
       <span>رقم الهاتف</span>
       <span class="wf-field__phone">
-        <span class="wf-field__prefix" dir="ltr">+218</span>
+        <span
+          class="wf-field__prefix"
+          dir="ltr"
+        >+218</span>
         <input
           v-model="phone"
           type="tel"
@@ -143,39 +162,64 @@ function submit(): void {
           autocomplete="tel-national"
           placeholder="91 000 0000"
           required
-        />
+        >
       </span>
-      <span v-if="failureFor('phone')" role="alert" class="wf-field__error">{{
+      <span
+        v-if="failureFor('phone')"
+        role="alert"
+        class="wf-field__error"
+      >{{
         failureFor('phone')
       }}</span>
     </label>
 
-    <PasswordField v-model="password" :message="failureFor('password')" />
+    <PasswordField
+      v-model="password"
+      :message="failureFor('password')"
+    />
 
-    <CityCombobox v-model="city" :message="failureFor('city')" />
+    <CityCombobox
+      v-model="city"
+      :message="failureFor('city')"
+    />
 
     <label class="wf-field">
       <span>
         اسم المحل
         <span class="wf-field__optional">اختياري</span>
       </span>
-      <input v-model="shopName" type="text" autocomplete="organization" />
-      <span v-if="failureFor('shopName')" role="alert" class="wf-field__error">{{
+      <input
+        v-model="shopName"
+        type="text"
+        autocomplete="organization"
+      >
+      <span
+        v-if="failureFor('shopName')"
+        role="alert"
+        class="wf-field__error"
+      >{{
         failureFor('shopName')
       }}</span>
     </label>
 
-    <div class="wf-honeypot" aria-hidden="true">
+    <div
+      class="wf-honeypot"
+      aria-hidden="true"
+    >
       <input
         v-model="website"
         name="website"
         type="text"
         tabindex="-1"
         autocomplete="off"
-      />
+      >
     </div>
 
-    <button type="submit" class="wf-submit" :disabled="loading">
+    <button
+      type="submit"
+      class="wf-submit"
+      :disabled="loading"
+    >
       {{ loading ? 'يجري الإرسال…' : 'إرسال رمز التحقق' }}
     </button>
 

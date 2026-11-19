@@ -22,7 +22,7 @@ minutes, with `archive_timeout = 60` bounding the archive interval.
    each segment through `seal.mjs open`.
 4. Assert the restored state: the account and session counts of the runbook's
    recorded point, the last `auth.sign_in.succeeded` record's timestamp, and
-   `GET /health` answering `200 {"status":"ok","database":"ok"}`.
+   `GET /health` answering `200 {"status":"ok","database":"ok","storage":"ok","scanner":"ok"}`.
 5. A write inside the 15-minute window may be absent; it is read as absent, not
    as corruption (FR-055).
 6. Record the drill's date, the archive's stamp, the key's custody holder, and
@@ -57,8 +57,11 @@ recovery point.
 | a pending request | `state` pending, `verified_at` null | the source verified it |
 | a spent rate-limit window | `count` 2 in the window that held it | the source raised it to 3 |
 
-`GET /health` answered 200 `{"status":"ok","database":"ok"}`. The SMS port's
-rolling acceptance estimate is process memory (`AcceptanceEstimate`), never a
+`GET /health` answered 200
+`{"status":"ok","database":"ok","storage":"error","scanner":"ok"}` on this host,
+which carries no SeaweedFS: the drill's assertion is the database field and the
+restored rows; the storage field is the deployment's own dependency. The SMS
+port's rolling acceptance estimate is process memory (`AcceptanceEstimate`), never a
 row: the fresh API starts with an empty window, and the estimator's empty-window
 case is asserted by `apps/api/src/modules/auth/sms/__tests__/acceptance-estimate.spec.ts`.
 

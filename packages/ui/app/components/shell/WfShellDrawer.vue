@@ -1,10 +1,16 @@
 <!-- The drawer: the sidebar on a narrow screen. «المزيد» opens it; the collapse control, Escape, and an activation outside close it and return focus to «المزيد»; activating a destination closes it as part of the navigation (FR-022, FR-052, contracts/ui-contracts.md §8.3). -->
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import type { FooterLink, SidebarDestination } from '@wafar/shared';
 import WfShellSidebar from './WfShellSidebar.vue';
 
 const props = withDefaults(
-  defineProps<{ open?: boolean; guest?: boolean }>(),
+  defineProps<{
+    items: readonly SidebarDestination[];
+    links: readonly FooterLink[];
+    open?: boolean;
+    guest?: boolean;
+  }>(),
   { open: false, guest: false },
 );
 
@@ -49,7 +55,11 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey));
 </script>
 
 <template>
-  <div v-if="open" class="wf-shell-drawer__overlay" @click.self="close">
+  <div
+    v-if="open"
+    class="wf-shell-drawer__overlay"
+    @click.self="close"
+  >
     <div
       id="wf-drawer"
       ref="panel"
@@ -58,7 +68,15 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKey));
       aria-modal="true"
       aria-label="قائمة التنقل"
     >
-      <WfShellSidebar drawer :open="open" :guest="guest" @close="close" @navigate="emit('close')" />
+      <WfShellSidebar
+        drawer
+        :items="items"
+        :links="links"
+        :open="open"
+        :guest="guest"
+        @close="close"
+        @navigate="emit('close')"
+      />
     </div>
   </div>
 </template>

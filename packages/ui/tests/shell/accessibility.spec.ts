@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest';
 import WfShellHeader from '../../app/components/shell/WfShellHeader.vue';
 import WfShellBottomBar from '../../app/components/shell/WfShellBottomBar.vue';
 import WfEndedSession from '../../app/components/shell/WfEndedSession.vue';
+import { accountTargets, barSlots, signInPath } from './fixtures.ts';
 
 const stubs = {
   NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
@@ -22,7 +23,7 @@ function accessibleName(element: { attributes: (name: string) => string | undefi
 describe('the frame’s accessibility contract', () => {
   it('gives every header control a name and a role', () => {
     const wrapper = mount(WfShellHeader, {
-      props: { signedIn: true },
+      props: { signedIn: true, signInPath, accountTargets },
       global: { stubs },
     });
     const controls = wrapper.findAll('a, button');
@@ -34,20 +35,26 @@ describe('the frame’s accessibility contract', () => {
   });
 
   it('gives the five bar slots their names and the guest’s three controls a name', () => {
-    const bar = mount(WfShellBottomBar, { global: { stubs } });
+    const bar = mount(WfShellBottomBar, {
+      props: { items: barSlots },
+      global: { stubs },
+    });
     const slots = bar.findAll('.wf-shell-bottom-bar__slot');
     expect(slots).toHaveLength(5);
     for (const slot of slots) {
       expect(accessibleName(slot).trim().length).toBeGreaterThan(0);
     }
-    const header = mount(WfShellHeader, { global: { stubs } });
+    const header = mount(WfShellHeader, {
+      props: { signInPath, accountTargets },
+      global: { stubs },
+    });
     expect(header.findAll('a, button').length).toBeGreaterThanOrEqual(3);
   });
 
   it('announces the ended-session state and keeps its heading focusable', async () => {
     for (const variant of ['ended', 'blocked'] as const) {
       const wrapper = mount(WfEndedSession, {
-        props: { variant },
+        props: { variant, signInPath },
         global: { stubs },
         attachTo: document.body,
       });

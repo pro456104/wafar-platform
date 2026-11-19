@@ -30,3 +30,20 @@ A refused or timed-out dispatch changes nothing: the previous code stays valid,
 the request stays live, and no re-request allowance is spent. The API answers
 `OTP_SEND_FAILED` (502, retryable) and emits `auth.otp.dispatch_failed` with the
 flow's `kind` and the channel's name. No patient data appears in the record.
+
+The operator's procedure:
+
+1. Confirm the outage with the provider's status page.
+2. Tell a merchant who reports a missing code to retry: the previous code stays
+   valid and the retry is a new request, so no allowance is spent by the
+   refusal.
+3. Change no configuration: the port, the provider, and the 750 ms acceptance
+   bound stay as they are.
+4. Record the incident, naming the time, the affected flow, and the
+   `auth.otp.dispatch_failed` records.
+
+The platform does not report itself unhealthy: `/health` stays 200 because
+PostgreSQL is the only readiness dependency and the provider is an outbound
+channel whose refusal the flow already handles. R12's monitoring and alerting
+own the alert. A replacement provider is a decision record and an adapter, not a
+configuration switch, because the port is the boundary.

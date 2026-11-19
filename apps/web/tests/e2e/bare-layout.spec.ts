@@ -30,10 +30,13 @@ for (const entry of pages) {
     await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
     await expect(page).toHaveTitle(`${entry.title} — منصة وفر`);
 
-    // The wordmark above the title, not a control.
+    // The wordmark above the title, not a control: the mark carries no image
+    // role and no label, so its visible words are the accessible name (T152).
     const mark = page.locator('.bare-layout__mark .wf-wordmark');
     await expect(mark).toBeVisible();
-    await expect(mark).toHaveAttribute('aria-label', 'منصة وفر');
+    await expect(mark).not.toHaveAttribute('role', /.+/);
+    await expect(mark).not.toHaveAttribute('aria-label', /.+/);
+    await expect(mark.locator('.wf-wordmark__full')).toHaveText('منصة وفر');
     await expect(page.locator('.bare-layout__mark a')).toHaveCount(0);
 
     // The page title above the card.

@@ -1,12 +1,18 @@
 <!-- The sidebar: the nine destinations, the collapse control, and — in the drawer — the four static-page links. The rail is the layer's rail-width token (FR-022, FR-024, FR-039, contracts/ui-contracts.md §8.3). -->
 <script setup lang="ts">
 import { ref } from 'vue';
-import { footerLinks } from '@wafar/shared';
+import type { FooterLink, SidebarDestination } from '@wafar/shared';
 import WfIcon from '../WfIcon.vue';
 import WfNavList from './WfNavList.vue';
 
 const props = withDefaults(
-  defineProps<{ drawer?: boolean; guest?: boolean; open?: boolean }>(),
+  defineProps<{
+    items: readonly SidebarDestination[];
+    links: readonly FooterLink[];
+    drawer?: boolean;
+    guest?: boolean;
+    open?: boolean;
+  }>(),
   { drawer: false, guest: false, open: true },
 );
 
@@ -33,10 +39,23 @@ function navigate(): void {
     :class="{ 'wf-shell-sidebar--collapsed': collapsed && !drawer }"
     aria-label="القائمة"
   >
-    <WfNavList :guest="guest" :collapsed="collapsed && !drawer" @navigate="navigate" />
+    <WfNavList
+      :items="items"
+      :guest="guest"
+      :collapsed="collapsed && !drawer"
+      @navigate="navigate"
+    />
 
-    <div v-if="drawer" class="wf-shell-sidebar__footer">
-      <NuxtLink v-for="link in footerLinks" :key="link.key" :to="link.path" class="wf-shell-sidebar__footer-link">
+    <div
+      v-if="drawer"
+      class="wf-shell-sidebar__footer"
+    >
+      <NuxtLink
+        v-for="link in links"
+        :key="link.key"
+        :to="link.path"
+        class="wf-shell-sidebar__footer-link"
+      >
         {{ link.label }}
       </NuxtLink>
     </div>
@@ -48,10 +67,16 @@ function navigate(): void {
       @click="collapse"
     >
       <WfIcon :name="drawer ? 'close' : 'collapse'" />
-      <span v-if="!collapsed || drawer" class="wf-shell-sidebar__label">
+      <span
+        v-if="!collapsed || drawer"
+        class="wf-shell-sidebar__label"
+      >
         {{ drawer ? 'إغلاق القائمة' : collapsed ? 'توسيع القائمة' : 'طي القائمة' }}
       </span>
-      <span v-else class="wf-shell-sidebar__label wf-sr-only">
+      <span
+        v-else
+        class="wf-shell-sidebar__label wf-sr-only"
+      >
         {{ collapsed ? 'توسيع القائمة' : 'طي القائمة' }}
       </span>
     </button>

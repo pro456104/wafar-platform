@@ -15,6 +15,20 @@
       "when": 1794201089797,
       "tag": "0002_identity_foundation_previous_code",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794454434762,
+      "tag": "0003_phone_verifications_payload_checks",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794873600000,
+      "tag": "0004_file_intake",
+      "breakpoints": true
     }
   ]
 }

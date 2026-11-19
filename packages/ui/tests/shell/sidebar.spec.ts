@@ -6,6 +6,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import WfShellSidebar from '../../app/components/shell/WfShellSidebar.vue';
+import { footerItems, sidebarItems } from './fixtures.ts';
+
+const props = { items: sidebarItems, links: footerItems };
 
 const stubs = {
   NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
@@ -14,7 +17,7 @@ const stubs = {
 
 describe('the sidebar', () => {
   it('renders the nine destinations in order with their names and hrefs', () => {
-    const wrapper = mount(WfShellSidebar, { global: { stubs } });
+    const wrapper = mount(WfShellSidebar, { props, global: { stubs } });
     const items = wrapper.findAll('.wf-nav-list__item');
     expect(items).toHaveLength(9);
     expect(items.map((item) => item.attributes('href'))).toEqual([
@@ -42,13 +45,13 @@ describe('the sidebar', () => {
   });
 
   it('carries the whole label as the item’s accessible name in the rail', () => {
-    const wrapper = mount(WfShellSidebar, { global: { stubs } });
+    const wrapper = mount(WfShellSidebar, { props, global: { stubs } });
     expect(wrapper.find('nav').attributes('aria-label')).toBe('القائمة');
     expect(wrapper.findAll('.wf-nav-list__label')).toHaveLength(9);
   });
 
   it('names the collapse control for each state', async () => {
-    const wrapper = mount(WfShellSidebar, { global: { stubs } });
+    const wrapper = mount(WfShellSidebar, { props, global: { stubs } });
     const control = wrapper.find('.wf-shell-sidebar__collapse');
     expect(control.text()).toBe('طي القائمة');
     await control.trigger('click');
@@ -67,7 +70,7 @@ describe('the sidebar', () => {
 
   it('renders the drawer copy of the four static links', () => {
     const wrapper = mount(WfShellSidebar, {
-      props: { drawer: true },
+      props: { ...props, drawer: true },
       global: { stubs },
     });
     expect(
@@ -77,7 +80,7 @@ describe('the sidebar', () => {
 
   it('keeps a guest’s Catalog href public while the six merchant-area items redirect', () => {
     const wrapper = mount(WfShellSidebar, {
-      props: { guest: true },
+      props: { ...props, guest: true },
       global: { stubs },
     });
     const hrefs = wrapper
@@ -85,5 +88,41 @@ describe('the sidebar', () => {
       .map((item) => item.attributes('href'));
     expect(hrefs.slice(0, 3)).toEqual(['/', '/parts', '/catalogs']);
     expect(hrefs.slice(3)).toEqual(Array(6).fill('/auth/sign-in'));
+  });
+
+  it('renders the collapsed rail’s tooltip beside each item instead of a native title (T312)', async () => {
+    const wrapper = mount(WfShellSidebar, { props, global: { stubs } });
+    expect(wrapper.findAll('.wf-nav-list__tooltip')).toHaveLength(0);
+    await wrapper.find('.wf-shell-sidebar__collapse').trigger('click');
+    const items = wrapper.findAll('.wf-nav-list__item');
+    expect(
+      items.every((item) => item.attributes('title') === undefined),
+    ).toBe(true);
+    const tooltips = wrapper.findAll('.wf-nav-list__tooltip');
+    expect(tooltips).toHaveLength(9);
+    expect(tooltips.map((tooltip) => tooltip.text())).toEqual([
+      'الرئيسية',
+      'بحث وفر',
+      'الكتالوج',
+      'رفع كتالوج',
+      'ملفاتي',
+      'سلة المشتريات',
+      'الإشعارات',
+      'المراسلة',
+      'الملف الشخصي',
+    ]);
+    for (const tooltip of tooltips) {
+      expect(tooltip.attributes('aria-hidden')).toBe('true');
+    }
+  });
+
+  it('opens the tooltip at the item’s inline-end edge and keeps it inside the viewport (T312)', () => {
+    const source = readFileSync(
+      resolve('packages/ui/app/components/shell/WfNavList.vue'),
+      'utf8',
+    );
+    expect(source).toContain('inset-inline-start: calc(100%');
+    expect(source).toContain('max-inline-size: calc(100vw - var(--wf-rail-width)');
+    expect(source).not.toContain(':title=');
   });
 });

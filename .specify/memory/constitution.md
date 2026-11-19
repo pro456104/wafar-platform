@@ -1,42 +1,5 @@
 # Wafar Platform Constitution
 
-<!--
-Sync Impact Report (review material; MUST NOT be committed — Governance →
-amendment procedure)
-==============================================================================
-Version change: 6.3.1 -> 6.3.2 (PATCH)
-
-Rationale for PATCH: the amendment registers one term in the Glossary — the
-product's shared page composition — and names the second word already in use for
-it as an accepted synonym rather than a second term. It fixes a name, not a
-rule: no principle is added, removed, or redefined, no section is added or
-removed, and no behaviour changes, so the bump is neither MAJOR nor MINOR.
-
-Modified principles: none. Titles and rules are unchanged.
-
-Modified sections:
-  - Glossary -> a new row, **Shell**, placed before **Wafar UI layer**: it
-    defines the composition (header, sidebar, footer band, and the narrow-screen
-    bottom navigation bar), fixes **Shell** as the approved term, records
-    **Frame** as an accepted synonym confined to text that already carries it,
-    and requires new text to use **Shell**.
-
-Added sections: none
-Removed sections: none
-Templates: none — the resolved scaffold's headings and their order are kept;
-no versioned template layer is written.
-
-Supersedes: nothing. No record is rewritten; ADR-127's title and the R1
-specification's existing "frame" occurrences stay as written, because the new
-row accepts them as the synonym rather than as a second term. ADR-148 records
-this amendment.
-
-Follow-up TODOs: none. No placeholder token is left unresolved.
-
-Note for the reviewer: this report is scratch material and MUST be deleted
-before the amended constitution is committed.
--->
-
 This project turns parts catalogs supplied as PDF, Excel, or Word files into a
 structured, searchable catalog for Libyan merchants who currently catalog them
 by hand. A merchant registers, opens an account, uploads supplier catalogs, and
@@ -222,14 +185,18 @@ surface.
 - Numerals rendered to the user MUST be Latin (1234567890), not
   Arabic-Indic (٠١٢٣٤٥٦٧٨٩), applied through the designated numeric utility
   with `direction: ltr; unicode-bidi: isolate`.
-- Emoji MUST NOT appear in any text a person reads inside the platform: a page
-  title, a button label, a table cell, an empty-state description, a
-  notification body, a message body, a screen in the administrator application,
-  and the body of an SMS the platform sends. An icon MUST be an SVG from the
-  approved icon source (Technology Standards -> Register gaps a slice MUST close); an emoji glyph
-  is not an icon and MUST NOT stand in for one. The ban covers every surface a
-  user or an administrator reads and nothing else: governance documents, code
-  identifiers, and code comments are outside it.
+- Emoji MUST NOT appear in any text the platform writes and shows: a page title,
+  a button label, a table heading, an empty-state description, a notification
+  body, a message body, a screen in the administrator application, and the body
+  of an SMS the platform sends. An icon MUST be an SVG from the approved icon
+  source (Technology Standards -> Register gaps a slice MUST close); an emoji
+  glyph is not an icon and MUST NOT stand in for one. The ban covers the text the
+  platform authors on every surface a user or an administrator reads and nothing
+  else: governance documents, code identifiers, and code comments are outside it.
+  A value the platform receives — a value a person types into a field, a file's
+  name, a supplier's printed text — is shown as supplied and is outside the ban;
+  a feature MAY be stricter on a value it collects in its own field, and such a
+  rule stands on that feature's own decision rather than on this principle.
 - Arabic text MUST NOT carry positive `letter-spacing`. Negative tracking is
   permitted only on large headings and only within the type scale recorded by
   the Wafar UI layer.
@@ -937,6 +904,22 @@ schema should contain; see Deferred areas.
   at each call site. A query path reachable from a merchant session MUST NOT
   be able to return rows belonging to another merchant, and that invariant MUST
   be covered by a test that fails when it is broken.
+- **The single named exception: the duplicate outcome's bounded read.** The
+  classifications above name data that is outside the merchant scope; this
+  bullet names the one and only exception to the rule that a merchant-scoped
+  query path MUST NOT return another merchant's rows. When an upload is refused
+  as a duplicate, the outcome MUST name the original catalog even when that
+  catalog belongs to another merchant. The read MUST be one fixed projection
+  carrying exactly four fields — the original's name, its upload date, its
+  processing status, and the identifier the parts link needs — and MUST NOT
+  read, return, or log any other field of that catalog, any other column of its
+  row, or any record of its owner. It MUST be reachable only from the duplicate
+  outcome, MUST pass through the same single shared entry point, and MUST NOT
+  be reused by any other outcome, page, or query path. The isolation test MUST
+  assert those four fields and MUST fail on any wider projection or on a second
+  cross-merchant read. This is the only exception to the isolation rule; a
+  second one MUST NOT be introduced without an amendment that names it
+  (ADR-170, ADR-175).
 
 **Rationale:** A tenant scope that is missing is not a defect, it is a breach,
 and a rule repeated at every call site is a rule that will be forgotten at one
@@ -1091,14 +1074,17 @@ an amendment to this constitution.
 | File processing budget | p95 < 5 min |
 
 **Quota semantics.** The monthly limit counts upload events in the calendar month;
-deleting a file does not restore it. The active limit counts files whose bytes,
-parts, bookmarks, and search-index entries are present; a merchant delete, an
-administrator delete, or the 90-day retention job releases an active slot, and a
-soft-deleted catalog row does not count. The administrator may set a per-user
-monthly or active quota up to the ceilings above; the change is audited and never
-deletes a file. A quota above a ceiling requires an amendment to this table. The
-50-per-month and 300-active values are the defaults a user receives without an
-override.
+deleting a file does not restore it. The active limit counts catalogs whose stored
+file has not been deleted, and neither the catalog's processing status nor the
+rows derived from it is a condition: `uploaded`, `processing`, and `failed` count
+exactly as `completed` does, because in all four the file's bytes are stored, and
+the presence of parts, bookmarks, or search-index entries is not required for a
+catalog to occupy its slot (ADR-176). A merchant delete, an administrator delete,
+or the 90-day retention job releases an active slot, and a soft-deleted catalog
+row does not count. The administrator may set a per-user monthly or active quota
+up to the ceilings above; the change is audited and never deletes a file. A quota
+above a ceiling requires an amendment to this table. The 50-per-month and
+300-active values are the defaults a user receives without an override.
 
 **Rationale:** A budget without a percentile and a measurement point is a number
 in a document that nothing checks. These rules exist so that performance is
@@ -1164,8 +1150,9 @@ the two ways a dependency base rots without a decision ever being made.
   zip-bomb upload; the supported-browser statement; the password policy
   parameters (the minimum length and the common-or-breached-password source);
   the one-time-code lifetime, its re-request limit, and the incorrect-entry
-  bound; and the profile field maximum lengths (the full name and the shop
-  name). A value written in the
+  bound; the profile field maximum lengths (the full name and the shop
+  name); and the upload-attempt bound (60 attempts in a fixed 15-minute
+  window on UTC boundaries). A value written in the
   body of the plan but not
   under that heading does not satisfy the rule that names it, and a plan
   with no such heading has not discharged any of them. The list is closed: a
@@ -1903,4 +1890,4 @@ in place of them or leave the gap unrecorded.
 
 ---
 
-**Version**: 6.3.2 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-11-04
+**Version**: 7.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-11-14

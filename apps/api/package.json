@@ -18,9 +18,13 @@
     "@hono/node-server": "^2.1.6",
     "@wafar/db": "workspace:*",
     "@wafar/shared": "workspace:*",
+    "aws4fetch": "^1.0.20",
     "better-auth": "1.7.18",
+    "cfb": "^1.2.2",
     "drizzle-orm": "catalog:",
+    "fflate": "^0.8.2",
     "hono": "4.13.17",
+    "pdf-lib": "^1.17.1",
     "pg": "catalog:",
     "twilio": "^5.10.3",
     "zod": "catalog:"

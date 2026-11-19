@@ -767,14 +767,15 @@ The layer's z-index tokens carry the values, and a component carries no raw
 | Component | Props | Renders | Accessible contract |
 |---|---|---|---|
 | `WfWordmark` | `as?: 'mark' \| 'link'`, `href?` | «منصة وفر», the second word in the accent colour | `mark`: no role, not focusable. `link`: an `<a>` with the accessible name «منصة وفر» |
-| `WfShellHeader` | `signedIn`, `unreadCount`, `appearance` | the header band; logo/home at inline-start; notifications, theme switch, account control at inline-end | a `banner` landmark; no page-navigation link (no item of the sidebar's navigation item list, FR-039 — never a link as such, FR-023); no drawer control |
-| `WfShellSidebar` | `items`, `collapsed`, `open` | the nav list, the collapse control, and (in the drawer) the four footer links | a `navigation` landmark named «القائمة» |
+| `WfShellHeader` | `signedIn`, `blocked`, `signInPath`, `accountTargets`, `unreadCount`, `appearance` | the header band; logo/home at inline-start; notifications, theme switch, account control at inline-end | a `banner` landmark; no page-navigation link (no item of the sidebar's navigation item list, FR-039 — never a link as such, FR-023); no drawer control |
+| `WfShellSidebar` | `items`, `links`, `collapsed`, `open`, `drawer`, `guest` | the nav list, the collapse control, and (in the drawer) the four footer links | a `navigation` landmark named «القائمة» |
+| `WfShellDrawer` | `items`, `links`, `open`, `guest` | the sidebar inside the drawer, above the scrim | a `dialog` named «قائمة التنقل»; focus moves to its first control and stays within it; Escape and an activation outside close it and return focus to «المزيد»; a navigation item closes it as part of the navigation |
 | `WfShellBottomBar` | `items` | five slots, the raised action, the scroll-hide behaviour (the raised action leaves with the bar) | a `navigation` landmark; every slot 44 px |
 | `WfShellFooter` | `links` | the brand line and the four links | a `contentinfo` landmark |
-| `WfAccountMenu` | `signedIn` | the account control and its menu | a `button` named «حسابي» with `aria-haspopup="menu"` and `aria-expanded`; a `menu` with three `menuitem`s |
+| `WfAccountMenu` | `signedIn`, `targets` | the account control and its menu | a `button` named «حسابي» with `aria-haspopup="menu"` and `aria-expanded`; a `menu` with three `menuitem`s |
 | `WfThemeSwitch` | `modelValue: 'light' \| 'dark'` | the switch | a `button` with `aria-pressed` and a name that states the action (§8.5) |
 | `WfNavList` | `items` | the nine links, icon + label | each link a name; the collapsed rail keeps the name as an accessible name with a tooltip |
-| `WfEndedSession` | `variant: 'ended' \| 'blocked'` | the ended-session state | a heading, a body, and (ended only) a sign-in control |
+| `WfEndedSession` | `variant: 'ended' \| 'blocked'`, `signInPath` | the ended-session state | a heading, a body, and (ended only) a sign-in control |
 
 ### 8.3 Content the composition fixes
 

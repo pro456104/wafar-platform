@@ -1,9 +1,8 @@
 <!-- The ended-session state: one state for every session ending, in two variants, announced ahead of the page's other announcements with its heading focused (FR-049, contracts/ui-contracts.md §8.4). -->
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { bareRoutes } from '@wafar/shared';
 
-withDefaults(defineProps<{ variant?: 'ended' | 'blocked' }>(), {
+withDefaults(defineProps<{ variant?: 'ended' | 'blocked'; signInPath: string }>(), {
   variant: 'ended',
 });
 
@@ -12,8 +11,17 @@ onMounted(() => heading.value?.focus());
 </script>
 
 <template>
-  <section class="wf-ended-session" role="status" aria-live="polite" aria-atomic="true">
-    <h2 ref="heading" class="wf-ended-session__heading" tabindex="-1">
+  <section
+    class="wf-ended-session"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    <h2
+      ref="heading"
+      class="wf-ended-session__heading"
+      tabindex="-1"
+    >
       {{ variant === 'blocked' ? 'الحساب موقوف' : 'انتهت الجلسة' }}
     </h2>
     <p class="wf-ended-session__body">
@@ -26,7 +34,7 @@ onMounted(() => heading.value?.focus());
     <NuxtLink
       v-if="variant !== 'blocked'"
       class="wf-ended-session__signin"
-      :to="bareRoutes.signIn"
+      :to="signInPath"
     >
       تسجيل الدخول
     </NuxtLink>
@@ -47,8 +55,8 @@ onMounted(() => heading.value?.focus());
   font-size: var(--wf-text-xl);
 }
 .wf-ended-session__heading:focus-visible {
-  outline: var(--wf-focus-ring);
-  outline-offset: 2px;
+  outline: var(--wf-focus-width) solid var(--wf-focus-colour);
+  outline-offset: var(--wf-focus-offset);
 }
 .wf-ended-session__body {
   margin: 0;

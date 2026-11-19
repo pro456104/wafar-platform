@@ -78,12 +78,12 @@
   in the spec's Success Criteria (Query Safety and Secrets).
 
   Row numbering and the constitution's closed list: the constitution enumerates
-  seventeen values, and this table has nineteen rows because two of its items are
+  eighteen values, and this table has twenty rows because two of its items are
   split so each half can be answered on its own. Rows 6 and 7 are the two halves
   of constitution item 6 (the performance budget percentiles AND the maximum
   query execution time); rows 8 and 9 are the two halves of constitution item 7
   (the RTO AND the RPO). Rows 1-5 and 10-16 map one-to-one onto constitution
-  items 1-5 and 8-14; rows 17-19 map one-to-one onto constitution items 15-17.
+  items 1-5 and 8-14; rows 17-20 map one-to-one onto constitution items 15-18.
   The constitution's list is closed: a MUST that names a new value adds it there
   first, and the matching row is added here in the same change.
 -->
@@ -109,6 +109,7 @@
 | 17 | Password policy parameters (minimum length and the common-or-breached-password source) | [the minimum length and the source the platform holds, or "not introduced — no password surface"] |
 | 18 | One-time-code lifetime, re-request limit, and incorrect-entry bound | [numbers, or "not introduced — no one-time-code surface"] |
 | 19 | Profile field maximum lengths (full name, shop name) | [numbers, or "not introduced — no profile field"] |
+| 20 | Upload-attempt bound and its window | [60 attempts in a fixed 15-minute window on UTC boundaries, or "not introduced — no upload surface"] |
 
 ### Verification Notes *(required where applicable)*
 

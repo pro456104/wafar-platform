@@ -84,4 +84,35 @@ describe('the auth engine', () => {
       false,
     );
   });
+
+  it('carries the creation address on the session it issues and stores NULL when none is supplied (T308)', async () => {
+    const created = engine();
+    const context = await created.raw.$context;
+    // The adapter is stubbed, so the mapping is asserted without a database:
+    // the data the library's own createSession receives is the row's content.
+    const adapter = context.internalAdapter as unknown as {
+      createSession: (...args: unknown[]) => Promise<unknown>;
+    };
+    const original = adapter.createSession;
+    const issued: Array<Record<string, unknown>> = [];
+    adapter.createSession = async (...args: unknown[]) => {
+      issued.push((args[2] ?? {}) as Record<string, unknown>);
+      return { id: 'session-id', token: 'session-token' };
+    };
+    try {
+      const now = new Date('2026-11-12T08:00:00.000Z');
+      await created.issue({
+        userId: 'user-with-address',
+        now,
+        ipAddress: '203.0.113.7',
+      });
+      expect(issued[0]?.['ipAddress']).toBe('203.0.113.7');
+      await created.issue({ userId: 'user-without-address', now });
+      // The data model fixes ip_address as nullable, so an absent address is
+      // the NULL default and never the empty string the engine used to write.
+      expect(issued[1]?.['ipAddress'] ?? null).toBeNull();
+    } finally {
+      adapter.createSession = original;
+    }
+  });
 });

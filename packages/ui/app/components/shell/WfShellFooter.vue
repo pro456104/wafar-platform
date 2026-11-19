@@ -1,18 +1,21 @@
 <!-- The footer band: the brand line at the inline-start and the four static-page links at the inline-end, absent below 1024 px (FR-024, AC-026, contracts/ui-contracts.md §8.3). -->
 <script setup lang="ts">
-import { footerLinks } from '@wafar/shared';
+import type { FooterLink } from '@wafar/shared';
 
-withDefaults(defineProps<{ links?: typeof footerLinks }>(), {
-  links: () => footerLinks,
-});
+defineProps<{ links: readonly FooterLink[] }>();
 </script>
 
 <template>
   <footer class="wf-shell-footer">
-    <p class="wf-shell-footer__brand">منصة وفر — كتالوج قطع الغيار</p>
+    <p class="wf-shell-footer__brand">
+      منصة وفر — كتالوج قطع الغيار
+    </p>
     <nav aria-label="روابط ثابتة">
       <ul class="wf-shell-footer__list">
-        <li v-for="link in links" :key="link.key">
+        <li
+          v-for="link in links"
+          :key="link.key"
+        >
           <NuxtLink :to="link.path">{{ link.label }}</NuxtLink>
         </li>
       </ul>

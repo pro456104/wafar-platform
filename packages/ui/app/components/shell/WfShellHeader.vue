@@ -1,15 +1,23 @@
 <!-- The frame's header: logo/home at inline-start; notifications, the theme switch, and the account control (or the guest's sign-in action) at inline-end, with the blocked ended-session state carrying the logo/home control and the theme switch alone, all kept in one row at 320 CSS px (FR-023, FR-049, AC-025, AC-053, contracts/ui-contracts.md §8.3–§8.4). -->
 <script setup lang="ts">
-import { bareRoutes } from '@wafar/shared';
+import type { AccountMenuTargets } from '@wafar/shared';
 import WfWordmark from '../WfWordmark.vue';
 import WfIcon from '../WfIcon.vue';
 import WfAccountMenu from './WfAccountMenu.vue';
 import WfThemeSwitch from './WfThemeSwitch.vue';
 
-withDefaults(defineProps<{ signedIn?: boolean; blocked?: boolean }>(), {
-  signedIn: false,
-  blocked: false,
-});
+withDefaults(
+  defineProps<{
+    signedIn?: boolean;
+    blocked?: boolean;
+    signInPath: string;
+    accountTargets: AccountMenuTargets;
+  }>(),
+  {
+    signedIn: false,
+    blocked: false,
+  },
+);
 
 const emit = defineEmits<{ signOut: [] }>();
 </script>
@@ -31,12 +39,13 @@ const emit = defineEmits<{ signOut: [] }>();
       <WfThemeSwitch />
       <WfAccountMenu
         v-if="signedIn && !blocked"
+        :targets="accountTargets"
         @sign-out="emit('signOut')"
       />
       <NuxtLink
         v-else-if="!blocked"
         class="wf-shell-header__signin"
-        :to="bareRoutes.signIn"
+        :to="signInPath"
       >
         تسجيل الدخول
       </NuxtLink>

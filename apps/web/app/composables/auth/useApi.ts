@@ -3,7 +3,7 @@
 // page's pending tie while one stands, and refreshes the pair after a
 // FORM_TOO_FAST so the retry needs no reload (FR-044, FR-029, FR-038).
 import { ref } from 'vue';
-import type { AuthErrorCode } from '@wafar/shared';
+import type { RefusalCode } from '@wafar/shared';
 import { heldPendingRequestId } from './usePendingRequest';
 
 export interface BootstrapPair {
@@ -12,7 +12,7 @@ export interface BootstrapPair {
 }
 
 export interface ApiRefusal {
-  code: AuthErrorCode;
+  code: RefusalCode;
   reason?: 'empty' | 'too_long' | 'emoji';
   field?: string;
   retryAfterSeconds?: number;
@@ -46,6 +46,7 @@ export function useApi() {
   async function post<T>(
     path: string,
     body: unknown,
+    options: { signal?: AbortSignal } = {},
   ): Promise<{ ok: true; status: number; data: T } | { ok: false; status: number; refusal: ApiRefusal }> {
     if (pair === null) await bootstrap();
     loading.value = true;
@@ -60,6 +61,7 @@ export function useApi() {
           ...(tie === null ? {} : { 'x-wafar-pending': tie }),
         },
         body: JSON.stringify(body),
+        ...(options.signal === undefined ? {} : { signal: options.signal }),
       });
       if (response.ok) {
         const data = (await response.json().catch(() => ({}))) as T;

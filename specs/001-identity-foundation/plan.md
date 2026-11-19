@@ -477,26 +477,31 @@ key is a lost backup — the reason the key is never stored beside the archive
 key contract, the runbook, and the drill; R12 owns the procedure, the new host,
 the DNS and secret delivery, and the measurement of both numbers.
 
-**The schema rollback (FR-055, CHK019)**: The release is two ordered reversible
+**The schema rollback (FR-055, CHK019)**: The release is three ordered reversible
 steps with both directions defined —
 `packages/db/migrations/0001_identity_foundation.sql` and its paired
 `0001_identity_foundation.down.sql` (T032), then
 `0002_identity_foundation_previous_code.sql` and its paired
 `0002_identity_foundation_previous_code.down.sql`, which adds
-`phone_verifications.previous_code_hash`. Each down is the exact inverse of its
-up: `0002`'s removes the column and its check, `0001`'s drops the six tables in
-the reverse of the order `data-model.md` §13 fixes, and the applied-step count
-the boot guard reads returns to zero only after both have run in that order. R1
-owns the migrations and their reversibility, and the rollback is exercised
-before it is needed: the integration suite applies the ups to a scratch
-database, seeds a representative row set — an account with its credential and a
-session, a pending request, a counter, and the empty `verifications` placeholder
-— applies the downs in reverse order, asserts the six tables are gone and the
-applied count is zero, and re-applies the ups, so the set is proven both ways in
-CI and in staging before production (Deployment and Observability). The boot
-guard makes the rollback safe to run: an instance whose expected version is absent or different refuses
-to listen, so no release serves against the down state, and while the rollback
-runs the platform serves nothing, exactly as a deployment (FR-054, FR-055). The
+`phone_verifications.previous_code_hash`, then
+`0003_phone_verifications_payload_checks.sql` and its paired
+`0003_phone_verifications_payload_checks.down.sql`, which adds the three
+payload checks `data-model.md` §5 declares for the verification row. Each down is
+the exact inverse of its up: `0003`'s removes the three payload checks, `0002`'s
+removes the column and its check, `0001`'s drops the six tables in the reverse of
+the order `data-model.md` §13 fixes, and the applied-step count the boot guard
+reads returns to zero only after all three have run in that order. R1 owns the
+migrations and their reversibility, and the rollback is exercised before it is
+needed: the integration suite applies the ups to a scratch database, seeds a
+representative row set — an account with its credential and a session, a pending
+request, a counter, and the empty `verifications` placeholder — applies the downs
+in reverse order, asserts the six tables are gone and the applied count is zero,
+and re-applies the ups, so the set is proven both ways in CI and in staging
+before production (Deployment and Observability). The boot guard makes the
+rollback safe to run: an instance whose expected version is absent or different
+refuses to listen, so no release serves against the down state, and while the
+rollback runs the platform serves nothing, exactly as a deployment (FR-054,
+FR-055). The
 state consequence is FR-055's and is stated rather than reconciled: a rollback
 returns the store to the earlier version, so state written under the version
 being rolled back is lost with it — a session created after the migration ends,
@@ -3306,7 +3311,7 @@ owner signs this record; the run it produces is the B8 verification run, and
 pull request #1 carries the checklist and the run's identifiers.
 
 1. **Every task is closed, and every criterion is carried.** `tasks.md` holds
-   T001–T307, every one `[X]`; every acceptance criterion is named by at least
+   T001–T326, every one `[X]`; every acceptance criterion is named by at least
    one closed task (62 of 62); and every `(implements …)` citation resolves
    against the specification's defined identifiers.
 2. **The checklists carry no unchecked item.** The nine files under
@@ -3422,6 +3427,51 @@ requirement, acceptance criterion, success criterion, CMV row, entity, page,
 dependency, or decision record moved, and the unit, typecheck, lint,
 governance, and emoji gates are green.
 
+The 2026-11-12 convergence pass that follows it (Phase 35, T308–T315) recorded
+seven corrections and this range: the sign-in route records the forwarded
+address in the session it issues and the engine stores NULL when no address is
+supplied, instead of the empty string it wrote (T308); the code step states the
+spent re-request bound inline beside the disabled resend control (T309);
+`phone_verifications` carries the three payload constraints the data model
+declares, in migration `0003_phone_verifications_payload_checks` (T310); the
+ended-session heading's focus rule reads the registered focus tokens rather
+than the undefined `--wf-focus-ring` it lost the outline to (T311); the
+collapsed rail's tooltip is a positioned element on the item's inline-end side
+instead of a native `title` (T312); the shell layout passes the header no name,
+so no `full-name` attribute falls through to its root element (T314);
+`.gitattributes` has its row in the Ownership Map (T315); and this record's own
+task range now reads T001–T315. No
+requirement, acceptance criterion, success criterion, CMV row, entity, page,
+dependency, or decision record moved, and the unit, typecheck, lint,
+governance, and emoji gates are green.
+
+The 2026-11-12 convergence pass that follows it (Phase 36, T316–T324) aligned
+nine records with the code: the session resource preserves the 401 code, so the
+frame can choose the blocked variant of the ended-session state (T316); the
+provisioning action reads the full name, mobile number, and city from the TTY
+prompt the contract fixes (T317); the revocation CLI spells its selectors
+`--session` and `--user`, the second resolving the account by its number and
+ending every live session (T318); the schema-rollback paragraph names all three
+ordered steps, `0003` included (T319); the shell components receive their items,
+links, targets, and sign-in path as props instead of importing the product's
+route data, and §8.2 records the props (T320); the SMS runbook carries the
+operator's four-step outage procedure (T321); the generated OpenAPI document
+publishes the unversioned `/health` probe beside the versioned surface (T322);
+the bare page's wordmark carries no image role or accessible name (T323); and
+this record's own task range now reads T001–T324. No requirement, acceptance
+criterion, success criterion, CMV row, entity, page, dependency, or decision
+record moved, and the unit, typecheck, lint, governance, and emoji gates are
+green.
+
+The 2026-11-12 convergence pass that follows it (Phase 37, T325–T326) closed the
+two findings it recorded: the e2e seed helper feeds the provisioning CLI's full
+name, mobile number, city, and password as the four lines the contract fixes
+(T325), and §8.2 records the drawer's props and its accessible contract beside
+the other frame components (T326). This record's own task range now reads
+T001–T326. No requirement, acceptance criterion, success criterion, CMV row,
+entity, page, dependency, or decision record moved, and the unit, typecheck,
+lint, governance, and emoji gates are green.
+
 ## Project Structure
 
 ### Documentation (this feature)
@@ -3492,7 +3542,7 @@ packages/
 
 | Path (directory or file) | Owning feature | Written by this feature? | Exclusive to it? |
 |---|---|---|---|
-| `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `turbo.json`, root `package.json`, `.npmrc`, `.nvmrc`, `osv-scanner.toml` | 001-identity-foundation | yes | yes |
+| `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `turbo.json`, root `package.json`, `.npmrc`, `.nvmrc`, `osv-scanner.toml`, `.gitattributes` | 001-identity-foundation | yes | yes |
 | `packages/config/**` | 001-identity-foundation | yes | yes |
 | `packages/ui/**` (design tokens, theme, appearance, fonts and IconPark assets, `WfIcon`/`WfNumeral`/`WfWordmark`, the content skeleton, the in-place loading bar and its loading-state rule, the bidirectional file-name surface, the TanStack Query provider every frontend that extends the layer installs (`packages/ui/app/plugins/vue-query.client.ts`), and the shell components US5 builds in B6) | 001-identity-foundation | yes | no — later slices add components assigned by `ROADMAP.md` (R4, R5, R8, R9, R10, R2) through the layer |
 | `packages/ui/vendor/icon-park/**`, `packages/ui/vendor/icon-park-outline/**` | 001-identity-foundation | yes | yes |

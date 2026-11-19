@@ -73,6 +73,9 @@ export default defineConfig({
         BETTER_AUTH_SECRET: 'playwright-secret-value-000000',
         LOG_LEVEL: 'info',
         TRUSTED_PROXIES: '',
+        // The part URLs the start route signs, and the origin the page's CSP
+        // must allow the browser to reach (FR-021; T120, T121).
+        S3_ENDPOINT: process.env['S3_ENDPOINT'] ?? 'http://127.0.0.1:8333',
       },
     },
     {
@@ -89,6 +92,9 @@ export default defineConfig({
         NUXT_PUBLIC_API_BASE: 'http://127.0.0.1:3001',
         PORT: '3000',
         HOST: '127.0.0.1',
+        // The object store's origin, so `connect-src` names it and the part
+        // PUT reaches its presigned URL (FR-021; T120).
+        S3_ENDPOINT: process.env['S3_ENDPOINT'] ?? 'http://127.0.0.1:8333',
       },
     },
   ],

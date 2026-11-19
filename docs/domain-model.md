@@ -42,10 +42,16 @@ that the rule below can be stated in business terms:
   constitution's Product Fact Clarifications.
 - The four catalog status values are fixed by the constitution's File Processing
   Rules.
+- `file_name`, `byte_size`, and `content_type` are the catalog's intake fields,
+  settled by ADR-166 and stated in the `Catalog` invariants below; their types,
+  lengths, nullability, and checks are the owning schema's and R2's
+  `data-model.md`'s.
 
-This document introduces no field, and it defines no type, length, nullability,
-default, or index. A field that the constitution does not fix is either already
-registered in Unresolved facts below with the slice that owns it, or it does not
+This document introduces no field definition — no type, length, nullability,
+default, or index. A field name it carries is either fixed by the constitution
+or recorded in the `Catalog` invariants or Unresolved facts below; the definition
+lives in the owning module's schema and the owning feature's `data-model.md`. A
+field that the constitution does not fix and that is not recorded below does not
 exist yet.
 
 This is not a workaround for missing work. The *product-level* shape of a part
@@ -166,6 +172,17 @@ service layer re-checks the ones a constraint cannot express.
   first slice whose merchant-scoped path reads merchant-owned rows; every later
   slice adds its merchant-scoped paths to the same entry point and the same test
   rather than writing a second one (FR-053).
+- **One read path is the registered exception.** The duplicate outcome names the
+  original catalog, its upload date, its processing status, and the identifier
+  its parts link needs, and the original may belong to another merchant (FR-009,
+  FR-044). The read is one projection — `findRetainedDuplicate` in the `catalogs`
+  module — that returns those four fields and nothing else: no owner identifier,
+  no supplier, no date beyond the upload date, no storage key, and no other
+  column. It is reachable only after a content-hash conflict, and the isolation
+  test admits it as the one named exception and fails on any wider projection or
+  any second cross-merchant path. The constitution's isolation rule names this
+  exception: the amendment issued in 7.0.0 (ADR-175) and the exception is
+  registered (ADR-170).
 
 ### Catalog
 
@@ -180,11 +197,40 @@ service layer re-checks the ones a constraint cannot express.
   page may print more than one issue date that matches the supplier's name; all
   of them are displayed with the result. Displaying them stores no field, and a
   later slice that must *store* several dates records that as its own open fact.
-- **The content hash is unique across catalogs.** A duplicate upload is
-  rejected by hash and is neither stored, queued, nor processed. A merchant who
+- **The record carries the intake's field facts.** `file_name` preserves the
+  uploaded file's name exactly as supplied, neither normalised nor rewritten,
+  up to **255 UTF-16 code units**; a longer name, or one carrying a bidi
+  control, an invisible direction mark, a zero-width or byte-order character,
+  another control character, or a path separator, is refused before any byte is
+  retained. `byte_size` is the kept (sanitized) file's byte count and
+  `content_type` its content type, not the uploaded original's. The upload
+  timestamp is recorded once, when the record is created, and is the point the
+  90-day retention counts from (ADR-131). Open fact #9 is settled by ADR-166;
+  the column types and checks are the owning schema's.
+- **The content hash is unique across the catalogs that are not deleted.** A
+  duplicate upload is rejected by hash and is neither retained, queued, nor
+  processed. The uniqueness is a partial unique index over the rows whose
+  `deleted_at` is null, so a catalog whose predecessor was deleted is a new
+  upload rather than a permanent duplicate (FR-046; ADR-169). A merchant who
   uploads the same supplier file twice receives a message naming the original
-  (with the original's upload date and a link that opens it), not a second
-  catalog.
+  (with the original's upload date, its processing status, and a link that opens
+  its parts), not a second catalog.
+- **The monthly upload count is a persisted per-merchant counter.** It is keyed
+  to the calendar month in Libya's time (`Africa/Tripoli`), incremented
+  atomically at acceptance in the same transaction that creates the record, and
+  never read from catalog rows. Deleting a file, a duplicate, a refused upload,
+  or a failed transfer does not change it, and a soft-deleted catalog is never
+  read to compute it (FR-011; ADR-167).
+- **The upload-attempt bound is a persisted per-merchant counter.** It is keyed
+  to a fixed 15-minute window and incremented before any byte is transferred,
+  after the file-level checks and a limit refusal, so neither counts as an
+  attempt. An accepted upload, a duplicate, a safety refusal, a transfer
+  failure, a cancellation, and a retry each count as one attempt; a refusal for
+  the bound itself counts as none and does not restart the wait (FR-061;
+  ADR-168).
+- **A duplicate's original is read through one bounded projection.** The four
+  fields the outcome shows are named in Merchant ownership above; the read is
+  the one registered exception to that invariant (ADR-170).
 - **`expires_at` semantics are undecided.** It is either the retention deadline
   or the supplier's printed expiry date. This is a recorded unresolved product
   fact owned by R15; until R15 decides it, no feature may give the field a
@@ -197,13 +243,18 @@ service layer re-checks the ones a constraint cannot express.
   first search.
 - **Upload quotas are 50 files per calendar month and 300 active stored files per
   user, with no lifetime cap**, enforced server-side by the `catalogs` module
-  service (R2). The monthly count counts upload events in the calendar month and
-  is not restored by deletion. The active count counts files whose bytes, parts,
-  bookmarks, and search-index entries are present; a merchant delete, an
-  administrator delete, or the 90-day retention job releases an active slot.
-  Quota checks are atomic. The administrator may set a per-user monthly or active
-  quota up to the ceilings of 500 per month and 1,500 active; a change above a
-  ceiling requires a constitutional amendment.
+  service (R2). The monthly limit counts upload events in the calendar month;
+  deleting a file does not restore it. The active limit counts catalogs whose
+  stored file has not been deleted, and neither the catalog's processing status
+  nor the rows derived from it is a condition: `uploaded`, `processing`, and
+  `failed` count exactly as `completed` does, because in all four the file's
+  bytes are stored, and the presence of parts, bookmarks, or search-index entries
+  is not required for a catalog to occupy its slot (ADR-176). A merchant delete,
+  an administrator delete, or the 90-day retention job releases an active slot,
+  and a soft-deleted catalog row does not count. Quota checks are atomic. The
+  administrator may set a per-user monthly or active quota up to the ceilings of
+  500 per month and 1,500 active; a change above a ceiling requires a
+  constitutional amendment.
 
 ### Part
 
@@ -488,6 +539,42 @@ thirteenth entity. The `users` module owns the store.
   twelve entities stay twelve. The store's rows carry no merchant identity and
   are read by the `users` module alone.
 
+## Transient intake state (not an entity)
+
+The upload session the intake opens — `catalog_upload_sessions` in the owning
+module's schema — is **transient state, not an entity**. It carries one
+merchant's in-flight upload from the first byte to the moment a completion, a
+refusal, a duplicate, or a cancellation settles it; it is deleted rather than
+soft-deleted, no product read exposes it, and it never becomes a catalog. The
+`catalogs` module owns it. Its columns, its identifiers, and its states are
+`specs/002-file-intake/data-model.md` §5's, and this document repeats none of
+them: the session's states are its own and are not the `Catalog`'s status, the
+closed enum stated above.
+
+- **The session is the intake's only durable transient state.** Everything else
+  an upload carries lives in the request, in the staging workspace, or in a
+  counter; the session is what a later request reads, and what makes an
+  abandoned upload cleanable rather than unreachable.
+- **A catalog comes into being at acceptance, not at the session's start.** The
+  `Catalog` row is written when the completion settles an accepted upload, and
+  the session's kept object becomes that catalog's stored file (ADR-166); no
+  session row is read as a catalog, and no catalog is read as a session.
+- **The sweeps that reclaim it are the contract's, and R2 runs none of them.**
+  `data-model.md` §9 fixes every one: an abandoned session — one still open or
+  completing whose own expiry has passed — is aborted, its staging objects
+  deleted, and its state recorded; a session that reached a terminal state is
+  removed after the interval §9 states, with the staging objects no accepted
+  upload keeps; and the counter rows past their window are removed in the same
+  pass. The staging file a request that died left behind is that same session's,
+  and §9 sweeps it too. The obligation is one deferred item, owned by R3 and carrying a
+  review date the plan records; until it runs, an abandoned session's expiry
+  stops it receiving a further byte, and a session that is not live and open can
+  never become a catalog.
+- **Nothing here is a catalog, and the counters are not entities either.** The
+  monthly and attempt counters are the `Catalog` invariants stated above
+  (ADR-167, ADR-168); the session is recorded here so a project-level reader
+  finds it beside them. The register's twelve entities stay twelve.
+
 ## Soft deletion
 
 `Core-Project.txt` states that deletion is soft for files and users, and that
@@ -524,14 +611,15 @@ constitution's Unresolved product facts table, so a slice reading either documen
 sees the same questions with the same owners. Row 12 joined them there on
 2026-10-05 with the price column. The remaining rows exist only in this table and
 in `ROADMAP.md` → Open data-model questions; they are open field-level facts that
-were never registered anywhere else. Rows 5, 6, 7, 8, and 13 were resolved —
-row 5 on 2026-10-03 by ADR-028, and rows 6, 7, 8, and 13 on 2026-10-07 by
-ADR-067 — and are kept struck-through for traceability.
+were never registered anywhere else. Rows 5, 6, 7, 8, 9, and 13 were resolved —
+row 5 on 2026-10-03 by ADR-028, rows 6, 7, 8, and 13 on 2026-10-07 by ADR-067,
+and row 9 on 2026-11-13 by ADR-166 — and are kept struck-through for
+traceability.
 
-Rows 9–11 name no field that `Core-Project.txt` or the constitution currently
-registers. Row 12 names no field at all: it is a reading rule for a value the
-pipeline reads. The identifiers that appeared in earlier drafts of this table
-(`Catalog.size`, `Catalog.mime_type`, `Part.page`, `Part.row`,
+Rows 10 and 11 name no field that `Core-Project.txt` or the constitution
+currently registers. Row 12 names no field at all: it is a reading rule for a
+value the pipeline reads. The identifiers that appeared in earlier drafts of this
+table (`Catalog.size`, `Catalog.mime_type`, `Part.page`, `Part.row`,
 `ContactMessage.status`, `ContactMessage.admin_note`) were never added to the
 product mirror; any use of them is a reference to this table, not to the mirror.
 (`User.status` was one of them; ADR-067 has since registered it on `User`.)
@@ -546,17 +634,17 @@ product mirror; any use of them is a reference to this table, not to the mirror.
 | 6 | ~~Whether an administrator is a distinct entity or a role on `User`.~~ Resolved 2026-10-07 by ADR-067: the administrator is a **role on `User`**, not a distinct entity. | — | ADR-067 |
 | 7 | ~~What state an account carries, and whether a blocked merchant is a state or a separate flag.~~ Resolved 2026-10-07 by ADR-067: `User.status` is a closed two-value set, `active` or `blocked` — a state, not a separate flag. | — | ADR-067 |
 | 8 | ~~Whether the `auth` module owns any stored entity of its own.~~ Resolved 2026-10-07 by ADR-067: `auth` owns `Session`, the server-side revocable session store; the account's identity and profile belong to `users`. | — | ADR-067 |
-| 9 | The stored byte count and content type a catalog carries. No fields are registered for them today. | Both would be validation facts (File Processing Overview step 1) as much as stored ones, so the slice that enforces validation is the slice that settles them. | R2 |
+| 9 | ~~The stored byte count and content type a catalog carries. No fields are registered for them today.~~ Resolved 2026-11-13 by ADR-166: the record carries `byte_size` and `content_type` (the kept file's) and `file_name` (the uploaded name), stated in the `Catalog` invariants above. | — | ADR-166 |
 | 10 | Whether a part stores the page and the row it came from. No such fields are registered today. | Beyond the Glossary's list of a part's fields, so **Catalog data shape**. Deduplication compares file, page, and row whatever a part stores, so nothing in the pipeline forces the answer either way. | R3 |
 | 11 | The state a contact message moves through, and whether the administrator's response to one is recorded on it. No such fields are registered today. | The contact form is the only way a visitor reaches the administrator, and nothing registers what happens to the message afterwards. | R11 |
 | 12 | How a printed price carrying more than one separator is read (for example `1.250.000`), and how a file that separates thousands rather than decimals is read. | The product fixes the currency and the single-separator rule (Libyan Dinar, decimal separator, so `123.000` is 123 dinar), but real supplier files are not uniform, and only R3 can settle the multi-separator form from samples. No feature may settle it on its own. | R3 |
 | 13 | ~~Where the administrator's platform settings live.~~ Resolved 2026-10-07 by ADR-067: `PlatformSetting`, owned by `admin`, a platform-wide entity that carries no `user_id`. | — | ADR-067 |
 
-Rows 9 through 11 are field-level questions, not conceptual ones: the entity and
+Rows 10 and 11 are field-level questions, not conceptual ones: the entity and
 its owner are not in doubt, only what the entity carries. Row 12 is a reading
 rule rather than a field, and binds the extraction pipeline the same way. Row 12
 is also carried by the constitution's Unresolved product facts table, so its
-answer amends that table. Rows 9 through 11 add one or more fields to an entity
+answer amends that table. Rows 10 and 11 add one or more fields to an entity
 the register already carries: the answer is recorded as an ADR and as a change to
 this document and to the owning feature's `data-model.md` and schema, and the
 register is amended only where a field's existence is itself a product decision
@@ -583,14 +671,14 @@ register in the same change, as the register's own rule requires.
 The same distinction separates rows 1 and 2 from rows 3 and 4, which **are**
 registered facts: a retention period and the point it is counted from are
 product facts the register states or reserves, and resolving either amends the
-register in the same change. Rows 9 through 11 are a third kind: fields added to
+register in the same change. Rows 10 and 11 are a third kind: fields added to
 an entity the register already carries. The constitution's Data entities rule
 changes an entity's shape only through this document and an ADR — `Catalog`'s
 row registers neither a byte count nor a content type, because prose is not a
 field list — so resolving one records the answer as an ADR and a change to this
 document, states the fields in the owning feature's `data-model.md` and schema,
 and amends the register only where a field's existence is itself a product
-decision the one-line meaning must name.
+decision the one-line meaning must name. Row 9 was resolved that way by ADR-166.
 
 ## What this document deliberately does not contain
 

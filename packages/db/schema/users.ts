@@ -113,6 +113,18 @@ export const phoneVerifications = pgTable(
       sql`${table.purpose} = 'sign_up' OR ${table.fullName} IS NULL`,
     ),
     check(
+      'phone_verifications_full_name_length',
+      sql`char_length(${table.fullName}) <= 100`,
+    ),
+    check(
+      'phone_verifications_city_payload',
+      sql`${table.purpose} = 'sign_up' OR ${table.city} IS NULL`,
+    ),
+    check(
+      'phone_verifications_shop_name_length',
+      sql`${table.shopName} IS NULL OR char_length(${table.shopName}) <= 100`,
+    ),
+    check(
       'phone_verifications_password_payload',
       sql`${table.purpose} = 'sign_up' OR ${table.passwordHash} IS NULL`,
     ),

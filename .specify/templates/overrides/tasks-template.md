@@ -39,6 +39,16 @@ feature touches, not the whole register (ADR-071, ADR-125, Reading protocol).
      for them (Principle III).
   4. Commits and pull requests MUST reference the spec, plan, and task
      identifiers (Principle I).
+  5. One owner per file (NORMATIVE FOR THIS DOCUMENT): every production file is
+     written by exactly one task, except the two composition points Path
+     Conventions names — the app's composition root and the shared barrel — where
+     a second task adds its own line and rewrites nothing. A later task that
+     needs a behaviour change in an owned file does not rewrite it; the owner's
+     description carries the complete behaviour, and the later task adds the test
+     that proves it. A test file is appended per story, each story's cases in its
+     own block, and no story rewrites another's block (ADR-179).
+  6. Success-criterion attribution: when a `SC-###` describes a task's outcome,
+     the tail names it after the `AC-###` the task satisfies (ADR-179).
 -->
 
 Every task MUST strictly follow this format:
@@ -49,7 +59,7 @@ Every task MUST strictly follow this format:
 
 1. **Checkbox**: always `- [ ]`.
 2. **Task ID**: `T001`, `T002`, ... in execution order.
-3. **[P]**: include only when parallelizable (different files, no dependency on an incomplete task).
+3. **[P]**: include only when parallelizable (different files, no dependency on an incomplete task), except the three tasks whose recorded exceptions are named in Dependencies & Execution Order: T032, a phase's guard written after the rows it reads; T035, a baseline generation task; and T112, a measurement task.
 4. **[US#]**: required for user-story-phase tasks (`[US1]`, `[US2]`, ...); omit in Setup, Foundational, and Polish phases.
 5. **Description**: the action with the exact file path.
 6. **Reference tail — constitution Principle I, mandatory**: every task description MUST end with `(implements FR-###, AC-###)`, naming every requirement and acceptance criterion the task satisfies. Examples:

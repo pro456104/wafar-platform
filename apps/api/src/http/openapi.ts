@@ -4,11 +4,13 @@
 import { z } from 'zod';
 import {
   changePasswordRequestSchema,
+  completeUploadRequestSchema,
   forgotPasswordRequestSchema,
   resetPasswordRequestSchema,
   resendRequestSchema,
   signInRequestSchema,
   signUpRequestSchema,
+  startUploadRequestSchema,
   verifyCodeRequestSchema,
 } from '@wafar/shared';
 
@@ -44,7 +46,7 @@ const errorResponse = {
 };
 
 function route(
-  method: 'get' | 'post',
+  method: 'get' | 'post' | 'delete',
   summary: string,
   options: {
     body?: z.ZodType;
@@ -75,13 +77,78 @@ export function buildOpenApiDocument(): Record<string, unknown> {
   return {
     openapi: '3.1.0',
     info: {
-      title: 'Wafar Identity and Foundation API',
-      version: '1.0.0',
+      title: 'Wafar Identity and File Intake API',
+      version: '1.1.0',
       description:
-        'The public authentication surface of R1. Generated from packages/shared/src/contracts and the route table.',
+        'The public authentication and intake surface. Generated from packages/shared/src/contracts and the route table.',
     },
     servers: [{ url: '/api/v1' }],
     paths: {
+      '/health': {
+        servers: [{ url: '/' }],
+        get: {
+          summary: 'The readiness probe',
+          tags: ['operations'],
+          responses: {
+            '200': {
+              description: 'PostgreSQL, the object store, and the scanner answered',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['status', 'database', 'storage', 'scanner'],
+                    properties: {
+                      status: { type: 'string', enum: ['ok'] },
+                      database: { type: 'string', enum: ['ok'] },
+                      storage: { type: 'string', enum: ['ok'] },
+                      scanner: { type: 'string', enum: ['ok'] },
+                    },
+                  },
+                },
+              },
+            },
+            '503': {
+              description: 'One dependency did not answer; the failing field reads error',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['status', 'database', 'storage', 'scanner'],
+                    properties: {
+                      status: { type: 'string', enum: ['degraded'] },
+                      database: { type: 'string', enum: ['ok', 'error'] },
+                      storage: { type: 'string', enum: ['ok', 'error'] },
+                      scanner: { type: 'string', enum: ['ok', 'error'] },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      '/catalogs/quota': route('get', 'Read the caller’s two effective limits', {
+        okStatus: '200',
+        okDescription: 'The monthly and active used/limit pairs',
+        tags: ['catalogs'],
+      }),
+      '/uploads': route('post', 'Start one upload', {
+        body: startUploadRequestSchema,
+        okStatus: '201',
+        okDescription: 'The upload session and one presigned URL per part',
+        tags: ['uploads'],
+      }),
+      '/uploads/{uploadId}/complete': route('post', 'Complete and settle one upload', {
+        body: completeUploadRequestSchema,
+        okStatus: '201',
+        okDescription: 'The accepted catalog, or 200 duplicate',
+        tags: ['uploads'],
+      }),
+      '/uploads/{uploadId}': route('delete', 'Abort one upload (idempotent)', {
+        okStatus: '204',
+        okDescription: 'Cancelled, or nothing to cancel',
+        tags: ['uploads'],
+      }),
       '/auth/csrf': route('get', 'The render bootstrap', {
         okStatus: '200',
         okDescription: 'A CSRF token and a signed form stamp',

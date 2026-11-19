@@ -14,7 +14,11 @@ const parts = computed(() => {
 <template>
   <span class="wf-file-name">
     <bdi class="wf-file-name__stem">{{ parts.stem }}</bdi>
-    <bdi v-if="parts.extension" class="wf-file-name__extension" dir="ltr">{{
+    <bdi
+      v-if="parts.extension"
+      class="wf-file-name__extension"
+      dir="ltr"
+    >{{
       parts.extension
     }}</bdi>
   </span>
@@ -24,6 +28,13 @@ const parts = computed(() => {
 .wf-file-name {
   display: inline-flex;
   max-inline-size: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+/* The Arabic stem is the run that gives way; the Latin extension keeps its own
+   order and never shrinks, so the cut lands inside the name (FR-008, FR-058). */
+.wf-file-name__stem {
+  min-inline-size: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

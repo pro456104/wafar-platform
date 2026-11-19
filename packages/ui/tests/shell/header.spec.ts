@@ -4,6 +4,8 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import WfShellHeader from '../../app/components/shell/WfShellHeader.vue';
+import WfWordmark from '../../app/components/WfWordmark.vue';
+import { accountTargets, signInPath } from './fixtures.ts';
 
 const stubs = {
   NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
@@ -11,10 +13,12 @@ const stubs = {
   WfThemeSwitch: { template: '<button aria-pressed="false">الوضع</button>' },
 };
 
+const headerProps = { signInPath, accountTargets };
+
 describe('the header', () => {
   it('puts logo/home at the start and the three controls at the end', () => {
     const wrapper = mount(WfShellHeader, {
-      props: { signedIn: true },
+      props: { ...headerProps, signedIn: true },
       global: { stubs },
     });
     const start = wrapper.find('.wf-shell-header__start');
@@ -32,7 +36,7 @@ describe('the header', () => {
 
   it('carries no page-navigation link and no drawer control', () => {
     const wrapper = mount(WfShellHeader, {
-      props: { signedIn: true },
+      props: { ...headerProps, signedIn: true },
       global: { stubs },
     });
     const hrefs = wrapper.findAll('a').map((link) => link.attributes('href'));
@@ -43,7 +47,7 @@ describe('the header', () => {
 
   it('gives the account menu its three items and a sign-out confirmation', async () => {
     const wrapper = mount(WfShellHeader, {
-      props: { signedIn: true },
+      props: { ...headerProps, signedIn: true },
       global: { stubs },
     });
     const trigger = wrapper.find('.wf-account-menu__trigger');
@@ -65,7 +69,7 @@ describe('the header', () => {
   });
 
   it('gives the guest and the ended state the guest composition', () => {
-    const wrapper = mount(WfShellHeader, { global: { stubs } });
+    const wrapper = mount(WfShellHeader, { props: headerProps, global: { stubs } });
     expect(wrapper.find('.wf-wordmark').exists()).toBe(true);
     expect(wrapper.find('.wf-shell-header__signin').attributes('href')).toBe(
       '/auth/sign-in',
@@ -78,7 +82,7 @@ describe('the header', () => {
 
   it('keeps the logo/home and theme switch alone in the blocked state', () => {
     const wrapper = mount(WfShellHeader, {
-      props: { signedIn: true, blocked: true },
+      props: { ...headerProps, signedIn: true, blocked: true },
       global: { stubs },
     });
     expect(wrapper.find('.wf-wordmark').exists()).toBe(true);
@@ -90,7 +94,7 @@ describe('the header', () => {
 
   it('shows the account trigger as its icon alone with «حسابي» as the accessible name', () => {
     const wrapper = mount(WfShellHeader, {
-      props: { signedIn: true },
+      props: { ...headerProps, signedIn: true },
       global: { stubs },
     });
     const trigger = wrapper.find('.wf-account-menu__trigger');
@@ -101,11 +105,20 @@ describe('the header', () => {
 
   it('keeps all four controls inside one row at the 320 px composition', () => {
     const wrapper = mount(WfShellHeader, {
-      props: { signedIn: true },
+      props: { ...headerProps, signedIn: true },
       global: { stubs },
     });
     const end = wrapper.find('.wf-shell-header__end');
     expect(end.findAll(':scope > *')).toHaveLength(3);
     expect(wrapper.findAll('.wf-shell-header__start > *')).toHaveLength(1);
+  });
+
+  it('keeps the mark variant text, with no image role or accessible name (T323)', () => {
+    const wrapper = mount(WfWordmark, { global: { stubs } });
+    const mark = wrapper.find('.wf-wordmark');
+    expect(mark.attributes('role')).toBeUndefined();
+    expect(mark.attributes('aria-label')).toBeUndefined();
+    expect(mark.text()).toContain('منصة');
+    expect(mark.text()).toContain('وفر');
   });
 });

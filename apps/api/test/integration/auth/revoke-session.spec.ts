@@ -18,15 +18,18 @@ const run = promisify(execFile);
 const harness: Harness | null = hasDatabase ? createHarness() : null;
 const DATABASE_URL = process.env['DATABASE_URL'] ?? '';
 
-async function revoke(token: string): Promise<{ code: number; stdout: string }> {
+async function revoke(
+  selector: '--session' | '--user',
+  value: string,
+): Promise<{ code: number; stdout: string }> {
   try {
     const result = await run(
       process.execPath,
       [
         'apps/api/node_modules/tsx/dist/cli.mjs',
         'apps/api/src/cli/revoke-session.ts',
-        '--token',
-        token,
+        selector,
+        value,
       ],
       {
         cwd: process.cwd(),
@@ -71,7 +74,7 @@ describe.skipIf(!hasDatabase)('the platform revocation CLI', () => {
       now: harness!.clock.now(),
     });
 
-    const first = await revoke(issued.token);
+    const first = await revoke('--session', issued.sessionId);
     expect(first.code).toBe(0);
     expect(first.stdout).toContain('Session revoked');
 
@@ -104,7 +107,54 @@ describe.skipIf(!hasDatabase)('the platform revocation CLI', () => {
     expect(read.status).toBe(401);
 
     // A session already ended is reported, not re-revoked.
-    const second = await revoke(issued.token);
+    const second = await revoke('--session', issued.sessionId);
     expect(second.code).toBe(1);
+  }, 60_000);
+
+  it('ends every live session of an account named by its number', async () => {
+    const { createUsersRepository } = await import(
+      '../../../src/modules/users/repository/users.ts'
+    );
+    const account = await createUsersRepository(harness!.db).create({
+      fullName: 'محمد علي',
+      phoneNumber: '+218912345678',
+      city: 'طرابلس',
+      shopName: null,
+    });
+    const first = await harness!.auth.issue({
+      userId: account.id,
+      now: harness!.clock.now(),
+    });
+    const second = await harness!.auth.issue({
+      userId: account.id,
+      now: harness!.clock.now(),
+    });
+
+    const result = await revoke('--user', '+218912345678');
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Sessions revoked: 2');
+
+    const records = result.stdout
+      .split('\n')
+      .filter((line) => line.trim().startsWith('{'))
+      .map((line) => JSON.parse(line) as Record<string, unknown>);
+    const record = records.find((entry) => entry['event'] === 'auth.session.revoked');
+    expect(record).toMatchObject({
+      event: 'auth.session.revoked',
+      reason: 'platform_revocation',
+      sessionCount: 2,
+      accountId: account.id,
+    });
+    expect(JSON.stringify(record)).not.toContain('0912345678');
+    expect(JSON.stringify(record)).not.toContain('محمد علي');
+
+    const rows = await harness!.db.select().from(sessions);
+    expect(rows.map((row) => row.id)).toEqual(
+      expect.arrayContaining([first.sessionId, second.sessionId]),
+    );
+    expect(rows.every((row) => row.revokedReason === 'platform_revocation')).toBe(true);
+
+    const again = await revoke('--user', '+218912345678');
+    expect(again.code).toBe(1);
   }, 60_000);
 });

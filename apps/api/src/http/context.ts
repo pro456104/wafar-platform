@@ -89,3 +89,33 @@ export async function authenticate(
     lastActivityAt: row.lastActivityAt,
   };
 }
+
+/** The merchant surface's answer: the session, a refusal, or the guest door. */
+export type MerchantContext =
+  | { kind: 'guest' }
+  | { kind: 'refused'; code: 'SESSION_ENDED' | 'ACCOUNT_BLOCKED' | 'PASSWORD_CHANGE_REQUIRED' }
+  | { kind: 'merchant'; userId: string; sessionId: string; token: string };
+
+/**
+ * The merchant area's single door: an absent session is `SESSION_ENDED`, a
+ * blocked account is `ACCOUNT_BLOCKED`, and an administrator session is
+ * answered `SESSION_ENDED` because the merchant surface never reveals an
+ * administrator state (FR-002, FR-004, contracts/intake-api.md §1).
+ */
+export async function resolveMerchant(
+  db: Database,
+  sessionService: SessionPort,
+  input: AuthenticateInput,
+): Promise<MerchantContext> {
+  if (input.token === null) return { kind: 'refused', code: 'SESSION_ENDED' };
+  const context = await authenticate(db, sessionService, input);
+  if (context.kind === 'guest') return { kind: 'refused', code: 'SESSION_ENDED' };
+  if (context.kind === 'refused') return context;
+  if (context.role === 'administrator') return { kind: 'refused', code: 'SESSION_ENDED' };
+  return {
+    kind: 'merchant',
+    userId: context.userId,
+    sessionId: context.sessionId,
+    token: context.token,
+  };
+}

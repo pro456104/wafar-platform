@@ -1,47 +1,86 @@
 <!-- The frame's page layout: header, sidebar, content, footer band, the drawer on a narrow screen, and the bottom bar. The layout owns the drawer's open state, so «المزيد» opens it and the recorded dismissals close it (FR-022, FR-039, FR-048, FR-052; R1 ships no page that renders it, EX-007). -->
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import {
+  accountMenu,
+  bareRoutes,
+  bottomBarSlots,
+  footerLinks,
+  sidebarDestinations,
+} from '@wafar/shared';
+import { useApi } from '../composables/auth/useApi';
+import { useSession } from '../composables/auth/useSession';
 
-const props = withDefaults(
-  defineProps<{ signedIn?: boolean; blocked?: boolean; fullName?: string }>(),
-  {
-    signedIn: false,
-    blocked: false,
-    fullName: '',
-  },
+const props = withDefaults(defineProps<{ signedIn?: boolean; blocked?: boolean }>(), {
+  signedIn: false,
+  blocked: false,
+});
+
+// The one page that renders the frame is a merchant page, so the frame reads the
+// session it already has: the header's account control, the notifications
+// control, and the menu's sign-out (FR-047, FR-049; AC-035, AC-038).
+const session = useSession();
+const api = useApi();
+const signedIn = computed(
+  () => props.signedIn || session.data.value?.authenticated === true,
+);
+const blocked = computed(
+  () => props.blocked || session.data.value?.ended === 'ACCOUNT_BLOCKED',
 );
 
 const drawerOpen = ref(false);
+
+/** The menu's confirm: the product's own sign-out, then the bare sign-in page. */
+async function signOut(): Promise<void> {
+  await api.post('/api/v1/auth/sign-out', {});
+  await session.refetch();
+  await navigateTo(bareRoutes.signIn);
+}
 </script>
 
 <template>
   <div class="shell-layout">
     <WfShellHeader
-      :signed-in="props.signedIn"
-      :blocked="props.blocked"
-      :full-name="props.fullName"
+      :signed-in="signedIn"
+      :blocked="blocked"
+      :sign-in-path="bareRoutes.signIn"
+      :account-targets="accountMenu"
       :inert="drawerOpen ? true : undefined"
+      @sign-out="signOut"
     />
     <div
       class="shell-layout__body"
       :inert="drawerOpen ? true : undefined"
     >
       <div class="shell-layout__sidebar">
-        <WfShellSidebar :guest="!props.signedIn" />
+        <WfShellSidebar
+          :items="sidebarDestinations"
+          :links="footerLinks"
+          :guest="!signedIn"
+        />
       </div>
-      <main id="main" class="shell-layout__main">
+      <main
+        id="main"
+        class="shell-layout__main"
+      >
         <slot />
       </main>
     </div>
-    <WfShellFooter :inert="drawerOpen ? true : undefined" />
+    <WfShellFooter
+      :links="footerLinks"
+      :inert="drawerOpen ? true : undefined"
+    />
     <WfShellBottomBar
-      :guest="!props.signedIn"
+      :items="bottomBarSlots"
+      :guest="!signedIn"
       :drawer-open="drawerOpen"
       @open-drawer="drawerOpen = true"
     />
     <WfShellDrawer
+      :items="sidebarDestinations"
+      :links="footerLinks"
       :open="drawerOpen"
-      :guest="!props.signedIn"
+      :guest="!signedIn"
       @close="drawerOpen = false"
     />
   </div>

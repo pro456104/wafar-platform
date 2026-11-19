@@ -1,15 +1,17 @@
-// The error envelope of contracts/auth-api.md §3: one shape, one status table,
-// and no message field — the Arabic text is the page's (FR-008).
+// The error envelope of contracts/auth-api.md §3 extended by the intake's
+// closed seventeen (contracts/intake-api.md §3): one shape, one status table,
+// and no message field — the Arabic text is the page's (FR-064).
 import type { Context } from 'hono';
-import type { AuthErrorCode, FieldErrorReason } from '@wafar/shared';
-import { errorEnvelopeSchema, type ErrorEnvelope } from '@wafar/shared';
+import type { FieldErrorReason, RefusalCode } from '@wafar/shared';
+import { intakeEnvelopeSchema, type IntakeEnvelope } from '@wafar/shared';
 
 export interface RefusalSpec {
   status: number;
   retryable: boolean;
 }
 
-export const refusals: Record<AuthErrorCode, RefusalSpec> = {
+/** The platform union's one row per code, 26 + 17 = 43 (row 26). */
+export const refusals: Record<RefusalCode, RefusalSpec> = {
   CSRF_FAILED: { status: 403, retryable: false },
   RATE_LIMITED: { status: 429, retryable: true },
   FORM_TOO_FAST: { status: 400, retryable: true },
@@ -36,20 +38,34 @@ export const refusals: Record<AuthErrorCode, RefusalSpec> = {
   INTERNAL_ERROR: { status: 500, retryable: true },
   NOT_FOUND: { status: 404, retryable: false },
   METHOD_NOT_ALLOWED: { status: 405, retryable: false },
+  UPLOAD_INVALID_REQUEST: { status: 400, retryable: false },
+  UPLOAD_INVALID_NAME: { status: 400, retryable: false },
+  UPLOAD_UNSUPPORTED_FORMAT: { status: 400, retryable: false },
+  UPLOAD_TOO_LARGE: { status: 413, retryable: false },
+  UPLOAD_EMPTY: { status: 400, retryable: false },
+  UPLOAD_CONTENT_MISMATCH: { status: 400, retryable: false },
+  UPLOAD_CORRUPT: { status: 400, retryable: false },
+  UPLOAD_PASSWORD_PROTECTED: { status: 400, retryable: false },
+  UPLOAD_INFECTED: { status: 400, retryable: false },
+  UPLOAD_EXPANSION_CAP: { status: 400, retryable: false },
+  UPLOAD_SANITIZATION_FAILED: { status: 400, retryable: false },
+  UPLOAD_SCAN_UNAVAILABLE: { status: 502, retryable: true },
+  UPLOAD_TOO_MANY_ATTEMPTS: { status: 429, retryable: true },
+  UPLOAD_MONTHLY_LIMIT: { status: 409, retryable: false },
+  UPLOAD_ACTIVE_LIMIT: { status: 409, retryable: false },
+  UPLOAD_STORAGE_UNAVAILABLE: { status: 503, retryable: true },
+  UPLOAD_INCOMPLETE: { status: 409, retryable: false },
 };
 
 export interface RefusalOptions {
   field?: string;
   reason?: FieldErrorReason;
   retryAfterSeconds?: number;
-  details?: { code: AuthErrorCode; field?: string; reason?: FieldErrorReason }[];
+  details?: { code: RefusalCode; field?: string; reason?: FieldErrorReason }[];
 }
 
-export function refusalBody(
-  code: AuthErrorCode,
-  options: RefusalOptions = {},
-): ErrorEnvelope {
-  const body: ErrorEnvelope = { error: { code, retryable: refusals[code].retryable } };
+export function refusalBody(code: RefusalCode, options: RefusalOptions = {}): IntakeEnvelope {
+  const body: IntakeEnvelope = { error: { code, retryable: refusals[code].retryable } };
   if (options.field !== undefined) body.error.field = options.field;
   if (options.reason !== undefined) body.error.reason = options.reason;
   if (options.retryAfterSeconds !== undefined) {
@@ -58,13 +74,13 @@ export function refusalBody(
   if (options.details !== undefined && options.details.length > 1) {
     body.error.details = options.details;
   }
-  return errorEnvelopeSchema.parse(body);
+  return intakeEnvelopeSchema.parse(body);
 }
 
 /** Answers a refusal with the envelope's status and the given extra headers. */
 export function refuse(
   c: Context,
-  code: AuthErrorCode,
+  code: RefusalCode,
   options: RefusalOptions = {},
   headers: Record<string, string> = {},
 ): Response {
@@ -79,7 +95,7 @@ export function refuse(
 /** Answers a value-failure list: the first entry is the envelope's code. */
 export function refuseDetails(
   c: Context,
-  details: { code: AuthErrorCode; field?: string; reason?: FieldErrorReason }[],
+  details: { code: RefusalCode; field?: string; reason?: FieldErrorReason }[],
 ): Response {
   const first = details[0];
   if (first === undefined) throw new Error('refuseDetails needs at least one failure');

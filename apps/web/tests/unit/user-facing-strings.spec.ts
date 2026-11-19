@@ -40,6 +40,11 @@ const ARABIC_INDIC = /[\u0660-\u0669\u06F0-\u06F9]/;
 const DIACRITICS = /[\u064B-\u0652\u0670]/;
 const LATIN_SEQUENCE = /[A-Za-z]+/g;
 const ARABIC = /[\u0600-\u06FF]/;
+/**
+ * The technical tokens R2's copy carries: the format names and the size unit
+ * are the contract's recorded vocabulary (ui-contracts.md §6), not prose.
+ */
+const ALLOWED_LATIN = new Set(['SMS', 'Excel', 'PDF', 'Word', 'MB', 'KB', 'xls', 'xlsx', 'doc', 'docx']);
 
 /** True when the value carries any Arabic letter, so it is in the scan's subject. */
 function hasArabic(value: string): boolean {
@@ -52,11 +57,14 @@ function hasArabic(value: string): boolean {
  */
 function violations(value: string, exception?: 'supplied'): string[] {
   const found: string[] = [];
+  // An interpolation is a value the page fills, not copy: `90` and the two
+  // count slots are not Latin prose.
+  const text = value.replace(/\$\{[^}]*\}/g, '');
   if (exception !== 'supplied') {
-    if (ARABIC_INDIC.test(value)) found.push('arabic-indic numeral');
-    if (DIACRITICS.test(value)) found.push('diacritic');
-    for (const run of value.match(LATIN_SEQUENCE) ?? []) {
-      if (run !== 'SMS') found.push(`latin letters: ${run}`);
+    if (ARABIC_INDIC.test(text)) found.push('arabic-indic numeral');
+    if (DIACRITICS.test(text)) found.push('diacritic');
+    for (const run of text.match(LATIN_SEQUENCE) ?? []) {
+      if (!ALLOWED_LATIN.has(run)) found.push(`latin letters: ${run}`);
     }
   }
   if (hasEmoji(value)) found.push('emoji');
@@ -77,17 +85,19 @@ function sourceFiles(dir: string): string[] {
 /** Every string a template or a script carries: text nodes, attributes, literals. */
 function stringsOf(source: string): string[] {
   const found: string[] = [];
-  for (const match of source.match(/>([^<>{}]*[\u0600-\u06FF][^<>{}]*)</g) ?? []) {
+  // A component's header comment is documentation, not rendered copy.
+  const rendered = source.replace(/<!--[\s\S]*?-->/g, '');
+  for (const match of rendered.match(/>([^<>{}]*[\u0600-\u06FF][^<>{}]*)</g) ?? []) {
     found.push(match.slice(1, -1).trim());
   }
-  for (const match of source.matchAll(
+  for (const match of rendered.matchAll(
     /(?<=\s)(?:aria-label|aria-description|placeholder|title|alt|label)="([^"\n]*[\u0600-\u06FF][^"\n]*)"/g,
   )) {
     found.push((match[1] as string).trim());
   }
   // A literal is one quoted run: no markup, no line break, so a quote pair that
   // spans two tags is not mistaken for a string.
-  for (const match of source.matchAll(/['"`]([^'"`<>\n]*[\u0600-\u06FF][^'"`<>\n]*)['"`]/g)) {
+  for (const match of rendered.matchAll(/['"`]([^'"`<>\n]*[\u0600-\u06FF][^'"`<>\n]*)['"`]/g)) {
     found.push((match[1] as string).trim());
   }
   return found.filter((text) => text.length > 0);
@@ -136,6 +146,7 @@ describe('the user-facing copy', () => {
       'apps/web/app/components',
       'apps/web/app/layouts',
       'packages/ui/app/components/shell',
+      'packages/ui/app/components/upload',
     ];
     const offenders: string[] = [];
     for (const directory of directories) {

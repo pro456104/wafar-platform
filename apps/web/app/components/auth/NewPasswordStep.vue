@@ -25,7 +25,10 @@ function update(value: string): void {
 <template>
   <section class="wf-new-password">
     <h2>كلمة مرور جديدة</h2>
-    <MessageAlert :message="message ?? ''" kind="alert" />
+    <MessageAlert
+      :message="message ?? ''"
+      kind="alert"
+    />
     <PasswordField
       :model-value="modelValue"
       label="كلمة المرور الجديدة"

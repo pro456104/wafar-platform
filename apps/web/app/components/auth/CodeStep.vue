@@ -58,14 +58,25 @@ function submit(): void {
 </script>
 
 <template>
-  <section class="wf-code-step" aria-labelledby="wf-code-heading">
-    <h2 id="wf-code-heading" class="wf-code-step__heading">{{ notices.codeHeading }}</h2>
+  <section
+    class="wf-code-step"
+    aria-labelledby="wf-code-heading"
+  >
+    <h2
+      id="wf-code-heading"
+      class="wf-code-step__heading"
+    >
+      {{ notices.codeHeading }}
+    </h2>
     <p class="wf-code-step__body">
       أرسلنا رمزا من {{ otpLength }} أرقام برسالة <span lang="en">SMS</span> إلى رقمك.
     </p>
 
     <dl class="wf-code-step__collected">
-      <template v-for="field in collected" :key="field.label">
+      <template
+        v-for="field in collected"
+        :key="field.label"
+      >
         <dt>{{ field.label }}</dt>
         <dd>
           <bdi :dir="field.ltr === true ? 'ltr' : 'auto'">{{ field.value }}</bdi>
@@ -75,11 +86,24 @@ function submit(): void {
       <dd><bdi dir="ltr">{{ displayPhone }}</bdi></dd>
     </dl>
 
-    <MessageAlert :message="statusMessage ?? ''" kind="status" />
-    <MessageAlert :message="codeMessage ?? ''" :kind="codeMessageKind ?? 'alert'" />
+    <MessageAlert
+      :message="statusMessage ?? ''"
+      kind="status"
+    />
+    <MessageAlert
+      :message="codeMessage ?? ''"
+      :kind="codeMessageKind ?? 'alert'"
+    />
 
-    <form class="wf-code-step__form" novalidate @submit.prevent="submit">
-      <label class="wf-code-step__label" :for="fieldId">{{ notices.codeLabel }}</label>
+    <form
+      class="wf-code-step__form"
+      novalidate
+      @submit.prevent="submit"
+    >
+      <label
+        class="wf-code-step__label"
+        :for="fieldId"
+      >{{ notices.codeLabel }}</label>
       <span class="wf-code-step__hint">{{ notices.codeHint }}</span>
       <input
         :id="fieldId"
@@ -91,9 +115,15 @@ function submit(): void {
         :maxlength="otpLength"
         :aria-invalid="(codeMessage ?? '') !== ''"
         required
-      />
-      <p class="wf-code-step__hint">{{ notices.expiryHint }}</p>
-      <button type="submit" class="wf-code-step__submit" :disabled="loading">
+      >
+      <p class="wf-code-step__hint">
+        {{ notices.expiryHint }}
+      </p>
+      <button
+        type="submit"
+        class="wf-code-step__submit"
+        :disabled="loading"
+      >
         {{ loading && resending !== true ? notices.verifying : 'تحقق' }}
       </button>
     </form>
@@ -107,9 +137,19 @@ function submit(): void {
       >
         {{ resending ? notices.resending : 'إرسال رمز جديد' }}
       </button>
-      <button v-if="canChangeNumber !== false" type="button" @click="emit('changeNumber')">
+      <button
+        v-if="canChangeNumber !== false"
+        type="button"
+        @click="emit('changeNumber')"
+      >
         {{ changeLabel }}
       </button>
+      <p
+        v-if="canResend !== false && remainingReRequests === 0"
+        class="wf-code-step__spent"
+      >
+        انتهت محاولات إرسال رمز جديد. أدخل الرمز المرسل قبل انتهاء صلاحيته.
+      </p>
     </div>
   </section>
 </template>
@@ -181,6 +221,13 @@ function submit(): void {
 }
 .wf-code-step__actions {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--wf-space-3);
+}
+.wf-code-step__spent {
+  margin: 0;
+  color: var(--wf-ink-muted);
+  font-size: var(--wf-text-sm);
 }
 </style>

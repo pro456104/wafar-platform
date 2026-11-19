@@ -7,7 +7,11 @@ withDefaults(
 </script>
 
 <template>
-  <div class="wf-skeleton" role="status" :aria-label="label">
+  <div
+    class="wf-skeleton"
+    role="status"
+    :aria-label="label"
+  >
     <span class="wf-skeleton__line wf-skeleton__line--title" />
     <span
       v-for="row in rows"

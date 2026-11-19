@@ -53,6 +53,59 @@ jobs:
       - run: pnpm exec vitest run --project shared --project api --project ui --project web --coverage
       - run: node --test scripts/check/__tests__/coverage-gate.test.mjs
 
+  # The slice's own offline record (plan CMV row 14): the migrations, the
+  # documentation-drift comparison, and the intake's unit and integration
+  # suites, against the two services the intake needs.
+  intake:
+    needs: lint-typecheck
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wafar
+          POSTGRES_PASSWORD: wafar
+          POSTGRES_DB: wafar
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wafar" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+      seaweedfs:
+        image: chrislusf/seaweedfs:3.80
+        ports: ['8333:8333']
+      scanner:
+        image: clamav/clamav:1.4_base
+        ports: ['3310:3310']
+    env:
+      DATABASE_URL: postgres://wafar:wafar@localhost:5432/wafar
+      BETTER_AUTH_SECRET: ci-only-secret-value-000000
+      SMS_TRANSPORT: fake
+      S3_ENDPOINT: http://127.0.0.1:8333
+      S3_REGION: us-east-1
+      S3_BUCKET: wafar
+      S3_ACCESS_KEY_ID: ci-only-access-key
+      S3_SECRET_ACCESS_KEY: ci-only-secret-key
+      SCANNER: double
+      CLAMD_HOST: 127.0.0.1
+      CLAMD_PORT: '3310'
+      WORKSPACE_DIR: .workspace
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Apply the migrations
+        run: pnpm --filter @wafar/db migrate
+      - name: The documentation-drift comparison
+        run: node scripts/check/documentation-drift.mjs
+      - name: The intake unit suites
+        run: pnpm exec vitest run --project api --project ui --project web
+      - name: The intake integration suites
+        run: pnpm exec vitest run --project integration apps/api/test/integration/catalogs
+
   integration:
     needs: lint-typecheck
     runs-on: ubuntu-latest
@@ -67,6 +120,28 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U wafar" --health-interval 5s
           --health-timeout 5s --health-retries 20
+      seaweedfs:
+        image: chrislusf/seaweedfs:3.80
+        ports: ['8333:8333']
+        options: >-
+          --health-cmd "wget -q -O - http://127.0.0.1:8333/status > /dev/null || exit 1"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      scanner:
+        image: clamav/clamav:1.4_base
+        ports: ['3310:3310']
+        options: >-
+          --health-cmd "echo PING | nc 127.0.0.1 3310 | grep -q PONG"
+          --health-interval 10s --health-timeout 5s --health-retries 30
+    env:
+      S3_ENDPOINT: http://127.0.0.1:8333
+      S3_REGION: us-east-1
+      S3_BUCKET: wafar
+      S3_ACCESS_KEY_ID: ci-only-access-key
+      S3_SECRET_ACCESS_KEY: ci-only-secret-key
+      SCANNER: double
+      CLAMD_HOST: 127.0.0.1
+      CLAMD_PORT: '3310'
+      WORKSPACE_DIR: .workspace
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
@@ -118,6 +193,22 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U wafar" --health-interval 5s
           --health-timeout 5s --health-retries 20
+      seaweedfs:
+        image: chrislusf/seaweedfs:3.80
+        ports: ['8333:8333']
+      scanner:
+        image: clamav/clamav:1.4_base
+        ports: ['3310:3310']
+    env:
+      S3_ENDPOINT: http://127.0.0.1:8333
+      S3_REGION: us-east-1
+      S3_BUCKET: wafar
+      S3_ACCESS_KEY_ID: ci-only-access-key
+      S3_SECRET_ACCESS_KEY: ci-only-secret-key
+      SCANNER: double
+      CLAMD_HOST: 127.0.0.1
+      CLAMD_PORT: '3310'
+      WORKSPACE_DIR: .workspace
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -219,6 +310,19 @@ jobs:
       SMS_TRANSPORT: fake
       NODE_ENV: production
       TZ: UTC
+      S3_ENDPOINT: http://127.0.0.1:8333
+      S3_REGION: us-east-1
+      S3_BUCKET: wafar
+      S3_ACCESS_KEY_ID: ci-only-access-key
+      S3_SECRET_ACCESS_KEY: ci-only-secret-key
+      SCANNER: double
+      CLAMD_HOST: 127.0.0.1
+      CLAMD_PORT: '3310'
+      WORKSPACE_DIR: .workspace
+      # The accepted and duplicate journeys write and read a real object, so the
+      # class declares the storage service present rather than skipping on an
+      # unset variable (FR-001, FR-041, FR-044; T117).
+      e2e_storage: '1'
     services:
       postgres:
         image: postgres:16-alpine
@@ -230,6 +334,12 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U wafar" --health-interval 5s
           --health-timeout 5s --health-retries 20
+      seaweedfs:
+        image: chrislusf/seaweedfs:3.80
+        ports: ['8333:8333']
+      scanner:
+        image: clamav/clamav:1.4_base
+        ports: ['3310:3310']
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4

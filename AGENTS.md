@@ -155,7 +155,13 @@ to each other. Their ten core commands mirror the upstream Spec Kit commands,
 while their thirteen extension commands are **derived** from
 `.specify/extensions/*/commands/` by placeholder resolution, a provenance
 comment, and front-matter normalisation, so they are not byte-identical to that
-source (ADR-086). Both read the same
+source (ADR-086). **All twenty-three are upstream's rendered form rather than its
+template**: the upstream template's `scripts:` front-matter map is resolved
+against the variant this project chose at init (`ps`, recorded in
+`.specify/init-options.json`) and dropped, and the command's first step names
+the concrete PowerShell script, so the agent runs the prerequisites script by
+hand — the same single run the harness would make from the map, and the only
+variant this repository installs (ADR-178). Both read the same
 `.specify/` tree (templates, extensions, hooks, scripts, workflow), so either
 environment runs the same cycle with the same command spelling (`/speckit.*`).
 `.specify/integration.json` lists both and keeps `opencode` as the default.
@@ -185,7 +191,7 @@ and its `requires.integrations.any` list must stay correctly nested under
 in the repository root is a read-only, dependency-free Node script that verifies
 the invariants the governance set cannot verify by discipline: the constitution
 footer's version and amended date against `.specify/memory/version.json`; every
-live `ADR-001 … ADR-165` range string — in the required files, in the top-level
+live `ADR-001 … ADR-180` range string — in the required files, in the top-level
 `docs/` files, in the two Arabic mirrors, in the template overrides, and in the
 feature specifications — against the last row of
 `docs/DECISIONS.md`'s index; every ADR index row's anchor against its heading in

@@ -50,6 +50,8 @@ describe.skipIf(!hasDatabase)('degradation', () => {
       expect(await health.json()).toEqual({
         status: 'degraded',
         database: 'error',
+        storage: 'ok',
+        scanner: 'ok',
       });
 
       // The ordinary failure envelope, not a second "service unavailable" state.
@@ -84,7 +86,12 @@ describe.skipIf(!hasDatabase)('degradation', () => {
     await harness!.reset();
     const health = await harness!.app.request('/health', { method: 'GET' });
     expect(health.status).toBe(200);
-    expect(await health.json()).toEqual({ status: 'ok', database: 'ok' });
+    expect(await health.json()).toEqual({
+      status: 'ok',
+      database: 'ok',
+      storage: 'ok',
+      scanner: 'ok',
+    });
     await seedAccount(harness!, { phoneNumber: '+218912345678', password });
     const jar: CookieJar = {};
     await bootstrap(harness!, jar);

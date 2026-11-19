@@ -202,7 +202,7 @@ export function createAuthEngine(options: AuthEngineOptions): AuthEngine {
           createdAt: input.now,
           updatedAt: input.now,
           lastActivityAt: input.now,
-          ipAddress: input.ipAddress ?? '',
+          ipAddress: input.ipAddress ?? null,
           userAgent: input.userAgent?.slice(0, 512) ?? '',
         },
         true,

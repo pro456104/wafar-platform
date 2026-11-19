@@ -109,7 +109,31 @@ export async function blockAccount(phoneNumber: string): Promise<void> {
   );
 }
 
-/** Provisions an administrator through the product's CLI and its stdin channel. */
+/** Ends one session by its token, the column the expiry sweep writes (FR-004). */
+export async function expireSession(token: string): Promise<void> {
+  await withClient((client) =>
+    client.query(
+      "UPDATE sessions SET expires_at = now() - interval '1 second' WHERE token = $1",
+      [token],
+    ),
+  );
+}
+
+/** Blocks the account that carries one session token, without knowing its number. */
+export async function blockSessionAccount(token: string): Promise<void> {
+  await withClient((client) =>
+    client.query(
+      "UPDATE users SET status = 'blocked' WHERE id IN (SELECT user_id FROM sessions WHERE token = $1)",
+      [token],
+    ),
+  );
+}
+
+/**
+ * Provisions an administrator through the product's CLI and its stdin channel:
+ * the full name, the mobile number, the city, and the password arrive as four
+ * lines, the order the contract fixes (contracts/auth-api.md §7.2; T325).
+ */
 export function provisionAdministrator(input: {
   phoneNumber: string;
   fullName: string;
@@ -119,18 +143,18 @@ export function provisionAdministrator(input: {
   const args = [
     'node_modules/tsx/dist/cli.mjs',
     'src/cli/provision-administrator.ts',
-    '--phone',
-    `+218${input.phoneNumber}`,
-    '--full-name',
-    input.fullName,
-    '--city',
-    input.city,
     '--password-stdin',
+  ];
+  const lines = [
+    input.fullName,
+    `+218${input.phoneNumber}`,
+    input.city,
+    input.password,
   ];
   const result = spawnSync(process.execPath, args, {
     cwd: apiRoot,
     env: { ...process.env, DATABASE_URL: databaseUrl() },
-    input: input.password,
+    input: `${lines.join('\n')}\n`,
     encoding: 'utf8',
   });
   if (result.status !== 0) {

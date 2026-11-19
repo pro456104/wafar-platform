@@ -24,17 +24,11 @@ export interface ProvisionInput {
   env?: Record<string, string | undefined>;
 }
 
-/** Runs `provision-administrator` with the credential on standard input. */
+/** Runs `provision-administrator` with the fields and the credential on standard input. */
 export function provision(input: ProvisionInput): CliResult {
   const args = [
     'node_modules/tsx/dist/cli.mjs',
     'src/cli/provision-administrator.ts',
-    '--phone',
-    input.phone,
-    '--full-name',
-    input.fullName,
-    '--city',
-    input.city,
     ...(input.args ?? []),
   ];
   if (input.password !== undefined) args.push('--password-stdin');
@@ -43,10 +37,12 @@ export function provision(input: ProvisionInput): CliResult {
     if (value === undefined) delete env[key];
     else env[key] = value;
   }
+  const lines = [input.fullName, input.phone, input.city];
+  if (input.password !== undefined) lines.push(input.password);
   const result = spawnSync(process.execPath, args, {
     cwd: apiRoot,
     env,
-    input: input.password ?? '',
+    input: `${lines.join('\n')}\n`,
     encoding: 'utf8',
     timeout: 60_000,
   });

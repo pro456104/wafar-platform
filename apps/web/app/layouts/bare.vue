@@ -12,14 +12,28 @@ useHead(() => ({ title: props.title }));
   <div class="bare-layout">
     <div class="bare-layout__inner">
       <div class="bare-layout__mark">
-        <WfWordmark as="mark" :shorten-at-narrow="false" />
+        <WfWordmark
+          as="mark"
+          :shorten-at-narrow="false"
+        />
       </div>
-      <h1 class="bare-layout__title">{{ title }}</h1>
-      <p v-if="subtitle" class="bare-layout__subtitle">{{ subtitle }}</p>
+      <h1 class="bare-layout__title">
+        {{ title }}
+      </h1>
+      <p
+        v-if="subtitle"
+        class="bare-layout__subtitle"
+      >
+        {{ subtitle }}
+      </p>
       <main class="bare-layout__card">
         <slot />
       </main>
-      <nav v-if="props.showCrossLinks" class="bare-layout__links" aria-label="روابط الصفحة">
+      <nav
+        v-if="props.showCrossLinks"
+        class="bare-layout__links"
+        aria-label="روابط الصفحة"
+      >
         <slot name="cross-links" />
       </nav>
     </div>

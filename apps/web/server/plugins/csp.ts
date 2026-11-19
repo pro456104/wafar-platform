@@ -4,14 +4,32 @@
 // needs no wildcard and no `'unsafe-inline'` for scripts.
 import { randomBytes } from 'node:crypto';
 
+/**
+ * The object store's origin: the page sends each part straight to the
+ * presigned URL the start route returns, so `connect-src` names that origin
+ * and nothing else (FR-021, contracts/intake-api.md §2.2). An unset or
+ * malformed endpoint leaves the policy at `'self'`, which is the correct
+ * answer for a deployment whose parts never leave the application origin.
+ */
+function storageOrigin(): string | null {
+  const endpoint = process.env['S3_ENDPOINT'];
+  if (endpoint === undefined || endpoint === '') return null;
+  try {
+    return new URL(endpoint).origin;
+  } catch {
+    return null;
+  }
+}
+
 function policyFor(nonce: string): string {
+  const storage = storageOrigin();
   return [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}'`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data:",
     "font-src 'self'",
-    "connect-src 'self'",
+    storage === null ? "connect-src 'self'" : `connect-src 'self' ${storage}`,
     "frame-ancestors 'none'",
     "base-uri 'none'",
     "form-action 'self'",

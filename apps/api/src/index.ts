@@ -13,6 +13,10 @@ import { loadBreachedDigests } from './modules/auth/service/password-policy.ts';
 import {
   createSmsTransport,
 } from './modules/auth/sms/index.ts';
+import { createAccountContext } from './modules/users/service/account-context.ts';
+import { createStorage } from './modules/catalogs/storage/adapter.ts';
+import { createClamdScanner } from './modules/catalogs/scanner/clamd.ts';
+import { createScannerDouble } from './modules/catalogs/scanner/double.ts';
 
 const env = environment();
 if (env.DATABASE_URL === undefined) {
@@ -55,6 +59,21 @@ async function main(): Promise<void> {
     events,
     now: () => new Date(),
     trustedProxies: trustedProxiesFrom(env.TRUSTED_PROXIES),
+    accountContext: createAccountContext(db),
+    storage: createStorage({
+      endpoint: env.S3_ENDPOINT,
+      region: env.S3_REGION,
+      bucket: env.S3_BUCKET,
+      accessKeyId: env.S3_ACCESS_KEY_ID,
+      secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+    }),
+    scanner:
+      env.SCANNER === 'clamd'
+        ? createClamdScanner({ host: env.CLAMD_HOST, port: env.CLAMD_PORT })
+        : createScannerDouble(),
+    recordSink: {
+      write: (line) => process.stdout.write(`${line}\n`),
+    },
   });
 
   const server = serve({ fetch: app.fetch, port: 3001 }, (info) => {

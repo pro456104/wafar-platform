@@ -34,13 +34,23 @@ function submit(): void {
 </script>
 
 <template>
-  <form class="wf-sign-in" novalidate @submit.prevent="submit">
-    <MessageAlert :message="props.message ?? ''" kind="alert" />
+  <form
+    class="wf-sign-in"
+    novalidate
+    @submit.prevent="submit"
+  >
+    <MessageAlert
+      :message="props.message ?? ''"
+      kind="alert"
+    />
 
     <label class="wf-field">
       <span>رقم الهاتف</span>
       <span class="wf-field__phone">
-        <span class="wf-field__prefix" dir="ltr">+218</span>
+        <span
+          class="wf-field__prefix"
+          dir="ltr"
+        >+218</span>
         <input
           v-model="phone"
           type="tel"
@@ -48,9 +58,13 @@ function submit(): void {
           autocomplete="tel-national"
           placeholder="91 000 0000"
           required
-        />
+        >
       </span>
-      <span v-if="phoneMessage" role="alert" class="wf-field__error">{{ phoneMessage }}</span>
+      <span
+        v-if="phoneMessage"
+        role="alert"
+        class="wf-field__error"
+      >{{ phoneMessage }}</span>
     </label>
 
     <PasswordField
@@ -60,7 +74,11 @@ function submit(): void {
       :show-policy="false"
     />
 
-    <button type="submit" class="wf-submit" :disabled="loading">
+    <button
+      type="submit"
+      class="wf-submit"
+      :disabled="loading"
+    >
       {{ loading ? 'يجري تسجيل الدخول…' : 'تسجيل الدخول' }}
     </button>
   </form>

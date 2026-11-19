@@ -60,6 +60,9 @@
  *   G11. every entity's owning module agrees across the constitution's Data
  *      entities table and `docs/domain-model.md`'s Entity map, in both
  *      directions
+ *   G12. every `EX-###` reference in the governance set resolves to a row in
+ *      the exception register's Active table or its Closed table, and the two
+ *      tables carry the row counts the register's own count states
  *   L. every specification's `FR-###` / `AC-###` / `SC-###` identifiers are
  *      contiguous from 001, defined once, and never referenced without being
  *      defined; and every functional requirement is cited by at least one
@@ -490,7 +493,7 @@ if (constitution.includes('## Design System Standards')) {
 notes.push('E: wafar.single.css is absent and the constitution carries no Design System Standards section');
 
 /* ---- G. structural counts the governance text states in prose ------------- */
-// The governance text states countable facts ("seventeen slices", "twelve
+// The governance text states countable facts ("seventeen slices", "thirteen
 // exception rows", "ten principles", "twelve entities", "eighteen
 // binding sections", "ten API modules", "twenty-eight pages", "sixteen product
 // features"). None was machine-checked before ADR-075.
@@ -586,7 +589,7 @@ if (!proseCount) {
 const structuralCounts = [
   { id: 'G1', label: 'slices (R1–R17)', want: 17, file: 'ROADMAP.md',
     got: () => countMatches(read('ROADMAP.md'), /^\| R\d+ \|/gm) },
-  { id: 'G2', label: 'exception rows (EX-###)', want: 12,
+  { id: 'G2', label: 'exception rows (EX-###)', want: 13,
     file: '.specify/templates/exception-register.md',
     got: () => countMatches(read('.specify/templates/exception-register.md'), /^\| EX-\d{3} \|/gm) },
   { id: 'G3', label: 'principles', want: 10,
@@ -713,6 +716,72 @@ if (registerEntities.size === 0) {
     }
   }
   notes.push(`G11: ${registerEntities.size} entity owners agree across the register and the model`);
+}
+
+/* ---- G12. every `EX-###` reference resolves to a register row -------------- */
+// The register is the one place a granted exception is recorded, so a reference
+// to a row that does not exist names an exception nobody granted, and a row
+// that sits in neither table is invisible to a reader. The check splits the
+// register at its two headings, counts each table's rows against the split the
+// register states, and resolves every `EX-###` reference in the governance set
+// against the union of the two tables — so a reference to a row in either table,
+// such as `EX-008`, still resolves.
+const REGISTER_PATH = '.specify/templates/exception-register.md';
+const registerText = read(REGISTER_PATH);
+const registerSections = registerText.split(/^## /m);
+const activeSection = registerSections.find((s) => s.startsWith('Register')) || '';
+const closedSection = registerSections.find((s) => s.startsWith('Closed')) || '';
+const registerRowIds = (section) =>
+  [...section.matchAll(/^\| (EX-\d{3}) \|/gm)].map((m) => m[1]);
+const activeRows = registerRowIds(activeSection);
+const closedRows = registerRowIds(closedSection);
+const knownEx = new Set([...activeRows, ...closedRows]);
+if (activeRows.length === 0 || closedRows.length === 0) {
+  failures.push('G12: the exception register\u2019s Active or Closed table could not be read');
+} else {
+  if (activeRows.length !== 7 || closedRows.length !== 6) {
+    failures.push(
+      `G12: the register carries ${activeRows.length} Active rows and ${closedRows.length} Closed rows, expected seven and six`,
+    );
+  }
+  const seenEx = new Set();
+  const repeatedEx = [];
+  for (const id of [...activeRows, ...closedRows]) {
+    if (seenEx.has(id)) repeatedEx.push(id);
+    seenEx.add(id);
+  }
+  if (repeatedEx.length > 0) {
+    failures.push(
+      `G12: the register carries ${[...new Set(repeatedEx)].join(', ')} more than once`,
+    );
+  }
+  // The reference set is the governance set the ADR reference pass reads, plus
+  // the register itself: a reference in the register that names a row the
+  // register does not carry is the same defect as one in the constitution.
+  const exReferenceFiles = new Set([
+    ...scannedRangeFiles,
+    'docs/DECISIONS.md',
+    ...volumeFiles.map((f) => `${VOLUME_DIR}/${f}`),
+    REGISTER_PATH,
+  ]);
+  let exReferencesChecked = 0;
+  for (const file of [...exReferenceFiles].sort()) {
+    if (!existsSync(join(ROOT, file))) {
+      failures.push(`G12: ${file} is missing`);
+      continue;
+    }
+    for (const m of read(file).matchAll(/EX-(\d{3})/g)) {
+      if (!knownEx.has(m[0])) {
+        failures.push(
+          `G12: ${file} references ${m[0]}, which the exception register does not carry`,
+        );
+      }
+      exReferencesChecked++;
+    }
+  }
+  notes.push(
+    `G12: ${activeRows.length} Active and ${closedRows.length} Closed register rows; ${exReferencesChecked} EX-### references resolved across ${exReferenceFiles.size} files`,
+  );
 }
 
 /* ---- L. every specification's identifiers are sound (ADR-106) -------------- */

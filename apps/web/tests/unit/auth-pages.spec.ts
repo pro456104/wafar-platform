@@ -12,6 +12,15 @@ const mocks = vi.hoisted(() => ({
   resume: vi.fn(),
   remember: vi.fn(),
   forget: vi.fn(),
+  push: vi.fn(),
+  route: { query: {} as Record<string, string> },
+}));
+
+// The sign-in page reads the return target from the route, so the route is a
+// mutable stand-in and the router records navigation (T155).
+vi.mock('vue-router', () => ({
+  useRoute: () => mocks.route,
+  useRouter: () => ({ push: mocks.push }),
 }));
 
 vi.mock('../../app/composables/auth/useApi', async () => {
@@ -117,6 +126,7 @@ const liveRecovery = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.route.query = {};
   mocks.bootstrap.mockResolvedValue({ csrfToken: 'csrf', formStamp: 'stamp' });
   mocks.stamp.mockResolvedValue('stamp-2');
   mocks.resume.mockResolvedValue({ status: 'none' });
@@ -154,6 +164,46 @@ describe('the sign-in page', () => {
     await flushPromises();
     await vmOf(wrapper).onSubmit({ phone: '912345678', password: 'x' });
     expect(vmOf(wrapper).signedIn).toBe(true);
+  });
+
+  it('confirms in place when no target carried the guest here', async () => {
+    mocks.post.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      data: { outcome: 'signed_in' },
+    });
+    const wrapper = mountPage(SignInPage);
+    await flushPromises();
+    await vmOf(wrapper).onSubmit({ phone: '912345678', password: 'x' });
+    expect(vmOf(wrapper).signedIn).toBe(true);
+    expect(mocks.push).not.toHaveBeenCalled();
+  });
+
+  it('returns to a registered internal target after a success', async () => {
+    mocks.route.query = { redirect: '/upload' };
+    mocks.post.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      data: { outcome: 'signed_in' },
+    });
+    const wrapper = mountPage(SignInPage);
+    await flushPromises();
+    await vmOf(wrapper).onSubmit({ phone: '912345678', password: 'x' });
+    expect(mocks.push).toHaveBeenCalledWith('/upload');
+  });
+
+  it('refuses an external target and confirms in place', async () => {
+    mocks.route.query = { redirect: 'https://example.com/upload' };
+    mocks.post.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      data: { outcome: 'signed_in' },
+    });
+    const wrapper = mountPage(SignInPage);
+    await flushPromises();
+    await vmOf(wrapper).onSubmit({ phone: '912345678', password: 'x' });
+    expect(vmOf(wrapper).signedIn).toBe(true);
+    expect(mocks.push).not.toHaveBeenCalled();
   });
 });
 

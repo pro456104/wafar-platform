@@ -1,6 +1,6 @@
 {
-  "id": "ea5de051-42e2-404b-9ee6-de565a304f47",
-  "prevId": "446c42e3-7cb7-42ca-b95d-8f37e704b5ab",
+  "id": "35815606-aaf8-44ba-9f09-3916668949aa",
+  "prevId": "ea5de051-42e2-404b-9ee6-de565a304f47",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -182,6 +182,18 @@
         "phone_verifications_full_name_payload": {
           "name": "phone_verifications_full_name_payload",
           "value": "\"phone_verifications\".\"purpose\" = 'sign_up' OR \"phone_verifications\".\"full_name\" IS NULL"
+        },
+        "phone_verifications_full_name_length": {
+          "name": "phone_verifications_full_name_length",
+          "value": "char_length(\"phone_verifications\".\"full_name\") <= 100"
+        },
+        "phone_verifications_city_payload": {
+          "name": "phone_verifications_city_payload",
+          "value": "\"phone_verifications\".\"purpose\" = 'sign_up' OR \"phone_verifications\".\"city\" IS NULL"
+        },
+        "phone_verifications_shop_name_length": {
+          "name": "phone_verifications_shop_name_length",
+          "value": "\"phone_verifications\".\"shop_name\" IS NULL OR char_length(\"phone_verifications\".\"shop_name\") <= 100"
         },
         "phone_verifications_password_payload": {
           "name": "phone_verifications_password_payload",

@@ -207,6 +207,21 @@ constitution's Documentation section and enforced by `governance-drift-check.mjs
 | [ADR-163](decisions/volume-10.md#adr-163--the-registered-measurement-host-is-a-self-hosted-8-vcpu-runner) | The registered measurement host is a self-hosted 8-vCPU runner | 2026-11-10 | 6.3.2 (unchanged) |
 | [ADR-164](decisions/volume-10.md#adr-164--sc-009s-peak-rate-is-5-authentication-requests-per-second) | SC-009's peak rate is 5 authentication requests per second | 2026-11-10 | 6.3.2 (unchanged) |
 | [ADR-165](decisions/volume-10.md#adr-165--the-sign-up-path-hashes-the-password-and-the-one-time-code-concurrently) | The sign-up path hashes the password and the one-time code concurrently | 2026-11-10 | 6.3.2 (unchanged) |
+| [ADR-166](decisions/volume-10.md#adr-166--the-catalog-record-at-intake-the-stored-file-name-byte-count-and-content-type) | The Catalog record at intake: the stored file name, byte count, and content type | 2026-11-13 | 6.3.2 (unchanged) |
+| [ADR-167](decisions/volume-10.md#adr-167--the-monthly-upload-count-is-a-persisted-per-merchant-counter) | The monthly upload count is a persisted per-merchant counter | 2026-11-13 | 6.3.2 (unchanged) |
+| [ADR-168](decisions/volume-10.md#adr-168--the-upload-attempt-bound-and-its-counter) | The upload-attempt bound and its counter | 2026-11-13 | 6.3.2 (unchanged) |
+| [ADR-169](decisions/volume-10.md#adr-169--the-content-hashs-uniqueness-binds-the-catalogs-that-are-not-deleted) | The content hash's uniqueness binds the catalogs that are not deleted | 2026-11-13 | 6.3.2 (unchanged) |
+| [ADR-170](decisions/volume-10.md#adr-170--the-duplicate-outcomes-bounded-read-of-another-merchants-catalog) | The duplicate outcome's bounded read of another merchant's catalog | 2026-11-13 | 6.3.2 (unchanged) |
+| [ADR-171](decisions/volume-10.md#adr-171--the-intakes-content-inspection-set) | The intake's content-inspection set | 2026-11-13 | 6.3.2 (unchanged) |
+| [ADR-172](decisions/volume-10.md#adr-172--the-object-storage-client) | The object-storage client | 2026-11-13 | 6.3.2 (unchanged) |
+| [ADR-173](decisions/volume-10.md#adr-173--the-scanner-client-and-the-scan-budget) | The scanner client and the scan budget | 2026-11-13 | 6.3.2 (unchanged) |
+| [ADR-174](decisions/volume-10.md#adr-174--the-decoded-size-cap) | The decoded-size cap | 2026-11-13 | 6.3.2 (unchanged) |
+| [ADR-175](decisions/volume-10.md#adr-175--the-single-ratified-amendment-closing-the-four-deferred-governance-findings) | The single ratified amendment closing the four deferred governance findings | 2026-11-13 | 7.0.0 |
+| [ADR-176](decisions/volume-10.md#adr-176--the-active-quota-counts-a-catalog-whose-file-is-stored-whatever-its-processing-status) | The active quota counts a catalog whose file is stored, whatever its processing status | 2026-11-14 | 7.1.0 |
+| [ADR-177](decisions/volume-10.md#adr-177--the-analysis-commands-scope-in-this-project-exceeds-the-inherited-commands) | The analysis command's scope in this project exceeds the inherited command's | 2026-11-16 | 7.1.0 (unchanged) |
+| [ADR-178](decisions/volume-10.md#adr-178--the-bundled-commands-carry-the-rendered-front-matter-not-upstreams-template) | The bundled commands carry the rendered front-matter, not upstream's template | 2026-11-16 | 7.1.0 (unchanged) |
+| [ADR-179](decisions/volume-10.md#adr-179--the-tasks-template-is-the-single-source-of-the-task-lists-binding-rules) | The tasks template is the single source of the task list's binding rules | 2026-11-16 | 7.1.0 (unchanged) |
+| [ADR-180](decisions/volume-10.md#adr-180--the-intakes-bounded-inspection-working-set) | The intake's bounded inspection working set | 2026-11-19 | 7.1.0 (unchanged) |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,

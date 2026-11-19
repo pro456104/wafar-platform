@@ -22,8 +22,16 @@ const messageId = useId();
 
 <template>
   <div class="wf-password">
-    <label class="wf-password__label" :for="fieldId">{{ label }}</label>
-    <p v-if="showPolicy !== false" class="wf-password__policy">{{ notices.passwordPolicy }}</p>
+    <label
+      class="wf-password__label"
+      :for="fieldId"
+    >{{ label }}</label>
+    <p
+      v-if="showPolicy !== false"
+      class="wf-password__policy"
+    >
+      {{ notices.passwordPolicy }}
+    </p>
     <input
       :id="fieldId"
       :value="modelValue"
@@ -33,8 +41,12 @@ const messageId = useId();
       :aria-describedby="message !== '' ? messageId : undefined"
       required
       @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+    >
+    <MessageAlert
+      :id="messageId"
+      :message="message ?? ''"
+      kind="alert"
     />
-    <MessageAlert :id="messageId" :message="message ?? ''" kind="alert" />
   </div>
 </template>
 

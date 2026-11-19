@@ -8,7 +8,10 @@
 // Every block is a listed Libyan mobile range: the seeded accounts sit on 92,
 // the measured sign-ups on 93, the warm-up on 94, and the limiter probe on 95.
 import { scrypt as scryptCallback } from 'node:crypto';
+import { createHash } from 'node:crypto';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 // `pg` belongs to the data-access package and the scrypt profile belongs to the
@@ -17,6 +20,8 @@ import { pathToFileURL } from 'node:url';
 // without restating a value the register fixes once (CMV 2).
 const require = createRequire(new URL('../../apps/api/package.json', import.meta.url));
 const { Client } = require('pg');
+const { PDFDocument, StandardFonts } = require('pdf-lib');
+const { AwsClient } = require('aws4fetch');
 const { scryptKeyLength, scryptN, scryptP, scryptR, scryptSaltBytes } = await import(
   pathToFileURL(require.resolve('@wafar/shared/limits')).href
 );
@@ -224,9 +229,250 @@ export async function seedLoadFixture(databaseUrl = process.env['DATABASE_URL'])
   }
 }
 
+/**
+ * The catalog-side fixtures: the load condition's 50,000 catalogs, the
+ * quota-boundary sample (ten merchants one slot short of both limits), and the
+ * SC-004 sample's four retained originals at the four processing statuses (T006).
+ */
+export const catalogProfile = {
+  /** The load condition's catalogs, spread across the seeded accounts. */
+  catalogs: 50_000,
+  /** SC-005's ten merchants. */
+  quotaMerchants: 10,
+  /** Each merchant's retained catalogs: one short of the 300 active limit. */
+  quotaActive: 299,
+  /** Each merchant's monthly counter: one short of the 50 monthly limit. */
+  quotaMonthCount: 49,
+  /** SC-004's sample: one original at each of the four statuses. */
+  statuses: ['uploaded', 'processing', 'completed', 'failed'],
+};
+
+function tripoliMonthStart(now = new Date()) {
+  const formatted = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Tripoli',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now);
+  return `${formatted.slice(0, 8)}01`;
+}
+
+function catalogHash(index, salt = 'load') {
+  // A deterministic 64-hex digest per row, so a rerun writes the same population
+  // and no two rows can share a hash: the digest is over the row's own key.
+  return createHash('sha256').update(`${salt}-${index}`).digest('hex');
+}
+
+/**
+ * The SC-004 sample's four originals: one PDF per status, generated
+ * deterministically and written to `reports/sc-004/<status>.pdf`, so the
+ * measurement re-uploads exactly the bytes whose SHA-256 the seeded row carries
+ * (T119). The objects are also written to the bucket when its credentials are
+ * present, and their absence is reported rather than assumed.
+ */
+export async function sampleOriginals() {
+  const out = [];
+  for (const [index, status] of catalogProfile.statuses.entries()) {
+    const document = await PDFDocument.create();
+    const font = await document.embedFont(StandardFonts.Helvetica);
+    const page = document.addPage();
+    page.drawText(`Wafar SC-004 sample ${index + 1}`, { x: 40, y: 700, size: 14, font });
+    page.drawText(status, { x: 40, y: 670, size: 12, font });
+    const bytes = Buffer.from(await document.save());
+    out.push({ status, bytes, sha256: createHash('sha256').update(bytes).digest('hex') });
+  }
+  return out;
+}
+
+async function putSampleObject(s3, key, bytes) {
+  const endpoint = process.env['S3_ENDPOINT'];
+  const bucket = process.env['S3_BUCKET'];
+  if (s3 === null || !endpoint || !bucket) return 'skipped';
+  const response = await s3.fetch(`${endpoint.replace(/\/$/u, '')}/${bucket}/${key}`, {
+    method: 'PUT',
+    headers: { 'content-type': 'application/pdf' },
+    body: bytes,
+  });
+  return response.ok ? 'written' : `failed ${response.status}`;
+}
+
+function sampleStorageClient() {
+  const accessKeyId = process.env['S3_ACCESS_KEY_ID'];
+  const secretAccessKey = process.env['S3_SECRET_ACCESS_KEY'];
+  if (!accessKeyId || !secretAccessKey) return null;
+  return new AwsClient({
+    accessKeyId,
+    secretAccessKey,
+    service: 's3',
+    region: process.env['S3_REGION'] ?? 'us-east-1',
+  });
+}
+
+export async function seedCatalogFixtures(databaseUrl = process.env['DATABASE_URL']) {
+  if (databaseUrl === undefined) throw new Error('DATABASE_URL is not set');
+  const client = new Client({ connectionString: databaseUrl });
+  await client.connect();
+  await client.query('SET statement_timeout = 0');
+  const month = tripoliMonthStart();
+  const password = await credentialHash();
+  const samples = await sampleOriginals();
+  const reportDir = join('reports', 'sc-004');
+  const s3 = sampleStorageClient();
+  try {
+    await client.query('BEGIN');
+    await client.query("DELETE FROM catalogs WHERE id LIKE 'load-catalog-%'");
+    await client.query("DELETE FROM catalogs WHERE id LIKE 'sample-catalog-%'");
+    await client.query("DELETE FROM catalogs WHERE id LIKE 'quota-catalog-%'");
+    await client.query("DELETE FROM sessions WHERE id LIKE 'quota-session-%'");
+    await client.query("DELETE FROM accounts WHERE id LIKE 'quota-account-%'");
+    await client.query(
+      "DELETE FROM catalog_monthly_uploads WHERE user_id LIKE 'load-user-%'",
+    );
+    await client.query(
+      "DELETE FROM catalog_monthly_uploads WHERE user_id LIKE 'quota-user-%'",
+    );
+
+    // The load condition's catalogs, ten per seeded account.
+    const rows = [];
+    for (let index = 0; index < catalogProfile.catalogs; index += 1) {
+      const account = index % loadProfile.accounts;
+      rows.push({
+        id: `load-catalog-${String(index).padStart(6, '0')}`,
+        userId: `load-user-${String(account).padStart(6, '0')}`,
+        hash: catalogHash(index),
+      });
+    }
+    for (const batch of batches(rows, 500)) {
+      const values = [];
+      const params = [];
+      batch.forEach((row, offset) => {
+        const base = offset * 6;
+        values.push(
+          `($${base + 1}, $${base + 2}, 'كتالوج المورد.pdf',
+            $${base + 3}, 'application/pdf', $${base + 4}, $${base + 5},
+            'uploaded', $${base + 6})`,
+        );
+        params.push(
+          row.id,
+          row.userId,
+          1_048_576 + offset,
+          row.hash,
+          `catalogs/${row.id}/${row.hash}.pdf`,
+          new Date().toISOString(),
+        );
+      });
+      await client.query(
+        `INSERT INTO catalogs
+           (id, user_id, file_name, byte_size, content_type, content_hash, storage_key, status, uploaded_at)
+         VALUES ${values.join(', ')}`,
+        params,
+      );
+    }
+
+    // The quota-boundary sample: ten merchants, 299 retained catalogs, a monthly
+    // counter of 49, and the credential and live session each upload presents
+    // (T119).
+    for (let merchant = 0; merchant < catalogProfile.quotaMerchants; merchant += 1) {
+      const suffix = String(merchant).padStart(3, '0');
+      const userId = `quota-user-${suffix}`;
+      const phone = `+21896${String(merchant).padStart(7, '0')}`;
+      await client.query(
+        `INSERT INTO users (id, full_name, email, phone_number, city, phone_number_verified)
+         VALUES ($1, 'تاجر الحصة', $2, $3, $4, true)
+         ON CONFLICT (id) DO NOTHING`,
+        [userId, `${userId}@phone.invalid`, phone, loadCity],
+      );
+      await client.query(
+        `INSERT INTO accounts (id, user_id, account_id, provider_id, password)
+         VALUES ($1, $2, $2, 'credential', $3)`,
+        [`quota-account-${suffix}`, userId, password],
+      );
+      await client.query(
+        `INSERT INTO sessions (id, user_id, token, expires_at, last_activity_at)
+         VALUES ($1, $2, $3, now() + interval '12 hours', now())`,
+        [
+          `quota-session-${suffix}`,
+          userId,
+          `quota-session-token-${suffix}-${'q'.repeat(28)}`,
+        ],
+      );
+      for (let index = 0; index < catalogProfile.quotaActive; index += 1) {
+        const id = `quota-catalog-${merchant}-${String(index).padStart(4, '0')}`;
+        const hash = catalogHash(index, `quota-${merchant}`);
+        await client.query(
+          `INSERT INTO catalogs
+             (id, user_id, file_name, byte_size, content_type, content_hash, storage_key, status, uploaded_at)
+           VALUES ($1, $2, 'كتالوج.pdf', 1048576, 'application/pdf', $3, $4, 'uploaded', $5)`,
+          [id, userId, hash, `catalogs/${id}/${hash}.pdf`, new Date().toISOString()],
+        );
+      }
+      await client.query(
+        `INSERT INTO catalog_monthly_uploads (user_id, month_start, count)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (user_id, month_start) DO UPDATE SET count = excluded.count`,
+        [userId, month, catalogProfile.quotaMonthCount],
+      );
+    }
+
+    // The SC-004 sample: four retained originals, one at each status, each with
+    // a kept object, a content hash equal to the SHA-256 of the bytes the run
+    // re-uploads, and those bytes written beside the report (T119).
+    mkdirSync(dirname(join(reportDir, 'sample.pdf')), { recursive: true });
+    const writes = [];
+    for (const sample of samples) {
+      const id = `sample-catalog-${sample.status}`;
+      const storageKey = `catalogs/${id}/${sample.sha256}.pdf`;
+      writeFileSync(join(reportDir, `${sample.status}.pdf`), sample.bytes);
+      const written = await putSampleObject(s3, storageKey, sample.bytes);
+      writes.push({ status: sample.status, storageKey, written });
+      await client.query(
+        `INSERT INTO catalogs
+           (id, user_id, file_name, byte_size, content_type, content_hash, storage_key, status, uploaded_at)
+         VALUES ($1, $2, $3, $4, 'application/pdf', $5, $6, $7, $8)`,
+        [
+          id,
+          'load-user-000000',
+          `عينة ${sample.status}.pdf`,
+          sample.bytes.byteLength,
+          sample.sha256,
+          storageKey,
+          sample.status,
+          new Date().toISOString(),
+        ],
+      );
+    }
+
+    await client.query('COMMIT');
+    const counts = await client.query(
+      `SELECT
+         (SELECT count(*)::int FROM catalogs WHERE id LIKE 'load-catalog-%') AS load_catalogs,
+         (SELECT count(*)::int FROM catalogs WHERE id LIKE 'quota-catalog-%') AS quota_catalogs,
+         (SELECT count(*)::int FROM catalogs WHERE id LIKE 'sample-catalog-%') AS sample_catalogs,
+         (SELECT count(*)::int FROM sessions WHERE id LIKE 'quota-session-%') AS quota_sessions`,
+    );
+    return { ...counts.rows[0], sampleObjects: writes };
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    await client.end();
+  }
+}
+
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  if (process.env['NODE_ENV'] === 'production') {
+    console.error('The fixture seeder never runs against production.');
+    process.exit(1);
+  }
   const counts = await seedLoadFixture();
   console.log(
     `Load fixture: ${counts.users} accounts, ${counts.accounts} credentials, ${counts.sessions} live sessions.`,
   );
+  const catalogCounts = await seedCatalogFixtures();
+  console.log(
+    `Catalog fixtures: ${catalogCounts.load_catalogs} load catalogs, ${catalogCounts.quota_catalogs} quota-boundary catalogs, ${catalogCounts.sample_catalogs} SC-004 originals, ${catalogCounts.quota_sessions} quota-boundary sessions.`,
+  );
+  for (const object of catalogCounts.sampleObjects) {
+    console.log(`SC-004 ${object.status}: ${object.storageKey} (${object.written})`);
+  }
 }

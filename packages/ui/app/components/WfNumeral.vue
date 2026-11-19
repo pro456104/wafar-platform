@@ -18,7 +18,10 @@ const rendered = computed(() => {
 </script>
 
 <template>
-  <span class="wf-numeral" dir="ltr">{{ rendered }}</span>
+  <span
+    class="wf-numeral"
+    dir="ltr"
+  >{{ rendered }}</span>
 </template>
 
 <style scoped>

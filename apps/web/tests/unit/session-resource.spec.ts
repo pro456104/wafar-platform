@@ -20,7 +20,7 @@ const calls: FetchCall[] = [];
 
 const sessionPayload: SessionPayload = {
   authenticated: true,
-  user: { fullName: 'أمين الحديد' },
+  user: { fullName: 'أمين الحديد', role: 'merchant' },
   session: {
     expiresAt: '2026-11-10T18:00:00.000Z',
     lastActivityAt: '2026-11-10T10:00:00.000Z',
@@ -112,5 +112,35 @@ describe('the session resource', () => {
     for (const passive of calls.filter((c) => c.input.endsWith('/session')).slice(0, -1)) {
       expect(Object.keys(headersOf(passive))).not.toContain('x-wafar-activity');
     }
+  });
+
+  it('preserves the 401 code and keeps the 200 guest state distinct', async () => {
+    stubFetch(() => ({
+      status: 401,
+      body: { error: { code: 'SESSION_ENDED', retryable: false } },
+    }));
+    const ended = mountSession();
+    await vi.waitFor(() => {
+      expect(unref(ended.data)).toEqual({
+        authenticated: false,
+        ended: 'SESSION_ENDED',
+      });
+    });
+
+    stubFetch(() => ({
+      status: 401,
+      body: { error: { code: 'ACCOUNT_BLOCKED', retryable: false } },
+    }));
+    expect(await ended.refreshFromUserAction()).toEqual({
+      authenticated: false,
+      ended: 'ACCOUNT_BLOCKED',
+    });
+
+    stubFetch(() => ({ status: 200, body: { authenticated: false } }));
+    const guest = mountSession();
+    await vi.waitFor(() => {
+      expect(unref(guest.data)).toEqual({ authenticated: false });
+    });
+    expect(unref(guest.data)).not.toHaveProperty('ended');
   });
 });

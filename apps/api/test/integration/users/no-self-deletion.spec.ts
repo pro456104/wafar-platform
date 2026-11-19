@@ -95,8 +95,10 @@ describe.skipIf(!hasDatabase)('the absence of self-deletion', () => {
     expect((read.body as { authenticated: boolean }).authenticated).toBe(true);
   });
 
-  it('registers no deletion method on the composed API', () => {
-    expect(harness!.app.routes.filter((route) => route.method === 'DELETE')).toHaveLength(0);
+  it('registers no account-deletion method on the composed API', () => {
+    // R2's DELETE aborts a transient upload, never an account or a catalog.
+    const deletions = harness!.app.routes.filter((route) => route.method === 'DELETE');
+    expect(deletions.every((route) => route.path.startsWith('/api/v1/uploads/'))).toBe(true);
   });
 
   it('offers no deletion control on any surface this slice renders', () => {

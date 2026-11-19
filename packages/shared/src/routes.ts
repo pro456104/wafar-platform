@@ -85,3 +85,7 @@ export function destinationFor(path: string, guest: boolean): string {
 }
 
 export type BareRoute = (typeof bareRoutes)[keyof typeof bareRoutes];
+export type SidebarDestination = (typeof sidebarDestinations)[number];
+export type FooterLink = (typeof footerLinks)[number];
+export type BottomBarSlot = (typeof bottomBarSlots)[number];
+export type AccountMenuTargets = typeof accountMenu;

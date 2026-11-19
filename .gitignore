@@ -13,6 +13,18 @@ coverage/
 .lighthouseci/
 apps/web/reports/
 apps/web/test-results/
+# The load run's and the fixture seeder's measured output: the run writes its
+# report and the SC-004 sample's bytes here, and the acceptance record quotes
+# them; they are not product artifacts (T118, T119).
+reports/
+
+# The intake's per-request workspace (WORKSPACE_DIR's default): it holds a
+# merchant's file bytes while the file is screened, and the intake deletes both
+# copies before it answers. A request that died mid-run could leave one behind,
+# so no workspace file may ever be staged for commit. The integration harness
+# uses its own directory beside it.
+.workspace/
+.workspace-test/
 
 # Package manager store
 .pnpm-store/
