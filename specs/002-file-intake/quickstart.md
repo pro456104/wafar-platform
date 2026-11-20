@@ -288,7 +288,7 @@ down → up cycle.
 ### Scenario 13 — Documentation drift (ADR-031 item 4)
 
 ```bash
-pnpm --filter @wafar/api openapi:emit     # regenerates apps/api/openapi.json
+pnpm --filter @wafar/api openapi         # regenerates apps/api/openapi.json
 node scripts/check/documentation-drift.mjs
 ```
 
