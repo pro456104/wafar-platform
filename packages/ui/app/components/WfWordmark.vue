@@ -20,8 +20,7 @@ withDefaults(
     aria-label="منصة وفر"
   >
     <span class="wf-wordmark__full">
-      <span class="wf-wordmark__brand">منصة</span>
-      <span class="wf-wordmark__name">وفر</span>
+      <span class="wf-wordmark__brand">منصة</span> <span class="wf-wordmark__name">وفر</span>
     </span>
     <span
       class="wf-wordmark__short"
@@ -34,8 +33,7 @@ withDefaults(
     :class="{ 'wf-wordmark--always-full': !shortenAtNarrow }"
   >
     <span class="wf-wordmark__full">
-      <span class="wf-wordmark__brand">منصة</span>
-      <span class="wf-wordmark__name">وفر</span>
+      <span class="wf-wordmark__brand">منصة</span> <span class="wf-wordmark__name">وفر</span>
     </span>
     <span
       class="wf-wordmark__short"
@@ -48,7 +46,6 @@ withDefaults(
 .wf-wordmark {
   display: inline-flex;
   align-items: center;
-  gap: var(--wf-space-1);
   color: var(--wf-ink);
   font-weight: var(--wf-weight-bold);
   font-size: var(--wf-text-xl);

@@ -312,14 +312,42 @@ test('the format line, the card, and the percentage follow the reading rule', as
 test('the seventeen causes render the merchant-read copy set', async ({ page }) => {
   await enterAsMerchant(page);
   const rows = new Map<string, string>();
+  // The two limit refusals are the quota-exceeded state rather than the error
+  // state (FR-016, FR-017; AC-029, AC-033), so their copy is read from the
+  // quota block after the refusal's re-read, never from the error body.
+  const limitCause = (code: string): ('monthly' | 'active')[] =>
+    code === 'UPLOAD_MONTHLY_LIMIT'
+      ? ['monthly']
+      : code === 'UPLOAD_ACTIVE_LIMIT'
+        ? ['active']
+        : [];
+  let serverLimits: ('monthly' | 'active')[] = [];
+  await page.route('**/api/v1/catalogs/quota', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        monthly: { used: serverLimits.includes('monthly') ? 50 : 0, limit: 50 },
+        active: { used: serverLimits.includes('active') ? 300 : 0, limit: 300 },
+      }),
+    });
+  });
   for (const code of intakeCauses) {
     const retryable = [
       'UPLOAD_SCAN_UNAVAILABLE',
       'UPLOAD_TOO_MANY_ATTEMPTS',
       'UPLOAD_STORAGE_UNAVAILABLE',
     ].includes(code);
+    const limits = limitCause(code);
+    // The page loads on a read that still has room, so the choosing state is
+    // offered; the refusal then carries the reached limit and the re-read shows
+    // it. An exhausted read at load withholds the control and no refusal can be
+    // provoked from it.
+    serverLimits = [];
+    if (limits.length > 0) await page.reload();
     await page.route('**/api/v1/uploads', async (route) => {
       if (route.request().method() !== 'POST') return route.continue();
+      serverLimits = limits;
       await route.fulfill({
         status: 400,
         contentType: 'application/json',
@@ -331,7 +359,10 @@ test('the seventeen causes render the merchant-read copy set', async ({ page }) 
       mimeType: 'application/pdf',
       buffer: Buffer.from('%PDF-1.7\n'),
     });
-    const body = page.locator('.upload-error__body');
+    const body =
+      limits.length > 0
+        ? page.locator('.wf-quota__exhausted')
+        : page.locator('.upload-error__body');
     await expect(body).toBeVisible({ timeout: 30_000 });
     const text = await body.innerText();
     expect(text.length).toBeGreaterThan(0);
@@ -342,6 +373,7 @@ test('the seventeen causes render the merchant-read copy set', async ({ page }) 
     }
     await page.unroute('**/api/v1/uploads');
   }
+  await page.unroute('**/api/v1/catalogs/quota');
   expect(rows.size).toBe(17);
   const distinct = new Set(rows.values());
   expect(distinct.size).toBe(17);

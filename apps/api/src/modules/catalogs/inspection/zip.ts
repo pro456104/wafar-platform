@@ -13,8 +13,17 @@ export type ZipRead =
   | { kind: 'timeout' }
   | { kind: 'corrupt' };
 
-/** A sentinel thrown from the data callback to stop fflate's synchronous push. */
-const STOP = Symbol('zip-stop');
+/**
+ * The sentinel thrown from the data callback to stop fflate's synchronous push.
+ * It is an `Error` so the throw satisfies the lint rule, and it is caught by
+ * identity in this file only; it never escapes `readZip`.
+ */
+class ZipStopError extends Error {
+  constructor() {
+    super('zip-stop');
+    this.name = 'ZipStopError';
+  }
+}
 
 export interface ZipReadOptions {
   cap?: number;
@@ -52,11 +61,11 @@ export function readZip(
       total += chunk.byteLength;
       if (total > cap) {
         stopped = 'over';
-        throw STOP;
+        throw new ZipStopError();
       }
       if (Date.now() > deadline) {
         stopped = 'timeout';
-        throw STOP;
+        throw new ZipStopError();
       }
       if (chunk.byteLength > 0) {
         chunks.push(chunk);
@@ -88,7 +97,7 @@ export function readZip(
       unzip.push(bytes.subarray(offset, end), end === bytes.byteLength);
     }
   } catch (error) {
-    if (error !== STOP && stopped === null) stopped = 'corrupt';
+    if (!(error instanceof ZipStopError) && stopped === null) stopped = 'corrupt';
   }
 
   // The callbacks assign the outcome, so read it as the declared union rather

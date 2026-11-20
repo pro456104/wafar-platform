@@ -563,7 +563,12 @@ test('a limit refusal at the start lands in the quota-exceeded state, never the 
   page,
 }) => {
   await enterAsMerchant(page);
-  let limits: ('monthly' | 'active')[] = [];
+  // The page loads on a quota read that still has room, so the choosing state
+  // is offered; the limit is reached on the server's record, which the refusal
+  // carries and the page re-reads. A page that already read an exhausted quota
+  // withholds the control, and no refusal can be provoked from it.
+  let serverLimits: ('monthly' | 'active')[] = [];
+  let refusalLimits: ('monthly' | 'active')[] = [];
   let refusalCode = 'UPLOAD_MONTHLY_LIMIT';
   const both = { details: undefined as { code: string; field: string }[] | undefined };
   await page.route('**/api/v1/uploads', async (route) => {
@@ -573,6 +578,7 @@ test('a limit refusal at the start lands in the quota-exceeded state, never the 
     ) {
       return route.continue();
     }
+    serverLimits = refusalLimits;
     await route.fulfill({
       status: 409,
       contentType: 'application/json',
@@ -590,14 +596,15 @@ test('a limit refusal at the start lands in the quota-exceeded state, never the 
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        monthly: { used: limits.includes('monthly') ? 50 : 0, limit: 50 },
-        active: { used: limits.includes('active') ? 300 : 0, limit: 300 },
+        monthly: { used: serverLimits.includes('monthly') ? 50 : 0, limit: 50 },
+        active: { used: serverLimits.includes('active') ? 300 : 0, limit: 300 },
       }),
     });
   });
 
   // Monthly first.
-  limits = ['monthly'];
+  serverLimits = [];
+  refusalLimits = ['monthly'];
   await page.reload();
   await choose(page, 'شهري.pdf', 'application/pdf', await pdfBytes(2048));
   await expect(page.locator('.wf-quota__exhausted')).toContainText('بلغت حد الرفع الشهري', {
@@ -608,7 +615,8 @@ test('a limit refusal at the start lands in the quota-exceeded state, never the 
   await expect(page.locator('.wf-upload-control')).toHaveCount(0);
 
   // Then the active limit alone.
-  limits = ['active'];
+  serverLimits = [];
+  refusalLimits = ['active'];
   refusalCode = 'UPLOAD_ACTIVE_LIMIT';
   await page.reload();
   await choose(page, 'نشط.pdf', 'application/pdf', await pdfBytes(2048));
@@ -619,7 +627,8 @@ test('a limit refusal at the start lands in the quota-exceeded state, never the 
   await expect(page.locator('.upload-error')).toHaveCount(0);
 
   // Both, monthly named first (FR-013, AC-030).
-  limits = ['monthly', 'active'];
+  serverLimits = [];
+  refusalLimits = ['monthly', 'active'];
   refusalCode = 'UPLOAD_MONTHLY_LIMIT';
   both.details = [
     { code: 'UPLOAD_MONTHLY_LIMIT', field: 'monthly' },
@@ -797,6 +806,7 @@ test('a safety refusal says the file was not kept and offers no retry of it', as
     await expect(page.locator('.upload-error__body')).toContainText('لم يتم حفظ الملف');
     await expect(page.getByRole('button', { name: 'إعادة المحاولة' })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'اختيار ملف آخر' })).toBeVisible();
+    await page.getByRole('button', { name: 'اختيار ملف آخر' }).click();
     await page.unroute('**/api/v1/uploads/*/complete');
   }
 });
@@ -927,13 +937,28 @@ test('an upload in flight when the limit is lowered is refused at acceptance', a
       body: JSON.stringify({ error: { code: 'UPLOAD_MONTHLY_LIMIT', retryable: false } }),
     });
   });
+  // The refusal's re-read sees the lowered limit, so the quota-exceeded state
+  // names the monthly limit rather than leaving the block at its old counts.
+  await page.route('**/api/v1/catalogs/quota', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        monthly: { used: 50, limit: 50 },
+        active: { used: 10, limit: 300 },
+      }),
+    });
+  });
   await choose(page, 'كتالوج.pdf', 'application/pdf', await pdfBytes(4096));
-  await expect(page.locator('.upload-error__body')).toContainText('بلغت حد الرفع الشهري', {
+  await expect(page.locator('.wf-quota__exhausted')).toContainText('بلغت حد الرفع الشهري', {
     timeout: 45_000,
   });
+  await expect(page.locator('.upload-error')).toHaveCount(0);
+  await expect(page.locator('.wf-upload-control')).toHaveCount(0);
   // The limit refusal offers neither the retry nor «اختيار ملف آخر».
   await expect(page.getByRole('button', { name: 'إعادة المحاولة' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'اختيار ملف آخر' })).toHaveCount(0);
+  await page.unroute('**/api/v1/catalogs/quota');
   await page.unroute('**/api/v1/uploads/*/complete');
 });
 

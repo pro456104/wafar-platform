@@ -25,14 +25,36 @@ if (process.env['NODE_ENV'] === 'production') {
 const require = createRequire(new URL('../../apps/api/package.json', import.meta.url));
 const { Client } = require('pg');
 const { PDFDocument } = require('pdf-lib');
+const { AwsClient } = require('aws4fetch');
 
 const apiOrigin = new URL(process.env['API_ORIGIN'] ?? 'http://127.0.0.1:3001');
 const webOrigin = new URL(process.env['WEB_ORIGIN'] ?? 'http://127.0.0.1:3000');
 const databaseUrl =
   process.env['DATABASE_URL'] ?? 'postgres://wafar:wafar@localhost:5432/wafar';
+const mode = process.argv.includes('--quota-boundary')
+  ? 'quota-boundary'
+  : process.argv.includes('--sc011')
+    ? 'sc011'
+    : 'load';
 const reportPath =
-  process.env['UPLOAD_LOAD_REPORT'] ?? join('reports', 'sc-005-upload-load.json');
-const mode = process.argv.includes('--quota-boundary') ? 'quota-boundary' : 'load';
+  process.env['UPLOAD_LOAD_REPORT'] ??
+  join('reports', mode === 'sc011' ? 'sc-011-accepted.json' : 'sc-005-upload-load.json');
+
+// The kept-object read of SC-011: the same signed S3 access the storage adapter
+// makes, so "a kept file" is a HEAD the bucket answers, not a catalog row alone.
+const s3 = new AwsClient({
+  accessKeyId: process.env['S3_ACCESS_KEY_ID'] ?? 'wafar',
+  secretAccessKey: process.env['S3_SECRET_ACCESS_KEY'] ?? 'wafar-secret',
+  region: process.env['S3_REGION'] ?? 'us-east-1',
+  service: 's3',
+});
+const bucketUrl = `${(process.env['S3_ENDPOINT'] ?? 'http://127.0.0.1:8333').replace(/\/$/u, '')}/${
+  process.env['S3_BUCKET'] ?? 'wafar'
+}`;
+
+function objectUrl(key) {
+  return `${bucketUrl}/${key.split('/').map(encodeURIComponent).join('/')}`;
+}
 
 /** The phase targets: design, then the doubled stress at double the concurrency. */
 const design = {
@@ -49,6 +71,9 @@ const stress = {
 };
 const boundary = { merchants: 10, perMerchant: 60, concurrency: 600 };
 const million = 1024 * 1024;
+
+/** SC-011's sample: 100 accepted 1 MB uploads across three seeded merchants. */
+const sc011 = { uploads: 100, merchants: 3, size: million, concurrency: 10, split: [34, 33, 33] };
 const partSize = 8 * million;
 
 /** SC-007's uplink: 2.28 MB in 30 seconds, about 76 KB/s. */
@@ -108,6 +133,9 @@ async function withClient(work) {
   const client = database();
   await client.connect();
   try {
+    // The role's 100 ms default governs the platform's statements, not the
+    // harness's own setup and counting reads, which run beside the load.
+    await client.query('SET statement_timeout = 0');
     return await work(client);
   } finally {
     await client.end();
@@ -131,6 +159,38 @@ async function quotaMerchants() {
   return rows;
 }
 
+/** Three seeded merchants with one live session each, for the SC-011 sample. */
+async function sc011Merchants() {
+  return withClient(async (client) => {
+    const result = await client.query(
+      `SELECT DISTINCT ON (u.id) u.id AS user_id, s.token
+         FROM users u
+         JOIN sessions s ON s.user_id = u.id AND s.revoked_at IS NULL AND s.expires_at > now()
+        WHERE u.id LIKE 'load-user-%'
+        ORDER BY u.id, s.id
+        LIMIT $1`,
+      [sc011.merchants],
+    );
+    return result.rows;
+  });
+}
+
+/** The retained-catalog count per merchant, read before and after the sample. */
+async function catalogCounts(userIds) {
+  return withClient(async (client) => {
+    const result = await client.query(
+      `SELECT user_id, count(*)::int AS count
+         FROM catalogs
+        WHERE user_id = ANY($1::text[])
+        GROUP BY user_id`,
+      [userIds],
+    );
+    const counts = Object.fromEntries(userIds.map((id) => [id, 0]));
+    for (const row of result.rows) counts[row.user_id] = row.count;
+    return counts;
+  });
+}
+
 /** The 300 sessions the load phases present, one per worker at most. */
 async function loadSessions(count) {
   return withClient(async (client) => {
@@ -149,7 +209,7 @@ async function loadSessions(count) {
 
 /** The CSRF pair the render bootstrap returns, kept per session. */
 async function bootstrap() {
-  const response = await fetch(`${apiOrigin}/api/v1/auth/csrf`, {
+  const response = await fetch(`${apiOrigin.origin}/api/v1/auth/csrf`, {
     headers: { accept: 'application/json' },
   });
   const cookies = response.headers.getSetCookie?.() ?? [];
@@ -167,12 +227,12 @@ function sessionCookie(token) {
 /** One page load: the document and the quota read, in the order the page makes them. */
 async function pageLoad(session, csrf) {
   const started = performance.now();
-  const document = await fetch(`${webOrigin}/upload`, {
+  const document = await fetch(`${webOrigin.origin}/upload`, {
     headers: { accept: 'text/html' },
   });
   await document.arrayBuffer();
   const beforeQuota = performance.now();
-  const quota = await fetch(`${apiOrigin}/api/v1/catalogs/quota`, {
+  const quota = await fetch(`${apiOrigin.origin}/api/v1/catalogs/quota`, {
     headers: {
       accept: 'application/json',
       cookie: `${sessionCookie(session.token)}; ${csrf.cookie}`,
@@ -189,7 +249,7 @@ async function pageLoad(session, csrf) {
 /** The start request: the session and the CSRF pair, as the page sends them. */
 async function preSign(session, csrf, file) {
   const started = performance.now();
-  const response = await fetch(`${apiOrigin}/api/v1/uploads`, {
+  const response = await fetch(`${apiOrigin.origin}/api/v1/uploads`, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
@@ -216,14 +276,24 @@ async function writePart(url, bytes, meter) {
     if (wait > 0) await sleep(wait);
     offset = end;
   }
-  const response = await fetch(url, {
-    method: 'PUT',
-    headers: { 'content-type': 'application/octet-stream' },
-    body: bytes,
-  });
-  await response.arrayBuffer();
-  if (!response.ok) throw new Error(`part ${response.status}`);
-  return response.headers.get('etag') ?? '"part"';
+  // A part PUT is idempotent, so a transient 5xx from the store is retried
+  // before the run is failed: the product's own client retries a part, and a
+  // single store hiccup must not discard a six-minute measurement. The retry
+  // adds no submission and no attempt.
+  let status = 0;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/octet-stream' },
+      body: bytes,
+    });
+    await response.arrayBuffer();
+    if (response.ok) return response.headers.get('etag') ?? '"part"';
+    status = response.status;
+    if (status < 500 || attempt === 3) break;
+    await sleep(500 * attempt);
+  }
+  throw new Error(`part ${status}`);
 }
 
 let serial = 0;
@@ -244,7 +314,7 @@ async function partBytesFor(size) {
 async function complete(session, csrf, uploadId, parts) {
   const started = performance.now();
   const response = await fetch(
-    `${apiOrigin}/api/v1/uploads/${encodeURIComponent(uploadId)}/complete`,
+    `${apiOrigin.origin}/api/v1/uploads/${encodeURIComponent(uploadId)}/complete`,
     {
       method: 'POST',
       headers: {
@@ -276,6 +346,10 @@ async function oneUpload(session, csrf, size, samples, outcomes, pace) {
   samples.pageLoad.push(page.pageMs);
   samples.quota.push(page.quotaMs);
 
+  // SC-007's interval starts at the selection, which the page accepts only
+  // after its load settled; the outcome is visible when the platform's answer
+  // arrives, one render frame before the merchant reads it.
+  const selectedAt = performance.now();
   const file = {
     fileName: `حمل-${size}-${Math.random().toString(16).slice(2, 10)}.pdf`,
     byteSize: size,
@@ -285,6 +359,7 @@ async function oneUpload(session, csrf, size, samples, outcomes, pace) {
   samples.preSign.push(start.ms);
   if (start.status !== 201) {
     outcomes.push({ outcome: 'refused', cause: causeOf(start), stage: 'start' });
+    samples.total.push({ size, ms: performance.now() - selectedAt, outcome: 'refused' });
     return;
   }
 
@@ -300,7 +375,9 @@ async function oneUpload(session, csrf, size, samples, outcomes, pace) {
   await pace.complete();
   const done = await complete(session, csrf, start.body.uploadId, parts);
   samples.complete.push(done.ms);
-  outcomes.push({ outcome: outcomeOf(done), cause: causeOf(done), stage: 'complete' });
+  const outcome = outcomeOf(done);
+  outcomes.push({ outcome, cause: causeOf(done), stage: 'complete' });
+  samples.total.push({ size, ms: performance.now() - selectedAt, outcome });
 }
 
 /** A fixed-size worker pool over the phase's upload list. */
@@ -319,6 +396,35 @@ async function runPool(items, concurrency, work) {
 }
 
 /**
+ * SC-007's ratio over a phase: the selection-to-outcome interval at or under
+ * one minute, counted for every upload including a refusal or a duplicate, and
+ * read per size class beside the whole phase.
+ */
+function sc007(totalSamples) {
+  const boundMs = 60_000;
+  const ratio = (numerator, denominator) =>
+    denominator === 0 ? null : numerator / denominator;
+  const bySize = {};
+  for (const size of [1, 2, 3, 4]) {
+    const group = totalSamples.filter((sample) => sample.size === size * million);
+    const atOrUnder = group.filter((sample) => sample.ms <= boundMs).length;
+    bySize[`${size}mb`] = {
+      ...percentiles(group.map((sample) => sample.ms)),
+      atOrUnder60s: atOrUnder,
+      ratio: ratio(atOrUnder, group.length),
+    };
+  }
+  const atOrUnder = totalSamples.filter((sample) => sample.ms <= boundMs).length;
+  return {
+    boundMs,
+    ...percentiles(totalSamples.map((sample) => sample.ms)),
+    atOrUnder60s: atOrUnder,
+    ratio: ratio(atOrUnder, totalSamples.length),
+    bySize,
+  };
+}
+
+/**
  * The two load conditions. The sizes are the 900-per-size sample SC-007 reads:
  * each phase walks 1 MB, 2 MB, 3 MB, and 4 MB in equal counts.
  */
@@ -331,7 +437,7 @@ async function loadPhase(condition, config) {
   }
 
   const items = Array.from({ length: config.uploads }, (_, index) => ((index % 4) + 1) * million);
-  const samples = { pageLoad: [], quota: [], preSign: [], complete: [] };
+  const samples = { pageLoad: [], quota: [], preSign: [], complete: [], total: [] };
   const outcomes = [];
   const startedAt = performance.now();
   let active = 0;
@@ -362,6 +468,7 @@ async function loadPhase(condition, config) {
     quota: percentiles(samples.quota),
     preSign: percentiles(samples.preSign),
     complete: percentiles(samples.complete),
+    outcomeLatency: sc007(samples.total),
     outcomes: byCause(outcomes),
     slowestQuery: await slowestQuery(),
   };
@@ -480,6 +587,127 @@ async function quotaBoundaryRun() {
   };
 }
 
+/**
+ * SC-011's sample: 100 accepted uploads across three seeded merchants (34, 33,
+ * 33), each with its own 1 MB content. The measurement reads the retained-catalog
+ * count before and after, reads every accepted catalog's kept key, and HEADs the
+ * object, so "one record and one kept file per acceptance, and no more" is read
+ * from the platform rather than inferred from the answers (FR-035).
+ */
+async function sc011Run() {
+  const merchants = await sc011Merchants();
+  if (merchants.length < sc011.merchants) {
+    throw new Error('no seeded session: run `pnpm load:seed` first');
+  }
+  const pairs = new Map();
+  for (const merchant of merchants) {
+    pairs.set(merchant.user_id, await bootstrap());
+  }
+
+  const userIds = merchants.map((merchant) => merchant.user_id);
+  const before = await catalogCounts(userIds);
+
+  const items = [];
+  merchants.forEach((merchant, index) => {
+    for (let n = 0; n < sc011.split[index]; n += 1) {
+      items.push({ merchant, n });
+    }
+  });
+
+  const accepted = [];
+  const failures = [];
+  await runPool(items, sc011.concurrency, async (item) => {
+    const csrf = pairs.get(item.merchant.user_id);
+    const file = {
+      fileName: `قبول-${item.merchant.user_id}-${item.n}.pdf`,
+      byteSize: sc011.size,
+    };
+    const start = await preSign(item.merchant, csrf, file);
+    if (start.status !== 201) {
+      failures.push(`start ${start.status} ${causeOf(start) ?? ''}`.trim());
+      return;
+    }
+    const bytes = await partBytesFor(sc011.size);
+    const parts = [];
+    for (const part of start.body.parts) {
+      const from = (part.partNumber - 1) * partSize;
+      const etag = await writePart(part.url, bytes.subarray(from, from + part.byteSize), {
+        started: performance.now(),
+      });
+      parts.push({ partNumber: part.partNumber, etag });
+    }
+    const done = await complete(item.merchant, csrf, start.body.uploadId, parts);
+    if (done.status !== 201) {
+      failures.push(`complete ${done.status} ${causeOf(done) ?? ''}`.trim());
+      return;
+    }
+    accepted.push({
+      catalogId: done.body.catalog.id,
+      merchant: item.merchant.user_id,
+      fileName: done.body.catalog.fileName,
+    });
+  });
+
+  const after = await catalogCounts(userIds);
+  const delta = {};
+  for (const userId of userIds) {
+    delta[userId] = after[userId] - (before[userId] ?? 0);
+  }
+
+  const keys = await withClient(async (client) => {
+    if (accepted.length === 0) return [];
+    const result = await client.query(
+      `SELECT id, storage_key FROM catalogs WHERE id = ANY($1::text[])`,
+      [accepted.map((row) => row.catalogId)],
+    );
+    return result.rows;
+  });
+  const keyById = new Map(keys.map((row) => [row.id, row.storage_key]));
+
+  let kept = 0;
+  const missing = [];
+  for (const row of accepted) {
+    const key = keyById.get(row.catalogId);
+    if (key === undefined) {
+      missing.push(`${row.catalogId}: no catalog row`);
+      continue;
+    }
+    const response = await s3.fetch(objectUrl(key), { method: 'HEAD' });
+    if (response.ok) kept += 1;
+    else missing.push(`${key}: HEAD ${response.status}`);
+  }
+
+  const added = Object.values(delta).reduce((sum, count) => sum + count, 0);
+  const ids = new Set(accepted.map((row) => row.catalogId));
+  if (accepted.length !== sc011.uploads) {
+    failures.push(`accepted ${accepted.length} uploads, not ${sc011.uploads}`);
+  }
+  if (ids.size !== accepted.length) {
+    failures.push(`${accepted.length - ids.size} accepted upload(s) share a catalog id`);
+  }
+  if (added !== sc011.uploads) {
+    failures.push(`the sample added ${added} catalog rows, not ${sc011.uploads}`);
+  }
+  for (const [index, userId] of userIds.entries()) {
+    if (delta[userId] !== sc011.split[index]) {
+      failures.push(`${userId} added ${delta[userId]} catalog rows, not ${sc011.split[index]}`);
+    }
+  }
+  if (kept !== sc011.uploads) {
+    failures.push(`${kept} kept object(s) answered, not ${sc011.uploads}`);
+  }
+
+  return {
+    condition: 'sc011',
+    sample: items.length,
+    accepted: accepted.length,
+    failures,
+    catalogs: { before, after, delta, added },
+    kept: { headOk: kept, missing },
+    uploads: accepted,
+  };
+}
+
 const allowedCauses = new Set([
   'UPLOAD_MONTHLY_LIMIT',
   'UPLOAD_ACTIVE_LIMIT',
@@ -511,6 +739,18 @@ function checkLoadOutcomes(condition, entry) {
     failures.push(`${condition}: ${count} refusal(s) with cause ${cause}`);
   }
   return failures;
+}
+
+/** SC-007: 95% of the phase's uploads confirmed within one minute of selection. */
+function checkSc007(condition, entry) {
+  const measured = entry.outcomeLatency;
+  if (measured?.ratio === null || measured?.ratio === undefined) return [];
+  if (measured.ratio < 0.95) {
+    return [
+      `${condition}: SC-007 ${measured.atOrUnder60s}/${measured.samples} upload(s) within 60 s, under 95%`,
+    ];
+  }
+  return [];
 }
 
 function checkBoundary(entry) {
@@ -550,6 +790,10 @@ async function main() {
     report_.conditions.push(entry);
     failures.push(...checkBudgets('quota-boundary', entry));
     failures.push(...checkBoundary(entry));
+  } else if (mode === 'sc011') {
+    const entry = await sc011Run();
+    report_.conditions.push(entry);
+    failures.push(...entry.failures);
   } else {
     for (const [condition, config] of [
       ['design', design],
@@ -559,6 +803,7 @@ async function main() {
       report_.conditions.push(entry);
       failures.push(...checkBudgets(condition, entry));
       failures.push(...checkLoadOutcomes(condition, entry));
+      failures.push(...checkSc007(condition, entry));
     }
   }
 
@@ -567,7 +812,7 @@ async function main() {
     0,
   );
   const totalUploads = report_.conditions.reduce(
-    (sum, entry) => sum + Object.values(entry.outcomes).reduce((a, b) => a + b, 0),
+    (sum, entry) => sum + Object.values(entry.outcomes ?? {}).reduce((a, b) => a + b, 0),
     0,
   );
   report_.totals = { pageLoads: totalPageLoads, uploads: totalUploads };

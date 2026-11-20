@@ -119,6 +119,7 @@ describe.skipIf(!hasDatabase)('the intake route', () => {
       ['كتالوج.txt', 1024, 'UPLOAD_UNSUPPORTED_FORMAT'],
       ['كتالوج.', 1024, 'UPLOAD_UNSUPPORTED_FORMAT'],
       ['كتالوج.pdf', 104_857_601, 'UPLOAD_TOO_LARGE'],
+      ['كتالوج.pdf', 209_715_200, 'UPLOAD_TOO_LARGE'],
       ['كتالوج.pdf', 0, 'UPLOAD_EMPTY'],
     ];
     for (const [name, size, code] of cases) {

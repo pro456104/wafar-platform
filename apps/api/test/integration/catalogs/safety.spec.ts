@@ -5,7 +5,7 @@
 // FR-040, FR-062; AC-006, AC-016, AC-017, AC-018, AC-035; T054, T059, T060).
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { catalogs, catalogMonthlyUploads } from '@wafar/db';
-import type { createHarness} from '../../support/harness.ts';
+import type { createHarness } from '../../support/harness.ts';
 import { hasDatabase } from '../../support/harness.ts';
 import { originalKey, upload, type StartedUpload } from '../../support/intake.ts';
 import { merchant } from '../../support/intake.ts';
@@ -15,6 +15,7 @@ import {
   encryptedPdf,
   expandingPdf,
   expandingXlsx,
+  validDocx,
   validPdf,
   validXlsx,
 } from '../../fixtures/intake/fixtures.ts';
@@ -24,7 +25,7 @@ import { measureDecoded, decodedCapBytes } from '../../../src/modules/catalogs/i
 import { inspectFormat } from '../../../src/modules/catalogs/inspection/format.ts';
 import { sanitize } from '../../../src/modules/catalogs/inspection/sanitize.ts';
 import { createClamdScanner } from '../../../src/modules/catalogs/scanner/clamd.ts';
-import { createServer } from 'node:net';
+import { createServer, type Socket } from 'node:net';
 
 let harness: ReturnType<typeof createHarness> | null = null;
 let isolated: Awaited<ReturnType<typeof createIsolatedHarness>> | null = null;
@@ -115,6 +116,22 @@ describe.skipIf(!hasDatabase)('the safety pipeline', () => {
   it('refuses content that does not match the declared format and keeps nothing', async () => {
     const session = await merchant(harness!);
     const { started, response } = await upload(harness!, session, 'sheet.xlsx', await validPdf());
+    expect(response.status).toBe(400);
+    expect(code(response.body)).toBe('UPLOAD_CONTENT_MISMATCH');
+    await expectNothingKept(harness!, (started as StartedUpload).uploadId);
+  });
+
+  it('refuses a Word document named as an Excel file (SC-002)', async () => {
+    const session = await merchant(harness!);
+    const { started, response } = await upload(harness!, session, 'word.xlsx', validDocx());
+    expect(response.status).toBe(400);
+    expect(code(response.body)).toBe('UPLOAD_CONTENT_MISMATCH');
+    await expectNothingKept(harness!, (started as StartedUpload).uploadId);
+  });
+
+  it('refuses an Excel workbook named as a Word file (SC-002)', async () => {
+    const session = await merchant(harness!);
+    const { started, response } = await upload(harness!, session, 'sheet.docx', validXlsx());
     expect(response.status).toBe(400);
     expect(code(response.body)).toBe('UPLOAD_CONTENT_MISMATCH');
     await expectNothingKept(harness!, (started as StartedUpload).uploadId);
@@ -262,7 +279,7 @@ describe.skipIf(!hasDatabase)('the stage budgets and the stacked causes', () => 
   it('answers the scan’s expired budget as unavailable, over the real protocol', async () => {
     // A clamd that accepts the connection and never answers: the client's own
     // budget, not the server, ends the scan (contracts/intake-api.md §6.2).
-    const sockets = new Set<import('node:net').Socket>();
+    const sockets = new Set<Socket>();
     const server = createServer((socket) => {
       sockets.add(socket);
       socket.on('close', () => sockets.delete(socket));
