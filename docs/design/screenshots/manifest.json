@@ -11,6 +11,7 @@
       "theme": "light",
       "file": "R1/signup--default--1280--light.png",
       "url": "http://localhost:4321/auth/signup?design=precision&tools=0&theme=light",
+      "recaptured": "2026-11-20",
       "note": "sample account; the done state is the reference; the OTP/code state is not captured (recorded gap)"
     },
     {
@@ -21,6 +22,7 @@
       "theme": "light",
       "file": "R1/signup--default--375--light.png",
       "url": "http://localhost:4321/auth/signup?design=precision&tools=0&theme=light",
+      "recaptured": "2026-11-20",
       "note": "sample account; the done state is the reference; the OTP/code state is not captured (recorded gap)"
     },
     {
@@ -31,6 +33,7 @@
       "theme": "light",
       "file": "R1/signin--default--1280--light.png",
       "url": "http://localhost:4321/auth/signin?design=precision&tools=0&theme=light",
+      "recaptured": "2026-11-20",
       "note": "sample account; the uniform response is the requirement; the post-submit state is not captured (recorded gap)"
     },
     {
@@ -41,6 +44,7 @@
       "theme": "light",
       "file": "R1/signin--default--375--light.png",
       "url": "http://localhost:4321/auth/signin?design=precision&tools=0&theme=light",
+      "recaptured": "2026-11-20",
       "note": "sample account; the uniform response is the requirement; the post-submit state is not captured (recorded gap)"
     },
     {
@@ -51,6 +55,7 @@
       "theme": "light",
       "file": "R1/forgot--default--1280--light.png",
       "url": "http://localhost:4321/auth/forgot?design=precision&tools=0&theme=light",
+      "recaptured": "2026-11-20",
       "note": "sample account; the done state is the reference; the OTP/code state is not captured (recorded gap)"
     },
     {
@@ -61,6 +66,7 @@
       "theme": "light",
       "file": "R1/forgot--default--375--light.png",
       "url": "http://localhost:4321/auth/forgot?design=precision&tools=0&theme=light",
+      "recaptured": "2026-11-20",
       "note": "sample account; the done state is the reference; the OTP/code state is not captured (recorded gap)"
     },
     {
@@ -261,6 +267,7 @@
       "theme": "light",
       "file": "R11/contact--default--1280--light.png",
       "url": "http://localhost:4321/contact?design=precision&tools=0&theme=light",
+      "recaptured": "2026-11-20",
       "note": "the email is removed in the product; the contact data is sample"
     },
     {
@@ -271,6 +278,7 @@
       "theme": "light",
       "file": "R11/contact--default--375--light.png",
       "url": "http://localhost:4321/contact?design=precision&tools=0&theme=light",
+      "recaptured": "2026-11-20",
       "note": "the email is removed in the product; the contact data is sample"
     },
     {
@@ -361,6 +369,7 @@
       "theme": "light",
       "file": "R1/signin--locked--1280--light.png",
       "url": "http://localhost:4321/auth/signin?design=precision&tools=0&theme=light&state=locked",
+      "recaptured": "2026-11-20",
       "note": "sample account; lab-only lockout alert; the product shows the uniform refusal"
     },
     {
@@ -371,6 +380,7 @@
       "theme": "light",
       "file": "R1/signin--locked--375--light.png",
       "url": "http://localhost:4321/auth/signin?design=precision&tools=0&theme=light&state=locked",
+      "recaptured": "2026-11-20",
       "note": "sample account; lab-only lockout alert; the product shows the uniform refusal"
     },
     {
@@ -601,6 +611,7 @@
       "theme": "dark",
       "file": "R1/signin--default--1280--dark.png",
       "url": "http://localhost:4321/auth/signin?design=precision&tools=0&theme=dark",
+      "recaptured": "2026-11-20",
       "note": "sample account; the uniform response is the requirement; the post-submit state is not captured (recorded gap)"
     }
   ]

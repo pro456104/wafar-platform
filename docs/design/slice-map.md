@@ -124,9 +124,10 @@ slice but no page here renders it.
 page title, one form card, and the links to the other bare pages (sign-in
 carries two, to sign-up and password recovery; sign-up and password recovery
 each carry one, back to sign-in). Sign Up carries the
-full name, the Libyan mobile number with a fixed `+218` and no dial-code
-selector, the password, the city combobox, and the optional shop name, then the
-one-time-code step and the done state. Sign In carries the mobile number and
+full name, the Libyan mobile number as one group — the field at the inline
+start, a fixed `+218` cell with the Libyan flag at the inline end, and no
+dial-code selector — the password, the city combobox, and the optional shop
+name, then the one-time-code step and the done state. Sign In carries the mobile number and
 the password, with the uniform failed-sign-in message. Forgot Password carries
 the mobile number, the code step, the new password, and the done state.
 
@@ -640,7 +641,9 @@ Captured: P0 for all seventeen non-administrator surfaces at 1280 and 375 light
 loading (Home, Parts, My Files, Notifications), refetch, full cart — at both
 widths (20), the filter panel at both widths (2), the dark appearance for Home,
 Parts, and Sign In (3), and the Home page scrolled at 375 with the bottom bar
-hidden (1). Total: 60 images, 2.31 MB (2.21 MiB).
+hidden (1). Total: 60 images, 2.32 MB (2.21 MiB). Eleven of them — the nine R1
+and two R11 images that show the phone field — were recaptured on 2026-11-20
+(ADR-181).
 
 Both rules the contract fixes have a lab reference: the outline icon cut and the
 light default are what every capture renders. The baseline is still generated in

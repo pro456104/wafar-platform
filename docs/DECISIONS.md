@@ -222,6 +222,7 @@ constitution's Documentation section and enforced by `governance-drift-check.mjs
 | [ADR-178](decisions/volume-10.md#adr-178--the-bundled-commands-carry-the-rendered-front-matter-not-upstreams-template) | The bundled commands carry the rendered front-matter, not upstream's template | 2026-11-16 | 7.1.0 (unchanged) |
 | [ADR-179](decisions/volume-10.md#adr-179--the-tasks-template-is-the-single-source-of-the-task-lists-binding-rules) | The tasks template is the single source of the task list's binding rules | 2026-11-16 | 7.1.0 (unchanged) |
 | [ADR-180](decisions/volume-10.md#adr-180--the-intakes-bounded-inspection-working-set) | The intake's bounded inspection working set | 2026-11-19 | 7.1.0 (unchanged) |
+| [ADR-181](decisions/volume-10.md#adr-181--the-phone-fields-country-cell-sits-at-the-inline-end-with-the-flag) | The phone field's country cell sits at the inline end, with the flag | 2026-11-20 | 7.1.0 (unchanged) |
 
 **Design-system note (ADR-093).** Every provision of the removed custom design
 system in an earlier record is superseded by ADR-093. Their other provisions,

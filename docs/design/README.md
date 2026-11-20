@@ -29,6 +29,14 @@ Capture drift: the screenshots were captured on 2026-10-27. The lab's shared
 loading references predate those tokens. The layer records the final values;
 the screenshots remain evidence, not a baseline.
 
+Recapture (2026-11-20, ADR-181): the eleven images that show the phone field —
+nine in R1 and the two Contact captures in R11 — were recaptured after the lab's
+phone group moved its `+218` cell to the inline end and gained the Libyan flag.
+The manifest marks each with `recaptured`. The four R1 done captures were
+recaptured as well and are byte-identical to the 2026-10-27 files, so their
+manifest entries keep the original date. The pixel diff is confined to the phone
+group's box in all eleven; no other block moved.
+
 ## Reference versus baseline
 
 - A **reference** is a screenshot in `screenshots/`, named by `manifest.json`.
@@ -47,8 +55,9 @@ the screenshots remain evidence, not a baseline.
   composed from the contract, because the lab has no administrator application.
 - `screenshots/` — the reference images, named
   `<slice>/<page>--<state>--<width>--<theme>.png`.
-- `screenshots/manifest.json` — the manifest: kind, source, capture date, and
-  one entry per image.
+- `screenshots/manifest.json` — the manifest: kind, source, capture date, one
+  entry per image, and the recapture date on an image recaptured after the
+  initial pass.
 
 ## Reading order
 

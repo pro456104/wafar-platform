@@ -208,7 +208,8 @@ inventory" paragraph states the complete set once; every user-facing string is
 in that set and a string outside it is not delivered. The R1 capture set under
 `docs/design/screenshots/R1/` — thirteen images, each with an entry in
 `docs/design/screenshots/manifest.json` (`kind: reference`, source "design lab,
-Precision model", captured 2026-10-27) — is evidence of the reference
+Precision model", captured 2026-10-27; nine recaptured 2026-11-20, ADR-181) —
+is evidence of the reference
 composition and appearance only: it governs no string, and where a capture and
 the contract differ the contract wins (the diacritics rule and the lab's
 lockout alert are the recorded differences). The capture set does not show the

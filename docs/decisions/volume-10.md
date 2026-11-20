@@ -1308,3 +1308,81 @@ inspection working copy is one bounded read. No schema change, and the format
 and safety suites keep their assertions. Review date: 2026-12-11 (R2's
 acceptance); R3's extraction work is the trigger to revisit the reading if a
 streaming parser enters the set.
+
+## ADR-181 — The phone field's country cell sits at the inline end, with the flag
+
+**Status**: Accepted — 2026-11-20. **Constitution version**: 7.1.0 (unchanged)
+**Owning directory**: `packages/ui/app/components/`, `packages/ui/public/flags/`
+**Owning feature**: R1 — identity and foundation.
+
+**Context.** R1's reference set renders the Libyan mobile number as two
+segments: a fixed `+218` cell and the number field. The lab drew the cell first
+in DOM order, so the RTL flex line placed it at the inline start (the right) and
+the number sat to its left. The owner asked for the cell at the inline end (the
+left) with a country flag. The old pair also inverted its corner radii: the
+input carries `direction: ltr`, so its logical `border-start-start-radius`
+resolves to the physical left, and the cell carried `dir="ltr"` for the same
+reason, so the group's outer corners were square and its inner corners rounded.
+Four pages — sign-up, sign-in, forgot step 1, and contact — carried identical
+copies of the markup and its styles. ADR-041 and FR-002/AC-002 forbid a
+dial-code selector, so the cell must stay a label: a chevron or a menu would
+reintroduce the selector the requirement removes.
+
+**Decision.**
+1. The phone control is one group of two segments: the number field at the
+   inline start (the right in RTL) and the country cell at the inline end (the
+   left). The cell closes the group and owns its outer corners.
+2. The cell carries the Libyan flag at its outer edge and the `+218` code next
+   to the divider. The flag is decorative (`alt=""`, and the cell is
+   `aria-hidden="true"`); the input keeps the label and the accessible name.
+   The flag is a vendored SVG (`packages/ui/public/flags/ly.svg`, public
+   domain, geometry untouched), not a font glyph and not an emoji.
+3. The number is one Latin run: the input is `direction: ltr` with
+   `text-align: start`, so the digits begin beside the cell and the group reads
+   `+218 91 000 0000`. The placeholder stays `91 000 0000`, and the input
+   carries `autocomplete="tel-national"` because the cell, not the field,
+   holds the country code — the contract's field rule
+   (`specs/001-identity-foundation/contracts/ui-contracts.md` §3.2) already
+   states both values.
+4. The cell is a label, never a selector: no chevron, no menu, no dial-code
+   choice (ADR-041; FR-002, AC-002).
+5. The divider is the field's own ring. The cell drops the border on that side
+   and uses the ring's tone (`--ui-border-accented`) for its other three
+   sides. Outer corners are rounded and inner corners square. Because logical
+   radii resolve against each element's own `direction`, each rule names the
+   side in that element's own axis: the input (`ltr`) squares its inline-start
+   corners, and the cell (`rtl`) rounds its inline-end corners.
+6. One component, `WfPhoneField`, replaces the four copies. Each page keeps its
+   `UFormField` and passes its model. The read-only displays (forgot step 2 and
+   the profile) are not part of the group and do not change.
+7. The reference set: the eleven images that show the field — nine R1 and the
+   two R11 contact captures — were recaptured on 2026-11-20 with the same
+   names, dimensions, URLs, and capture method. The four R1 done captures are
+   byte-identical. The pixel diff is confined to the phone group's box in all
+   eleven, so no other block moved.
+
+**Alternatives considered.**
+- *Keeping the cell at the inline start.* Rejected by the owner: the group then
+  reads `91 000 0000 +218`, and the flag would sit between the number and the
+  page edge instead of closing the control.
+- *A third segment for the flag, outside the cell.* Rejected: it adds a border
+  and a second divider for a decoration, and it reads as a second control.
+- *A native select or a chevron on the cell.* Rejected: FR-002/AC-002 remove
+  the dial-code selector, and a static cell with no affordance is the only
+  shape that does not imply one (ADR-041).
+- *A flag glyph or an emoji.* Rejected: Principle V forbids emoji, and an icon
+  set glyph is not a flag.
+- *Hiding the flag below a width.* Rejected: the cell has room at 375 (90.61px
+  wide), and the flag is the only country cue in a Libya-only product.
+
+**Consequences and migration/backfill.** The lab carried four copies of the
+markup and its styles — sign-up, sign-in, forgot step 1, and contact — and
+`WfPhoneField` replaces all four. The product carries three copies today, in
+`apps/web/app/components/auth/` (`SignUpForm.vue`, `SignInForm.vue`, and
+`RecoveryForm.vue`); all three already set `autocomplete="tel-national"`, and
+they take the group's order, flag, and radius rules from the same component when
+the product adopts it. No schema, API, or copy change. The reference manifest
+marks the eleven recaptured images with `recaptured`; the four done captures
+keep their 2026-10-27 date. ADR-041 is annotated by this record, not superseded.
+Review date: 2026-12-11 (R2's acceptance), or earlier if the conformance gate's
+baseline chain (ADR-129) reports a phone-group difference.
