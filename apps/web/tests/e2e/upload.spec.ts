@@ -11,6 +11,7 @@
 // real object, so the class runs with the storage service present; the CI job
 // declares that with `e2e_storage: '1'` and no journey is skipped here (T117).
 import { writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { validPdf } from '../../../api/test/fixtures/intake/fixtures.ts';
@@ -18,6 +19,26 @@ import { enterAsMerchant } from '../support/merchant.ts';
 import { blockSessionAccount, expireSession } from '../support/seed.ts';
 
 const hundredMb = 100 * 1024 * 1024;
+
+// The completion's withdrawal needs the same signed S3 access the adapter
+// makes; the store client is the API workspace's dependency, not the web one
+// (T251, ADR-172).
+const apiRequire = createRequire(new URL('../../../api/package.json', import.meta.url));
+const { AwsClient } = apiRequire('aws4fetch') as {
+  AwsClient: new (options: {
+    accessKeyId: string;
+    secretAccessKey: string;
+    region: string;
+    service: string;
+  }) => { sign: (url: string, init: { method: string }) => Promise<Request> };
+};
+
+const storage = new AwsClient({
+  accessKeyId: process.env['S3_ACCESS_KEY_ID'] ?? 'wafar',
+  secretAccessKey: process.env['S3_SECRET_ACCESS_KEY'] ?? 'wafar-secret',
+  region: process.env['S3_REGION'] ?? 'us-east-1',
+  service: 's3',
+});
 
 async function pdfBytes(size = 2 * 1024 * 1024): Promise<Buffer> {
   // The one fixture the API tests use, padded to the journey's size: the probe
@@ -375,6 +396,57 @@ test('an incomplete transfer offers the same file once and no retry of the refus
   });
   await expect(page.getByRole('button', { name: 'إعادة المحاولة' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'اختيار ملف آخر' })).toBeVisible();
+  await page.unroute('**/api/v1/uploads/*/complete');
+});
+
+test('a completion the store cannot assemble is the failed outcome, not a refusal', async ({
+  page,
+}) => {
+  await enterAsMerchant(page);
+  // The start's signed part URL carries the multipart's upload id, and it is
+  // read before the page writes a part, so the multipart can be withdrawn
+  // between the last part and the completion (T251, SC-013).
+  let partUrl: string | null = null;
+  await page.route('**/api/v1/uploads', async (route) => {
+    if (
+      route.request().method() !== 'POST' ||
+      !route.request().url().endsWith('/api/v1/uploads')
+    ) {
+      return route.continue();
+    }
+    const response = await route.fetch();
+    const body = (await response.json()) as { parts: { url: string }[] };
+    partUrl = body.parts[0]?.url ?? null;
+    await route.fulfill({ response, json: body });
+  });
+  await page.route('**/api/v1/uploads/*/complete', async (route) => {
+    if (partUrl === null) {
+      await route.continue();
+      return;
+    }
+    const signedPart = new URL(partUrl);
+    const uploadId = signedPart.searchParams.get('uploadId');
+    if (uploadId === null) throw new Error('the part URL carries no upload id');
+    const abort = await storage.sign(
+      `${signedPart.origin}${signedPart.pathname}?uploadId=${encodeURIComponent(uploadId)}`,
+      { method: 'DELETE' },
+    );
+    const withdrawn = await fetch(abort);
+    expect(withdrawn.ok).toBe(true);
+    // The store now answers the completion with `NoSuchUpload`: the platform's
+    // failed outcome, not the incomplete-transfer refusal (contracts/intake-api.md
+    // §2.3, §3.1).
+    await route.continue();
+  });
+
+  await choose(page, 'فشل-الحفظ.pdf', 'application/pdf', await pdfBytes(4096));
+  await expect(page.locator('.upload-error__heading')).toHaveText('تعذر رفع الملف', {
+    timeout: 60_000,
+  });
+  await expect(page.locator('.upload-error__body')).toHaveText('تعذر حفظ الملف. أعد المحاولة.');
+  await expect(page.getByRole('button', { name: 'إعادة المحاولة' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'اختيار ملف آخر' })).toBeVisible();
+  await page.unroute('**/api/v1/uploads');
   await page.unroute('**/api/v1/uploads/*/complete');
 });
 

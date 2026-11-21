@@ -96,7 +96,16 @@ const producers: Record<RefusalCode, Producer> = {
  * environment schema names variables in its own suites (the boot guard T296,
  * and the integration harness), and a variable is not a code.
  */
-const notCodes = new Set(['DATABASE_URL', 'NODE_ENV', 'BETTER_AUTH_SECRET']);
+const notCodes = new Set([
+  'DATABASE_URL',
+  'NODE_ENV',
+  'BETTER_AUTH_SECRET',
+  // The storage variables R2's end-to-end suite reads by name to inspect the
+  // objects an upload wrote (FR-021; T251).
+  'S3_ACCESS_KEY_ID',
+  'S3_SECRET_ACCESS_KEY',
+  'S3_REGION',
+]);
 
 interface ContractRow {
   code: string;

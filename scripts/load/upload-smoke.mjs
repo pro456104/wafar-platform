@@ -1,21 +1,25 @@
 #!/usr/bin/env node
-// The intake's load run (T005, T118): the design phase at 300 concurrent
-// transfers / 10 pre-sign per second / 10 completed intakes per second, the
-// doubled stress phase, the separate quota-boundary run, nearest-rank p50/p95,
-// the slowest query from `pg_stat_statements`, and the outcome counts by cause.
+// The intake's load run (T005, T118, T249, T250): the design phase at 300
+// concurrent transfers / 10 pre-sign per second / 10 completed intakes per
+// second, the doubled stress phase, the separate quota-boundary run,
+// nearest-rank p50/p95, the slowest query from `pg_stat_statements`, and the
+// outcome counts by cause.
 //
-// Each upload is one page load (the document and the quota read), one start,
-// the part writes paced at SC-007's uplink (2.28 MB in 30 seconds, about
-// 76 KB/s), and one completion. The run carries the samples SC-005, SC-006, and
-// SC-007 read: 3,600 page loads and 3,600 uploads, 1,200 of each in the design
-// phase and 2,400 in the stress phase, one page load before every submission,
-// 900 uploads at each of 1 MB, 2 MB, 3 MB, and 4 MB.
+// Each upload is one page load in a fresh browser context with an empty cache,
+// the quota block's first settled frame (SC-006), one start, the page's own part
+// writes paced at SC-007's uplink (2.28 MB in 30 seconds, about 76 KB/s), and
+// one completion whose outcome's first visible frame stops the clock (SC-007).
+// The run carries the samples SC-005, SC-006, and SC-007 read: 3,600 page loads
+// and 3,600 uploads, 1,200 of each in the design phase and 2,400 in the stress
+// phase, one page load before every submission, 900 uploads at each of 1 MB,
+// 2 MB, 3 MB, and 4 MB.
 //
 // It never runs against production, and the design and stress phases fail on
 // any refusal other than the fixture's expected duplicate.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
+import { outcomeProbe, quotaProbe } from './page-load-probe.mjs';
 
 if (process.env['NODE_ENV'] === 'production') {
   console.error('The upload load run never runs against production.');
@@ -26,6 +30,10 @@ const require = createRequire(new URL('../../apps/api/package.json', import.meta
 const { Client } = require('pg');
 const { PDFDocument } = require('pdf-lib');
 const { AwsClient } = require('aws4fetch');
+// SC-006 and SC-007 are browser measurements: the pinned Chromium the e2e
+// classes use is launched from the web workspace that pins it (T249, T250).
+const webRequire = createRequire(new URL('../../apps/web/package.json', import.meta.url));
+const { chromium } = webRequire('@playwright/test');
 
 const apiOrigin = new URL(process.env['API_ORIGIN'] ?? 'http://127.0.0.1:3001');
 const webOrigin = new URL(process.env['WEB_ORIGIN'] ?? 'http://127.0.0.1:3000');
@@ -78,6 +86,28 @@ const partSize = 8 * million;
 
 /** SC-007's uplink: 2.28 MB in 30 seconds, about 76 KB/s. */
 const uplinkBytesPerSecond = Math.round((2.28 * million) / 30);
+
+/**
+ * The observed bounds: SC-006's two seconds, the page's own five-second quota
+ * read bound (with margin for the frame that renders it), and the page's
+ * two-minute completion bound with margin (SC-006, SC-007, FR-015, FR-049).
+ */
+const pageLoadBoundMs = 2_000;
+const pageLoadTimeoutMs = 15_000;
+const outcomeTimeoutMs = 180_000;
+
+/** One Chromium for the whole run; every sampled load gets its own context. */
+let browserStarting = null;
+async function browserInstance() {
+  browserStarting ??= chromium.launch();
+  return browserStarting;
+}
+async function closeBrowser() {
+  if (browserStarting === null) return;
+  const instance = await browserStarting.catch(() => null);
+  browserStarting = null;
+  if (instance !== null) await instance.close().catch(() => undefined);
+}
 
 /** CMV row 6: the same values govern both load conditions. */
 const budgets = {
@@ -224,8 +254,12 @@ function sessionCookie(token) {
   return `wafar.session=${encodeURIComponent(token)}`;
 }
 
-/** One page load: the document and the quota read, in the order the page makes them. */
-async function pageLoad(session, csrf) {
+/**
+ * The quota-boundary run's page load: the document and the quota read over
+ * `fetch`, kept for that run because SC-006's sample is the load run alone and
+ * the boundary run already spends its budget on 600 submissions.
+ */
+async function httpPageLoad(session, csrf) {
   const started = performance.now();
   const document = await fetch(`${webOrigin.origin}/upload`, {
     headers: { accept: 'text/html' },
@@ -244,6 +278,72 @@ async function pageLoad(session, csrf) {
     quotaMs: performance.now() - beforeQuota,
     status: quota.status,
   };
+}
+
+/**
+ * SC-006's page load: a cold load in a fresh context with an empty cache. The
+ * quota probe records the navigation start to the first frame in which the
+ * quota block shows its settled presentation; a read that fails or never
+ * settles stays in the sample as a load over the bound. The context stays open
+ * for the upload the next step drives through the page (T249, T250).
+ */
+async function renderedPageLoad(session) {
+  const instance = await browserInstance();
+  const context = await instance.newContext();
+  const page = await context.newPage();
+  await context.addInitScript(quotaProbe);
+  await context.addInitScript(outcomeProbe);
+  await context.addCookies([
+    { name: 'wafar.session', value: session.token, url: webOrigin.origin },
+  ]);
+
+  // SC-007's uplink: the page writes its parts with XMLHttpRequest, so the
+  // browser's own upload throughput is the condition, applied per page and only
+  // to uploads. The document and the quota read are downloads and stay free.
+  const cdp = await context.newCDPSession(page);
+  await cdp.send('Network.enable');
+  await cdp.send('Network.emulateNetworkConditions', {
+    offline: false,
+    latency: 0,
+    downloadThroughput: -1,
+    uploadThroughput: uplinkBytesPerSecond,
+    connectionType: 'cellular3g',
+  });
+
+  try {
+    await page.goto(`${webOrigin.origin}/upload`, { waitUntil: 'commit' });
+    await page.waitForFunction(
+      () => window.__wfPageLoad !== undefined && window.__wfPageLoad.settledAt !== null,
+      null,
+      { timeout: pageLoadTimeoutMs },
+    );
+    const state = await page.evaluate(() => window.__wfPageLoad);
+    return {
+      ms: state.settledAt,
+      presentation: state.presentation,
+      quota: state.quota,
+      page,
+      context,
+    };
+  } catch {
+    // The failure stays in the sample at the bound it reached, and its
+    // presentation names what the merchant saw or failed to see (SC-006).
+    let ms = pageLoadTimeoutMs;
+    let presentation = 'navigation-failure';
+    try {
+      const partial = await page.evaluate(() => window.__wfPageLoad ?? null);
+      if (partial !== null && partial.settledAt !== null && partial.settledAt !== undefined) {
+        ms = partial.settledAt;
+        presentation = partial.presentation;
+      } else if (partial !== null) {
+        ms = await page.evaluate(() => performance.now());
+        presentation = 'probe-timeout';
+      }
+    } catch {
+      // The document never produced a probe.
+    }
+    return { ms, presentation, quota: null, page, context };
+  }
 }
 
 /** The start request: the session and the CSRF pair, as the page sends them. */
@@ -340,44 +440,128 @@ function outcomeOf(completeResponse) {
   return 'refused';
 }
 
-/** One whole intake: the page load, the start, the parts, and the completion. */
-async function oneUpload(session, csrf, size, samples, outcomes, pace) {
-  const page = await pageLoad(session, csrf);
-  samples.pageLoad.push(page.pageMs);
-  samples.quota.push(page.quotaMs);
+/** The API answers the page receives, so a refusal's cause is the API's code. */
+function watchUploadAnswers(page) {
+  const record = { answer: null };
+  page.on('response', (response) => {
+    if (response.request().method() !== 'POST') return;
+    const path = new URL(response.url()).pathname;
+    if (path !== '/api/v1/uploads' && !path.endsWith('/complete')) return;
+    void response
+      .json()
+      .then((body) => {
+        if (path.endsWith('/complete') || typeof body?.error?.code === 'string') {
+          record.answer = body;
+        }
+      })
+      .catch(() => undefined);
+  });
+  return record;
+}
 
-  // SC-007's interval starts at the selection, which the page accepts only
-  // after its load settled; the outcome is visible when the platform's answer
-  // arrives, one render frame before the merchant reads it.
-  const selectedAt = performance.now();
-  const file = {
-    fileName: `حمل-${size}-${Math.random().toString(16).slice(2, 10)}.pdf`,
-    byteSize: size,
+/** The panel renders after the page parses the answer; one short wait keeps the cause. */
+async function answerCause(record) {
+  for (let attempt = 0; attempt < 25 && record.answer === null; attempt += 1) {
+    await sleep(20);
+  }
+  const code = record.answer?.error?.code;
+  return typeof code === 'string' ? code : null;
+}
+
+/**
+ * The path latencies the report prints, read from the page's own requests: the
+ * pre-sign and the complete paths from the moment the route hands the request
+ * to the network to the moment its answer is fully read. The phase's pacing
+ * runs before that moment, so the queue the condition imposes is not counted as
+ * the path's latency. The quota read comes from the load's own resource timing
+ * instead (T249).
+ */
+function watchTimings(page, samples) {
+  const sent = new WeakMap();
+  page.on('requestfinished', (request) => {
+    const started = sent.get(request);
+    if (started === undefined) return;
+    const ms = performance.now() - started;
+    const path = new URL(request.url()).pathname;
+    if (path === '/api/v1/uploads') samples.preSign.push(ms);
+    else if (path.endsWith('/complete')) samples.complete.push(ms);
+  });
+  return {
+    mark(request) {
+      sent.set(request, performance.now());
+    },
   };
-  await pace.preSign();
-  const start = await preSign(session, csrf, file);
-  samples.preSign.push(start.ms);
-  if (start.status !== 201) {
-    outcomes.push({ outcome: 'refused', cause: causeOf(start), stage: 'start' });
-    samples.total.push({ size, ms: performance.now() - selectedAt, outcome: 'refused' });
-    return;
+}
+
+/**
+ * One whole intake: the rendered cold page load, the file's selection through
+ * the page's own control, the part writes the page paces at SC-007's uplink,
+ * and the first frame in which the outcome is visible. The interval starts at
+ * the control's `change` event and ends at that frame (T249, T250).
+ */
+async function oneUpload(session, size, samples, outcomes, pace) {
+  const load = await renderedPageLoad(session);
+  samples.pageLoads.push({ ms: load.ms, presentation: load.presentation });
+  if (load.quota !== null && load.quota !== undefined) {
+    samples.quota.push(load.quota.duration);
   }
 
-  const bytes = await partBytesFor(size);
-  const parts = [];
-  for (const part of start.body.parts) {
-    const from = (part.partNumber - 1) * partSize;
-    const slice = bytes.subarray(from, from + part.byteSize);
-    const etag = await writePart(part.url, slice, { started: performance.now() });
-    parts.push({ partNumber: part.partNumber, etag });
-  }
+  try {
+    const page = load.page;
+    if (page === null || page.isClosed()) {
+      outcomes.push({ outcome: 'failed', cause: 'PAGE_LOAD_FAILED', stage: 'load' });
+      samples.total.push({ size, ms: outcomeTimeoutMs, outcome: 'failed' });
+      return;
+    }
 
-  await pace.complete();
-  const done = await complete(session, csrf, start.body.uploadId, parts);
-  samples.complete.push(done.ms);
-  const outcome = outcomeOf(done);
-  outcomes.push({ outcome, cause: causeOf(done), stage: 'complete' });
-  samples.total.push({ size, ms: performance.now() - selectedAt, outcome });
+    // The phase's fixed 10 (or 20) starts and completions per second pace the
+    // page's own requests, so the measured interval includes the queue the
+    // condition imposes rather than a harness that outruns it (T005).
+    const timings = watchTimings(page, samples);
+    await page.route('**/api/v1/uploads', async (route) => {
+      if (route.request().method() !== 'POST') return route.continue();
+      await pace.preSign();
+      timings.mark(route.request());
+      await route.continue();
+    });
+    await page.route('**/api/v1/uploads/*/complete', async (route) => {
+      await pace.complete();
+      timings.mark(route.request());
+      await route.continue();
+    });
+
+    if ((await page.locator('input[type="file"]').count()) === 0) {
+      outcomes.push({ outcome: 'failed', cause: 'PAGE_LOAD_FAILED', stage: 'load' });
+      samples.total.push({ size, ms: outcomeTimeoutMs, outcome: 'failed' });
+      return;
+    }
+
+    const answers = watchUploadAnswers(page);
+    const bytes = await partBytesFor(size);
+    const name = `حمل-${size}-${Math.random().toString(16).slice(2, 10)}.pdf`;
+
+    await page.setInputFiles('input[type="file"]', {
+      name,
+      mimeType: 'application/pdf',
+      buffer: bytes,
+    });
+    await page.waitForFunction(
+      () => window.__wfOutcome !== undefined && window.__wfOutcome.shownAt !== null,
+      null,
+      { timeout: outcomeTimeoutMs },
+    );
+    const shown = await page.evaluate(() => window.__wfOutcome);
+    const outcome = shown.outcome ?? 'failed';
+    const cause =
+      outcome === 'accepted' || outcome === 'duplicate' ? null : await answerCause(answers);
+    samples.total.push({ size, ms: shown.shownAt - shown.selectedAt, outcome });
+    outcomes.push({ outcome, cause, stage: 'complete' });
+  } catch {
+    outcomes.push({ outcome: 'failed', cause: 'UPLOAD_RENDER_FAILED', stage: 'render' });
+    samples.total.push({ size, ms: outcomeTimeoutMs, outcome: 'failed' });
+  } finally {
+    await load.context.close().catch(() => undefined);
+  }
 }
 
 /** A fixed-size worker pool over the phase's upload list. */
@@ -425,19 +609,36 @@ function sc007(totalSamples) {
 }
 
 /**
+ * SC-006's ratio over a phase: the rendered cold loads whose quota block showed
+ * its settled presentation at or under two seconds, counted over every load the
+ * phase made, with a failed read in neither side of the fraction removed.
+ */
+function sc006(loads) {
+  const samples = loads.map((load) => load.ms ?? pageLoadTimeoutMs);
+  const atOrUnder = samples.filter((ms) => ms <= pageLoadBoundMs).length;
+  const presentations = {};
+  for (const load of loads) {
+    presentations[load.presentation] = (presentations[load.presentation] ?? 0) + 1;
+  }
+  return {
+    boundMs: pageLoadBoundMs,
+    ...percentiles(samples),
+    atOrUnder2s: atOrUnder,
+    ratio: samples.length === 0 ? null : atOrUnder / samples.length,
+    presentations,
+  };
+}
+
+/**
  * The two load conditions. The sizes are the 900-per-size sample SC-007 reads:
  * each phase walks 1 MB, 2 MB, 3 MB, and 4 MB in equal counts.
  */
 async function loadPhase(condition, config) {
   const sessions = await loadSessions(config.concurrency);
   if (sessions.length === 0) throw new Error('no seeded session: run `pnpm load:seed` first');
-  const bootstraps = new Map();
-  for (const session of sessions) {
-    bootstraps.set(session.token, await bootstrap());
-  }
 
   const items = Array.from({ length: config.uploads }, (_, index) => ((index % 4) + 1) * million);
-  const samples = { pageLoad: [], quota: [], preSign: [], complete: [], total: [] };
+  const samples = { pageLoads: [], quota: [], preSign: [], complete: [], total: [] };
   const outcomes = [];
   const startedAt = performance.now();
   let active = 0;
@@ -449,11 +650,10 @@ async function loadPhase(condition, config) {
 
   await runPool(items, config.concurrency, async (size, index) => {
     const session = sessions[index % sessions.length];
-    const csrf = bootstraps.get(session.token);
     active += 1;
     peak = Math.max(peak, active);
     try {
-      await oneUpload(session, csrf, size, samples, outcomes, pace);
+      await oneUpload(session, size, samples, outcomes, pace);
     } finally {
       active -= 1;
     }
@@ -464,7 +664,7 @@ async function loadPhase(condition, config) {
     target: { uploads: config.uploads, concurrency: config.concurrency },
     durationSeconds: Math.round((performance.now() - startedAt) / 1000),
     peakConcurrency: peak,
-    pageLoad: percentiles(samples.pageLoad),
+    pageLoad: sc006(samples.pageLoads),
     quota: percentiles(samples.quota),
     preSign: percentiles(samples.preSign),
     complete: percentiles(samples.complete),
@@ -535,7 +735,7 @@ async function quotaBoundaryRun() {
     // Every submission carries distinct content, so no submission can answer as
     // a duplicate and every refusal is a limit refusal (SC-005).
     const size = million + item.attempt;
-    const page = await pageLoad(item.merchant, csrf);
+    const page = await httpPageLoad(item.merchant, csrf);
     samples.pageLoad.push(page.pageMs);
     samples.quota.push(page.quotaMs);
     const file = {
@@ -731,14 +931,26 @@ function checkBudgets(condition, entry) {
 
 function checkLoadOutcomes(condition, entry) {
   const failures = [];
-  // The design and stress phases fail on any refusal, and a cause outside the
-  // fixture's expected duplicate fails the run (T005).
-  for (const [cause, count] of Object.entries(entry.outcomes)) {
-    if (cause === 'accepted' || cause === 'duplicate') continue;
-    if (cause === null) continue;
-    failures.push(`${condition}: ${count} refusal(s) with cause ${cause}`);
+  // The design and stress phases fail on any outcome other than a success or
+  // the fixture's expected duplicate, and a refusal with no recorded cause is
+  // a failure too: the cause is what the report counts by (T005, FR-062).
+  for (const [key, count] of Object.entries(entry.outcomes)) {
+    if (key === 'accepted' || key === 'duplicate') continue;
+    failures.push(`${condition}: ${count} outcome(s) settled as ${key}`);
   }
   return failures;
+}
+
+/** SC-006: 95% of the phase's cold loads show the quota state within 2 s. */
+function checkSc006(condition, entry) {
+  const measured = entry.pageLoad;
+  if (measured?.ratio === null || measured?.ratio === undefined) return [];
+  if (measured.ratio < 0.95) {
+    return [
+      `${condition}: SC-006 ${measured.atOrUnder2s}/${measured.samples} load(s) within 2 s, under 95%`,
+    ];
+  }
+  return [];
 }
 
 /** SC-007: 95% of the phase's uploads confirmed within one minute of selection. */
@@ -785,26 +997,33 @@ async function main() {
   };
   const failures = [];
 
-  if (mode === 'quota-boundary') {
-    const entry = await quotaBoundaryRun();
-    report_.conditions.push(entry);
-    failures.push(...checkBudgets('quota-boundary', entry));
-    failures.push(...checkBoundary(entry));
-  } else if (mode === 'sc011') {
-    const entry = await sc011Run();
-    report_.conditions.push(entry);
-    failures.push(...entry.failures);
-  } else {
-    for (const [condition, config] of [
-      ['design', design],
-      ['stress', stress],
-    ]) {
-      const entry = await loadPhase(condition, config);
+  try {
+    if (mode === 'quota-boundary') {
+      const entry = await quotaBoundaryRun();
       report_.conditions.push(entry);
-      failures.push(...checkBudgets(condition, entry));
-      failures.push(...checkLoadOutcomes(condition, entry));
-      failures.push(...checkSc007(condition, entry));
+      failures.push(...checkBudgets('quota-boundary', entry));
+      failures.push(...checkBoundary(entry));
+    } else if (mode === 'sc011') {
+      const entry = await sc011Run();
+      report_.conditions.push(entry);
+      failures.push(...entry.failures);
+    } else {
+      for (const [condition, config] of [
+        ['design', design],
+        ['stress', stress],
+      ]) {
+        const entry = await loadPhase(condition, config);
+        report_.conditions.push(entry);
+        failures.push(...checkBudgets(condition, entry));
+        failures.push(...checkLoadOutcomes(condition, entry));
+        failures.push(...checkSc006(condition, entry));
+        failures.push(...checkSc007(condition, entry));
+      }
     }
+  } finally {
+    // The browser the load phases measured through is closed before the report
+    // is written, so a failed phase cannot leave a Chromium behind (T249).
+    await closeBrowser();
   }
 
   const totalPageLoads = report_.conditions.reduce(
