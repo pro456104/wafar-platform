@@ -34,27 +34,27 @@
     "check:emoji": "node scripts/gen/emoji-data.mjs --check"
   },
   "devDependencies": {
-    "@cyclonedx/cyclonedx-npm": "^6.0.1",
-    "@eslint/js": "^9.37.0",
+    "@cyclonedx/cyclonedx-npm": "^7.0.1",
+    "@eslint/js": "^10.0.1",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/ibm-plex-sans-arabic": "^5.3.0",
     "@iconify-json/icon-park": "1.2.4",
     "@iconify-json/icon-park-outline": "1.2.4",
-    "@lhci/cli": "^0.16.0",
-    "@vitejs/plugin-vue": "^6.0.10",
+    "@lhci/cli": "^0.16.1",
+    "@vitejs/plugin-vue": "^6.0.11",
     "@vitest/coverage-v8": "catalog:",
     "eslint": "catalog:",
-    "eslint-plugin-vue": "^10.5.0",
-    "jsdom": "^27.4.0",
+    "eslint-plugin-vue": "^10.12.1",
+    "jsdom": "^31.0.1",
     "nuxt": "4.6.4",
     "prettier": "catalog:",
     "stylelint": "catalog:",
-    "stylelint-config-standard": "^39.0.1",
-    "turbo": "^2.5.8",
+    "stylelint-config-standard": "^41.1.0",
+    "turbo": "^2.11.13",
     "typescript": "catalog:",
-    "typescript-eslint": "^8.46.0",
+    "typescript-eslint": "^8.73.0",
     "vitest": "catalog:",
     "vue": "catalog:",
-    "vue-eslint-parser": "^10.2.0"
+    "vue-eslint-parser": "^10.4.2"
   }
 }
